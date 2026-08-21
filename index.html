@@ -693,7 +693,7 @@
         break;
       case "QUALIFICATION REVIEW":
         acceptanceReviewContractorConfirmed = Boolean(contractorConfirmed);
-        showAcceptanceResult("QUALIFICATION REVIEW\n\n" + (validation.message || "Employer authorization is required."), "warn");
+        hideAcceptanceResult();
         acceptAuthorizationPrompt.classList.remove("hidden");
         break;
       case "NOT YET AVAILABLE":
