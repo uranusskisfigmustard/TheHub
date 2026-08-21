@@ -222,6 +222,14 @@
       </div>
     </div>
 
+    <div id="acceptAuthorizationPrompt" class="accept-contractor hidden">
+      <div style="font-weight:800;letter-spacing:.05em">QUALIFICATION REVIEW</div>
+      <p>Employer authorization is required to proceed with this contract.</p>
+      <div class="accept-actions">
+        <button id="acceptAuthorizationRequest" class="accept-action" type="button">REQUEST AUTHORIZATION</button>
+      </div>
+    </div>
+
     <div id="acceptReveal" class="accept-reveal hidden">
       <div id="acceptEmployerBlock" class="hidden"><div class="label">EMPLOYER / SOURCE</div><div id="acceptEmployer" class="accept-reveal-value"></div></div>
       <div id="acceptLocationBlock" class="hidden"><div class="label">AUTHORIZED LOCATION</div><div id="acceptLocation" class="accept-reveal-value"></div></div>
@@ -266,6 +274,8 @@
   const acceptContractorPrompt = document.getElementById("acceptContractorPrompt");
   const acceptContractorYes = document.getElementById("acceptContractorYes");
   const acceptContractorNo = document.getElementById("acceptContractorNo");
+  const acceptAuthorizationPrompt = document.getElementById("acceptAuthorizationPrompt");
+  const acceptAuthorizationRequest = document.getElementById("acceptAuthorizationRequest");
   const acceptReveal = document.getElementById("acceptReveal");
   const acceptEmployerBlock = document.getElementById("acceptEmployerBlock");
   const acceptEmployer = document.getElementById("acceptEmployer");
@@ -282,6 +292,7 @@
   let acceptanceJobId = "";
   let acceptancePublicTitle = "";
   let acceptanceBusy = false;
+  let acceptanceReviewContractorConfirmed = false;
 
   const esc = s => String(s ?? "")
     .replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")
@@ -337,7 +348,7 @@
     const icons = {
       preferred: `<span class="qual-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.8 20 7.4v9.2L12 21.2 4 16.6V7.4L12 2.8Z" stroke="currentColor" stroke-width="1.7"/><path d="M8.2 12.8 12 9.2l3.8 3.6" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 15.7V9.8" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg></span>`,
       required: `<span class="qual-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 3 21 8.1v7.8L12 21 3 15.9V8.1L12 3Z" stroke="currentColor" stroke-width="1.7"/><path d="M8 12h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M8.5 8.7h7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" opacity=".9"/><path d="M8.5 15.3h7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" opacity=".9"/></svg></span>`,
-      regulated: `<span class="qual-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.7 20 6.1v5.7c0 4.3-2.7 7.2-8 9.5-5.3-2.3-8-5.2-8-9.5V6.1l8-3.4Z" stroke="currentColor" stroke-width="1.7"/><rect x="8.2" y="10.6" width="7.6" height="5.6" rx="1.1" stroke="currentColor" stroke-width="1.6"/><path d="M9.7 10.4V8.9A2.3 2.3 0 0 1 12 6.6a2.3 2.3 0 0 1 2.3 2.3v1.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span>`
+      regulated: `<span class="qual-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.7 20 6.1v5.7c0 4.3-2.7 7.2-8 9.5-5.3-2.3-8-5.2-8-9.5V6.1l8-3.4Z" stroke="currentColor" stroke-width="1.7"/><rect x="8.2" y="10.6" width="7.6" height="5.6" rx="1.1" stroke="currentColor" stroke-width="1.6"/><path d="M9.7 10.4V8.9A2.3 2.3 0 0 1 12 6.6a2.3 2.3 0 0 1 2.3 2.3 2.3v1.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span>`
     };
     return icons[kind] || icons.preferred;
   }
@@ -574,6 +585,7 @@
     acceptValidateBtn.disabled = busy || !acceptanceJobId;
     acceptContractorYes.disabled = busy;
     acceptContractorNo.disabled = busy;
+    acceptAuthorizationRequest.disabled = busy;
   }
 
   function showAcceptanceResult(message, kind = "warn") {
@@ -590,6 +602,7 @@
     acceptanceJobId = "";
     acceptancePublicTitle = "";
     acceptanceBusy = false;
+    acceptanceReviewContractorConfirmed = false;
     acceptContractTitle.textContent = "Loading…";
     acceptCharacters.innerHTML = '<div class="label">Loading…</div>';
     acceptPin.value = "";
@@ -599,6 +612,8 @@
     acceptValidateBtn.disabled = true;
     acceptCancelBtn.textContent = "CANCEL";
     acceptContractorPrompt.classList.add("hidden");
+    acceptAuthorizationPrompt.classList.add("hidden");
+    acceptAuthorizationRequest.textContent = "REQUEST AUTHORIZATION";
     acceptReveal.classList.add("hidden");
     acceptEmployerBlock.classList.add("hidden");
     acceptLocationBlock.classList.add("hidden");
@@ -649,6 +664,7 @@
 
     hideAcceptanceResult();
     acceptContractorPrompt.classList.add("hidden");
+    acceptAuthorizationPrompt.classList.add("hidden");
     setAcceptanceBusy(true);
     try {
       const validation = await apiCall("validate", {
@@ -676,7 +692,9 @@
         acceptContractorPrompt.classList.remove("hidden");
         break;
       case "QUALIFICATION REVIEW":
-        showAcceptanceResult("QUALIFICATION REVIEW\n\n" + (validation.message || "Employer qualification review is required."), "warn");
+        acceptanceReviewContractorConfirmed = Boolean(contractorConfirmed);
+        showAcceptanceResult("QUALIFICATION REVIEW\n\n" + (validation.message || "Employer authorization is required."), "warn");
+        acceptAuthorizationPrompt.classList.remove("hidden");
         break;
       case "NOT YET AVAILABLE":
         showAcceptanceResult("NOT YET AVAILABLE\n\n" + (validation.message || "This contract is not currently available."), "warn");
@@ -686,11 +704,88 @@
     }
   }
 
-  async function finalizeAcceptance(contractorConfirmed) {
+  function waitMs(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  async function requestQualificationAuthorization() {
+    if (acceptanceBusy) return;
+
+    const participants = selectedAcceptanceCharacters();
+    if (!participants.length) {
+      showAcceptanceResult("Select at least one participating character.", "bad");
+      return;
+    }
+    if (!acceptPin.value) {
+      showAcceptanceResult("Enter the board access code.", "bad");
+      return;
+    }
+
+    const contractorConfirmed = acceptanceReviewContractorConfirmed;
+    const started = Date.now();
+    let dots = 1;
+    let dotsTimer = null;
+
+    acceptAuthorizationPrompt.classList.add("hidden");
+    setAcceptanceBusy(true);
+    showAcceptanceResult("Request submitted..", "warn");
+
+    const phaseTimer = setTimeout(() => {
+      showAcceptanceResult("Awaiting response.", "warn");
+      dotsTimer = setInterval(() => {
+        dots = dots % 3 + 1;
+        showAcceptanceResult("Awaiting response" + ".".repeat(dots), "warn");
+      }, 400);
+    }, 800);
+
+    try {
+      const response = await apiCall("authorize", {
+        job: acceptanceJobId,
+        participants,
+        pin: acceptPin.value,
+        contractor: contractorConfirmed
+      });
+
+      const remaining = Math.max(0, 5000 - (Date.now() - started));
+      if (remaining) await waitMs(remaining);
+
+      clearTimeout(phaseTimer);
+      if (dotsTimer) clearInterval(dotsTimer);
+
+      if (response && response.ok !== false && response.result === "AUTHORIZED" && response.authorized) {
+        showAcceptanceResult("AUTHORIZED", "ok");
+        setAcceptanceBusy(false);
+        await waitMs(600);
+        finalizeAcceptance(contractorConfirmed, true);
+        return;
+      }
+
+      setAcceptanceBusy(false);
+
+      if (response && response.ok !== false && response.result === "NOT ELIGIBLE") {
+        showAcceptanceResult("AUTHORIZATION DENIED\n\n" + (response.message || "Authorization denied."), "bad");
+        return;
+      }
+
+      handleAcceptanceValidation(response, contractorConfirmed);
+
+    } catch (error) {
+      clearTimeout(phaseTimer);
+      if (dotsTimer) clearInterval(dotsTimer);
+      setAcceptanceBusy(false);
+      showAcceptanceResult("CONTRACT SYSTEM ERROR\n\n" + (error?.message || String(error)), "bad");
+    }
+  }
+
+  async function finalizeAcceptance(contractorConfirmed, qualificationAuthorized = false) {
     setAcceptanceBusy(true);
     try {
       const response = await apiCall("accept", {
-        job: acceptanceJobId, participants: selectedAcceptanceCharacters(), pin: acceptPin.value, contractor: contractorConfirmed
+        job: acceptanceJobId,
+        participants: selectedAcceptanceCharacters(),
+        pin: acceptPin.value,
+        contractor: contractorConfirmed,
+        authorization: qualificationAuthorized
       });
       setAcceptanceBusy(false);
       if (!response || response.ok === false || response.result !== "ACCEPTABLE" || !response.accepted) {
@@ -700,6 +795,7 @@
 
       showAcceptanceResult("CONTRACT ACCEPTED", "ok");
       acceptContractorPrompt.classList.add("hidden");
+      acceptAuthorizationPrompt.classList.add("hidden");
       acceptCharacterSection.classList.add("hidden");
       acceptPinSection.classList.add("hidden");
       acceptValidateBtn.classList.add("hidden");
@@ -731,6 +827,7 @@
 
   acceptValidateBtn.addEventListener("click", () => validateAndMaybeAccept(false));
   acceptContractorYes.addEventListener("click", () => validateAndMaybeAccept(true));
+  acceptAuthorizationRequest.addEventListener("click", requestQualificationAuthorization);
   acceptContractorNo.addEventListener("click", () => {
     acceptContractorPrompt.classList.add("hidden");
     showAcceptanceResult("Acceptance cancelled. No contract state was changed.", "warn");
