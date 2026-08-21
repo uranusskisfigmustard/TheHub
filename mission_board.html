@@ -1,0 +1,424 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The Hub — Public Board</title>
+<style>
+  :root {
+    --bg:#111315;
+    --panel:#191c1f;
+    --panel2:#202428;
+    --text:#e7e4dc;
+    --muted:#aaa79f;
+    --line:#3a3f43;
+    --accent:#d4a84b;
+    --danger:#c86655;
+    --ok:#8fa77a;
+  }
+  * { box-sizing:border-box; }
+  body {
+    margin:0; background:var(--bg); color:var(--text);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    line-height:1.45;
+  }
+  header {
+    position:sticky; top:0; z-index:5;
+    background:rgba(17,19,21,.97); border-bottom:1px solid var(--line);
+    padding:16px 18px 12px;
+    backdrop-filter:blur(5px);
+  }
+  .topline { display:flex; gap:12px; align-items:flex-end; justify-content:space-between; flex-wrap:wrap; }
+  h1 { margin:0; font-size:clamp(1.2rem,4vw,1.8rem); letter-spacing:.08em; text-transform:uppercase; }
+  .sub { color:var(--muted); font-size:.82rem; margin-top:3px; }
+  .navrow { display:flex; gap:8px; margin-top:13px; flex-wrap:wrap; }
+  .navbtn {
+    font:inherit; color:var(--muted); background:transparent; border:1px solid var(--line);
+    border-radius:3px; padding:8px 14px; cursor:pointer; font-weight:800; letter-spacing:.08em;
+  }
+  .navbtn:hover { border-color:var(--accent); color:var(--text); }
+  .navbtn.active { color:var(--text); border-color:var(--accent); background:rgba(212,168,75,.10); }
+  .controls { display:grid; grid-template-columns:minmax(190px,1fr) repeat(2,minmax(135px,190px)) auto; gap:8px; margin-top:10px; }
+  input, select, button.control {
+    font:inherit; color:var(--text); background:var(--panel2);
+    border:1px solid var(--line); border-radius:3px; padding:9px 10px;
+  }
+  button.control { cursor:pointer; }
+  button.control:hover { border-color:var(--accent); }
+  .hidden { display:none !important; }
+  .statusbar {
+    display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap;
+    padding:8px 18px; color:var(--muted); font-size:.78rem; border-bottom:1px solid #25292c;
+  }
+  main { max-width:1180px; margin:0 auto; padding:18px; }
+  #cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(310px,1fr)); gap:14px; }
+  .card {
+    background:linear-gradient(180deg,#171b1f 0%,#14181b 100%);
+    border:1px solid #3a3f43; border-radius:4px; padding:16px;
+    box-shadow:0 10px 24px rgba(0,0,0,.20);
+  }
+  .card-head { display:block; width:100%; margin-bottom:10px; }
+  .title, .employer, .pay { width:100%; max-width:100%; overflow-wrap:anywhere; word-break:normal; }
+  .title { font-size:1.08rem; font-weight:800; text-transform:uppercase; letter-spacing:.05em; }
+  .employer { color:var(--muted); margin-top:4px; font-size:.9rem; }
+  .pay { font-weight:800; color:var(--accent); margin-top:7px; white-space:pre-line; }
+  .type {
+    margin:0 0 12px; color:#d1cdc2; font-weight:700; text-transform:uppercase;
+    font-size:.77rem; letter-spacing:.08em;
+  }
+  .label { color:var(--muted); font-size:.72rem; text-transform:uppercase; letter-spacing:.08em; }
+  .qual-box {
+    margin:10px 0 12px; padding:11px 12px; border:1px solid #4f5a46;
+    background:rgba(39,52,36,.35); border-radius:4px;
+  }
+  .qual-box.required { border-color:#8a611f; background:rgba(63,42,14,.34); }
+  .qual-box.regulated { border-color:#8b3535; background:rgba(62,18,18,.34); }
+  .qual-head {
+    display:flex; align-items:center; gap:10px;
+    font-size:.82rem; font-weight:800; letter-spacing:.07em; text-transform:uppercase;
+    margin-bottom:6px;
+  }
+  .qual-icon { width:18px; height:18px; flex:0 0 18px; display:inline-block; }
+  .qual-head-text { line-height:1; }
+  .qual-box.preferred .qual-head { color:#c7da71; }
+  .qual-box.required .qual-head { color:#f0a347; }
+  .qual-box.regulated .qual-head { color:#ff6d63; }
+  .qual-icon svg { width:100%; height:100%; display:block; }
+  .qual-skills { color:#efe9da; line-height:1.45; }
+  .additional { margin:10px 0 0; }
+  .additional-list { margin-top:5px; color:#ddd8cb; line-height:1.5; }
+  .additional-list div { margin:2px 0; }
+  .meta-note { margin-top:10px; color:#c5c1b4; font-size:.86rem; line-height:1.45; }
+  .summary { margin-top:14px; padding-top:12px; border-top:1px solid #303538; color:#d5d0c4; }
+  details { margin-top:11px; border-top:1px solid #303538; padding-top:9px; }
+  summary { cursor:pointer; color:#d8d4c8; font-weight:700; }
+  .classified-card .title { padding-right:8px; }
+  .classified-card .price { color:var(--accent); font-size:1.02rem; font-weight:800; margin-top:7px; }
+  .classified-card .description { margin-top:12px; padding-top:11px; border-top:1px solid #303538; color:#d5d0c4; }
+  .empty, .error {
+    grid-column:1/-1; padding:24px; border:1px dashed var(--line); color:var(--muted);
+    background:var(--panel);
+  }
+  .error { border-color:#6d4e45; }
+  .offline { color:var(--accent); }
+  footer { max-width:1180px; margin:0 auto; padding:4px 18px 24px; color:#777; font-size:.72rem; }
+  @media (max-width:760px) {
+    .controls { grid-template-columns:1fr 1fr; }
+    .controls input { grid-column:1/-1; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="topline">
+    <div>
+      <h1>The Hub // Public Board</h1>
+      <div class="sub" id="subtitle">Independent work listings — review terms before acceptance.</div>
+    </div>
+    <button id="refreshBtn" class="control" type="button">REFRESH</button>
+  </div>
+
+  <nav class="navrow" aria-label="Board section">
+    <button id="jobsTab" class="navbtn active" type="button" aria-pressed="true">CONTRACTS</button>
+    <button id="classifiedsTab" class="navbtn" type="button" aria-pressed="false">CLASSIFIEDS</button>
+  </nav>
+
+  <div class="controls">
+    <input id="search" type="search" placeholder="Search title, employer, work type…">
+    <select id="primaryFilter"><option value="">All work types</option></select>
+    <select id="secondaryFilter"><option value="">All good-fit areas</option></select>
+    <button id="clearBtn" class="control" type="button">CLEAR</button>
+  </div>
+</header>
+
+<div class="statusbar">
+  <span id="status">Loading boards…</span>
+  <span id="count"></span>
+</div>
+
+<main><section id="cards"></section></main>
+<footer id="footerText">
+  GOOD FIT is advisory. PREFERRED SKILLS strengthen a bid but are not mandatory. REQUIRED SKILLS and formal qualification terms are hard gates where shown.
+</footer>
+
+<script>
+(() => {
+  const SHEET_ID = "1bg6UsBTaNanhCm9xwWbafEag6TpinCuGdlmkqv-c38c";
+  const JOBS_GID = "781703719";
+  const CLASSIFIEDS_GID = "39172266";
+  const JOBS_CACHE = "mothership_hub_jobs_v5";
+  const CLASSIFIEDS_CACHE = "mothership_hub_classifieds_v2";
+  const JOBS_TIME = JOBS_CACHE + "_time";
+  const CLASSIFIEDS_TIME = CLASSIFIEDS_CACHE + "_time";
+
+  const cards = document.getElementById("cards");
+  const status = document.getElementById("status");
+  const count = document.getElementById("count");
+  const search = document.getElementById("search");
+  const primaryFilter = document.getElementById("primaryFilter");
+  const secondaryFilter = document.getElementById("secondaryFilter");
+  const refreshBtn = document.getElementById("refreshBtn");
+  const clearBtn = document.getElementById("clearBtn");
+  const jobsTab = document.getElementById("jobsTab");
+  const classifiedsTab = document.getElementById("classifiedsTab");
+  const subtitle = document.getElementById("subtitle");
+  const footerText = document.getElementById("footerText");
+
+  let mode = "jobs";
+  let jobs = [];
+  let classifieds = [];
+  let jobsLoaded = false;
+  let classifiedsLoaded = false;
+  let jobsSource = "";
+  let classifiedsSource = "";
+
+  const esc = s => String(s ?? "")
+    .replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;").replaceAll("'","&#039;");
+
+  const splitSkills = s => String(s || "")
+    .split(/[,/•|;]+/)
+    .map(v => v.trim())
+    .filter(Boolean);
+
+  function cellValue(cell) {
+    if (!cell || cell.v === null || cell.v === undefined) return "";
+    return cell.f ?? cell.v;
+  }
+
+  function normalizeTable(table) {
+    if (!table || !Array.isArray(table.cols) || !Array.isArray(table.rows)) return [];
+    const labels = table.cols.map((c,i) => (c.label || String.fromCharCode(65+i)).trim());
+    return table.rows.map(r => {
+      const obj = {};
+      labels.forEach((label,i) => obj[label] = cellValue(r.c?.[i]));
+      return obj;
+    }).filter(r => String(r["Title"] || "").trim());
+  }
+
+  function saveCache(key, timeKey, rows) {
+    try {
+      localStorage.setItem(key, JSON.stringify(rows));
+      localStorage.setItem(timeKey, new Date().toISOString());
+    } catch (_) {}
+  }
+
+  function loadCache(key) {
+    try {
+      const raw = localStorage.getItem(key);
+      return raw ? JSON.parse(raw) : [];
+    } catch (_) { return []; }
+  }
+
+  function cacheTime(key) {
+    try { return localStorage.getItem(key); } catch (_) { return null; }
+  }
+
+  function qualificationParts(raw) {
+    const text = String(raw || "").trim();
+    if (!text) return {label:"", text:""};
+    const m = text.match(/^(OPEN|PREFERRED|REQUIRED|REGULATED)\s*[—-]\s*(.*)$/i);
+    if (m) return {label:m[1].toUpperCase(), text:m[2]};
+    return {label:"QUALIFICATION", text};
+  }
+
+  function qualificationIcon(kind) {
+    const icons = {
+      preferred: `<span class="qual-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.8 20 7.4v9.2L12 21.2 4 16.6V7.4L12 2.8Z" stroke="currentColor" stroke-width="1.7"/><path d="M8.2 12.8 12 9.2l3.8 3.6" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 15.7V9.8" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg></span>`,
+      required: `<span class="qual-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 3 21 8.1v7.8L12 21 3 15.9V8.1L12 3Z" stroke="currentColor" stroke-width="1.7"/><path d="M8 12h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M8.5 8.7h7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" opacity=".9"/><path d="M8.5 15.3h7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" opacity=".9"/></svg></span>`,
+      regulated: `<span class="qual-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.7 20 6.1v5.7c0 4.3-2.7 7.2-8 9.5-5.3-2.3-8-5.2-8-9.5V6.1l8-3.4Z" stroke="currentColor" stroke-width="1.7"/><rect x="8.2" y="10.6" width="7.6" height="5.6" rx="1.1" stroke="currentColor" stroke-width="1.6"/><path d="M9.7 10.4V8.9A2.3 2.3 0 0 1 12 6.6a2.3 2.3 0 0 1 2.3 2.3v1.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span>`
+    };
+    return icons[kind] || icons.preferred;
+  }
+
+  function setMode(nextMode) {
+    mode = nextMode;
+    const jobsActive = mode === "jobs";
+    jobsTab.classList.toggle("active", jobsActive);
+    classifiedsTab.classList.toggle("active", !jobsActive);
+    jobsTab.setAttribute("aria-pressed", String(jobsActive));
+    classifiedsTab.setAttribute("aria-pressed", String(!jobsActive));
+    subtitle.textContent = jobsActive
+      ? "Independent work listings — review terms before acceptance."
+      : "Secondhand goods, surplus equipment, lease transfers, and things somebody wants gone.";
+    footerText.textContent = jobsActive
+      ? "GOOD FIT is advisory. PREFERRED SKILLS strengthen a bid but are not mandatory. REQUIRED SKILLS and formal qualification terms are hard gates where shown."
+      : "Listings are seller-supplied. Condition, compatibility, title, transport, installation, certification, and facility approval remain the buyer’s responsibility unless the listing says otherwise.";
+    search.value = "";
+    primaryFilter.value = "";
+    secondaryFilter.value = "";
+    configureFilters();
+    render();
+  }
+
+  function configureFilters() {
+    if (mode === "jobs") {
+      search.placeholder = "Search title, employer, work type…";
+      const types = [...new Set(jobs.map(r => String(r["Work Type"]||"").trim()).filter(Boolean))].sort();
+      const fits = [...new Set(jobs.flatMap(r => splitSkills(r["Good Fit"])))].sort();
+      primaryFilter.innerHTML = '<option value="">All work types</option>' + types.map(v => `<option value="${esc(v)}">${esc(v)}</option>`).join("");
+      secondaryFilter.innerHTML = '<option value="">All good-fit areas</option>' + fits.map(v => `<option value="${esc(v)}">${esc(v)}</option>`).join("");
+      secondaryFilter.classList.remove("hidden");
+    } else {
+      search.placeholder = "Search item, category, description…";
+      const categories = [...new Set(classifieds.map(r => String(r["Category"]||"").trim()).filter(Boolean))].sort();
+      primaryFilter.innerHTML = '<option value="">All categories</option>' + categories.map(v => `<option value="${esc(v)}">${esc(v)}</option>`).join("");
+      secondaryFilter.innerHTML = '<option value="">All listing types</option><option value="sale">For sale</option><option value="wanted">Wanted / ISO</option>';
+      secondaryFilter.classList.remove("hidden");
+    }
+  }
+
+  function renderJobs() {
+    const q = search.value.trim().toLowerCase();
+    const t = primaryFilter.value;
+    const f = secondaryFilter.value;
+    const filtered = jobs.filter(j => {
+      const hay = [j["Title"],j["Employer"],j["Pay"],j["Work Type"],j["Good Fit"],j["Preferred Skills"],j["Required Skills"],j["Qualification"],j["Summary"],j["Details"]].join(" ").toLowerCase();
+      const fits = splitSkills(j["Good Fit"]);
+      return (!q || hay.includes(q)) && (!t || String(j["Work Type"]||"") === t) && (!f || fits.includes(f));
+    });
+    count.textContent = `${filtered.length} of ${jobs.length} contract${jobs.length===1?"":"s"}`;
+    if (!filtered.length) {
+      cards.innerHTML = `<div class="empty">${jobs.length ? "No contracts match the current filters." : "No contracts are currently posted."}</div>`;
+      return;
+    }
+    cards.innerHTML = filtered.map(j => {
+      const fit = splitSkills(j["Good Fit"]);
+      const preferred = splitSkills(j["Preferred Skills"]);
+      const requiredSkills = splitSkills(j["Required Skills"]);
+      const qualification = qualificationParts(j["Qualification"]);
+      const details = String(j["Details"]||"").trim();
+      let boxClass = "preferred";
+      let boxLabel = "PREFERRED SKILLS";
+      let boxSkills = preferred.slice();
+      if (qualification.label === "REGULATED") {
+        boxClass = "regulated"; boxLabel = "REGULATED SKILLS";
+        boxSkills = requiredSkills.length ? requiredSkills.slice() : (preferred.length ? preferred.slice() : fit.slice());
+      } else if (requiredSkills.length || qualification.label === "REQUIRED") {
+        boxClass = "required"; boxLabel = "REQUIRED SKILLS";
+        boxSkills = requiredSkills.length ? requiredSkills.slice() : fit.slice();
+      } else if (preferred.length || qualification.label === "PREFERRED") {
+        boxClass = "preferred"; boxLabel = "PREFERRED SKILLS";
+        boxSkills = preferred.length ? preferred.slice() : fit.slice();
+      }
+      const additionalSkills = fit.filter(x => !boxSkills.includes(x));
+      const qualNote = qualification.text ? `<div class="meta-note"><span class="label">QUALIFICATION</span><br>${esc(qualification.text)}</div>` : "";
+      const additionalBlock = additionalSkills.length ? `<div class="additional"><div class="label">ADDITIONAL SKILLS</div><div class="additional-list">${additionalSkills.map(x=>`<div>${esc(x)}</div>`).join("")}</div></div>` : "";
+      const qualBox = boxSkills.length ? `<div class="qual-box ${boxClass}"><div class="qual-head">${qualificationIcon(boxClass)}<span class="qual-head-text">${esc(boxLabel)}</span></div><div class="qual-skills">${boxSkills.map(esc).join(', ')}</div></div>` : "";
+      return `<article class="card"><div class="card-head"><div class="title">${esc(j["Title"])}</div><div class="employer">${esc(j["Employer"])}</div><div class="pay">${esc(j["Pay"])}</div></div><div class="type">${esc(j["Work Type"])}</div>${qualBox}${additionalBlock}${qualNote}<div class="summary">${esc(j["Summary"])}</div>${details ? `<details><summary>VIEW DETAILS</summary><div style="margin-top:8px;white-space:pre-line">${esc(details)}</div></details>` : ""}</article>`;
+    }).join("");
+  }
+
+  function renderClassifieds() {
+    const q = search.value.trim().toLowerCase();
+    const category = primaryFilter.value;
+    const listingType = secondaryFilter.value;
+    const posted = classifieds.filter(r => String(r["Status"]||"POSTED").toUpperCase() === "POSTED");
+    const filtered = posted.filter(r => {
+      const title = String(r["Title"]||"").trim();
+      const isWanted = /^(WANTED|ISO)\s*[—-]/i.test(title);
+      const hay = [r["Title"],r["Price"],r["Category"],r["Description"]].join(" ").toLowerCase();
+      const typeMatch = !listingType || (listingType === "wanted" ? isWanted : !isWanted);
+      return (!q || hay.includes(q)) && (!category || String(r["Category"]||"") === category) && typeMatch;
+    });
+    count.textContent = `${filtered.length} of ${posted.length} classified${posted.length===1?"":"s"}`;
+    if (!filtered.length) {
+      cards.innerHTML = `<div class="empty">${posted.length ? "No classifieds match the current filters." : "No classifieds are currently posted."}</div>`;
+      return;
+    }
+    cards.innerHTML = filtered.map(r => `<article class="card classified-card"><div class="card-head"><div class="title">${esc(r["Title"])}</div><div class="price">${esc(r["Price"])}</div></div><div class="type">${esc(r["Category"])}</div><div class="description">${esc(r["Description"])}</div></article>`).join("");
+  }
+
+  function render() {
+    status.textContent = mode === "jobs" ? (jobsSource || "Loading contracts…") : (classifiedsSource || "Loading classifieds…");
+    if (mode === "jobs") renderJobs(); else renderClassifieds();
+  }
+
+  function useJobs(rows, source) {
+    jobs = rows.sort((a,b) => Number(a["Sort Order"]||9999) - Number(b["Sort Order"]||9999));
+    jobsLoaded = true; jobsSource = source; configureFilters(); render();
+  }
+
+  function useClassifieds(rows, source) {
+    classifieds = rows.sort((a,b) => Number(a["Sort Order"]||9999) - Number(b["Sort Order"]||9999));
+    classifiedsLoaded = true; classifiedsSource = source; configureFilters(); render();
+  }
+
+  window.__mothershipJobsResponse = function(resp) {
+    try {
+      if (!resp || resp.status === "error") throw new Error(resp?.errors?.[0]?.message || "Google Sheet returned an error.");
+      const rows = normalizeTable(resp.table);
+      saveCache(JOBS_CACHE,JOBS_TIME,rows);
+      useJobs(rows,"LIVE // Contracts loaded " + new Date().toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"}));
+    } catch (err) { fallbackJobs(err.message); }
+  };
+
+  window.__mothershipClassifiedsResponse = function(resp) {
+    try {
+      if (!resp || resp.status === "error") throw new Error(resp?.errors?.[0]?.message || "Google Sheet returned an error.");
+      const rows = normalizeTable(resp.table);
+      saveCache(CLASSIFIEDS_CACHE,CLASSIFIEDS_TIME,rows);
+      useClassifieds(rows,"LIVE // Classifieds loaded " + new Date().toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"}));
+    } catch (err) { fallbackClassifieds(err.message); }
+  };
+
+  function fallbackJobs(reason) {
+    const cached = loadCache(JOBS_CACHE); const ct = cacheTime(JOBS_TIME);
+    if (cached.length) {
+      const when = ct ? new Date(ct).toLocaleString() : "previous session";
+      useJobs(cached,"CACHED / STALE // Contracts last loaded: " + when);
+      status.classList.add("offline");
+    } else {
+      jobsLoaded = true; jobs = []; jobsSource = "CONTRACT DATA UNAVAILABLE";
+      if (mode === "jobs") cards.innerHTML = `<div class="error">Could not load contract listings.<br><br><span class="label">Technical detail</span><br>${esc(reason || "No response")}</div>`;
+      render();
+    }
+  }
+
+  function fallbackClassifieds(reason) {
+    const cached = loadCache(CLASSIFIEDS_CACHE); const ct = cacheTime(CLASSIFIEDS_TIME);
+    if (cached.length) {
+      const when = ct ? new Date(ct).toLocaleString() : "previous session";
+      useClassifieds(cached,"CACHED / STALE // Classifieds last loaded: " + when);
+      status.classList.add("offline");
+    } else {
+      classifiedsLoaded = true; classifieds = []; classifiedsSource = "CLASSIFIED DATA UNAVAILABLE";
+      if (mode === "classifieds") cards.innerHTML = `<div class="error">Could not load classified listings.<br><br><span class="label">Technical detail</span><br>${esc(reason || "No response")}</div>`;
+      render();
+    }
+  }
+
+  function loadFeed(scriptId, gid, callback) {
+    const old = document.getElementById(scriptId); if (old) old.remove();
+    const cacheBust = Date.now() + Math.floor(Math.random()*1000);
+    const tqx = encodeURIComponent(`responseHandler:${callback};reqId:${cacheBust}`);
+    const src = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?gid=${gid}&headers=1&tqx=${tqx}&_=${cacheBust}`;
+    const s = document.createElement("script");
+    s.id = scriptId; s.src = src;
+    s.onerror = () => callback === "__mothershipJobsResponse" ? fallbackJobs("Network, permission, or Google Sheets query error.") : fallbackClassifieds("Network, permission, or Google Sheets query error.");
+    document.body.appendChild(s);
+  }
+
+  function loadLive() {
+    status.classList.remove("offline");
+    jobsLoaded = false; classifiedsLoaded = false;
+    jobsSource = "Loading contracts…"; classifiedsSource = "Loading classifieds…";
+    render();
+    loadFeed("jobsQuery",JOBS_GID,"__mothershipJobsResponse");
+    loadFeed("classifiedsQuery",CLASSIFIEDS_GID,"__mothershipClassifiedsResponse");
+    setTimeout(() => { if (!jobsLoaded) fallbackJobs("The contract request timed out."); },8000);
+    setTimeout(() => { if (!classifiedsLoaded) fallbackClassifieds("The classifieds request timed out."); },8000);
+  }
+
+  [search,primaryFilter,secondaryFilter].forEach(el => el.addEventListener("input",render));
+  refreshBtn.addEventListener("click",loadLive);
+  clearBtn.addEventListener("click",() => { search.value=""; primaryFilter.value=""; secondaryFilter.value=""; render(); });
+  jobsTab.addEventListener("click",() => setMode("jobs"));
+  classifiedsTab.addEventListener("click",() => setMode("classifieds"));
+
+  configureFilters();
+  loadLive();
+})();
+</script>
+</body>
+</html>
