@@ -100,6 +100,24 @@
   }
   .accept-btn:hover { background:rgba(212,168,75,.18); }
   .accept-btn:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+
+  .accept-modal {
+    position:fixed; inset:0; z-index:1000; display:flex; align-items:center; justify-content:center;
+    padding:18px; background:rgba(0,0,0,.72); backdrop-filter:blur(4px);
+  }
+  .accept-modal-shell {
+    position:relative; width:min(720px,100%); height:min(82vh,780px);
+    background:var(--bg); border:1px solid var(--line); border-radius:5px;
+    box-shadow:0 24px 60px rgba(0,0,0,.5); overflow:hidden;
+  }
+  .accept-modal iframe { width:100%; height:100%; border:0; background:var(--bg); }
+  .accept-modal-close {
+    position:absolute; top:8px; right:10px; z-index:2; width:36px; height:36px;
+    border:1px solid var(--line); border-radius:3px; color:var(--text); background:#171a1d;
+    font:inherit; font-size:1.1rem; font-weight:800; cursor:pointer;
+  }
+  .accept-modal-close:hover { border-color:var(--accent); }
+  body.modal-open { overflow:hidden; }
   .classified-card .title { padding-right:8px; }
   .classified-card .price { color:var(--accent); font-size:1.02rem; font-weight:800; margin-top:7px; }
   .classified-card .description { margin-top:12px; padding-top:11px; border-top:1px solid #303538; color:#d5d0c4; }
@@ -150,6 +168,13 @@
   GOOD FIT is advisory. PREFERRED SKILLS strengthen a bid but are not mandatory. REQUIRED SKILLS and formal qualification terms are hard gates where shown.
 </footer>
 
+<div id="acceptModal" class="accept-modal hidden" role="dialog" aria-modal="true" aria-label="Contract acceptance">
+  <div class="accept-modal-shell">
+    <button id="acceptModalClose" class="accept-modal-close" type="button" aria-label="Close contract acceptance">×</button>
+    <iframe id="acceptFrame" title="Contract acceptance" referrerpolicy="no-referrer"></iframe>
+  </div>
+</div>
+
 <script>
 (() => {
   const SHEET_ID = "1bg6UsBTaNanhCm9xwWbafEag6TpinCuGdlmkqv-c38c";
@@ -173,6 +198,10 @@
   const classifiedsTab = document.getElementById("classifiedsTab");
   const subtitle = document.getElementById("subtitle");
   const footerText = document.getElementById("footerText");
+
+  const acceptModal = document.getElementById("acceptModal");
+  const acceptModalClose = document.getElementById("acceptModalClose");
+  const acceptFrame = document.getElementById("acceptFrame");
 
   let mode = "jobs";
   let jobs = [];
@@ -428,18 +457,41 @@
   jobsTab.addEventListener("click",() => setMode("jobs"));
   classifiedsTab.addEventListener("click",() => setMode("classifieds"));
 
+  function closeAcceptanceModal() {
+    acceptModal.classList.add("hidden");
+    document.body.classList.remove("modal-open");
+    acceptFrame.removeAttribute("src");
+  }
+
+  function openAcceptanceModal(jobId) {
+    acceptFrame.src = `${ACCEPTANCE_URL}?job=${encodeURIComponent(jobId)}`;
+    acceptModal.classList.remove("hidden");
+    document.body.classList.add("modal-open");
+    acceptModalClose.focus();
+  }
+
   cards.addEventListener("click", event => {
     const button = event.target.closest("[data-accept-job]");
     if (!button) return;
     const jobId = String(button.dataset.acceptJob || "").trim();
     if (!jobId) return;
-    const url = `${ACCEPTANCE_URL}?job=${encodeURIComponent(jobId)}`;
-    const popup = window.open(url, "mothershipContractAcceptance", "popup=yes,width=680,height=760,resizable=yes,scrollbars=yes");
-    if (!popup) window.location.href = url;
+    openAcceptanceModal(jobId);
+  });
+
+  acceptModalClose.addEventListener("click", closeAcceptanceModal);
+  acceptModal.addEventListener("click", event => {
+    if (event.target === acceptModal) closeAcceptanceModal();
+  });
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape" && !acceptModal.classList.contains("hidden")) closeAcceptanceModal();
   });
 
   window.addEventListener("message", event => {
     const data = event.data || {};
+    if (data.type === "MOTHERSHIP_CLOSE_ACCEPTANCE") {
+      closeAcceptanceModal();
+      return;
+    }
     if (data.type !== "MOTHERSHIP_CONTRACT_ACCEPTED") return;
     const acceptedJobId = String(data.jobId || "").trim();
     if (acceptedJobId) {
@@ -448,6 +500,7 @@
       configureFilters();
       render();
     }
+    closeAcceptanceModal();
     setTimeout(loadLive, 600);
   });
 
