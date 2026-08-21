@@ -106,17 +106,36 @@
     padding:18px; background:rgba(0,0,0,.72); backdrop-filter:blur(4px);
   }
   .accept-modal-shell {
-    position:relative; width:min(720px,100%); height:min(82vh,780px);
+    position:relative; width:min(680px,100%); max-height:min(88vh,820px); overflow:auto;
     background:var(--bg); border:1px solid var(--line); border-radius:5px;
-    box-shadow:0 24px 60px rgba(0,0,0,.5); overflow:hidden;
+    box-shadow:0 24px 60px rgba(0,0,0,.5); padding:20px;
   }
-  .accept-modal iframe { width:100%; height:100%; border:0; background:var(--bg); }
   .accept-modal-close {
-    position:absolute; top:8px; right:10px; z-index:2; width:36px; height:36px;
+    position:absolute; top:10px; right:12px; z-index:2; width:36px; height:36px;
     border:1px solid var(--line); border-radius:3px; color:var(--text); background:#171a1d;
     font:inherit; font-size:1.1rem; font-weight:800; cursor:pointer;
   }
   .accept-modal-close:hover { border-color:var(--accent); }
+  .accept-heading { margin:0 42px 2px 0; font-size:1.15rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
+  .accept-sub { color:var(--muted); font-size:.78rem; margin-bottom:18px; }
+  .accept-section { margin-top:16px; }
+  .accept-contract-title { margin-top:4px; font-size:1rem; font-weight:800; overflow-wrap:anywhere; }
+  .accept-characters { display:grid; gap:8px; margin-top:7px; }
+  .accept-character { display:flex; align-items:center; gap:9px; padding:9px 10px; border:1px solid var(--line); border-radius:3px; background:var(--panel2); cursor:pointer; }
+  .accept-character input { margin:0; }
+  .accept-pin { width:100%; margin-top:7px; padding:10px; font:inherit; color:var(--text); background:var(--panel2); border:1px solid var(--line); border-radius:3px; }
+  .accept-actions { display:flex; gap:9px; flex-wrap:wrap; margin-top:18px; }
+  .accept-action { font:inherit; font-weight:800; letter-spacing:.06em; cursor:pointer; padding:10px 14px; border-radius:3px; border:1px solid var(--accent); color:var(--text); background:rgba(212,168,75,.12); }
+  .accept-action:hover:not(:disabled) { background:rgba(212,168,75,.20); }
+  .accept-action.secondary { border-color:var(--line); background:transparent; }
+  .accept-action:disabled { opacity:.45; cursor:not-allowed; }
+  .accept-result { margin-top:16px; padding:12px; border:1px solid var(--line); background:#15181a; white-space:pre-line; }
+  .accept-result.ok { border-color:var(--ok); }
+  .accept-result.warn { border-color:var(--accent); }
+  .accept-result.bad { border-color:var(--danger); }
+  .accept-contractor { margin-top:16px; padding:13px; border:1px solid var(--accent); background:rgba(212,168,75,.06); border-radius:3px; }
+  .accept-reveal { margin-top:16px; padding-top:13px; border-top:1px solid var(--line); }
+  .accept-reveal-value { margin:3px 0 12px; white-space:pre-line; }
   body.modal-open { overflow:hidden; }
   .classified-card .title { padding-right:8px; }
   .classified-card .price { color:var(--accent); font-size:1.02rem; font-weight:800; margin-top:7px; }
@@ -171,7 +190,42 @@
 <div id="acceptModal" class="accept-modal hidden" role="dialog" aria-modal="true" aria-label="Contract acceptance">
   <div class="accept-modal-shell">
     <button id="acceptModalClose" class="accept-modal-close" type="button" aria-label="Close contract acceptance">×</button>
-    <iframe id="acceptFrame" title="Contract acceptance" referrerpolicy="no-referrer"></iframe>
+    <div class="accept-heading">Contract Acceptance</div>
+    <div class="accept-sub">THE HUB // CONTRACTING SYSTEM</div>
+
+    <div class="label">CONTRACT</div>
+    <div id="acceptContractTitle" class="accept-contract-title">Loading…</div>
+
+    <div id="acceptCharacterSection" class="accept-section">
+      <div class="label">PARTICIPATING CHARACTERS</div>
+      <div id="acceptCharacters" class="accept-characters"><div class="label">Loading…</div></div>
+    </div>
+
+    <div id="acceptPinSection" class="accept-section">
+      <label class="label" for="acceptPin">BOARD ACCESS CODE</label>
+      <input id="acceptPin" class="accept-pin" type="password" autocomplete="off" placeholder="Enter terminal code">
+    </div>
+
+    <div id="acceptMainActions" class="accept-actions">
+      <button id="acceptValidateBtn" class="accept-action" type="button" disabled>VALIDATE &amp; ACCEPT</button>
+      <button id="acceptCancelBtn" class="accept-action secondary" type="button">CANCEL</button>
+    </div>
+
+    <div id="acceptResult" class="accept-result hidden"></div>
+
+    <div id="acceptContractorPrompt" class="accept-contractor hidden">
+      <div style="font-weight:800;letter-spacing:.05em">ADDITIONAL QUALIFIED STAFF REQUIRED</div>
+      <p>Have you hired or secured the required qualified contractor?</p>
+      <div class="accept-actions">
+        <button id="acceptContractorYes" class="accept-action" type="button">YES — CONTINUE</button>
+        <button id="acceptContractorNo" class="accept-action secondary" type="button">NO — CANCEL</button>
+      </div>
+    </div>
+
+    <div id="acceptReveal" class="accept-reveal hidden">
+      <div id="acceptEmployerBlock" class="hidden"><div class="label">EMPLOYER / SOURCE</div><div id="acceptEmployer" class="accept-reveal-value"></div></div>
+      <div id="acceptLocationBlock" class="hidden"><div class="label">AUTHORIZED LOCATION</div><div id="acceptLocation" class="accept-reveal-value"></div></div>
+    </div>
   </div>
 </div>
 
@@ -201,7 +255,22 @@
 
   const acceptModal = document.getElementById("acceptModal");
   const acceptModalClose = document.getElementById("acceptModalClose");
-  const acceptFrame = document.getElementById("acceptFrame");
+  const acceptContractTitle = document.getElementById("acceptContractTitle");
+  const acceptCharacters = document.getElementById("acceptCharacters");
+  const acceptCharacterSection = document.getElementById("acceptCharacterSection");
+  const acceptPinSection = document.getElementById("acceptPinSection");
+  const acceptPin = document.getElementById("acceptPin");
+  const acceptValidateBtn = document.getElementById("acceptValidateBtn");
+  const acceptCancelBtn = document.getElementById("acceptCancelBtn");
+  const acceptResult = document.getElementById("acceptResult");
+  const acceptContractorPrompt = document.getElementById("acceptContractorPrompt");
+  const acceptContractorYes = document.getElementById("acceptContractorYes");
+  const acceptContractorNo = document.getElementById("acceptContractorNo");
+  const acceptReveal = document.getElementById("acceptReveal");
+  const acceptEmployerBlock = document.getElementById("acceptEmployerBlock");
+  const acceptEmployer = document.getElementById("acceptEmployer");
+  const acceptLocationBlock = document.getElementById("acceptLocationBlock");
+  const acceptLocation = document.getElementById("acceptLocation");
 
   let mode = "jobs";
   let jobs = [];
@@ -210,6 +279,9 @@
   let classifiedsLoaded = false;
   let jobsSource = "";
   let classifiedsSource = "";
+  let acceptanceJobId = "";
+  let acceptancePublicTitle = "";
+  let acceptanceBusy = false;
 
   const esc = s => String(s ?? "")
     .replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")
@@ -457,51 +529,217 @@
   jobsTab.addEventListener("click",() => setMode("jobs"));
   classifiedsTab.addEventListener("click",() => setMode("classifieds"));
 
+  function apiCall(action, params = {}) {
+    return new Promise((resolve, reject) => {
+      const callbackName = "__mothershipAcceptance_" + Date.now() + "_" + Math.floor(Math.random()*1000000);
+      const script = document.createElement("script");
+      const timeout = setTimeout(() => {
+        cleanup();
+        reject(new Error("The contract service did not respond within 10 seconds."));
+      }, 10000);
+
+      function cleanup() {
+        clearTimeout(timeout);
+        try { delete window[callbackName]; } catch (_) { window[callbackName] = undefined; }
+        script.remove();
+      }
+
+      window[callbackName] = payload => {
+        cleanup();
+        resolve(payload);
+      };
+
+      script.onerror = () => {
+        cleanup();
+        reject(new Error("The contract service could not be reached."));
+      };
+
+      const query = new URLSearchParams({action, callback: callbackName});
+      Object.entries(params).forEach(([key, value]) => {
+        if (Array.isArray(value)) query.set(key, JSON.stringify(value));
+        else query.set(key, String(value ?? ""));
+      });
+      query.set("_", String(Date.now()));
+      script.src = ACCEPTANCE_URL + "?" + query.toString();
+      document.body.appendChild(script);
+    });
+  }
+
+  function selectedAcceptanceCharacters() {
+    return [...acceptCharacters.querySelectorAll('input[type="checkbox"]:checked')].map(el => el.value);
+  }
+
+  function setAcceptanceBusy(busy) {
+    acceptanceBusy = busy;
+    acceptValidateBtn.disabled = busy || !acceptanceJobId;
+    acceptContractorYes.disabled = busy;
+    acceptContractorNo.disabled = busy;
+  }
+
+  function showAcceptanceResult(message, kind = "warn") {
+    acceptResult.textContent = message || "";
+    acceptResult.className = "accept-result " + kind;
+  }
+
+  function hideAcceptanceResult() {
+    acceptResult.className = "accept-result hidden";
+    acceptResult.textContent = "";
+  }
+
+  function resetAcceptanceModal() {
+    acceptanceJobId = "";
+    acceptancePublicTitle = "";
+    acceptanceBusy = false;
+    acceptContractTitle.textContent = "Loading…";
+    acceptCharacters.innerHTML = '<div class="label">Loading…</div>';
+    acceptPin.value = "";
+    acceptCharacterSection.classList.remove("hidden");
+    acceptPinSection.classList.remove("hidden");
+    acceptValidateBtn.classList.remove("hidden");
+    acceptValidateBtn.disabled = true;
+    acceptCancelBtn.textContent = "CANCEL";
+    acceptContractorPrompt.classList.add("hidden");
+    acceptReveal.classList.add("hidden");
+    acceptEmployerBlock.classList.add("hidden");
+    acceptLocationBlock.classList.add("hidden");
+    acceptEmployer.textContent = "";
+    acceptLocation.textContent = "";
+    hideAcceptanceResult();
+  }
+
   function closeAcceptanceModal() {
     acceptModal.classList.add("hidden");
     document.body.classList.remove("modal-open");
-    acceptFrame.removeAttribute("src");
+    resetAcceptanceModal();
   }
 
-  function openAcceptanceModal(jobId) {
-    acceptFrame.src = `${ACCEPTANCE_URL}?job=${encodeURIComponent(jobId)}`;
+  async function openAcceptanceModal(jobId) {
+    resetAcceptanceModal();
+    acceptanceJobId = String(jobId || "").trim();
+    const publicJob = jobs.find(j => String(j["Job ID"] || "").trim() === acceptanceJobId);
+    acceptancePublicTitle = publicJob ? String(publicJob["Title"] || "CONTRACT").trim() : "CONTRACT";
+    acceptContractTitle.textContent = acceptancePublicTitle + " // " + acceptanceJobId;
     acceptModal.classList.remove("hidden");
     document.body.classList.add("modal-open");
     acceptModalClose.focus();
+
+    try {
+      const setup = await apiCall("setup", {job: acceptanceJobId});
+      if (!setup || setup.ok === false) throw new Error(setup?.error || setup?.message || "Contract setup failed.");
+      const names = Array.isArray(setup.characters) ? setup.characters : [];
+      if (!names.length) {
+        acceptCharacters.innerHTML = '<div class="label">NO ACTIVE CHARACTERS FOUND</div>';
+        showAcceptanceResult("No participating characters are available to validate this contract.", "bad");
+        return;
+      }
+      acceptCharacters.innerHTML = names.map(name => `<label class="accept-character"><input type="checkbox" value="${esc(name)}" checked><span>${esc(name)}</span></label>`).join("");
+      acceptValidateBtn.disabled = false;
+      acceptPin.focus();
+    } catch (error) {
+      acceptCharacters.innerHTML = '<div class="label">CONTRACT SERVICE UNAVAILABLE</div>';
+      showAcceptanceResult("CONTRACT SYSTEM ERROR\n\n" + (error?.message || String(error)), "bad");
+    }
+  }
+
+  async function validateAndMaybeAccept(contractorConfirmed) {
+    if (acceptanceBusy) return;
+    const participants = selectedAcceptanceCharacters();
+    if (!participants.length) { showAcceptanceResult("Select at least one participating character.", "bad"); return; }
+    if (!acceptPin.value) { showAcceptanceResult("Enter the board access code.", "bad"); return; }
+
+    hideAcceptanceResult();
+    acceptContractorPrompt.classList.add("hidden");
+    setAcceptanceBusy(true);
+    try {
+      const validation = await apiCall("validate", {
+        job: acceptanceJobId, participants, pin: acceptPin.value, contractor: contractorConfirmed
+      });
+      setAcceptanceBusy(false);
+      handleAcceptanceValidation(validation, contractorConfirmed);
+    } catch (error) {
+      setAcceptanceBusy(false);
+      showAcceptanceResult("CONTRACT SYSTEM ERROR\n\n" + (error?.message || String(error)), "bad");
+    }
+  }
+
+  function handleAcceptanceValidation(validation, contractorConfirmed) {
+    if (!validation || validation.ok === false) {
+      showAcceptanceResult("CONTRACT SYSTEM ERROR\n\n" + (validation?.error || validation?.message || "No validation response was received."), "bad");
+      return;
+    }
+    switch (validation.result) {
+      case "ACCEPTABLE":
+        finalizeAcceptance(contractorConfirmed);
+        break;
+      case "ADDITIONAL QUALIFIED STAFF REQUIRED":
+        showAcceptanceResult(validation.message || "Additional qualified staff are required.", "warn");
+        acceptContractorPrompt.classList.remove("hidden");
+        break;
+      case "QUALIFICATION REVIEW":
+        showAcceptanceResult("QUALIFICATION REVIEW\n\n" + (validation.message || "Employer qualification review is required."), "warn");
+        break;
+      case "NOT YET AVAILABLE":
+        showAcceptanceResult("NOT YET AVAILABLE\n\n" + (validation.message || "This contract is not currently available."), "warn");
+        break;
+      default:
+        showAcceptanceResult("CONTRACT CANNOT BE ACCEPTED\n\n" + (validation.message || "Qualification requirements are not met."), "bad");
+    }
+  }
+
+  async function finalizeAcceptance(contractorConfirmed) {
+    setAcceptanceBusy(true);
+    try {
+      const response = await apiCall("accept", {
+        job: acceptanceJobId, participants: selectedAcceptanceCharacters(), pin: acceptPin.value, contractor: contractorConfirmed
+      });
+      setAcceptanceBusy(false);
+      if (!response || response.ok === false || response.result !== "ACCEPTABLE" || !response.accepted) {
+        handleAcceptanceValidation(response, contractorConfirmed);
+        return;
+      }
+
+      showAcceptanceResult("CONTRACT ACCEPTED", "ok");
+      acceptContractorPrompt.classList.add("hidden");
+      acceptCharacterSection.classList.add("hidden");
+      acceptPinSection.classList.add("hidden");
+      acceptValidateBtn.classList.add("hidden");
+      acceptCancelBtn.textContent = "CLOSE";
+
+      let hasReveal = false;
+      if (response.employer) { acceptEmployer.textContent = response.employer; acceptEmployerBlock.classList.remove("hidden"); hasReveal = true; }
+      if (response.location) { acceptLocation.textContent = response.location; acceptLocationBlock.classList.remove("hidden"); hasReveal = true; }
+      if (hasReveal) acceptReveal.classList.remove("hidden");
+
+      const acceptedJobId = String(response.jobId || acceptanceJobId).trim();
+      jobs = jobs.filter(j => String(j["Job ID"] || "").trim() !== acceptedJobId);
+      saveCache(JOBS_CACHE, JOBS_TIME, jobs);
+      configureFilters();
+      render();
+      setTimeout(loadLive, 600);
+    } catch (error) {
+      setAcceptanceBusy(false);
+      showAcceptanceResult("CONTRACT SYSTEM ERROR\n\n" + (error?.message || String(error)), "bad");
+    }
   }
 
   cards.addEventListener("click", event => {
     const button = event.target.closest("[data-accept-job]");
     if (!button) return;
     const jobId = String(button.dataset.acceptJob || "").trim();
-    if (!jobId) return;
-    openAcceptanceModal(jobId);
+    if (jobId) openAcceptanceModal(jobId);
   });
 
-  acceptModalClose.addEventListener("click", closeAcceptanceModal);
-  acceptModal.addEventListener("click", event => {
-    if (event.target === acceptModal) closeAcceptanceModal();
+  acceptValidateBtn.addEventListener("click", () => validateAndMaybeAccept(false));
+  acceptContractorYes.addEventListener("click", () => validateAndMaybeAccept(true));
+  acceptContractorNo.addEventListener("click", () => {
+    acceptContractorPrompt.classList.add("hidden");
+    showAcceptanceResult("Acceptance cancelled. No contract state was changed.", "warn");
   });
+  acceptCancelBtn.addEventListener("click", closeAcceptanceModal);
+  acceptModalClose.addEventListener("click", closeAcceptanceModal);
+  acceptModal.addEventListener("click", event => { if (event.target === acceptModal) closeAcceptanceModal(); });
   document.addEventListener("keydown", event => {
     if (event.key === "Escape" && !acceptModal.classList.contains("hidden")) closeAcceptanceModal();
-  });
-
-  window.addEventListener("message", event => {
-    const data = event.data || {};
-    if (data.type === "MOTHERSHIP_CLOSE_ACCEPTANCE") {
-      closeAcceptanceModal();
-      return;
-    }
-    if (data.type !== "MOTHERSHIP_CONTRACT_ACCEPTED") return;
-    const acceptedJobId = String(data.jobId || "").trim();
-    if (acceptedJobId) {
-      jobs = jobs.filter(j => String(j["Job ID"]||"").trim() !== acceptedJobId);
-      saveCache(JOBS_CACHE,JOBS_TIME,jobs);
-      configureFilters();
-      render();
-    }
-    closeAcceptanceModal();
-    setTimeout(loadLive, 600);
   });
 
   configureFilters();
