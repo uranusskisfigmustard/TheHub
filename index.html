@@ -92,6 +92,14 @@
   .summary { margin-top:14px; padding-top:12px; border-top:1px solid #303538; color:#d5d0c4; }
   details { margin-top:11px; border-top:1px solid #303538; padding-top:9px; }
   summary { cursor:pointer; color:#d8d4c8; font-weight:700; }
+  .accept-row { margin-top:14px; padding-top:12px; border-top:1px solid #303538; }
+  .accept-btn {
+    width:100%; font:inherit; font-weight:800; letter-spacing:.07em;
+    color:var(--text); background:rgba(212,168,75,.10); border:1px solid var(--accent);
+    border-radius:3px; padding:10px 12px; cursor:pointer; text-transform:uppercase;
+  }
+  .accept-btn:hover { background:rgba(212,168,75,.18); }
+  .accept-btn:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
   .classified-card .title { padding-right:8px; }
   .classified-card .price { color:var(--accent); font-size:1.02rem; font-weight:800; margin-top:7px; }
   .classified-card .description { margin-top:12px; padding-top:11px; border-top:1px solid #303538; color:#d5d0c4; }
@@ -147,6 +155,7 @@
   const SHEET_ID = "1bg6UsBTaNanhCm9xwWbafEag6TpinCuGdlmkqv-c38c";
   const JOBS_GID = "781703719";
   const CLASSIFIEDS_GID = "39172266";
+  const ACCEPTANCE_URL = "https://script.google.com/macros/s/AKfycbygMKjP4uDZSlDavOJk6ivddS6C8GS82LdcjBDVNH7kvw5fcnxEkhyWqwaEqWisM0EL/exec";
   const JOBS_CACHE = "mothership_hub_jobs_v5";
   const CLASSIFIEDS_CACHE = "mothership_hub_classifieds_v2";
   const JOBS_TIME = JOBS_CACHE + "_time";
@@ -306,7 +315,9 @@
       const qualNote = qualification.text ? `<div class="meta-note"><span class="label">QUALIFICATION</span><br>${esc(qualification.text)}</div>` : "";
       const additionalBlock = additionalSkills.length ? `<div class="additional"><div class="label">ADDITIONAL SKILLS</div><div class="additional-list">${additionalSkills.map(x=>`<div>${esc(x)}</div>`).join("")}</div></div>` : "";
       const qualBox = boxSkills.length ? `<div class="qual-box ${boxClass}"><div class="qual-head">${qualificationIcon(boxClass)}<span class="qual-head-text">${esc(boxLabel)}</span></div><div class="qual-skills">${boxSkills.map(esc).join(', ')}</div></div>` : "";
-      return `<article class="card"><div class="card-head"><div class="title">${esc(j["Title"])}</div><div class="employer">${esc(j["Employer"])}</div><div class="pay">${esc(j["Pay"])}</div></div><div class="type">${esc(j["Work Type"])}</div>${qualBox}${additionalBlock}${qualNote}<div class="summary">${esc(j["Summary"])}</div>${details ? `<details><summary>VIEW DETAILS</summary><div style="margin-top:8px;white-space:pre-line">${esc(details)}</div></details>` : ""}</article>`;
+      const jobId = String(j["Job ID"]||"").trim();
+      const acceptBlock = jobId ? `<div class="accept-row"><button class="accept-btn" type="button" data-accept-job="${esc(jobId)}">ACCEPT CONTRACT</button></div>` : "";
+      return `<article class="card"><div class="card-head"><div class="title">${esc(j["Title"])}</div><div class="employer">${esc(j["Employer"])}</div><div class="pay">${esc(j["Pay"])}</div></div><div class="type">${esc(j["Work Type"])}</div>${qualBox}${additionalBlock}${qualNote}<div class="summary">${esc(j["Summary"])}</div>${details ? `<details><summary>VIEW DETAILS</summary><div style="margin-top:8px;white-space:pre-line">${esc(details)}</div></details>` : ""}${acceptBlock}</article>`;
     }).join("");
   }
 
@@ -416,6 +427,29 @@
   clearBtn.addEventListener("click",() => { search.value=""; primaryFilter.value=""; secondaryFilter.value=""; render(); });
   jobsTab.addEventListener("click",() => setMode("jobs"));
   classifiedsTab.addEventListener("click",() => setMode("classifieds"));
+
+  cards.addEventListener("click", event => {
+    const button = event.target.closest("[data-accept-job]");
+    if (!button) return;
+    const jobId = String(button.dataset.acceptJob || "").trim();
+    if (!jobId) return;
+    const url = `${ACCEPTANCE_URL}?job=${encodeURIComponent(jobId)}`;
+    const popup = window.open(url, "mothershipContractAcceptance", "popup=yes,width=680,height=760,resizable=yes,scrollbars=yes");
+    if (!popup) window.location.href = url;
+  });
+
+  window.addEventListener("message", event => {
+    const data = event.data || {};
+    if (data.type !== "MOTHERSHIP_CONTRACT_ACCEPTED") return;
+    const acceptedJobId = String(data.jobId || "").trim();
+    if (acceptedJobId) {
+      jobs = jobs.filter(j => String(j["Job ID"]||"").trim() !== acceptedJobId);
+      saveCache(JOBS_CACHE,JOBS_TIME,jobs);
+      configureFilters();
+      render();
+    }
+    setTimeout(loadLive, 600);
+  });
 
   configureFilters();
   loadLive();
