@@ -1,0 +1,847 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The Hub — Public Board</title>
+<style>
+  :root {
+    --bg:#111315;
+    --panel:#191c1f;
+    --panel2:#202428;
+    --text:#e7e4dc;
+    --muted:#aaa79f;
+    --line:#3a3f43;
+    --accent:#d4a84b;
+    --danger:#c86655;
+    --ok:#8fa77a;
+  }
+  * { box-sizing:border-box; }
+  body {
+    margin:0; background:var(--bg); color:var(--text);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    line-height:1.45;
+  }
+  header {
+    position:sticky; top:0; z-index:5;
+    background:rgba(17,19,21,.97); border-bottom:1px solid var(--line);
+    padding:16px 18px 12px;
+    backdrop-filter:blur(5px);
+  }
+  .topline { display:flex; gap:12px; align-items:flex-end; justify-content:space-between; flex-wrap:wrap; }
+  h1 { margin:0; font-size:clamp(1.2rem,4vw,1.8rem); letter-spacing:.08em; text-transform:uppercase; }
+  .sub { color:var(--muted); font-size:.82rem; margin-top:3px; }
+  .navrow { display:flex; gap:8px; margin-top:13px; flex-wrap:wrap; }
+  .navbtn {
+    font:inherit; color:var(--muted); background:transparent; border:1px solid var(--line);
+    border-radius:3px; padding:8px 14px; cursor:pointer; font-weight:800; letter-spacing:.08em;
+  }
+  .navbtn:hover { border-color:var(--accent); color:var(--text); }
+  .navbtn.active { color:var(--text); border-color:var(--accent); background:rgba(212,168,75,.10); }
+  .controls { display:grid; grid-template-columns:minmax(190px,1fr) repeat(2,minmax(135px,190px)) auto; gap:8px; margin-top:10px; }
+  input, select, button.control {
+    font:inherit; color:var(--text); background:var(--panel2);
+    border:1px solid var(--line); border-radius:3px; padding:9px 10px;
+  }
+  button.control { cursor:pointer; }
+  button.control:hover { border-color:var(--accent); }
+  .hidden { display:none !important; }
+  .statusbar {
+    display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap;
+    padding:8px 18px; color:var(--muted); font-size:.78rem; border-bottom:1px solid #25292c;
+  }
+  main { max-width:1180px; margin:0 auto; padding:18px; }
+  #cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(310px,1fr)); gap:14px; }
+  .card {
+    background:linear-gradient(180deg,#171b1f 0%,#14181b 100%);
+    border:1px solid #3a3f43; border-radius:4px; padding:16px;
+    box-shadow:0 10px 24px rgba(0,0,0,.20);
+  }
+  .card-head { display:block; width:100%; margin-bottom:10px; }
+  .title, .employer, .pay { width:100%; max-width:100%; overflow-wrap:anywhere; word-break:normal; }
+  .title { font-size:1.08rem; font-weight:800; text-transform:uppercase; letter-spacing:.05em; }
+  .employer { color:var(--muted); margin-top:4px; font-size:.9rem; }
+  .pay { font-weight:800; color:var(--accent); margin-top:7px; white-space:pre-line; }
+  .type {
+    margin:0 0 12px; color:#d1cdc2; font-weight:700; text-transform:uppercase;
+    font-size:.77rem; letter-spacing:.08em;
+  }
+  .label { color:var(--muted); font-size:.72rem; text-transform:uppercase; letter-spacing:.08em; }
+  .qual-box {
+    margin:10px 0 12px; padding:11px 12px; border:1px solid #4f5a46;
+    background:rgba(39,52,36,.35); border-radius:4px;
+  }
+  .qual-box.required { border-color:#8a611f; background:rgba(63,42,14,.34); }
+  .qual-box.regulated { border-color:#8b3535; background:rgba(62,18,18,.34); }
+  .qual-head {
+    display:flex; align-items:center; gap:10px;
+    font-size:.82rem; font-weight:800; letter-spacing:.07em; text-transform:uppercase;
+    margin-bottom:6px;
+  }
+  .qual-icon { width:18px; height:18px; flex:0 0 18px; display:inline-block; }
+  .qual-head-text { line-height:1; }
+  .qual-box.preferred .qual-head { color:#c7da71; }
+  .qual-box.required .qual-head { color:#f0a347; }
+  .qual-box.regulated .qual-head { color:#ff6d63; }
+  .qual-icon svg { width:100%; height:100%; display:block; }
+  .qual-skills { color:#efe9da; line-height:1.45; }
+  .additional { margin:10px 0 0; }
+  .additional-list { margin-top:5px; color:#ddd8cb; line-height:1.5; }
+  .additional-list div { margin:2px 0; }
+  .meta-note { margin-top:10px; color:#c5c1b4; font-size:.86rem; line-height:1.45; }
+  .summary { margin-top:14px; padding-top:12px; border-top:1px solid #303538; color:#d5d0c4; }
+  details { margin-top:11px; border-top:1px solid #303538; padding-top:9px; }
+  summary { cursor:pointer; color:#d8d4c8; font-weight:700; }
+  .accept-row { margin-top:14px; padding-top:12px; border-top:1px solid #303538; }
+  .accept-btn {
+    width:100%; font:inherit; font-weight:800; letter-spacing:.07em;
+    color:var(--text); background:rgba(212,168,75,.10); border:1px solid var(--accent);
+    border-radius:3px; padding:10px 12px; cursor:pointer; text-transform:uppercase;
+  }
+  .accept-btn:hover { background:rgba(212,168,75,.18); }
+  .accept-btn:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+
+  .accept-modal {
+    position:fixed; inset:0; z-index:1000; display:flex; align-items:center; justify-content:center;
+    padding:18px; background:rgba(0,0,0,.72); backdrop-filter:blur(4px);
+  }
+  .accept-modal-shell {
+    position:relative; width:min(680px,100%); max-height:min(88vh,820px); overflow:auto;
+    background:var(--bg); border:1px solid var(--line); border-radius:5px;
+    box-shadow:0 24px 60px rgba(0,0,0,.5); padding:20px;
+  }
+  .accept-modal-close {
+    position:absolute; top:10px; right:12px; z-index:2; width:36px; height:36px;
+    border:1px solid var(--line); border-radius:3px; color:var(--text); background:#171a1d;
+    font:inherit; font-size:1.1rem; font-weight:800; cursor:pointer;
+  }
+  .accept-modal-close:hover { border-color:var(--accent); }
+  .accept-heading { margin:0 42px 2px 0; font-size:1.15rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
+  .accept-sub { color:var(--muted); font-size:.78rem; margin-bottom:18px; }
+  .accept-section { margin-top:16px; }
+  .accept-contract-title { margin-top:4px; font-size:1rem; font-weight:800; overflow-wrap:anywhere; }
+  .accept-characters { display:grid; gap:8px; margin-top:7px; }
+  .accept-character { display:flex; align-items:center; gap:9px; padding:9px 10px; border:1px solid var(--line); border-radius:3px; background:var(--panel2); cursor:pointer; }
+  .accept-character input { margin:0; }
+  .accept-pin { width:100%; margin-top:7px; padding:10px; font:inherit; color:var(--text); background:var(--panel2); border:1px solid var(--line); border-radius:3px; }
+  .accept-actions { display:flex; gap:9px; flex-wrap:wrap; margin-top:18px; }
+  .accept-action { font:inherit; font-weight:800; letter-spacing:.06em; cursor:pointer; padding:10px 14px; border-radius:3px; border:1px solid var(--accent); color:var(--text); background:rgba(212,168,75,.12); }
+  .accept-action:hover:not(:disabled) { background:rgba(212,168,75,.20); }
+  .accept-action.secondary { border-color:var(--line); background:transparent; }
+  .accept-action:disabled { opacity:.45; cursor:not-allowed; }
+  .accept-result { margin-top:16px; padding:12px; border:1px solid var(--line); background:#15181a; white-space:pre-line; }
+  .accept-result.ok { border-color:var(--ok); }
+  .accept-result.warn { border-color:var(--accent); }
+  .accept-result.bad { border-color:var(--danger); }
+  .accept-contractor { margin-top:16px; padding:13px; border:1px solid var(--accent); background:rgba(212,168,75,.06); border-radius:3px; }
+  .accept-reveal { margin-top:16px; padding-top:13px; border-top:1px solid var(--line); }
+  .accept-reveal-value { margin:3px 0 12px; white-space:pre-line; }
+  body.modal-open { overflow:hidden; }
+  .classified-card .title { padding-right:8px; }
+  .classified-card .price { color:var(--accent); font-size:1.02rem; font-weight:800; margin-top:7px; }
+  .classified-card .description { margin-top:12px; padding-top:11px; border-top:1px solid #303538; color:#d5d0c4; }
+  .empty, .error {
+    grid-column:1/-1; padding:24px; border:1px dashed var(--line); color:var(--muted);
+    background:var(--panel);
+  }
+  .error { border-color:#6d4e45; }
+  .offline { color:var(--accent); }
+  footer { max-width:1180px; margin:0 auto; padding:4px 18px 24px; color:#777; font-size:.72rem; }
+  @media (max-width:760px) {
+    .controls { grid-template-columns:1fr 1fr; }
+    .controls input { grid-column:1/-1; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="topline">
+    <div>
+      <h1>The Hub // Public Board</h1>
+      <div class="sub" id="subtitle">Independent work listings — review terms before acceptance.</div>
+    </div>
+    <button id="refreshBtn" class="control" type="button">REFRESH</button>
+  </div>
+
+  <nav class="navrow" aria-label="Board section">
+    <button id="jobsTab" class="navbtn active" type="button" aria-pressed="true">CONTRACTS</button>
+    <button id="classifiedsTab" class="navbtn" type="button" aria-pressed="false">CLASSIFIEDS</button>
+    <button class="navbtn" type="button" onclick="location.href='https://uranusskisfigmustard.github.io/TheHub/statements.html'">STATEMENTS</button>
+  </nav>
+
+  <div class="controls">
+    <input id="search" type="search" placeholder="Search title, employer, work type…">
+    <select id="primaryFilter"><option value="">All work types</option></select>
+    <select id="secondaryFilter"><option value="">All good-fit areas</option></select>
+    <button id="clearBtn" class="control" type="button">CLEAR</button>
+  </div>
+</header>
+
+<div class="statusbar">
+  <span id="status">Loading boards…</span>
+  <span id="count"></span>
+</div>
+
+<main><section id="cards"></section></main>
+<footer id="footerText">
+  GOOD FIT is advisory. PREFERRED SKILLS strengthen a bid but are not mandatory. REQUIRED SKILLS and formal qualification terms are hard gates where shown.
+</footer>
+
+<div id="acceptModal" class="accept-modal hidden" role="dialog" aria-modal="true" aria-label="Contract acceptance">
+  <div class="accept-modal-shell">
+    <button id="acceptModalClose" class="accept-modal-close" type="button" aria-label="Close contract acceptance">×</button>
+    <div class="accept-heading">Contract Acceptance</div>
+    <div class="accept-sub">THE HUB // CONTRACTING SYSTEM</div>
+
+    <div class="label">CONTRACT</div>
+    <div id="acceptContractTitle" class="accept-contract-title">Loading…</div>
+
+    <div id="acceptCharacterSection" class="accept-section">
+      <div class="label">PARTICIPATING CHARACTERS</div>
+      <div id="acceptCharacters" class="accept-characters"><div class="label">Loading…</div></div>
+    </div>
+
+    <div id="acceptPinSection" class="accept-section">
+      <label class="label" for="acceptPin">BOARD ACCESS CODE</label>
+      <input id="acceptPin" class="accept-pin" type="password" autocomplete="off" placeholder="Enter terminal code">
+    </div>
+
+    <div id="acceptMainActions" class="accept-actions">
+      <button id="acceptValidateBtn" class="accept-action" type="button" disabled>VALIDATE &amp; ACCEPT</button>
+      <button id="acceptCancelBtn" class="accept-action secondary" type="button">CANCEL</button>
+    </div>
+
+    <div id="acceptResult" class="accept-result hidden"></div>
+
+    <div id="acceptContractorPrompt" class="accept-contractor hidden">
+      <div style="font-weight:800;letter-spacing:.05em">ADDITIONAL QUALIFIED STAFF REQUIRED</div>
+      <p>Have you hired or secured the required qualified contractor?</p>
+      <div class="accept-actions">
+        <button id="acceptContractorYes" class="accept-action" type="button">YES — CONTINUE</button>
+        <button id="acceptContractorNo" class="accept-action secondary" type="button">NO — CANCEL</button>
+      </div>
+    </div>
+
+    <div id="acceptAuthorizationPrompt" class="accept-contractor hidden">
+      <div style="font-weight:800;letter-spacing:.05em">QUALIFICATION REVIEW</div>
+      <p>Employer authorization is required to proceed with this contract.</p>
+      <div class="accept-actions">
+        <button id="acceptAuthorizationRequest" class="accept-action" type="button">REQUEST AUTHORIZATION</button>
+      </div>
+    </div>
+
+    <div id="acceptReveal" class="accept-reveal hidden">
+      <div id="acceptEmployerBlock" class="hidden"><div class="label">EMPLOYER / SOURCE</div><div id="acceptEmployer" class="accept-reveal-value"></div></div>
+      <div id="acceptLocationBlock" class="hidden"><div class="label">AUTHORIZED LOCATION</div><div id="acceptLocation" class="accept-reveal-value"></div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  const SHEET_ID = "1bg6UsBTaNanhCm9xwWbafEag6TpinCuGdlmkqv-c38c";
+  const JOBS_GID = "781703719";
+  const CLASSIFIEDS_GID = "39172266";
+  const ACCEPTANCE_URL = "https://script.google.com/macros/s/AKfycbzeW8vTooOCNEBia3_EMQ10r7BcbakXIwCD4ZaEOUEBOdCXl09tRHj76oxcUcsOKQK0/exec";
+  const JOBS_CACHE = "mothership_hub_jobs_v5";
+  const CLASSIFIEDS_CACHE = "mothership_hub_classifieds_v2";
+  const JOBS_TIME = JOBS_CACHE + "_time";
+  const CLASSIFIEDS_TIME = CLASSIFIEDS_CACHE + "_time";
+
+  const cards = document.getElementById("cards");
+  const status = document.getElementById("status");
+  const count = document.getElementById("count");
+  const search = document.getElementById("search");
+  const primaryFilter = document.getElementById("primaryFilter");
+  const secondaryFilter = document.getElementById("secondaryFilter");
+  const refreshBtn = document.getElementById("refreshBtn");
+  const clearBtn = document.getElementById("clearBtn");
+  const jobsTab = document.getElementById("jobsTab");
+  const classifiedsTab = document.getElementById("classifiedsTab");
+  const subtitle = document.getElementById("subtitle");
+  const footerText = document.getElementById("footerText");
+
+  const acceptModal = document.getElementById("acceptModal");
+  const acceptModalClose = document.getElementById("acceptModalClose");
+  const acceptContractTitle = document.getElementById("acceptContractTitle");
+  const acceptCharacters = document.getElementById("acceptCharacters");
+  const acceptCharacterSection = document.getElementById("acceptCharacterSection");
+  const acceptPinSection = document.getElementById("acceptPinSection");
+  const acceptPin = document.getElementById("acceptPin");
+  const acceptValidateBtn = document.getElementById("acceptValidateBtn");
+  const acceptCancelBtn = document.getElementById("acceptCancelBtn");
+  const acceptResult = document.getElementById("acceptResult");
+  const acceptContractorPrompt = document.getElementById("acceptContractorPrompt");
+  const acceptContractorYes = document.getElementById("acceptContractorYes");
+  const acceptContractorNo = document.getElementById("acceptContractorNo");
+  const acceptAuthorizationPrompt = document.getElementById("acceptAuthorizationPrompt");
+  const acceptAuthorizationRequest = document.getElementById("acceptAuthorizationRequest");
+  const acceptReveal = document.getElementById("acceptReveal");
+  const acceptEmployerBlock = document.getElementById("acceptEmployerBlock");
+  const acceptEmployer = document.getElementById("acceptEmployer");
+  const acceptLocationBlock = document.getElementById("acceptLocationBlock");
+  const acceptLocation = document.getElementById("acceptLocation");
+
+  let mode = "jobs";
+  let jobs = [];
+  let classifieds = [];
+  let jobsLoaded = false;
+  let classifiedsLoaded = false;
+  let jobsSource = "";
+  let classifiedsSource = "";
+  let acceptanceJobId = "";
+  let acceptancePublicTitle = "";
+  let acceptanceBusy = false;
+  let acceptanceReviewContractorConfirmed = false;
+
+  const esc = s => String(s ?? "")
+    .replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;").replaceAll("'","&#039;");
+
+  const splitSkills = s => String(s || "")
+    .split(/[,/•|;]+/)
+    .map(v => v.trim())
+    .filter(Boolean);
+
+  function cellValue(cell) {
+    if (!cell || cell.v === null || cell.v === undefined) return "";
+    return cell.f ?? cell.v;
+  }
+
+  function normalizeTable(table) {
+    if (!table || !Array.isArray(table.cols) || !Array.isArray(table.rows)) return [];
+    const labels = table.cols.map((c,i) => (c.label || String.fromCharCode(65+i)).trim());
+    return table.rows.map(r => {
+      const obj = {};
+      labels.forEach((label,i) => obj[label] = cellValue(r.c?.[i]));
+      return obj;
+    }).filter(r => String(r["Title"] || "").trim());
+  }
+
+  function saveCache(key, timeKey, rows) {
+    try {
+      localStorage.setItem(key, JSON.stringify(rows));
+      localStorage.setItem(timeKey, new Date().toISOString());
+    } catch (_) {}
+  }
+
+  function loadCache(key) {
+    try {
+      const raw = localStorage.getItem(key);
+      return raw ? JSON.parse(raw) : [];
+    } catch (_) { return []; }
+  }
+
+  function cacheTime(key) {
+    try { return localStorage.getItem(key); } catch (_) { return null; }
+  }
+
+  function qualificationParts(raw) {
+    const text = String(raw || "").trim();
+    if (!text) return {label:"", text:""};
+    const m = text.match(/^(OPEN|PREFERRED|REQUIRED|REGULATED)\s*[—-]\s*(.*)$/i);
+    if (m) return {label:m[1].toUpperCase(), text:m[2]};
+    return {label:"QUALIFICATION", text};
+  }
+
+  function qualificationIcon(kind) {
+    const icons = {
+      preferred: `<span class="qual-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.8 20 7.4v9.2L12 21.2 4 16.6V7.4L12 2.8Z" stroke="currentColor" stroke-width="1.7"/><path d="M8.2 12.8 12 9.2l3.8 3.6" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 15.7V9.8" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg></span>`,
+      required: `<span class="qual-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 3 21 8.1v7.8L12 21 3 15.9V8.1L12 3Z" stroke="currentColor" stroke-width="1.7"/><path d="M8 12h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M8.5 8.7h7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" opacity=".9"/><path d="M8.5 15.3h7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" opacity=".9"/></svg></span>`,
+      regulated: `<span class="qual-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.7 20 6.1v5.7c0 4.3-2.7 7.2-8 9.5-5.3-2.3-8-5.2-8-9.5V6.1l8-3.4Z" stroke="currentColor" stroke-width="1.7"/><rect x="8.2" y="10.6" width="7.6" height="5.6" rx="1.1" stroke="currentColor" stroke-width="1.6"/><path d="M9.7 10.4V8.9A2.3 2.3 0 0 1 12 6.6a2.3 2.3 0 0 1 2.3 2.3v1.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span>`
+    };
+    return icons[kind] || icons.preferred;
+  }
+
+  function setMode(nextMode) {
+    mode = nextMode;
+    const jobsActive = mode === "jobs";
+    jobsTab.classList.toggle("active", jobsActive);
+    classifiedsTab.classList.toggle("active", !jobsActive);
+    jobsTab.setAttribute("aria-pressed", String(jobsActive));
+    classifiedsTab.setAttribute("aria-pressed", String(!jobsActive));
+    subtitle.textContent = jobsActive
+      ? "Independent work listings — review terms before acceptance."
+      : "Secondhand goods, surplus equipment, lease transfers, and things somebody wants gone.";
+    footerText.textContent = jobsActive
+      ? "GOOD FIT is advisory. PREFERRED SKILLS strengthen a bid but are not mandatory. REQUIRED SKILLS and formal qualification terms are hard gates where shown."
+      : "Listings are seller-supplied. Condition, compatibility, title, transport, installation, certification, and facility approval remain the buyer’s responsibility unless the listing says otherwise.";
+    search.value = "";
+    primaryFilter.value = "";
+    secondaryFilter.value = "";
+    configureFilters();
+    render();
+  }
+
+  function configureFilters() {
+    if (mode === "jobs") {
+      search.placeholder = "Search title, employer, work type…";
+      const types = [...new Set(jobs.map(r => String(r["Work Type"]||"").trim()).filter(Boolean))].sort();
+      const fits = [...new Set(jobs.flatMap(r => splitSkills(r["Good Fit"])))].sort();
+      primaryFilter.innerHTML = '<option value="">All work types</option>' + types.map(v => `<option value="${esc(v)}">${esc(v)}</option>`).join("");
+      secondaryFilter.innerHTML = '<option value="">All good-fit areas</option>' + fits.map(v => `<option value="${esc(v)}">${esc(v)}</option>`).join("");
+      secondaryFilter.classList.remove("hidden");
+    } else {
+      search.placeholder = "Search item, category, description…";
+      const categories = [...new Set(classifieds.map(r => String(r["Category"]||"").trim()).filter(Boolean))].sort();
+      primaryFilter.innerHTML = '<option value="">All categories</option>' + categories.map(v => `<option value="${esc(v)}">${esc(v)}</option>`).join("");
+      secondaryFilter.innerHTML = '<option value="">All listing types</option><option value="sale">For sale</option><option value="wanted">Wanted / ISO</option>';
+      secondaryFilter.classList.remove("hidden");
+    }
+  }
+
+  function renderJobs() {
+    const q = search.value.trim().toLowerCase();
+    const t = primaryFilter.value;
+    const f = secondaryFilter.value;
+    const filtered = jobs.filter(j => {
+      const hay = [j["Title"],j["Employer"],j["Pay"],j["Work Type"],j["Good Fit"],j["Preferred Skills"],j["Required Skills"],j["Qualification"],j["Summary"],j["Details"]].join(" ").toLowerCase();
+      const fits = splitSkills(j["Good Fit"]);
+      return (!q || hay.includes(q)) && (!t || String(j["Work Type"]||"") === t) && (!f || fits.includes(f));
+    });
+    count.textContent = `${filtered.length} of ${jobs.length} contract${jobs.length===1?"":"s"}`;
+    if (!filtered.length) {
+      cards.innerHTML = `<div class="empty">${jobs.length ? "No contracts match the current filters." : "No contracts are currently posted."}</div>`;
+      return;
+    }
+    cards.innerHTML = filtered.map(j => {
+      const fit = splitSkills(j["Good Fit"]);
+      const preferred = splitSkills(j["Preferred Skills"]);
+      const requiredSkills = splitSkills(j["Required Skills"]);
+      const qualification = qualificationParts(j["Qualification"]);
+      const details = String(j["Details"]||"").trim();
+      let boxClass = "preferred";
+      let boxLabel = "PREFERRED SKILLS";
+      let boxSkills = preferred.slice();
+      if (qualification.label === "REGULATED") {
+        boxClass = "regulated"; boxLabel = "REGULATED SKILLS";
+        boxSkills = requiredSkills.length ? requiredSkills.slice() : (preferred.length ? preferred.slice() : fit.slice());
+      } else if (requiredSkills.length || qualification.label === "REQUIRED") {
+        boxClass = "required"; boxLabel = "REQUIRED SKILLS";
+        boxSkills = requiredSkills.length ? requiredSkills.slice() : fit.slice();
+      } else if (preferred.length || qualification.label === "PREFERRED") {
+        boxClass = "preferred"; boxLabel = "PREFERRED SKILLS";
+        boxSkills = preferred.length ? preferred.slice() : fit.slice();
+      }
+      const additionalSkills = fit.filter(x => !boxSkills.includes(x));
+      const qualNote = qualification.text ? `<div class="meta-note"><span class="label">QUALIFICATION</span><br>${esc(qualification.text)}</div>` : "";
+      const additionalBlock = additionalSkills.length ? `<div class="additional"><div class="label">ADDITIONAL SKILLS</div><div class="additional-list">${additionalSkills.map(x=>`<div>${esc(x)}</div>`).join("")}</div></div>` : "";
+      const qualBox = boxSkills.length ? `<div class="qual-box ${boxClass}"><div class="qual-head">${qualificationIcon(boxClass)}<span class="qual-head-text">${esc(boxLabel)}</span></div><div class="qual-skills">${boxSkills.map(esc).join(', ')}</div></div>` : "";
+      const jobId = String(j["Job ID"]||"").trim();
+      const acceptBlock = jobId ? `<div class="accept-row"><button class="accept-btn" type="button" data-accept-job="${esc(jobId)}">ACCEPT CONTRACT</button></div>` : "";
+      return `<article class="card"><div class="card-head"><div class="title">${esc(j["Title"])}</div><div class="employer">${esc(j["Employer"])}</div><div class="pay">${esc(j["Pay"])}</div></div><div class="type">${esc(j["Work Type"])}</div>${qualBox}${additionalBlock}${qualNote}<div class="summary">${esc(j["Summary"])}</div>${details ? `<details><summary>VIEW DETAILS</summary><div style="margin-top:8px;white-space:pre-line">${esc(details)}</div></details>` : ""}${acceptBlock}</article>`;
+    }).join("");
+  }
+
+  function renderClassifieds() {
+    const q = search.value.trim().toLowerCase();
+    const category = primaryFilter.value;
+    const listingType = secondaryFilter.value;
+    const posted = classifieds.filter(r => String(r["Status"]||"POSTED").toUpperCase() === "POSTED");
+    const filtered = posted.filter(r => {
+      const title = String(r["Title"]||"").trim();
+      const isWanted = /^(WANTED|ISO)\s*[—-]/i.test(title);
+      const hay = [r["Title"],r["Price"],r["Category"],r["Description"]].join(" ").toLowerCase();
+      const typeMatch = !listingType || (listingType === "wanted" ? isWanted : !isWanted);
+      return (!q || hay.includes(q)) && (!category || String(r["Category"]||"") === category) && typeMatch;
+    });
+    count.textContent = `${filtered.length} of ${posted.length} classified${posted.length===1?"":"s"}`;
+    if (!filtered.length) {
+      cards.innerHTML = `<div class="empty">${posted.length ? "No classifieds match the current filters." : "No classifieds are currently posted."}</div>`;
+      return;
+    }
+    cards.innerHTML = filtered.map(r => `<article class="card classified-card"><div class="card-head"><div class="title">${esc(r["Title"])}</div><div class="price">${esc(r["Price"])}</div></div><div class="type">${esc(r["Category"])}</div><div class="description">${esc(r["Description"])}</div></article>`).join("");
+  }
+
+  function render() {
+    status.textContent = mode === "jobs" ? (jobsSource || "Loading contracts…") : (classifiedsSource || "Loading classifieds…");
+    if (mode === "jobs") renderJobs(); else renderClassifieds();
+  }
+
+  function useJobs(rows, source) {
+    jobs = rows.sort((a,b) => Number(a["Sort Order"]||9999) - Number(b["Sort Order"]||9999));
+    jobsLoaded = true; jobsSource = source; configureFilters(); render();
+  }
+
+  function useClassifieds(rows, source) {
+    classifieds = rows.sort((a,b) => Number(a["Sort Order"]||9999) - Number(b["Sort Order"]||9999));
+    classifiedsLoaded = true; classifiedsSource = source; configureFilters(); render();
+  }
+
+  window.__mothershipJobsResponse = function(resp) {
+    try {
+      if (!resp || resp.status === "error") throw new Error(resp?.errors?.[0]?.message || "Google Sheet returned an error.");
+      const rows = normalizeTable(resp.table);
+      saveCache(JOBS_CACHE,JOBS_TIME,rows);
+      useJobs(rows,"LIVE // Contracts loaded " + new Date().toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"}));
+    } catch (err) { fallbackJobs(err.message); }
+  };
+
+  window.__mothershipClassifiedsResponse = function(resp) {
+    try {
+      if (!resp || resp.status === "error") throw new Error(resp?.errors?.[0]?.message || "Google Sheet returned an error.");
+      const rows = normalizeTable(resp.table);
+      saveCache(CLASSIFIEDS_CACHE,CLASSIFIEDS_TIME,rows);
+      useClassifieds(rows,"LIVE // Classifieds loaded " + new Date().toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"}));
+    } catch (err) { fallbackClassifieds(err.message); }
+  };
+
+  function fallbackJobs(reason) {
+    const cached = loadCache(JOBS_CACHE); const ct = cacheTime(JOBS_TIME);
+    if (cached.length) {
+      const when = ct ? new Date(ct).toLocaleString() : "previous session";
+      useJobs(cached,"CACHED / STALE // Contracts last loaded: " + when);
+      status.classList.add("offline");
+    } else {
+      jobsLoaded = true; jobs = []; jobsSource = "CONTRACT DATA UNAVAILABLE";
+      if (mode === "jobs") cards.innerHTML = `<div class="error">Could not load contract listings.<br><br><span class="label">Technical detail</span><br>${esc(reason || "No response")}</div>`;
+      render();
+    }
+  }
+
+  function fallbackClassifieds(reason) {
+    const cached = loadCache(CLASSIFIEDS_CACHE); const ct = cacheTime(CLASSIFIEDS_TIME);
+    if (cached.length) {
+      const when = ct ? new Date(ct).toLocaleString() : "previous session";
+      useClassifieds(cached,"CACHED / STALE // Classifieds last loaded: " + when);
+      status.classList.add("offline");
+    } else {
+      classifiedsLoaded = true; classifieds = []; classifiedsSource = "CLASSIFIED DATA UNAVAILABLE";
+      if (mode === "classifieds") cards.innerHTML = `<div class="error">Could not load classified listings.<br><br><span class="label">Technical detail</span><br>${esc(reason || "No response")}</div>`;
+      render();
+    }
+  }
+
+  function loadFeed(scriptId, gid, callback) {
+    const old = document.getElementById(scriptId); if (old) old.remove();
+    const cacheBust = Date.now() + Math.floor(Math.random()*1000);
+    const tqx = encodeURIComponent(`responseHandler:${callback};reqId:${cacheBust}`);
+    const src = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?gid=${gid}&headers=1&tqx=${tqx}&_=${cacheBust}`;
+    const s = document.createElement("script");
+    s.id = scriptId; s.src = src;
+    s.onerror = () => callback === "__mothershipJobsResponse" ? fallbackJobs("Network, permission, or Google Sheets query error.") : fallbackClassifieds("Network, permission, or Google Sheets query error.");
+    document.body.appendChild(s);
+  }
+
+  function loadLive() {
+    status.classList.remove("offline");
+    jobsLoaded = false; classifiedsLoaded = false;
+    jobsSource = "Loading contracts…"; classifiedsSource = "Loading classifieds…";
+    render();
+    loadFeed("jobsQuery",JOBS_GID,"__mothershipJobsResponse");
+    loadFeed("classifiedsQuery",CLASSIFIEDS_GID,"__mothershipClassifiedsResponse");
+    setTimeout(() => { if (!jobsLoaded) fallbackJobs("The contract request timed out."); },8000);
+    setTimeout(() => { if (!classifiedsLoaded) fallbackClassifieds("The classifieds request timed out."); },8000);
+  }
+
+  [search,primaryFilter,secondaryFilter].forEach(el => el.addEventListener("input",render));
+  refreshBtn.addEventListener("click",loadLive);
+  clearBtn.addEventListener("click",() => { search.value=""; primaryFilter.value=""; secondaryFilter.value=""; render(); });
+  jobsTab.addEventListener("click",() => setMode("jobs"));
+  classifiedsTab.addEventListener("click",() => setMode("classifieds"));
+
+  function apiCall(action, params = {}) {
+    return new Promise((resolve, reject) => {
+      const callbackName = "__mothershipAcceptance_" + Date.now() + "_" + Math.floor(Math.random()*1000000);
+      const script = document.createElement("script");
+      const timeout = setTimeout(() => {
+        cleanup();
+        reject(new Error("The contract service did not respond within 10 seconds."));
+      }, 10000);
+
+      function cleanup() {
+        clearTimeout(timeout);
+        try { delete window[callbackName]; } catch (_) { window[callbackName] = undefined; }
+        script.remove();
+      }
+
+      window[callbackName] = payload => {
+        cleanup();
+        resolve(payload);
+      };
+
+      script.onerror = () => {
+        cleanup();
+        reject(new Error("The contract service could not be reached."));
+      };
+
+      const query = new URLSearchParams({action, callback: callbackName});
+      Object.entries(params).forEach(([key, value]) => {
+        if (Array.isArray(value)) query.set(key, JSON.stringify(value));
+        else query.set(key, String(value ?? ""));
+      });
+      query.set("_", String(Date.now()));
+      script.src = ACCEPTANCE_URL + "?" + query.toString();
+      document.body.appendChild(script);
+    });
+  }
+
+  function selectedAcceptanceCharacters() {
+    return [...acceptCharacters.querySelectorAll('input[type="checkbox"]:checked')].map(el => el.value);
+  }
+
+  function setAcceptanceBusy(busy) {
+    acceptanceBusy = busy;
+    acceptValidateBtn.disabled = busy || !acceptanceJobId;
+    acceptContractorYes.disabled = busy;
+    acceptContractorNo.disabled = busy;
+    acceptAuthorizationRequest.disabled = busy;
+  }
+
+  function showAcceptanceResult(message, kind = "warn") {
+    acceptResult.textContent = message || "";
+    acceptResult.className = "accept-result " + kind;
+  }
+
+  function hideAcceptanceResult() {
+    acceptResult.className = "accept-result hidden";
+    acceptResult.textContent = "";
+  }
+
+  function resetAcceptanceModal() {
+    acceptanceJobId = "";
+    acceptancePublicTitle = "";
+    acceptanceBusy = false;
+    acceptanceReviewContractorConfirmed = false;
+    acceptContractTitle.textContent = "Loading…";
+    acceptCharacters.innerHTML = '<div class="label">Loading…</div>';
+    acceptPin.value = "";
+    acceptCharacterSection.classList.remove("hidden");
+    acceptPinSection.classList.remove("hidden");
+    acceptValidateBtn.classList.remove("hidden");
+    acceptValidateBtn.disabled = true;
+    acceptCancelBtn.textContent = "CANCEL";
+    acceptContractorPrompt.classList.add("hidden");
+    acceptAuthorizationPrompt.classList.add("hidden");
+    acceptAuthorizationRequest.textContent = "REQUEST AUTHORIZATION";
+    acceptReveal.classList.add("hidden");
+    acceptEmployerBlock.classList.add("hidden");
+    acceptLocationBlock.classList.add("hidden");
+    acceptEmployer.textContent = "";
+    acceptLocation.textContent = "";
+    hideAcceptanceResult();
+  }
+
+  function closeAcceptanceModal() {
+    acceptModal.classList.add("hidden");
+    document.body.classList.remove("modal-open");
+    resetAcceptanceModal();
+  }
+
+  async function openAcceptanceModal(jobId) {
+    resetAcceptanceModal();
+    acceptanceJobId = String(jobId || "").trim();
+    const publicJob = jobs.find(j => String(j["Job ID"] || "").trim() === acceptanceJobId);
+    acceptancePublicTitle = publicJob ? String(publicJob["Title"] || "CONTRACT").trim() : "CONTRACT";
+    acceptContractTitle.textContent = acceptancePublicTitle + " // " + acceptanceJobId;
+    acceptModal.classList.remove("hidden");
+    document.body.classList.add("modal-open");
+    acceptModalClose.focus();
+
+    try {
+      const setup = await apiCall("setup", {job: acceptanceJobId});
+      if (!setup || setup.ok === false) throw new Error(setup?.error || setup?.message || "Contract setup failed.");
+      const names = Array.isArray(setup.characters) ? setup.characters : [];
+      if (!names.length) {
+        acceptCharacters.innerHTML = '<div class="label">NO ACTIVE CHARACTERS FOUND</div>';
+        showAcceptanceResult("No participating characters are available to validate this contract.", "bad");
+        return;
+      }
+      acceptCharacters.innerHTML = names.map(name => `<label class="accept-character"><input type="checkbox" value="${esc(name)}" checked><span>${esc(name)}</span></label>`).join("");
+      acceptValidateBtn.disabled = false;
+      acceptPin.focus();
+    } catch (error) {
+      acceptCharacters.innerHTML = '<div class="label">CONTRACT SERVICE UNAVAILABLE</div>';
+      showAcceptanceResult("CONTRACT SYSTEM ERROR\n\n" + (error?.message || String(error)), "bad");
+    }
+  }
+
+  async function validateAndMaybeAccept(contractorConfirmed) {
+    if (acceptanceBusy) return;
+    const participants = selectedAcceptanceCharacters();
+    if (!participants.length) { showAcceptanceResult("Select at least one participating character.", "bad"); return; }
+    if (!acceptPin.value) { showAcceptanceResult("Enter the board access code.", "bad"); return; }
+
+    hideAcceptanceResult();
+    acceptContractorPrompt.classList.add("hidden");
+    acceptAuthorizationPrompt.classList.add("hidden");
+    setAcceptanceBusy(true);
+    try {
+      const validation = await apiCall("validate", {
+        job: acceptanceJobId, participants, pin: acceptPin.value, contractor: contractorConfirmed
+      });
+      setAcceptanceBusy(false);
+      handleAcceptanceValidation(validation, contractorConfirmed);
+    } catch (error) {
+      setAcceptanceBusy(false);
+      showAcceptanceResult("CONTRACT SYSTEM ERROR\n\n" + (error?.message || String(error)), "bad");
+    }
+  }
+
+  function handleAcceptanceValidation(validation, contractorConfirmed) {
+    if (!validation || validation.ok === false) {
+      showAcceptanceResult("CONTRACT SYSTEM ERROR\n\n" + (validation?.error || validation?.message || "No validation response was received."), "bad");
+      return;
+    }
+    switch (validation.result) {
+      case "ACCEPTABLE":
+        finalizeAcceptance(contractorConfirmed);
+        break;
+      case "ADDITIONAL QUALIFIED STAFF REQUIRED":
+        showAcceptanceResult(validation.message || "Additional qualified staff are required.", "warn");
+        acceptContractorPrompt.classList.remove("hidden");
+        break;
+      case "QUALIFICATION REVIEW":
+        acceptanceReviewContractorConfirmed = Boolean(contractorConfirmed);
+        hideAcceptanceResult();
+        acceptAuthorizationPrompt.classList.remove("hidden");
+        break;
+      case "NOT YET AVAILABLE":
+        showAcceptanceResult("NOT YET AVAILABLE\n\n" + (validation.message || "This contract is not currently available."), "warn");
+        break;
+      default:
+        showAcceptanceResult("CONTRACT CANNOT BE ACCEPTED\n\n" + (validation.message || "Qualification requirements are not met."), "bad");
+    }
+  }
+
+  function waitMs(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  async function requestQualificationAuthorization() {
+    if (acceptanceBusy) return;
+
+    const participants = selectedAcceptanceCharacters();
+    if (!participants.length) {
+      showAcceptanceResult("Select at least one participating character.", "bad");
+      return;
+    }
+    if (!acceptPin.value) {
+      showAcceptanceResult("Enter the board access code.", "bad");
+      return;
+    }
+
+    const contractorConfirmed = acceptanceReviewContractorConfirmed;
+    const started = Date.now();
+    let dots = 1;
+    let dotsTimer = null;
+
+    acceptAuthorizationPrompt.classList.add("hidden");
+    setAcceptanceBusy(true);
+    showAcceptanceResult("Request submitted..", "warn");
+
+    const phaseTimer = setTimeout(() => {
+      showAcceptanceResult("Awaiting response.", "warn");
+      dotsTimer = setInterval(() => {
+        dots = dots % 3 + 1;
+        showAcceptanceResult("Awaiting response" + ".".repeat(dots), "warn");
+      }, 400);
+    }, 800);
+
+    try {
+      const response = await apiCall("authorize", {
+        job: acceptanceJobId,
+        participants,
+        pin: acceptPin.value,
+        contractor: contractorConfirmed
+      });
+
+      const remaining = Math.max(0, 5000 - (Date.now() - started));
+      if (remaining) await waitMs(remaining);
+
+      clearTimeout(phaseTimer);
+      if (dotsTimer) clearInterval(dotsTimer);
+
+      if (response && response.ok !== false && response.result === "AUTHORIZED" && response.authorized) {
+        showAcceptanceResult("AUTHORIZED", "ok");
+        setAcceptanceBusy(false);
+        await waitMs(600);
+        finalizeAcceptance(contractorConfirmed, true);
+        return;
+      }
+
+      setAcceptanceBusy(false);
+
+      if (response && response.ok !== false && response.result === "NOT ELIGIBLE") {
+        showAcceptanceResult("AUTHORIZATION DENIED\n\n" + (response.message || "Authorization denied."), "bad");
+        return;
+      }
+
+      handleAcceptanceValidation(response, contractorConfirmed);
+
+    } catch (error) {
+      clearTimeout(phaseTimer);
+      if (dotsTimer) clearInterval(dotsTimer);
+      setAcceptanceBusy(false);
+      showAcceptanceResult("CONTRACT SYSTEM ERROR\n\n" + (error?.message || String(error)), "bad");
+    }
+  }
+
+  async function finalizeAcceptance(contractorConfirmed, qualificationAuthorized = false) {
+    setAcceptanceBusy(true);
+    try {
+      const response = await apiCall("accept", {
+        job: acceptanceJobId,
+        participants: selectedAcceptanceCharacters(),
+        pin: acceptPin.value,
+        contractor: contractorConfirmed,
+        authorization: qualificationAuthorized
+      });
+      setAcceptanceBusy(false);
+      if (!response || response.ok === false || response.result !== "ACCEPTABLE" || !response.accepted) {
+        handleAcceptanceValidation(response, contractorConfirmed);
+        return;
+      }
+
+      showAcceptanceResult("CONTRACT ACCEPTED", "ok");
+      acceptContractorPrompt.classList.add("hidden");
+      acceptAuthorizationPrompt.classList.add("hidden");
+      acceptCharacterSection.classList.add("hidden");
+      acceptPinSection.classList.add("hidden");
+      acceptValidateBtn.classList.add("hidden");
+      acceptCancelBtn.textContent = "CLOSE";
+
+      let hasReveal = false;
+      if (response.employer) { acceptEmployer.textContent = response.employer; acceptEmployerBlock.classList.remove("hidden"); hasReveal = true; }
+      if (response.location) { acceptLocation.textContent = response.location; acceptLocationBlock.classList.remove("hidden"); hasReveal = true; }
+      if (hasReveal) acceptReveal.classList.remove("hidden");
+
+      const acceptedJobId = String(response.jobId || acceptanceJobId).trim();
+      jobs = jobs.filter(j => String(j["Job ID"] || "").trim() !== acceptedJobId);
+      saveCache(JOBS_CACHE, JOBS_TIME, jobs);
+      configureFilters();
+      render();
+      setTimeout(loadLive, 600);
+    } catch (error) {
+      setAcceptanceBusy(false);
+      showAcceptanceResult("CONTRACT SYSTEM ERROR\n\n" + (error?.message || String(error)), "bad");
+    }
+  }
+
+  cards.addEventListener("click", event => {
+    const button = event.target.closest("[data-accept-job]");
+    if (!button) return;
+    const jobId = String(button.dataset.acceptJob || "").trim();
+    if (jobId) openAcceptanceModal(jobId);
+  });
+
+  acceptValidateBtn.addEventListener("click", () => validateAndMaybeAccept(false));
+  acceptContractorYes.addEventListener("click", () => validateAndMaybeAccept(true));
+  acceptAuthorizationRequest.addEventListener("click", requestQualificationAuthorization);
+  acceptContractorNo.addEventListener("click", () => {
+    acceptContractorPrompt.classList.add("hidden");
+    showAcceptanceResult("Acceptance cancelled. No contract state was changed.", "warn");
+  });
+  acceptCancelBtn.addEventListener("click", closeAcceptanceModal);
+  acceptModalClose.addEventListener("click", closeAcceptanceModal);
+  acceptModal.addEventListener("click", event => { if (event.target === acceptModal) closeAcceptanceModal(); });
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape" && !acceptModal.classList.contains("hidden")) closeAcceptanceModal();
+  });
+
+  configureFilters();
+  loadLive();
+})();
+</script>
+</body>
+</html>
