@@ -1,1 +1,27 @@
-PLACEHOLDER
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The Hub — Public Board</title>
+<style>
+body{margin:0;background:#111315;color:#e7e4dc;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace}
+#boot{padding:28px;color:#aaa79f;letter-spacing:.06em}
+</style>
+</head>
+<body><div id="boot">THE HUB // LOADING PUBLIC BOARD…</div>
+<script>
+(async()=>{
+  const res=await fetch('board-layer-v1.html?v=20260825q2',{cache:'no-store'});
+  if(!res.ok) throw new Error('Mission Board layer could not be loaded.');
+  let source=await res.text();
+  source=source.replaceAll('record?.','contractorRecord?.');
+  document.open();
+  document.write(source);
+  document.close();
+})().catch(error=>{
+  document.body.innerHTML='<div style="padding:28px;color:#c86655;font-family:monospace">MISSION BOARD LOAD ERROR<br><br>'+String(error.message||error)+'</div>';
+});
+</script>
+</body>
+</html>
