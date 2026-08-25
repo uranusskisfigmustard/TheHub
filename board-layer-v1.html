@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The Hub — Public Board</title>
+<style>
+body{margin:0;background:#111315;color:#e7e4dc;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace}
+#boot{padding:28px;color:#aaa79f;letter-spacing:.06em}
+</style>
+</head>
+<body><div id="boot">THE HUB // LOADING PUBLIC BOARD…</div>
+<script>
+(async()=>{
+  const res=await fetch('board-core.html?v=20260825q1',{cache:'no-store'});
+  if(!res.ok) throw new Error('Board core could not be loaded.');
+  let html=await res.text();
+  const replace=(pattern,value,label)=>{const next=html.replace(pattern,value);if(next===html)throw new Error('Mission Board patch failed: '+label);html=next};
+
+  replace('</style>',`
+  .status-tools { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+  .highlight-toggle { display:inline-flex; align-items:center; gap:6px; cursor:pointer; }
+  .highlight-toggle input { margin:0; accent-color:var(--ok); }
+  .card.crew-ready { border-color:var(--ok); box-shadow:0 0 0 1px rgba(143,167,122,.22),0 10px 24px rgba(0,0,0,.20); }
+  .card.crew-action { border-color:#8a611f; }
+  .eligibility-badge { display:inline-block; margin:0 0 10px; padding:4px 7px; border:1px solid var(--ok); color:#bdd2aa; background:rgba(63,86,51,.18); font-size:.7rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase; border-radius:3px; }
+  .eligibility-badge.action { border-color:#8a611f; color:#efbd74; background:rgba(83,55,15,.18); }
+  .qualification-action { margin-top:16px; padding:13px; border:1px solid var(--accent); background:rgba(212,168,75,.06); border-radius:3px; }
+  .qualification-action-title { font-weight:800; letter-spacing:.05em; }
+  .qualification-action-note { color:#d5d0c4; margin:8px 0 0; }
+  .action-grid { display:grid; grid-template-columns:1fr 1fr; gap:9px; margin-top:9px; }
+  .action-grid .full { grid-column:1/-1; }
+  .action-field { width:100%; margin-top:7px; padding:10px; font:inherit; color:var(--text); background:var(--panel2); border:1px solid var(--line); border-radius:3px; }
+  @media (max-width:760px) { .action-grid { grid-template-columns:1fr; } .action-grid .full { grid-column:auto; } }
+</style>`,'css');
+
+  replace(/<div class="statusbar">[\s\S]*?<\/div>\n\n<main>/,`<div class="statusbar">
+  <span id="status">Loading boards…</span>
+  <div class="status-tools"><label id="highlightLabel" class="highlight-toggle"><input id="highlightQualified" type="checkbox" checked> HIGHLIGHT CREW-QUALIFIED</label><span id="count"></span></div>
+</div>
+
+<main>`,'statusbar');
+
+  replace(/    <div id="acceptContractorPrompt"[\s\S]*?    <div id="acceptReveal"/,`    <div id="acceptQualificationAction" class="qualification-action hidden">
+      <div class="qualification-action-title">QUALIFICATION ACTION REQUIRED</div>
+      <p id="acceptQualificationActionText" class="qualification-action-note"></p>
+      <div id="acceptContractorFields" class="hidden">
+        <div class="action-grid">
+          <div class="full"><label class="label" for="acceptContractorName">QUALIFIED CONTRACTOR</label><input id="acceptContractorName" class="action-field" type="text" maxlength="80" placeholder="Contractor name"></div>
+          <div><label class="label" for="acceptContractorCompType">COMPENSATION TYPE</label><select id="acceptContractorCompType" class="action-field"><option value="credits">Fixed credits</option><option value="share">Mission share (%)</option></select></div>
+          <div><label class="label" for="acceptContractorCompAmount">COMPENSATION</label><input id="acceptContractorCompAmount" class="action-field" type="number" min="0" step="1" placeholder="Amount"></div>
+        </div>
+        <div class="accept-actions"><button id="acceptContractorSubmit" class="accept-action" type="button">SUBMIT CONTRACTOR</button><button id="acceptQualificationCancel" class="accept-action secondary" type="button">CANCEL</button></div>
+      </div>
+      <div id="acceptAuthorizationFields" class="hidden"><div class="accept-actions"><button id="acceptAuthorizationRequest" class="accept-action" type="button">REQUEST AUTHORIZATION</button><button id="acceptAuthorizationCancel" class="accept-action secondary" type="button">CANCEL</button></div></div>
+    </div>
+
+    <div id="acceptReveal"`,'action html');
+
+  replace(/  const acceptContractorPrompt = document\.getElementById\("acceptContractorPrompt"\);[\s\S]*?  const acceptReveal = document\.getElementById\("acceptReveal"\);/,`  const acceptQualificationAction = document.getElementById("acceptQualificationAction");
+  const acceptQualificationActionText = document.getElementById("acceptQualificationActionText");
+  const acceptContractorFields = document.getElementById("acceptContractorFields");
+  const acceptContractorName = document.getElementById("acceptContractorName");
+  const acceptContractorCompType = document.getElementById("acceptContractorCompType");
+  const acceptContractorCompAmount = document.getElementById("acceptContractorCompAmount");
+  const acceptContractorSubmit = document.getElementById("acceptContractorSubmit");
+  const acceptQualificationCancel = document.getElementById("acceptQualificationCancel");
+  const acceptAuthorizationFields = document.getElementById("acceptAuthorizationFields");
+  const acceptAuthorizationRequest = document.getElementById("acceptAuthorizationRequest");
+  const acceptAuthorizationCancel = document.getElementById("acceptAuthorizationCancel");
+  const acceptReveal = document.getElementById("acceptReveal");`,'dom refs');
+
+  replace('  let acceptanceReviewContractorConfirmed = false;',`  let acceptanceReviewContractorConfirmed = false;
+  let contractorRecord = null;
+  let eligibility = {};
+  try { eligibility = JSON.parse(localStorage.getItem("mothership_hub_eligibility_v1") || "{}") || {}; } catch (_) { eligibility = {}; }
+  const CURRENT_CREW_SKILLS = new Set(["Military Training","Athletics","Hand-to-Hand Combat","Industrial Equipment","Jury-Rigging","Zero-G","Mechanical Repair"]);
+  const CURRENT_CREW_CREDENTIALS = new Set(["Sponsor Pass","Interim Work Credentials"]);
+  const REGULATED_CREDENTIALS = ["Engineering Sign-Off Authority","Medical Responder Credential","Professional Psychological Assessment Credential","Explosives License","Armed Security Authorization","Weapons Custody Authorization","Field Hazard Firearms Authorization","Detention/Custody Authorization","Professional Pathology Credential","Medical Biohazard Response Credential","Professional Pharmacology Credential","Controlled-Substance Handling Authorization","Pilot License","Controlled AI Systems Authorization","Jump Navigation Authority","Hyperspace Sign-Off Authority","Surgical License"];`,'state');
+
+  replace(/  function render\(\) \{[\s\S]*?\n  \}/,`  function render() {
+    status.textContent = mode === "jobs" ? (jobsSource || "Loading contracts…") : (classifiedsSource || "Loading classifieds…");
+    if (mode === "jobs") { renderJobs(); decorateEligibility(); } else renderClassifieds();
+  }`,'render');
+
+  replace(/  function setAcceptanceBusy\(busy\) \{[\s\S]*?\n  \}/,`  function setAcceptanceBusy(busy) {
+    acceptanceBusy = busy;
+    acceptValidateBtn.disabled = busy || !acceptanceJobId;
+    acceptContractorSubmit.disabled = busy;
+    acceptAuthorizationRequest.disabled = busy;
+  }`,'busy');
+
+  replace(/  function resetAcceptanceModal\(\) \{[\s\S]*?\n  \}/,`  function resetAcceptanceModal() {
+    acceptanceJobId = "";
+    acceptancePublicTitle = "";
+    acceptanceBusy = false;
+    acceptanceReviewContractorConfirmed = false;
+    contractorRecord = null;
+    acceptContractTitle.textContent = "Loading…";
+    acceptCharacters.innerHTML = '<div class="label">Loading…</div>';
+    acceptPin.value = "";
+    acceptContractorName.value = "";
+    acceptContractorCompType.value = "credits";
+    acceptContractorCompAmount.value = "";
+    acceptCharacterSection.classList.remove("hidden");
+    acceptPinSection.classList.remove("hidden");
+    acceptValidateBtn.classList.remove("hidden");
+    acceptValidateBtn.disabled = true;
+    acceptCancelBtn.textContent = "CANCEL";
+    hideQualificationAction();
+    acceptReveal.classList.add("hidden");
+    acceptEmployerBlock.classList.add("hidden");
+    acceptLocationBlock.classList.add("hidden");
+    acceptEmployer.textContent = "";
+    acceptLocation.textContent = "";
+    hideAcceptanceResult();
+  }`,'reset');
+
+  replace(/  function handleAcceptanceValidation\(validation, contractorConfirmed\) \{[\s\S]*?\n  \}/,`  function handleAcceptanceValidation(validation, contractorConfirmed, record = null) {
+    if (!validation || validation.ok === false) {
+      showAcceptanceResult("CONTRACT SYSTEM ERROR\\n\\n" + (validation?.error || validation?.message || "No validation response was received."), "bad");
+      return;
+    }
+    switch (validation.result) {
+      case "ACCEPTABLE":
+        setEligibility(acceptanceJobId,"ready");
+        render();
+        finalizeAcceptance(contractorConfirmed, false, record);
+        break;
+      case "ADDITIONAL QUALIFIED STAFF REQUIRED":
+        setEligibility(acceptanceJobId,"action");
+        render();
+        showContractorAction(validation.message);
+        break;
+      case "QUALIFICATION REVIEW":
+        setEligibility(acceptanceJobId,"action");
+        render();
+        acceptanceReviewContractorConfirmed = Boolean(contractorConfirmed);
+        showAuthorizationAction(validation.message);
+        break;
+      case "NOT YET AVAILABLE":
+        showAcceptanceResult("NOT YET AVAILABLE\\n\\n" + (validation.message || "This contract is not currently available."), "warn");
+        break;
+      default:
+        showAcceptanceResult("CONTRACT CANNOT BE ACCEPTED\\n\\n" + (validation.message || "Qualification requirements are not met."), "bad");
+    }
+  }`,'validation handler');
+
+  replace('    acceptContractorPrompt.classList.add("hidden");\n    acceptAuthorizationPrompt.classList.add("hidden");','    hideQualificationAction();','validate hide');
+  replace('    acceptAuthorizationPrompt.classList.add("hidden");','    hideQualificationAction();','authorize hide');
+  replace('      acceptContractorPrompt.classList.add("hidden");\n      acceptAuthorizationPrompt.classList.add("hidden");','      hideQualificationAction();','accept hide');
+
+  replace(/  async function finalizeAcceptance\(contractorConfirmed, qualificationAuthorized = false\) \{/,`  async function finalizeAcceptance(contractorConfirmed, qualificationAuthorized = false, record = null) {`,'finalize signature');
+  replace('        authorization: qualificationAuthorized\n','        authorization: qualificationAuthorized,\n        contractorName: record?.name || "",\n        contractorCompensationType: record?.type || "",\n        contractorCompensation: record?.amount || ""\n','finalize metadata');
+  replace('        job: acceptanceJobId, participants, pin: acceptPin.value, contractor: contractorConfirmed\n','        job: acceptanceJobId, participants, pin: acceptPin.value, contractor: contractorConfirmed,\n        contractorName: record?.name || "", contractorCompensationType: record?.type || "", contractorCompensation: record?.amount || ""\n','validate metadata');
+
+  replace(/  function hideAcceptanceResult\(\) \{[\s\S]*?\n  \}/,match=>match+`
+
+  function setEligibility(jobId,state) {
+    if (!jobId) return;
+    if (state) eligibility[jobId] = state; else delete eligibility[jobId];
+    try { localStorage.setItem("mothership_hub_eligibility_v1", JSON.stringify(eligibility)); } catch (_) {}
+  }
+
+  function inferCrewStatus(job) {
+    const id = String(job["Job ID"] || "").trim();
+    if (eligibility[id]) return eligibility[id];
+    const q = qualificationParts(job["Qualification"]);
+    const preferred = splitSkills(job["Preferred Skills"]);
+    const required = splitSkills(job["Required Skills"]);
+    if (q.label === "OPEN") return "ready";
+    if (q.label === "PREFERRED") return preferred.some(s => CURRENT_CREW_SKILLS.has(s)) ? "ready" : "action";
+    if (q.label === "REQUIRED") return required.length && required.every(s => CURRENT_CREW_SKILLS.has(s)) ? "ready" : "";
+    if (q.label === "REGULATED") {
+      const named = REGULATED_CREDENTIALS.filter(c => String(job["Qualification"] || "").includes(c));
+      return required.length && required.every(s => CURRENT_CREW_SKILLS.has(s)) && named.length && named.every(c => CURRENT_CREW_CREDENTIALS.has(c)) ? "ready" : "";
+    }
+    return "";
+  }
+
+  function decorateEligibility() {
+    const toggle = document.getElementById("highlightQualified");
+    const enabled = !toggle || toggle.checked;
+    cards.querySelectorAll("article.card").forEach(card => {
+      card.classList.remove("crew-ready","crew-action");
+      card.querySelector(".eligibility-badge")?.remove();
+      if (!enabled) return;
+      const button = card.querySelector("[data-accept-job]");
+      if (!button) return;
+      const id = String(button.dataset.acceptJob || "").trim();
+      const job = jobs.find(j => String(j["Job ID"] || "").trim() === id);
+      if (!job) return;
+      const state = inferCrewStatus(job);
+      if (!state) return;
+      card.classList.add(state === "ready" ? "crew-ready" : "crew-action");
+      const badge = document.createElement("div");
+      badge.className = "eligibility-badge" + (state === "action" ? " action" : "");
+      badge.textContent = state === "ready" ? "CREW QUALIFIED" : "QUALIFICATION ACTION REQUIRED";
+      card.insertBefore(badge, card.firstChild);
+    });
+  }
+
+  function hideQualificationAction() {
+    acceptQualificationAction.classList.add("hidden");
+    acceptContractorFields.classList.add("hidden");
+    acceptAuthorizationFields.classList.add("hidden");
+  }
+
+  function showContractorAction(message) {
+    hideAcceptanceResult();
+    acceptQualificationActionText.textContent = message || "The crew needs an additional qualified contractor. Enter the contractor and agreed compensation.";
+    acceptQualificationAction.classList.remove("hidden");
+    acceptContractorFields.classList.remove("hidden");
+    acceptAuthorizationFields.classList.add("hidden");
+    acceptContractorName.focus();
+  }
+
+  function showAuthorizationAction(message) {
+    hideAcceptanceResult();
+    acceptQualificationActionText.textContent = message || "The crew is close to the stated qualification threshold. Employer authorization is required to proceed.";
+    acceptQualificationAction.classList.remove("hidden");
+    acceptAuthorizationFields.classList.remove("hidden");
+    acceptContractorFields.classList.add("hidden");
+  }
+
+  function contractorInput() {
+    const name = acceptContractorName.value.trim();
+    const type = acceptContractorCompType.value;
+    const raw = acceptContractorCompAmount.value.trim();
+    const amount = Number(raw);
+    if (!name) { showAcceptanceResult("Enter the qualified contractor's name.","bad"); return null; }
+    if (raw === "" || !Number.isFinite(amount) || amount < 0) { showAcceptanceResult("Enter a valid contractor compensation amount.","bad"); return null; }
+    if (type === "share" && amount > 100) { showAcceptanceResult("Mission share cannot exceed 100%.","bad"); return null; }
+    return {name,type,amount};
+  }
+
+  async function submitContractor() {
+    if (acceptanceBusy) return;
+    const record = contractorInput();
+    if (!record) return;
+    contractorRecord = record;
+    hideQualificationAction();
+    setAcceptanceBusy(true);
+    showAcceptanceResult("CONTRACTOR SUBMITTED\\n\\nVerifying credentials...","warn");
+    const started = Date.now();
+    let dots = 1;
+    const timer = setInterval(() => { dots = dots % 3 + 1; showAcceptanceResult("CONTRACTOR SUBMITTED\\n\\nVerifying credentials" + ".".repeat(dots),"warn"); },450);
+    try {
+      const response = await apiCall("validate", {job:acceptanceJobId,participants:selectedAcceptanceCharacters(),pin:acceptPin.value,contractor:true,contractorName:record.name,contractorCompensationType:record.type,contractorCompensation:record.amount});
+      const remaining = Math.max(0,3500-(Date.now()-started));
+      if (remaining) await waitMs(remaining);
+      clearInterval(timer);
+      setAcceptanceBusy(false);
+      if (response && response.ok !== false && response.result === "ACCEPTABLE") {
+        showAcceptanceResult("CONTRACTOR APPROVED\\n\\n" + record.name + " // " + (record.type === "share" ? record.amount + "% mission share" : record.amount + "cr"),"ok");
+        await waitMs(700);
+        setEligibility(acceptanceJobId,"ready");
+        render();
+        finalizeAcceptance(true,false,record);
+        return;
+      }
+      handleAcceptanceValidation(response,true,record);
+    } catch (error) {
+      clearInterval(timer);
+      setAcceptanceBusy(false);
+      showAcceptanceResult("CONTRACT SYSTEM ERROR\\n\\n" + (error?.message || String(error)),"bad");
+    }
+  }`,'helpers');
+
+  replace('        finalizeAcceptance(contractorConfirmed, true);','        finalizeAcceptance(contractorConfirmed, true, contractorRecord);','authorized finalize');
+
+  replace(/  acceptValidateBtn\.addEventListener\("click", \(\) => validateAndMaybeAccept\(false\)\);[\s\S]*?  acceptCancelBtn\.addEventListener\("click", closeAcceptanceModal\);/,`  acceptValidateBtn.addEventListener("click", () => validateAndMaybeAccept(false));
+  acceptContractorSubmit.addEventListener("click", submitContractor);
+  acceptAuthorizationRequest.addEventListener("click", requestQualificationAuthorization);
+  [acceptQualificationCancel,acceptAuthorizationCancel].forEach(button => button.addEventListener("click", () => { hideQualificationAction(); showAcceptanceResult("Acceptance cancelled. No contract state was changed.","warn"); }));
+  document.getElementById("highlightQualified")?.addEventListener("change", render);
+  acceptCancelBtn.addEventListener("click", closeAcceptanceModal);`,'listeners');
+
+  document.open();
+  document.write(html);
+  document.close();
+})().catch(error=>{
+  document.body.innerHTML='<div style="padding:28px;color:#c86655;font-family:monospace">MISSION BOARD LOAD ERROR<br><br>'+String(error.message||error)+'</div>';
+});
+</script>
+</body>
+</html>
