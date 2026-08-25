@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The Hub — Acceptance Terminal Trial</title>
+<style>
+html,body{margin:0;width:100%;height:100%;background:#111315}
+#boardFrame{display:block;width:100%;height:100%;border:0;background:#111315}
+#trialStatus{position:fixed;right:10px;bottom:10px;z-index:9999;padding:6px 8px;border:1px solid #3a3f43;background:rgba(17,19,21,.92);color:#aaa79f;font:11px ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;pointer-events:none}
+</style>
+</head>
+<body>
+<iframe id="boardFrame" src="index.html?terminalTrial=20260825" title="The Hub Public Board"></iframe>
+<div id="trialStatus">TERMINAL TRIAL // ARMED</div>
+<script>
+(() => {
+  const frame = document.getElementById('boardFrame');
+  const status = document.getElementById('trialStatus');
+
+  frame.addEventListener('load', () => {
+    try {
+      installAcceptanceInterceptor(frame.contentWindow, frame.contentDocument);
+      status.textContent = 'TERMINAL TRIAL // READY';
+    } catch (error) {
+      status.textContent = 'TERMINAL TRIAL // HOOK FAILED';
+      console.error(error);
+    }
+  });
+
+  function installAcceptanceInterceptor(w, d) {
+    if (!w || !d || !d.body || d.__terminalTrialInstalled) return;
+    d.__terminalTrialInstalled = true;
+
+    const style = d.createElement('style');
+    style.textContent = `
+      .trial-terminal-wrap{margin-top:16px;border:1px solid var(--ok,#8fa77a);background:#0b0d0e;box-shadow:inset 0 0 30px rgba(0,0,0,.35)}
+      .trial-terminal-head{padding:9px 11px;border-bottom:1px solid #273128;color:var(--ok,#8fa77a);font-size:.75rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+      .trial-terminal-output{margin:0;padding:14px;min-height:260px;max-height:58vh;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;color:var(--text,#e7e4dc);font:inherit;line-height:1.48}
+      .trial-terminal-cursor{display:inline-block;width:.62em;height:1em;vertical-align:-.12em;background:currentColor;animation:trialBlink 1s steps(1,end) infinite}
+      .trial-terminal-actions{display:flex;gap:9px;flex-wrap:wrap;padding:0 14px 14px}
+      .trial-terminal-btn{font:inherit;font-weight:800;letter-spacing:.06em;cursor:pointer;padding:9px 12px;border-radius:3px;border:1px solid var(--line,#3a3f43);color:var(--text,#e7e4dc);background:#15191b}
+      .trial-terminal-btn.primary{border-color:var(--accent,#d4a84b);background:rgba(212,168,75,.10)}
+      @keyframes trialBlink{0%,49%{opacity:1}50%,100%{opacity:0}}
+      @media (prefers-reduced-motion: reduce){.trial-terminal-cursor{animation:none}}
+    `;
+    d.head.appendChild(style);
+
+    const originalAppend = d.body.appendChild.bind(d.body);
+    d.body.appendChild = function(node) {
+      try {
+        if (node && node.tagName === 'SCRIPT' && node.src) {
+          const url = new URL(node.src, w.location.href);
+          if (url.searchParams.get('action') === 'accept') {
+            const callbackName = url.searchParams.get('callback');
+            const originalCallback = callbackName && w[callbackName];
+            if (callbackName && typeof originalCallback === 'function') {
+              w[callbackName] = function(payload) {
+                let acceptedPayload = null;
+                if (payload && payload.accepted === true && payload.brief && payload.brief.text) {
+                  acceptedPayload = payload;
+                }
+                const result = originalCallback(payload);
+                if (acceptedPayload) {
+                  w.setTimeout(() => renderTerminal(w, d, acceptedPayload), 40);
+                }
+                return result;
+              };
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Terminal trial interceptor:', error);
+      }
+      return originalAppend(node);
+    };
+  }
+
+  function renderTerminal(w, d, payload) {
+    const shell = d.querySelector('.accept-modal-shell');
+    if (!shell) return;
+
+    const characterSection = d.getElementById('acceptCharacterSection');
+    const pinSection = d.getElementById('acceptPinSection');
+    const mainActions = d.getElementById('acceptMainActions');
+    const result = d.getElementById('acceptResult');
+    const reveal = d.getElementById('acceptReveal');
+    const contractor = d.getElementById('acceptContractorPrompt');
+    const authorization = d.getElementById('acceptAuthorizationPrompt');
+
+    [characterSection,pinSection,mainActions,result,reveal,contractor,authorization].forEach(el => {
+      if (el) el.classList.add('hidden');
+    });
+
+    const old = d.getElementById('trialTerminalWrap');
+    if (old) old.remove();
+
+    const wrap = d.createElement('section');
+    wrap.id = 'trialTerminalWrap';
+    wrap.className = 'trial-terminal-wrap';
+
+    const head = d.createElement('div');
+    head.className = 'trial-terminal-head';
+    head.textContent = 'ACCEPTED CONTRACT // SECURE RECORD OUTPUT';
+
+    const pre = d.createElement('pre');
+    pre.className = 'trial-terminal-output';
+    pre.setAttribute('aria-live','polite');
+
+    const actions = d.createElement('div');
+    actions.className = 'trial-terminal-actions';
+
+    const showAll = d.createElement('button');
+    showAll.type = 'button';
+    showAll.className = 'trial-terminal-btn primary';
+    showAll.textContent = 'SHOW ALL';
+
+    const close = d.createElement('button');
+    close.type = 'button';
+    close.className = 'trial-terminal-btn';
+    close.textContent = 'CLOSE';
+    close.addEventListener('click', () => {
+      const closeBtn = d.getElementById('acceptModalClose');
+      if (closeBtn) closeBtn.click();
+    });
+
+    actions.append(showAll, close);
+    wrap.append(head, pre, actions);
+    shell.appendChild(wrap);
+
+    const jobId = String(payload.jobId || '').trim();
+    const text = String(payload.brief.text || '').replace(/^\s+|\s+$/g,'');
+    const handshake = [
+      `> ACCEPT CONTRACT ${jobId}`,
+      '',
+      'VALIDATING PARTICIPANTS...',
+      'AUTHORIZATION .......... GRANTED',
+      'CONTRACT STATUS ........ ACTIVE',
+      '',
+      `> VIEW ${jobId}`,
+      '',
+      'LOADING ACCEPTED ASSIGNMENT DETAILS...',
+      ''
+    ].join('\n');
+    const fullText = handshake + text + '\n';
+    const reduceMotion = w.matchMedia && w.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    let cancelled = false;
+    let lineIndex = 0;
+    const lines = fullText.split('\n');
+
+    function finish() {
+      cancelled = true;
+      pre.textContent = fullText;
+      pre.scrollTop = pre.scrollHeight;
+      showAll.disabled = true;
+      showAll.textContent = 'COMPLETE';
+    }
+
+    showAll.addEventListener('click', finish);
+
+    if (reduceMotion) {
+      finish();
+      return;
+    }
+
+    function emitNext() {
+      if (cancelled) return;
+      if (lineIndex >= lines.length) {
+        showAll.disabled = true;
+        showAll.textContent = 'COMPLETE';
+        return;
+      }
+      pre.textContent += lines[lineIndex] + '\n';
+      lineIndex += 1;
+      pre.scrollTop = pre.scrollHeight;
+      const last = lines[Math.max(0,lineIndex-1)];
+      const delay = last === '' ? 55 : 28;
+      w.setTimeout(emitNext, delay);
+    }
+
+    emitNext();
+  }
+})();
+</script>
+</body>
+</html>
