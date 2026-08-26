@@ -226,8 +226,26 @@
     });
   }
 
+  function installContractLogNav() {
+    const nav = document.querySelector('.navrow');
+    if (!nav || document.getElementById('contractLogNav')) return;
+
+    const button = document.createElement('button');
+    button.id = 'contractLogNav';
+    button.className = 'navbtn';
+    button.type = 'button';
+    button.textContent = 'CONTRACT LOG';
+    button.addEventListener('click', () => { location.href = 'contracts.html'; });
+
+    const statements = [...nav.querySelectorAll('.navbtn')].find(
+      el => String(el.textContent || '').trim().toUpperCase() === 'STATEMENTS'
+    );
+    nav.insertBefore(button, statements || null);
+  }
+
   installStyles();
   ensureTerminal();
   installJsonpInterceptor();
   installResetHooks();
+  installContractLogNav();
 })();
