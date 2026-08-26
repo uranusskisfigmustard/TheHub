@@ -9,7 +9,6 @@
     const style = document.createElement('style');
     style.id = STYLE_ID;
     style.textContent = `
-      /* Qualification state lives in the badge/skill box, not the card border. */
       article.card.crew-ready,
       article.card.crew-action,
       article.card.regulated-not-met {
@@ -17,16 +16,13 @@
         box-shadow:0 10px 24px rgba(0,0,0,.20) !important;
       }
 
-      /* The badge makes the state obvious; the extra global highlight control is redundant. */
       #highlightLabel { display:none !important; }
 
       .qual-box.crew-qualified {
         border-color:#4f6a46 !important;
         background:rgba(39,58,36,.38) !important;
       }
-      .qual-box.crew-qualified .qual-head {
-        color:#bdd2aa !important;
-      }
+      .qual-box.crew-qualified .qual-head,
       .qual-box.crew-qualified .qual-icon {
         color:#bdd2aa !important;
       }
@@ -48,10 +44,9 @@
   function restoreBaseIcon(icon) {
     if (!icon) return;
     rememberBaseIcon(icon);
-    if (icon.classList.contains('crew-qualified-icon')) {
-      icon.innerHTML = icon.__baseQualificationIcon || '';
-      icon.classList.remove('crew-qualified-icon');
-    }
+    if (!icon.classList.contains('crew-qualified-icon')) return;
+    icon.innerHTML = icon.__baseQualificationIcon || '';
+    icon.classList.remove('crew-qualified-icon');
   }
 
   function setQualifiedIcon(icon) {
@@ -73,16 +68,18 @@
         /CREW\s+QUALIFIED/i.test(badge.textContent || '')
       );
 
-      card.classList.remove('regulated-not-met');
-      qualBox?.classList.remove('crew-qualified');
-      badge?.classList.remove('not-met');
-      restoreBaseIcon(icon);
-
       if (ready) {
+        card.classList.remove('regulated-not-met');
+        badge.classList.remove('not-met');
         qualBox?.classList.add('crew-qualified');
         setQualifiedIcon(icon);
         return;
       }
+
+      qualBox?.classList.remove('crew-qualified');
+      restoreBaseIcon(icon);
+      card.classList.remove('regulated-not-met');
+      badge?.classList.remove('not-met');
 
       if (regulated && badge) {
         card.classList.remove('crew-action');
@@ -111,8 +108,6 @@
       });
     });
 
-    /* child-list changes catch card renders and eligibility-badge replacement.
-       We intentionally do not observe class/text attributes, avoiding feedback loops. */
     observer.observe(target, { childList:true, subtree:true });
   }
 
