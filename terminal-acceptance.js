@@ -64,11 +64,6 @@
         content:'_';
         animation:acceptTerminalBlink 850ms steps(1,end) infinite;
       }
-      .eligibility-badge.not-met {
-        border-color:#c86655 !important;
-        color:#e7aaa0 !important;
-        background:rgba(104,42,34,.20) !important;
-      }
       @keyframes acceptTerminalBlink { 0%,48%{opacity:1} 49%,100%{opacity:0} }
       @media (prefers-reduced-motion: reduce) {
         .accept-terminal-cursor::after { animation:none; }
@@ -226,27 +221,6 @@
     });
   }
 
-  function applyRegulatedQualificationPresentation() {
-    document.querySelectorAll('article.card').forEach(card => {
-      const badge = card.querySelector('.eligibility-badge');
-      if (!badge) return;
-      if (!/\bREGULATED\b/i.test(card.textContent || '')) return;
-      if (card.classList.contains('crew-ready') || /CREW\s+QUALIFIED/i.test(badge.textContent || '')) return;
-
-      card.classList.remove('crew-action');
-      if (badge.textContent !== 'QUALIFICATIONS NOT MET') badge.textContent = 'QUALIFICATIONS NOT MET';
-      badge.classList.remove('action');
-      badge.classList.add('not-met');
-    });
-  }
-
-  function installRegulatedQualificationPresentation() {
-    applyRegulatedQualificationPresentation();
-    const target = document.getElementById('cards') || document.body;
-    const observer = new MutationObserver(() => applyRegulatedQualificationPresentation());
-    observer.observe(target, { childList:true, subtree:true, characterData:true, attributes:true, attributeFilter:['class'] });
-  }
-
   function insertContractLogNav() {
     const nav = document.querySelector('.navrow');
     if (!nav || document.getElementById('contractLogNav')) return;
@@ -293,6 +267,5 @@
   ensureTerminal();
   installJsonpInterceptor();
   installResetHooks();
-  installRegulatedQualificationPresentation();
   installContractLogNav();
 })();
