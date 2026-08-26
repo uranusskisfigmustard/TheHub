@@ -8,12 +8,32 @@
   const DISPOSITION_DELAY_MS = 5000;
   const DISPOSITION_PHASE_MS = 800;
   const DISPOSITION_DOT_MS = 400;
+  const CONTRACT_API_TIMEOUT_MS = 30000;
 
   let dispositionGeneration = 0;
   let dispositionPhaseTimer = null;
   let dispositionDotsTimer = null;
   let dispositionFinalTimer = null;
   let dispositionButtonState = null;
+
+  function installContractApiTimeoutExtension() {
+    const currentSetTimeout = window.setTimeout;
+    if (currentSetTimeout.__mothershipContractApiTimeoutExtended) return;
+
+    function extendedSetTimeout(handler, delay, ...args) {
+      let effectiveDelay = delay;
+      if (Number(delay) === 10000) {
+        try {
+          const stack = String(new Error().stack || '');
+          if (stack.includes('apiCall')) effectiveDelay = CONTRACT_API_TIMEOUT_MS;
+        } catch (_) {}
+      }
+      return currentSetTimeout.call(window, handler, effectiveDelay, ...args);
+    }
+
+    extendedSetTimeout.__mothershipContractApiTimeoutExtended = true;
+    window.setTimeout = extendedSetTimeout;
+  }
 
   function installStyles() {
     if (document.getElementById(STYLE_ID)) return;
@@ -226,6 +246,7 @@
     });
   }
 
+  installContractApiTimeoutExtension();
   installStyles();
   installObserver();
   installDispositionInterceptor();
