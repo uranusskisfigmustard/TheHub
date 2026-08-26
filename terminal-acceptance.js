@@ -64,6 +64,11 @@
         content:'_';
         animation:acceptTerminalBlink 850ms steps(1,end) infinite;
       }
+      .eligibility-badge.not-met {
+        border-color:#c86655 !important;
+        color:#e7aaa0 !important;
+        background:rgba(104,42,34,.20) !important;
+      }
       @keyframes acceptTerminalBlink { 0%,48%{opacity:1} 49%,100%{opacity:0} }
       @media (prefers-reduced-motion: reduce) {
         .accept-terminal-cursor::after { animation:none; }
@@ -75,7 +80,6 @@
   function ensureTerminal() {
     let terminal = document.getElementById(TERMINAL_ID);
     if (terminal) return terminal;
-
     const result = document.getElementById('acceptResult');
     if (!result) return null;
 
@@ -91,7 +95,6 @@
       <pre id="${TERMINAL_OUTPUT_ID}" class="accept-terminal-output"></pre>
     `;
     result.insertAdjacentElement('afterend', terminal);
-
     terminal.querySelector('#' + TERMINAL_SKIP_ID)?.addEventListener('click', finishActiveRun);
     terminal.querySelector('#' + TERMINAL_OUTPUT_ID)?.addEventListener('click', finishActiveRun);
     return terminal;
@@ -139,7 +142,6 @@
     terminal.classList.remove('hidden');
     output.textContent = '';
     output.classList.add('accept-terminal-cursor');
-
     document.getElementById('acceptReveal')?.classList.add('hidden');
 
     const result = document.getElementById('acceptResult');
@@ -162,7 +164,6 @@
 
     const lines = text.split('\n');
     activeRun = { token, text, output };
-
     for (let i = 0; i < lines.length; i += 1) {
       if (token !== generation || !activeRun) return;
       output.textContent += (i ? '\n' : '') + lines[i];
@@ -192,9 +193,7 @@
 
     const wrapped = payload => {
       original(payload);
-      if (normalizeBrief(payload)) {
-        setTimeout(() => renderBrief(payload), 0);
-      }
+      if (normalizeBrief(payload)) setTimeout(() => renderBrief(payload), 0);
     };
     wrapped.__ho1Wrapped = true;
     window[callbackName] = wrapped;
@@ -225,6 +224,27 @@
       }
       if (activeRun && !event.ctrlKey && !event.metaKey && !event.altKey) finishActiveRun();
     });
+  }
+
+  function applyRegulatedQualificationPresentation() {
+    document.querySelectorAll('article.card').forEach(card => {
+      const badge = card.querySelector('.eligibility-badge');
+      if (!badge) return;
+      if (!/\bREGULATED\b/i.test(card.textContent || '')) return;
+      if (card.classList.contains('crew-ready') || /CREW\s+QUALIFIED/i.test(badge.textContent || '')) return;
+
+      card.classList.remove('crew-action');
+      if (badge.textContent !== 'QUALIFICATIONS NOT MET') badge.textContent = 'QUALIFICATIONS NOT MET';
+      badge.classList.remove('action');
+      badge.classList.add('not-met');
+    });
+  }
+
+  function installRegulatedQualificationPresentation() {
+    applyRegulatedQualificationPresentation();
+    const target = document.getElementById('cards') || document.body;
+    const observer = new MutationObserver(() => applyRegulatedQualificationPresentation());
+    observer.observe(target, { childList:true, subtree:true, characterData:true, attributes:true, attributeFilter:['class'] });
   }
 
   function insertContractLogNav() {
@@ -258,20 +278,13 @@
     }
 
     window[callback] = payload => {
-      const supported =
-        payload &&
-        payload.ok === true &&
-        Array.isArray(payload.active) &&
-        Array.isArray(payload.history);
+      const supported = payload && payload.ok === true && Array.isArray(payload.active) && Array.isArray(payload.history);
       cleanup();
       if (supported) insertContractLogNav();
     };
 
     script.onerror = cleanup;
-    script.src =
-      CONTRACT_SERVICE_URL +
-      '?action=contractfeed&callback=' + encodeURIComponent(callback) +
-      '&_=' + Date.now();
+    script.src = CONTRACT_SERVICE_URL + '?action=contractfeed&callback=' + encodeURIComponent(callback) + '&_=' + Date.now();
     timer = setTimeout(cleanup, 6000);
     document.head.appendChild(script);
   }
@@ -280,5 +293,6 @@
   ensureTerminal();
   installJsonpInterceptor();
   installResetHooks();
+  installRegulatedQualificationPresentation();
   installContractLogNav();
 })();
