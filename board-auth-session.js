@@ -7,6 +7,7 @@
   const GATE_ID = 'boardAccessGate';
   const STATUS_ID = 'boardAccessHeaderStatus';
   const LOCK_ID = 'boardAccessLock';
+  const SESSION_SENTINEL = '__BOARD_SESSION__';
   const PRIVILEGED_ACTIONS = new Set(['validate', 'authorize', 'accept']);
 
   let authenticationInFlight = false;
@@ -47,8 +48,14 @@
       style.textContent = '#acceptPinSection{display:none!important}';
       document.head.appendChild(style);
     }
+
+    // The legacy acceptance engine still performs a local "PIN present" check
+    // before it constructs validate/authorize requests. When a valid Board
+    // session exists, use a non-secret sentinel only to satisfy that local
+    // guard. wrapPrivilegedJsonp() removes the pin parameter entirely and
+    // substitutes the signed session token before the request leaves the page.
     const pin = document.getElementById('acceptPin');
-    if (pin) pin.value = '';
+    if (pin) pin.value = readSession() ? SESSION_SENTINEL : '';
   }
 
   function ensureHeaderStatus() {
@@ -131,8 +138,8 @@
   }
 
   function syncUi() {
-    ensureAcceptancePinHidden();
     const session = readSession();
+    ensureAcceptancePinHidden();
     const status = ensureHeaderStatus();
     if (status) status.classList.toggle('hidden', !session || !contractsActive());
 
