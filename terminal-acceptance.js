@@ -240,9 +240,17 @@
     nav.insertBefore(button, classifieds || null);
   }
 
+  function applyBoardHash() {
+    const hash = String(location.hash || '').trim().toLowerCase();
+    if (hash === '#classifieds') document.getElementById('classifiedsTab')?.click();
+    if (hash === '#contracts') document.getElementById('jobsTab')?.click();
+  }
+
   installStyles();
   ensureTerminal();
   installJsonpInterceptor();
   installResetHooks();
   insertContractLogNav();
+  window.addEventListener('hashchange', applyBoardHash);
+  setTimeout(applyBoardHash, 0);
 })();
