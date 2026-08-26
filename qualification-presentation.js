@@ -5,6 +5,15 @@
   const QUALIFIED_ICON = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.8 20 7.4v9.2L12 21.2 4 16.6V7.4L12 2.8Z" stroke="currentColor" stroke-width="1.7"/><path d="m8.2 12.1 2.5 2.5 5.1-5.2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   const ATTENTION_ICON = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 3.4 21 19H3L12 3.4Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 8.6v5.4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="17" r="1" fill="currentColor"/></svg>';
   const BLOCKED_ICON = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.8"/><path d="m6 6 12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+  const DISPOSITION_DELAY_MS = 5000;
+  const DISPOSITION_PHASE_MS = 800;
+  const DISPOSITION_DOT_MS = 400;
+
+  let dispositionGeneration = 0;
+  let dispositionPhaseTimer = null;
+  let dispositionDotsTimer = null;
+  let dispositionFinalTimer = null;
+  let dispositionButtonState = null;
 
   function installStyles() {
     if (document.getElementById(STYLE_ID)) return;
@@ -106,14 +115,72 @@
     observer.observe(target, { childList:true, subtree:true });
   }
 
-  function renderApplicationRejection(payload) {
-    if (String(payload?.result || '').trim().toUpperCase() !== 'APPLICATION REJECTED') return;
+  function setDispositionResult(text, kind) {
     const result = document.getElementById('acceptResult');
     if (!result) return;
-    const message = String(payload?.message || 'The posting party declined the submitted crew roster.').trim();
-    result.textContent = 'APPLICATION REJECTED\n\n' + message;
-    result.className = 'accept-result bad';
+    result.textContent = text;
+    result.className = 'accept-result ' + kind;
     result.classList.remove('hidden');
+  }
+
+  function renderApplicationRejection(payload) {
+    if (String(payload?.result || '').trim().toUpperCase() !== 'APPLICATION REJECTED') return;
+    const message = String(payload?.message || 'The posting party declined the submitted crew roster.').trim();
+    setDispositionResult('APPLICATION REJECTED\n\n' + message, 'bad');
+  }
+
+  function restoreDispositionButtons() {
+    if (!dispositionButtonState) return;
+    dispositionButtonState.forEach(({button, disabled}) => {
+      if (button && button.isConnected) button.disabled = disabled;
+    });
+    dispositionButtonState = null;
+  }
+
+  function clearDispositionTimers(restoreButtons = true) {
+    if (dispositionPhaseTimer) clearTimeout(dispositionPhaseTimer);
+    if (dispositionDotsTimer) clearInterval(dispositionDotsTimer);
+    if (dispositionFinalTimer) clearTimeout(dispositionFinalTimer);
+    dispositionPhaseTimer = null;
+    dispositionDotsTimer = null;
+    dispositionFinalTimer = null;
+    if (restoreButtons) restoreDispositionButtons();
+  }
+
+  function cancelDispositionDelay() {
+    dispositionGeneration += 1;
+    clearDispositionTimers(true);
+  }
+
+  function startApplicationRejectionDelay(payload) {
+    cancelDispositionDelay();
+    const token = dispositionGeneration;
+    const buttons = [
+      document.getElementById('acceptValidateBtn'),
+      document.getElementById('acceptContractorSubmit'),
+      document.getElementById('acceptAuthorizationRequest')
+    ].filter(Boolean);
+    dispositionButtonState = buttons.map(button => ({button, disabled:button.disabled}));
+    buttons.forEach(button => { button.disabled = true; });
+
+    setDispositionResult('Request submitted..', 'warn');
+
+    let dots = 1;
+    dispositionPhaseTimer = setTimeout(() => {
+      if (token !== dispositionGeneration) return;
+      setDispositionResult('Awaiting response.', 'warn');
+      dispositionDotsTimer = setInterval(() => {
+        if (token !== dispositionGeneration) return;
+        dots = dots % 3 + 1;
+        setDispositionResult('Awaiting response' + '.'.repeat(dots), 'warn');
+      }, DISPOSITION_DOT_MS);
+    }, DISPOSITION_PHASE_MS);
+
+    dispositionFinalTimer = setTimeout(() => {
+      if (token !== dispositionGeneration) return;
+      clearDispositionTimers(true);
+      renderApplicationRejection(payload);
+    }, DISPOSITION_DELAY_MS);
   }
 
   function wrapDispositionJsonp(script) {
@@ -131,7 +198,7 @@
     const wrapped = payload => {
       original(payload);
       if (String(payload?.result || '').trim().toUpperCase() === 'APPLICATION REJECTED') {
-        setTimeout(() => renderApplicationRejection(payload), 0);
+        startApplicationRejectionDelay(payload);
       }
     };
     wrapped.__applicationDispositionWrapped = true;
@@ -150,7 +217,17 @@
     Node.prototype.appendChild = patchedAppendChild;
   }
 
+  function installDispositionResetHooks() {
+    document.addEventListener('click', event => {
+      if (event.target.closest('[data-accept-job], #acceptCancelBtn, #acceptModalClose')) cancelDispositionDelay();
+    }, true);
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape') cancelDispositionDelay();
+    });
+  }
+
   installStyles();
   installObserver();
   installDispositionInterceptor();
+  installDispositionResetHooks();
 })();
