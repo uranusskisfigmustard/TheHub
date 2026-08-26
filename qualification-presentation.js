@@ -106,6 +106,51 @@
     observer.observe(target, { childList:true, subtree:true });
   }
 
+  function renderApplicationRejection(payload) {
+    if (String(payload?.result || '').trim().toUpperCase() !== 'APPLICATION REJECTED') return;
+    const result = document.getElementById('acceptResult');
+    if (!result) return;
+    const message = String(payload?.message || 'The posting party declined the submitted crew roster.').trim();
+    result.textContent = 'APPLICATION REJECTED\n\n' + message;
+    result.className = 'accept-result bad';
+    result.classList.remove('hidden');
+  }
+
+  function wrapDispositionJsonp(script) {
+    if (!(script instanceof HTMLScriptElement) || !script.src) return;
+    let url;
+    try { url = new URL(script.src, location.href); } catch (_) { return; }
+    const action = String(url.searchParams.get('action') || '').trim().toLowerCase();
+    if (action !== 'validate' && action !== 'accept') return;
+
+    const callbackName = url.searchParams.get('callback');
+    if (!callbackName) return;
+    const original = window[callbackName];
+    if (typeof original !== 'function' || original.__applicationDispositionWrapped) return;
+
+    const wrapped = payload => {
+      original(payload);
+      if (String(payload?.result || '').trim().toUpperCase() === 'APPLICATION REJECTED') {
+        setTimeout(() => renderApplicationRejection(payload), 0);
+      }
+    };
+    wrapped.__applicationDispositionWrapped = true;
+    window[callbackName] = wrapped;
+  }
+
+  function installDispositionInterceptor() {
+    const previousAppendChild = Node.prototype.appendChild;
+    if (previousAppendChild.__applicationDispositionPresentationWrapped) return;
+
+    function patchedAppendChild(node) {
+      wrapDispositionJsonp(node);
+      return previousAppendChild.call(this, node);
+    }
+    patchedAppendChild.__applicationDispositionPresentationWrapped = true;
+    Node.prototype.appendChild = patchedAppendChild;
+  }
+
   installStyles();
   installObserver();
+  installDispositionInterceptor();
 })();
