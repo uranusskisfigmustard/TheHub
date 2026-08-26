@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The Hub — Contract Log</title>
+<style>
+:root{--bg:#111315;--panel:#191c1f;--panel2:#202428;--text:#e7e4dc;--muted:#aaa79f;--line:#3a3f43;--accent:#d4a84b;--danger:#c86655;--ok:#8fa77a}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;line-height:1.45}
+header{position:sticky;top:0;z-index:5;background:rgba(17,19,21,.97);border-bottom:1px solid var(--line);padding:16px 18px 12px;backdrop-filter:blur(5px)}
+.topline{display:flex;gap:12px;align-items:flex-end;justify-content:space-between;flex-wrap:wrap}
+h1{margin:0;font-size:clamp(1.2rem,4vw,1.8rem);letter-spacing:.08em;text-transform:uppercase}.sub{color:var(--muted);font-size:.82rem;margin-top:3px}
+.navrow{display:flex;gap:8px;margin-top:13px;flex-wrap:wrap}.navbtn{font:inherit;color:var(--muted);background:transparent;border:1px solid var(--line);border-radius:3px;padding:8px 14px;cursor:pointer;font-weight:800;letter-spacing:.08em;text-decoration:none}.navbtn:hover{border-color:var(--accent);color:var(--text)}.navbtn.active{color:var(--text);border-color:var(--accent);background:rgba(212,168,75,.10)}
+.statusbar{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:8px 18px;color:var(--muted);font-size:.78rem;border-bottom:1px solid #25292c}
+main{max-width:1180px;margin:0 auto;padding:18px}.section{margin-bottom:30px}.section-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:0 0 12px;border-bottom:1px solid var(--line);padding-bottom:8px}.section-title{font-size:1rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.section-count{color:var(--muted);font-size:.78rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:14px}.card{background:linear-gradient(180deg,#171b1f 0%,#14181b 100%);border:1px solid var(--line);border-radius:4px;padding:16px;box-shadow:0 10px 24px rgba(0,0,0,.20)}.card.active{border-color:var(--ok)}.card.completed{border-color:#66879a}.card.failed{border-color:var(--danger)}.card.abandoned{border-color:#686868}
+.title{font-size:1.08rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em}.status{display:inline-block;margin:8px 0 10px;padding:3px 7px;border:1px solid var(--line);border-radius:3px;font-size:.72rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase}.active .status{border-color:var(--ok);color:#bdd2aa}.completed .status{border-color:#66879a;color:#b8d3df}.failed .status{border-color:var(--danger);color:#e5aaa0}.abandoned .status{border-color:#686868;color:#bbb}
+.meta{display:grid;grid-template-columns:max-content 1fr;gap:4px 10px;font-size:.86rem;margin-top:5px}.label{color:var(--muted);text-transform:uppercase;font-size:.72rem;letter-spacing:.06em}.value{overflow-wrap:anywhere}.payout{margin-top:10px;font-weight:800;color:var(--accent)}.summary{margin-top:12px;padding-top:10px;border-top:1px solid #303538;color:#d5d0c4}
+details{margin-top:14px;padding-top:10px;border-top:1px solid #303538}summary{cursor:pointer;font-weight:800;color:#d8d4c8;letter-spacing:.05em;text-transform:uppercase}.brief{margin:10px 0 0;max-height:480px;overflow:auto;padding:12px;border:1px solid #303538;background:#0c0f10;white-space:pre-wrap;overflow-wrap:anywhere;font:inherit;line-height:1.48}
+.empty,.error{padding:20px;border:1px dashed var(--line);color:var(--muted);background:var(--panel)}.error{border-color:#6d4e45;color:#d5aaa0}
+button.refresh{font:inherit;color:var(--text);background:var(--panel2);border:1px solid var(--line);border-radius:3px;padding:9px 12px;cursor:pointer}.refresh:hover{border-color:var(--accent)}
+</style>
+</head>
+<body>
+<header>
+  <div class="topline"><div><h1>The Hub // Contract Log</h1><div class="sub">Accepted assignments and verified closeout history.</div></div><button id="refresh" class="refresh" type="button">REFRESH</button></div>
+  <nav class="navrow" aria-label="Hub navigation"><a class="navbtn" href="./">JOBS</a><a class="navbtn active" href="contracts.html">CONTRACT LOG</a><a class="navbtn" href="./#classifieds">CLASSIFIEDS</a><a class="navbtn" href="statements.html">STATEMENTS</a></nav>
+</header>
+<div class="statusbar"><span id="status">Loading contract record…</span><span id="total"></span></div>
+<main>
+  <section class="section"><div class="section-head"><div class="section-title">Active Contracts</div><div id="activeCount" class="section-count"></div></div><div id="active" class="grid"></div></section>
+  <section class="section"><div class="section-head"><div class="section-title">Contract History</div><div id="historyCount" class="section-count"></div></div><div id="history" class="grid"></div></section>
+</main>
+<script>
+(() => {
+  'use strict';
+  const API='https://script.google.com/macros/s/AKfycbzeW8vTooOCNEBia3_EMQ10r7BcbakXIwCD4ZaEOUEBOdCXl09tRHj76oxcUcsOKQK0/exec';
+  const activeEl=document.getElementById('active'), historyEl=document.getElementById('history');
+  const statusEl=document.getElementById('status'), totalEl=document.getElementById('total');
+  const activeCountEl=document.getElementById('activeCount'), historyCountEl=document.getElementById('historyCount');
+  const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const credits=value=>Number(value||0).toLocaleString('en-US',{minimumFractionDigits:Number(value||0)%1?2:0,maximumFractionDigits:2})+'cr';
+  function apiCall(action){return new Promise((resolve,reject)=>{const callback='hubContracts_'+Date.now()+'_'+Math.random().toString(36).slice(2);const script=document.createElement('script');const timer=setTimeout(()=>cleanup(new Error('Contract service timed out.')),12000);function cleanup(error,payload){clearTimeout(timer);try{delete window[callback]}catch(_){window[callback]=undefined}script.remove();error?reject(error):resolve(payload)}window[callback]=payload=>cleanup(null,payload);script.onerror=()=>cleanup(new Error('Contract service unavailable.'));script.src=API+'?action='+encodeURIComponent(action)+'&callback='+encodeURIComponent(callback)+'&_='+Date.now();document.head.appendChild(script)})}
+  function meta(record){const rows=[];if(record.employer)rows.push(['Employer / Source',record.employer]);if(record.location)rows.push(['Location',record.location]);if(record.participants?.length)rows.push(['Participants',record.participants.join(', ')]);if(record.acceptedDate)rows.push(['Accepted',record.acceptedDate]);return rows.map(([k,v])=>`<div class="label">${esc(k)}</div><div class="value">${esc(v)}</div>`).join('')}
+  function renderActive(records){activeCountEl.textContent=records.length+' ACTIVE';if(!records.length){activeEl.innerHTML='<div class="empty">NO ACTIVE CONTRACTS.</div>';return}activeEl.innerHTML=records.map(r=>`<article class="card active"><div class="title">${esc(r.title)}</div><div class="status">ACTIVE</div><div class="meta">${meta(r)}</div>${r.brief?.text?`<details><summary>View Mission Briefing</summary><pre class="brief">${esc(r.brief.text)}</pre></details>`:''}</article>`).join('')}
+  function renderHistory(records){historyCountEl.textContent=records.length+' RECORDED';if(!records.length){historyEl.innerHTML='<div class="empty">NO CLOSED CONTRACTS RECORDED.</div>';return}historyEl.innerHTML=records.map(r=>{const cls=String(r.status||'').toLowerCase();return `<article class="card ${esc(cls)}"><div class="title">${esc(r.title)}</div><div class="status">${esc(r.status)}</div><div class="meta">${r.closedDate?`<div class="label">Closed</div><div class="value">${esc(r.closedDate)}</div>`:''}${r.participants?.length?`<div class="label">Participants</div><div class="value">${esc(r.participants.join(', '))}</div>`:''}</div><div class="payout">TOTAL PAYOUT // ${credits(r.totalPayout)}</div>${r.closeoutSummary?`<div class="summary">${esc(r.closeoutSummary)}</div>`:''}</article>`}).join('')}
+  async function load(){statusEl.textContent='Loading contract record…';activeEl.innerHTML='<div class="empty">LOADING…</div>';historyEl.innerHTML='<div class="empty">LOADING…</div>';try{const data=await apiCall('contractfeed');if(!data||data.ok===false)throw new Error(data?.error||'Invalid contract feed.');const active=Array.isArray(data.active)?data.active:[], history=Array.isArray(data.history)?data.history:[];renderActive(active);renderHistory(history);statusEl.textContent='Contract record current.';totalEl.textContent=(active.length+history.length)+' RECORDS'}catch(error){statusEl.textContent='Contract record unavailable.';totalEl.textContent='';activeEl.innerHTML='<div class="error">'+esc(error.message||error)+'</div>';historyEl.innerHTML='<div class="empty">HISTORY UNAVAILABLE.</div>'}}
+  document.getElementById('refresh').addEventListener('click',load);load();
+})();
+</script>
+</body>
+</html>
