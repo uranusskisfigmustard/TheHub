@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The Hub — Warden Console v1.1</title>
+<style>body{margin:0;background:#111315;color:#aaa79f;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace}#boot{padding:28px;letter-spacing:.06em}</style>
+</head>
+<body><div id="boot">THE HUB // LOADING WARDEN CONSOLE v1.1…</div>
+<script>
+(async()=>{
+  const response=await fetch('warden.html?v=20260826v1',{cache:'no-store'});
+  if(!response.ok) throw new Error('Base Warden Console could not be loaded.');
+  let source=await response.text();
+  source=source.replace('</body>','<script src="warden-audit-v11.js?v=20260826a1"><\/script></body>');
+  document.open();document.write(source);document.close();
+})().catch(error=>{document.body.innerHTML='<div style="padding:28px;color:#c86655;font-family:monospace">WARDEN CONSOLE LOAD ERROR<br><br>'+String(error.message||error)+'</div>';});
+</script>
+</body>
+</html>
