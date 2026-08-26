@@ -5,6 +5,7 @@
   const TERMINAL_OUTPUT_ID = 'acceptTerminalOutput';
   const TERMINAL_SKIP_ID = 'acceptTerminalShowAll';
   const LINE_DELAY_MS = 32;
+  const CONTRACT_SERVICE_URL = 'https://script.google.com/macros/s/AKfycbzeW8vTooOCNEBia3_EMQ10r7BcbakXIwCD4ZaEOUEBOdCXl09tRHj76oxcUcsOKQK0/exec';
 
   let generation = 0;
   let activeRun = null;
@@ -226,7 +227,7 @@
     });
   }
 
-  function installContractLogNav() {
+  function insertContractLogNav() {
     const nav = document.querySelector('.navrow');
     if (!nav || document.getElementById('contractLogNav')) return;
 
@@ -241,6 +242,38 @@
       el => String(el.textContent || '').trim().toUpperCase() === 'STATEMENTS'
     );
     nav.insertBefore(button, statements || null);
+  }
+
+  function installContractLogNav() {
+    if (document.getElementById('contractLogNav')) return;
+
+    const callback = 'hubContractLogNav_' + Date.now() + '_' + Math.random().toString(36).slice(2);
+    const script = document.createElement('script');
+    let timer = null;
+
+    function cleanup() {
+      if (timer) clearTimeout(timer);
+      try { delete window[callback]; } catch (_) { window[callback] = undefined; }
+      script.remove();
+    }
+
+    window[callback] = payload => {
+      const supported =
+        payload &&
+        payload.ok === true &&
+        Array.isArray(payload.active) &&
+        Array.isArray(payload.history);
+      cleanup();
+      if (supported) insertContractLogNav();
+    };
+
+    script.onerror = cleanup;
+    script.src =
+      CONTRACT_SERVICE_URL +
+      '?action=contractfeed&callback=' + encodeURIComponent(callback) +
+      '&_=' + Date.now();
+    timer = setTimeout(cleanup, 6000);
+    document.head.appendChild(script);
   }
 
   installStyles();
