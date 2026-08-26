@@ -39,25 +39,20 @@
         return;
       }
 
-      if (card.classList.contains('crew-action')) card.classList.remove('crew-action');
-      if (!card.classList.contains('regulated-not-met')) card.classList.add('regulated-not-met');
-      if (badge.classList.contains('action')) badge.classList.remove('action');
-      if (!badge.classList.contains('not-met')) badge.classList.add('not-met');
+      card.classList.remove('crew-action');
+      card.classList.add('regulated-not-met');
+      badge.classList.remove('action');
+      badge.classList.add('not-met');
       if (badge.textContent !== 'QUALIFICATIONS NOT MET') badge.textContent = 'QUALIFICATIONS NOT MET';
     });
   }
 
   function installObserver() {
+    const target = document.getElementById('cards');
+    if (!target) return;
     applyPresentation();
-    const target = document.getElementById('cards') || document.body;
-    const observer = new MutationObserver(applyPresentation);
-    observer.observe(target, {
-      childList:true,
-      subtree:true,
-      characterData:true,
-      attributes:true,
-      attributeFilter:['class']
-    });
+    const observer = new MutationObserver(() => applyPresentation());
+    observer.observe(target, { childList:true });
   }
 
   installStyles();
