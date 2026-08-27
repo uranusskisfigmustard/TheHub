@@ -240,6 +240,19 @@
     nav.insertBefore(button, classifieds || null);
   }
 
+  function insertWardenShortcut() {
+    if (document.getElementById('wardenShortcut')) return;
+    const link = document.createElement('a');
+    link.id = 'wardenShortcut';
+    link.href = 'warden.html';
+    link.textContent = '//';
+    link.setAttribute('aria-label', 'Console');
+    link.style.cssText = 'position:fixed;right:10px;bottom:8px;z-index:2147483647;color:#8d8a82;opacity:.48;text-decoration:none;font-size:.68rem;line-height:1;padding:5px 4px;font-weight:700;';
+    link.addEventListener('mouseenter', () => { link.style.opacity = '.78'; });
+    link.addEventListener('mouseleave', () => { link.style.opacity = '.48'; });
+    document.body.appendChild(link);
+  }
+
   function applyBoardHash() {
     const hash = String(location.hash || '').trim().toLowerCase();
     if (hash === '#classifieds') document.getElementById('classifiedsTab')?.click();
@@ -251,6 +264,7 @@
   installJsonpInterceptor();
   installResetHooks();
   insertContractLogNav();
+  insertWardenShortcut();
   window.addEventListener('hashchange', applyBoardHash);
   setTimeout(applyBoardHash, 0);
 })();
