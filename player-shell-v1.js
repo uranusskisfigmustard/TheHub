@@ -86,7 +86,7 @@ function navByLabel(label){return navElements().find(x=>String(x.textContent||''
 function badge(el,id,count,active=false){
   if(!el)return;let b=el.querySelector('#'+id);if(!b){b=document.createElement('span');b.id=id;b.className='player-nav-badge';el.appendChild(b)}
   if(count===null||count===undefined||Number.isNaN(Number(count))){b.remove();return}
-  b.textContent=String(count);b.classList.toggle('active-contract',Boolean(active));
+  const text=String(count);if(b.textContent!==text)b.textContent=text;b.classList.toggle('active-contract',Boolean(active));
 }
 function renderNavBadges(){
   const active=Array.isArray(STATE.contracts?.active)?STATE.contracts.active.length:0;
