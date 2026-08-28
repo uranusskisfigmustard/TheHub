@@ -15,7 +15,7 @@ const STATE={
 
 function session(){try{return localStorage.getItem(SK)||''}catch(_){return''}}
 function normalize(v){return String(v??'').toLowerCase().replace(/\s+/g,' ').trim()}
-function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c]))}
 function nonempty(v){const x=normalize(v);return Boolean(x&&x!=='—'&&x!=='none'&&x!=='unknown'&&x!=='no restrictions')}
 function safeParse(raw,fallback){try{return JSON.parse(raw)}catch(_){return fallback}}
 function readSessionJson(key,fallback){try{return safeParse(sessionStorage.getItem(key)||'',fallback)}catch(_){return fallback}}
@@ -388,6 +388,14 @@ function renderHealth(){
   statusElements().forEach(x=>x.classList.toggle('wc-status-consolidated',ready&&statusGood(x.textContent)));
 }
 
+function installHealthWatch(){
+  statusElements().forEach(x=>{
+    if(x.dataset.wcHealthWatch==='1')return;
+    x.dataset.wcHealthWatch='1';
+    new MutationObserver(()=>setTimeout(renderHealth,0)).observe(x,{childList:true,characterData:true,subtree:true});
+  });
+}
+
 function installReferenceToggle(detail,type){
   if(!detail||!detail.querySelector('.title'))return;
   const existing=detail.querySelector('.wc-reference-toggle');
@@ -491,8 +499,9 @@ function updateSessionCues(){
     const btn=section.querySelector('.wc-session-toggle');if(!btn)return;
     let cue=btn.querySelector('.wc-session-cue');
     if(!cue){cue=document.createElement('span');cue.className='wc-session-cue';const arrow=btn.querySelector('.wc-session-arrow');btn.insertBefore(cue,arrow)}
-    const has=sectionHasContent(section);
-    cue.textContent=has?'✓':'—';cue.classList.toggle('has-content',has);cue.title=has?'This section currently contains entered/selected information.':'No entered/selected information in this section.';
+    const has=sectionHasContent(section),mark=has?'✓':'—';
+    if(cue.textContent!==mark)cue.textContent=mark;
+    cue.classList.toggle('has-content',has);cue.title=has?'This section currently contains entered/selected information.':'No entered/selected information in this section.';
   });
 }
 
@@ -551,6 +560,7 @@ function scheduleEnhance(){
     enhanceActionFlows();
     installSessionCueWatch();
     updateSessionCues();
+    installHealthWatch();
     renderHealth();
   },55);
 }
@@ -602,8 +612,9 @@ function boot(){
       setTimeout(()=>loadData(false),280);
     }else if(!session())clearV3State();
   }).observe(consoleEl,{attributes:true,attributeFilter:['class']});
-  const bodyObs=new MutationObserver(scheduleEnhance);
-  bodyObs.observe(document.body,{childList:true,subtree:true});
+  const npcDetail=$('npcDetail'),facDetail=$('facDetail');
+  if(npcDetail)new MutationObserver(scheduleEnhance).observe(npcDetail,{childList:true,subtree:false});
+  if(facDetail)new MutationObserver(scheduleEnhance).observe(facDetail,{childList:true,subtree:false});
   if(session()&&!$('console')?.classList.contains('hidden'))setTimeout(()=>loadData(false),450);
   setTimeout(()=>{syncOpsVisibility();scheduleEnhance()},1200);
 }
