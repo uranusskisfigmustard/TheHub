@@ -10,7 +10,7 @@ const $=id=>document.getElementById(id);
 const npcMeta=new Map();
 const facMeta=new Map();
 let factionRestrictions=[];
-let metaLoading=false,managerScheduled=false;
+let metaLoading=false,metaLoaded=false,managerScheduled=false;
 
 function session(){return localStorage.getItem(SK)||''}
 function jsonp(action,p={}){return new Promise((resolve,reject)=>{const cb='__wlay2'+Date.now()+Math.random().toString(36).slice(2),sc=document.createElement('script'),timer=setTimeout(()=>done(new Error('Warden service timed out.')),30000);function done(err,d){clearTimeout(timer);try{delete window[cb]}catch(_){window[cb]=undefined}sc.remove();err?reject(err):resolve(d)}window[cb]=d=>done(null,d);sc.onerror=()=>done(new Error('Could not reach Warden service.'));sc.src=API+'?'+new URLSearchParams({action,callback:cb,...p});document.head.appendChild(sc)})}
@@ -37,7 +37,8 @@ function installStyles(){
     #npcDetail,#facDetail{position:relative}
     #npcDetail>.title,#facDetail>.title{padding-right:150px}
     .wc-context-action{position:absolute;right:11px;top:10px;padding:6px 8px!important;font-size:.68rem!important}
-    .wc-ready{display:inline-block;margin-top:6px!important;padding:2px 6px;border:1px solid #384139;border-radius:8px;color:#9fb290!important;font-size:.64rem!important;letter-spacing:.06em}
+    .wc-ready{display:inline-block;margin-top:6px!important;padding:2px 6px;border:1px solid #384139;border-radius:8px;color:#9fb290!important;font-size:0!important;letter-spacing:.06em}
+    .wc-ready::after{content:'READY';font-size:.64rem!important}
     .wc-session-sections{display:grid;gap:8px;margin-top:12px}
     .wc-session-section{border:1px solid var(--line);background:#15191c}
     .wc-session-toggle{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;border:0;background:#171b1f;color:var(--text);padding:9px 11px;font:inherit;font-size:.74rem;font-weight:800;letter-spacing:.06em;text-align:left;cursor:pointer}
@@ -125,12 +126,14 @@ function enhanceManagers(){
 function scheduleManagers(){if(managerScheduled)return;managerScheduled=true;setTimeout(()=>{managerScheduled=false;enhanceManagers()},45)}
 
 async function loadMeta(refresh=false){
-  if(metaLoading||!session())return;metaLoading=true;if(refresh){npcMeta.clear();facMeta.clear();factionRestrictions=[]}
+  if(metaLoading||!session()||(!refresh&&metaLoaded))return;
+  metaLoading=true;if(refresh){metaLoaded=false;npcMeta.clear();facMeta.clear();factionRestrictions=[]}
+  let got=false;
   try{
     const [n,f]=await Promise.allSettled([jsonp('wardennpcfeed',{session:session()}),jsonp('wardenfactionfeed',{session:session()})]);
-    if(n.status==='fulfilled'&&n.value?.ok){npcMeta.clear();(n.value.npcs||[]).forEach(x=>npcMeta.set(String(x.name||''),x))}
-    if(f.status==='fulfilled'&&f.value?.ok){facMeta.clear();(f.value.factions||[]).forEach(x=>{facMeta.set(String(x.name||''),x);if(x.canonicalName)facMeta.set(String(x.canonicalName),x)});factionRestrictions=Array.isArray(f.value.restrictions)?f.value.restrictions:[]}
-    scheduleManagers()
+    if(n.status==='fulfilled'&&n.value?.ok){got=true;npcMeta.clear();(n.value.npcs||[]).forEach(x=>npcMeta.set(String(x.name||''),x))}
+    if(f.status==='fulfilled'&&f.value?.ok){got=true;facMeta.clear();(f.value.factions||[]).forEach(x=>{facMeta.set(String(x.name||''),x);if(x.canonicalName)facMeta.set(String(x.canonicalName),x)});factionRestrictions=Array.isArray(f.value.restrictions)?f.value.restrictions:[]}
+    if(got){metaLoaded=true;scheduleManagers()}
   }finally{metaLoading=false}
 }
 
@@ -143,9 +146,8 @@ function installContextActions(){installContextAction('npcDetail','npcEdit','UPD
 function quietStatus(id){
   const el=$(id);if(!el)return;
   const text=String(el.textContent||'').trim();if(!text)return;
-  if(text==='READY'&&el.dataset.wcQuietOriginal)return;
   const success=/\bBACKEND\s+\d/i.test(text)&&!/required|unavailable|error|not available/i.test(text);
-  if(success){el.dataset.wcQuietOriginal=text;el.title=text;el.textContent='READY';el.classList.add('wc-ready')}
+  if(success){el.dataset.wcQuietOriginal=text;el.title=text;el.classList.add('wc-ready')}
   else{el.classList.remove('wc-ready');if(el.dataset.wcQuietOriginal){delete el.dataset.wcQuietOriginal;el.removeAttribute('title')}}
 }
 function quietStatuses(){['npcStatus','facStatus','progStatus','adjustStatus','sessionCloseVersion'].forEach(quietStatus)}
@@ -189,12 +191,12 @@ const facList=$('facList');if(facList)new MutationObserver(scheduleManagers).obs
 const npcDetail=$('npcDetail');if(npcDetail)new MutationObserver(()=>setTimeout(installContextActions,25)).observe(npcDetail,{childList:true,subtree:false});
 const facDetail=$('facDetail');if(facDetail)new MutationObserver(()=>setTimeout(installContextActions,25)).observe(facDetail,{childList:true,subtree:false});
 const nav=$('wardenWorkspaceNav');if(nav)new MutationObserver(()=>setTimeout(persistWorkspace,0)).observe(nav,{attributes:true,subtree:true,attributeFilter:['class']});
-const consoleEl=$('console');if(consoleEl)new MutationObserver(()=>{if(!consoleEl.classList.contains('hidden')&&session()){setTimeout(()=>{restoreWorkspace();persistWorkspace();loadMeta()},250)}}).observe(consoleEl,{attributes:true,attributeFilter:['class']});
+const consoleEl=$('console');if(consoleEl)new MutationObserver(()=>{if(!consoleEl.classList.contains('hidden')&&session()){setTimeout(()=>{restoreWorkspace();persistWorkspace();loadMeta()},250)}else if(consoleEl.classList.contains('hidden')){metaLoaded=false}}).observe(consoleEl,{attributes:true,attributeFilter:['class']});
 
 ['npcEdit','facEdit'].forEach(id=>{const el=$(id);if(el)new MutationObserver(installContextActions).observe(el,{attributes:true,attributeFilter:['disabled']})});
 
 document.addEventListener('click',e=>{
-  if(e.target.closest('#lock,#playerPage')){clearUiState();npcMeta.clear();facMeta.clear();factionRestrictions=[]}
+  if(e.target.closest('#lock,#playerPage')){clearUiState();npcMeta.clear();facMeta.clear();factionRestrictions=[];metaLoaded=false}
   if(e.target.closest('#refresh'))setTimeout(()=>{loadMeta(true);quietStatuses();apply()},550);
   if(e.target.closest('#openSessionClose'))setTimeout(sectionSessionClose,50);
 },true);
