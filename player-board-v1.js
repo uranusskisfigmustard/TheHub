@@ -86,7 +86,14 @@ function updateAcceptanceProgress(){
 }
 
 function showPostAcceptActions(){
-  const terminal=$('acceptTerminalBrief'),result=$('acceptResult');const anchor=terminal&&!terminal.classList.contains('hidden')?terminal:result;if(!anchor||$('playerPostAcceptActions'))return;
+  const terminal=$('acceptTerminalBrief'),result=$('acceptResult');
+  let anchor=result;
+  if(terminal&&!terminal.classList.contains('hidden')){
+    const output=$('acceptTerminalOutput');
+    if(!output||output.classList.contains('accept-terminal-cursor')||!String(output.textContent||'').trim())return;
+    anchor=terminal;
+  }else if(!/^CONTRACT ACCEPTED$/i.test(String(result?.textContent||'').trim()))return;
+  if(!anchor||$('playerPostAcceptActions'))return;
   const box=document.createElement('div');box.id='playerPostAcceptActions';box.className='player-post-accept';box.innerHTML='<a class="accept-action" href="contracts.html">OPEN ACTIVE CONTRACT</a><button id="playerReturnBoard" class="accept-action secondary" type="button">RETURN TO BOARD</button>';
   anchor.insertAdjacentElement('afterend',box);$('playerReturnBoard').addEventListener('click',()=>{$('acceptModalClose')?.click();setTimeout(()=>{window.__hubPlayerShell?.refreshContracts?.();$('refreshBtn')?.click()},100)});
 }
@@ -96,6 +103,7 @@ function installObservers(){
   const cards=$('cards');if(cards)new MutationObserver(scheduleEnhance).observe(cards,{childList:true});
   const modal=$('acceptModal');if(modal)new MutationObserver(()=>setTimeout(updateAcceptanceProgress,20)).observe(modal,{attributes:true,childList:true,subtree:true,attributeFilter:['class']});
   const result=$('acceptResult');if(result)new MutationObserver(()=>setTimeout(updateAcceptanceProgress,10)).observe(result,{childList:true,characterData:true,subtree:true,attributes:true,attributeFilter:['class']});
+  const terminal=$('acceptTerminalBrief');if(terminal)new MutationObserver(()=>setTimeout(updateAcceptanceProgress,10)).observe(terminal,{childList:true,characterData:true,subtree:true,attributes:true,attributeFilter:['class']});
   document.addEventListener('click',e=>{
     if(e.target.closest('#jobsTab,#classifiedsTab'))setTimeout(()=>{applyQualificationFilter();boardCounts()},30);
     if(e.target.closest('[data-accept-job]')){STATE.acceptStage='crew';clearPostAcceptActions();setTimeout(()=>{setStep('crew');updateAcceptanceProgress()},40)}
