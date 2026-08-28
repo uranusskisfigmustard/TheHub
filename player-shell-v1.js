@@ -6,7 +6,7 @@ const JOBS_CACHE='mothership_hub_jobs_v5';
 const CLASSIFIEDS_CACHE='mothership_hub_classifieds_v2';
 const STATEMENTS_CACHE='hub_statement_export_v2';
 const $=id=>document.getElementById(id);
-const STATE={contracts:null,online:false,boardCounts:{jobs:null,classifieds:null}};
+const STATE={contracts:null,online:false,checked:false,boardCounts:{jobs:null,classifieds:null}};
 
 function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function safeJson(key,fallback){try{return JSON.parse(localStorage.getItem(key)||'')||fallback}catch(_){return fallback}}
@@ -63,8 +63,8 @@ function renderSystem(){
   const active=Array.isArray(STATE.contracts?.active)?STATE.contracts.active:[];
   const state=statementState();
   const items=[
-    `<span class="player-system-item ${STATE.online?'live':'bad'}">${STATE.online?'BOARD LINK LIVE':'BOARD LINK DEGRADED'}</span>`,
-    `<span class="player-system-item ${active.length?'live':''}">${active.length} ACTIVE CONTRACT${active.length===1?'':'S'}</span>`,
+    STATE.checked?`<span class="player-system-item ${STATE.online?'live':'bad'}">${STATE.online?'BOARD LINK LIVE':'BOARD LINK DEGRADED'}</span>`:'<span class="player-system-item">BOARD LINK CHECKING</span>',
+    STATE.checked?`<span class="player-system-item ${active.length?'live':''}">${active.length} ACTIVE CONTRACT${active.length===1?'':'S'}</span>`:'<span class="player-system-item">CONTRACT STATE CHECKING</span>',
     `<span class="player-system-item ${state==='UNAVAILABLE'?'bad':state==='CACHED'?'warn':''}">STATEMENTS ${esc(state)}</span>`
   ];
   host.innerHTML=items.join('<span aria-hidden="true">·</span>');
@@ -99,7 +99,7 @@ function renderNavBadges(){
 
 async function loadPublicContractState(){
   try{const data=await apiCall('contractfeed');if(!data||data.ok===false)throw new Error(data?.error||'Invalid contract feed.');STATE.contracts=data;STATE.online=true}catch(_){STATE.contracts={active:[],history:[]};STATE.online=false}
-  renderSystem();renderAssignment();renderNavBadges();
+  STATE.checked=true;renderSystem();renderAssignment();renderNavBadges();
 }
 
 function watchPageStatus(){
