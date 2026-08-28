@@ -40,11 +40,18 @@ function isJobsMode(){return $('jobsTab')?.classList.contains('active')!==false}
 function contractCards(){return [...document.querySelectorAll('#cards article.card:not(.classified-card)')]}
 function cardReady(card){return card.classList.contains('crew-ready')||Boolean(card.querySelector('.qual-box.state-met'))}
 function applyQualificationFilter(){
-  const row=$('playerQualificationFilter');if(row)row.classList.toggle('hidden',!isJobsMode());
-  contractCards().forEach(card=>{
+  const jobsMode=isJobsMode(),row=$('playerQualificationFilter');if(row)row.classList.toggle('hidden',!jobsMode);
+  if(!jobsMode)return;
+  const cards=contractCards();let shown=0;
+  cards.forEach(card=>{
     const ready=cardReady(card);const show=STATE.qualification==='all'||(STATE.qualification==='ready'&&ready)||(STATE.qualification==='action'&&!ready);
-    card.classList.toggle('player-filter-hidden',!show);
+    card.classList.toggle('player-filter-hidden',!show);if(show)shown++;
   });
+  const count=$('count');if(count){
+    if(!count.dataset.playerBaseCount||!String(count.textContent||'').includes('QUALIFICATION VIEW'))count.dataset.playerBaseCount=String(count.textContent||'');
+    if(STATE.qualification==='all')count.textContent=count.dataset.playerBaseCount||count.textContent;
+    else count.textContent=`${shown} shown · QUALIFICATION VIEW: ${STATE.qualification==='ready'?'CREW READY':'ACTION REQUIRED'} · ${count.dataset.playerBaseCount||cards.length+' contracts'}`;
+  }
 }
 
 function enhanceCard(card){
@@ -64,7 +71,7 @@ function boardCounts(){
   window.__hubPlayerShell?.setBoardCounts({jobs,classifieds});
 }
 
-function enhanceCards(){contractCards().forEach(enhanceCard);applyQualificationFilter();boardCounts()}
+function enhanceCards(){const count=$('count');if(count&&!String(count.textContent||'').includes('QUALIFICATION VIEW'))count.dataset.playerBaseCount=String(count.textContent||'');contractCards().forEach(enhanceCard);applyQualificationFilter();boardCounts()}
 function scheduleEnhance(){if(STATE.scheduled)return;STATE.scheduled=true;setTimeout(()=>{STATE.scheduled=false;enhanceCards()},50)}
 
 function installAcceptanceProgress(){
@@ -95,12 +102,12 @@ function showPostAcceptActions(){
   }else if(!/^CONTRACT ACCEPTED$/i.test(String(result?.textContent||'').trim()))return;
   if(!anchor||$('playerPostAcceptActions'))return;
   const box=document.createElement('div');box.id='playerPostAcceptActions';box.className='player-post-accept';box.innerHTML='<a class="accept-action" href="contracts.html">OPEN ACTIVE CONTRACT</a><button id="playerReturnBoard" class="accept-action secondary" type="button">RETURN TO BOARD</button>';
-  anchor.insertAdjacentElement('afterend',box);$('playerReturnBoard').addEventListener('click',()=>{$('acceptModalClose')?.click();setTimeout(()=>{window.__hubPlayerShell?.refreshContracts?.();$('refreshBtn')?.click()},100)});
+  anchor.insertAdjacentElement('afterend',box);window.__hubPlayerShell?.refreshContracts?.();$('playerReturnBoard').addEventListener('click',()=>{$('acceptModalClose')?.click();setTimeout(()=>{window.__hubPlayerShell?.refreshContracts?.();$('refreshBtn')?.click()},100)});
 }
 function clearPostAcceptActions(){$('playerPostAcceptActions')?.remove()}
 
 function installObservers(){
-  const cards=$('cards');if(cards)new MutationObserver(scheduleEnhance).observe(cards,{childList:true});
+  const cards=$('cards');if(cards)new MutationObserver(mutations=>{let relevant=false;for(const m of mutations){if(m.type==='childList'&&m.target===cards){relevant=true;break}if(m.type==='attributes'&&m.attributeName==='class'){const el=m.target;if(el.matches?.('.qual-box')){relevant=true;break}if(el.matches?.('article.card')){const clean=v=>String(v||'').split(/\s+/).filter(x=>x&&x!=='player-filter-hidden'&&x!=='player-contract-card').sort().join(' ');if(clean(m.oldValue)!==clean(el.className)){relevant=true;break}}}}if(relevant)scheduleEnhance()}).observe(cards,{childList:true,subtree:true,attributes:true,attributeFilter:['class'],attributeOldValue:true});
   const modal=$('acceptModal');if(modal)new MutationObserver(()=>setTimeout(updateAcceptanceProgress,20)).observe(modal,{attributes:true,childList:true,subtree:true,attributeFilter:['class']});
   const result=$('acceptResult');if(result)new MutationObserver(()=>setTimeout(updateAcceptanceProgress,10)).observe(result,{childList:true,characterData:true,subtree:true,attributes:true,attributeFilter:['class']});
   const terminal=$('acceptTerminalBrief');if(terminal)new MutationObserver(()=>setTimeout(updateAcceptanceProgress,10)).observe(terminal,{childList:true,characterData:true,subtree:true,attributes:true,attributeFilter:['class']});
