@@ -5,13 +5,18 @@ const API='https://script.google.com/macros/s/AKfycbzeW8vTooOCNEBia3_EMQ10r7Bcba
 const JOBS_CACHE='mothership_hub_jobs_v5';
 const CLASSIFIEDS_CACHE='mothership_hub_classifieds_v2';
 const STATEMENTS_CACHE='hub_statement_export_v2';
+const CONTRACT_CACHE='mothership_hub_contractfeed_v1';
+const CONTRACT_CACHE_TIME=CONTRACT_CACHE+'_time';
 const $=id=>document.getElementById(id);
-const STATE={contracts:null,online:false,checked:false,boardCounts:{jobs:null,classifieds:null}};
+const STATE={contracts:null,online:false,checked:false,cached:false,cacheTime:0,boardCounts:{jobs:null,classifieds:null}};
 
 function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function safeJson(key,fallback){try{return JSON.parse(localStorage.getItem(key)||'')||fallback}catch(_){return fallback}}
 function pageKind(){const p=location.pathname.toLowerCase();if(p.endsWith('/contracts.html'))return'logs';if(p.endsWith('/statements.html'))return'statements';return'board'}
 function apiCall(action){return new Promise((resolve,reject)=>{const callback='__playerShell'+Date.now()+Math.random().toString(36).slice(2);const script=document.createElement('script');const timer=setTimeout(()=>done(new Error('Public contract service timed out.')),15000);function done(err,payload){clearTimeout(timer);try{delete window[callback]}catch(_){window[callback]=undefined}script.remove();err?reject(err):resolve(payload)}window[callback]=payload=>done(null,payload);script.onerror=()=>done(new Error('Public contract service unavailable.'));script.src=API+'?action='+encodeURIComponent(action)+'&callback='+encodeURIComponent(callback)+'&_='+Date.now();document.head.appendChild(script)})}
+function saveContractCache(data){try{localStorage.setItem(CONTRACT_CACHE,JSON.stringify(data));localStorage.setItem(CONTRACT_CACHE_TIME,String(Date.now()))}catch(_){}}
+function readContractCache(){const data=safeJson(CONTRACT_CACHE,null);return data&&typeof data==='object'?data:null}
+function cacheAgeLabel(){if(!STATE.cacheTime)return'PREVIOUS SESSION';try{return new Date(STATE.cacheTime).toLocaleString()}catch(_){return'PREVIOUS SESSION'}}
 
 function installStyles(){
   if($('playerShellStyles'))return;
@@ -62,8 +67,14 @@ function renderSystem(){
   const host=$('playerSystemInner');if(!host)return;
   const active=Array.isArray(STATE.contracts?.active)?STATE.contracts.active:[];
   const state=statementState();
+  let linkState='<span class="player-system-item">BOARD LINK CHECKING</span>';
+  if(STATE.checked){
+    if(STATE.online)linkState='<span class="player-system-item live">BOARD LINK LIVE</span>';
+    else if(STATE.cached)linkState=`<span class="player-system-item warn">BOARD LINK CACHED // ${esc(cacheAgeLabel())}</span>`;
+    else linkState='<span class="player-system-item bad">BOARD LINK DEGRADED</span>';
+  }
   const items=[
-    STATE.checked?`<span class="player-system-item ${STATE.online?'live':'bad'}">${STATE.online?'BOARD LINK LIVE':'BOARD LINK DEGRADED'}</span>`:'<span class="player-system-item">BOARD LINK CHECKING</span>',
+    linkState,
     STATE.checked?`<span class="player-system-item ${active.length?'live':''}">${active.length} ACTIVE CONTRACT${active.length===1?'':'S'}</span>`:'<span class="player-system-item">CONTRACT STATE CHECKING</span>',
     `<span class="player-system-item ${state==='UNAVAILABLE'?'bad':state==='CACHED'?'warn':''}">STATEMENTS ${esc(state)}</span>`
   ];
@@ -77,7 +88,9 @@ function renderAssignment(){
   const first=active[0]||{};const participants=Array.isArray(first.participants)?first.participants.filter(Boolean):[];
   const extra=active.length>1?` · +${active.length-1} MORE`:'';
   const meta=[participants.length?participants.join(', '):'',first.acceptedDate?`ACCEPTED ${first.acceptedDate}`:''].filter(Boolean).join(' · ');
-  host.innerHTML=`<div class="player-assignment-main"><span class="player-assignment-label">ACTIVE ASSIGNMENT${active.length===1?'':'S'}</span><span class="player-assignment-title">${esc(first.title||first.contractId||first.jobId||'Contract')}</span>${meta?`<span class="player-assignment-meta">· ${esc(meta)}</span>`:''}${extra?`<span class="player-assignment-meta">${esc(extra)}</span>`:''}</div><a class="player-assignment-link" href="contracts.html">VIEW CONTRACT LOG</a>`;
+  const id=String(first.contractId||first.jobId||'').trim();
+  const href=id?'contracts.html#contract='+encodeURIComponent(id):'contracts.html';
+  host.innerHTML=`<div class="player-assignment-main"><span class="player-assignment-label">ACTIVE ASSIGNMENT${active.length===1?'':'S'}</span><span class="player-assignment-title">${esc(first.title||first.contractId||first.jobId||'Contract')}</span>${meta?`<span class="player-assignment-meta">· ${esc(meta)}</span>`:''}${extra?`<span class="player-assignment-meta">${esc(extra)}</span>`:''}</div><a class="player-assignment-link" href="${href}">VIEW CONTRACT LOG</a>`;
   strip.classList.remove('hidden');
 }
 
@@ -97,9 +110,21 @@ function renderNavBadges(){
   badge(navByLabel('CLASSIFIEDS'),'playerClassifiedsBadge',STATE.boardCounts.classifieds,false);
 }
 
+function announceContracts(){
+  window.dispatchEvent(new CustomEvent('hub-player-contracts-updated',{detail:{contracts:STATE.contracts,online:STATE.online,cached:STATE.cached,cacheTime:STATE.cacheTime}}));
+}
 async function loadPublicContractState(){
-  try{const data=await apiCall('contractfeed');if(!data||data.ok===false)throw new Error(data?.error||'Invalid contract feed.');STATE.contracts=data;STATE.online=true}catch(_){STATE.contracts={active:[],history:[]};STATE.online=false}
-  STATE.checked=true;renderSystem();renderAssignment();renderNavBadges();
+  STATE.cached=false;
+  try{
+    const data=await apiCall('contractfeed');if(!data||data.ok===false)throw new Error(data?.error||'Invalid contract feed.');
+    STATE.contracts=data;STATE.online=true;STATE.cacheTime=Date.now();saveContractCache(data);
+  }catch(_){
+    const cached=readContractCache();
+    if(cached){STATE.contracts=cached;STATE.cached=true;STATE.cacheTime=Number(localStorage.getItem(CONTRACT_CACHE_TIME)||0)}
+    else STATE.contracts={active:[],history:[]};
+    STATE.online=false;
+  }
+  STATE.checked=true;renderSystem();renderAssignment();renderNavBadges();announceContracts();
 }
 
 function watchPageStatus(){
@@ -111,7 +136,8 @@ function watchNav(){
 
 window.__hubPlayerShell={
   setBoardCounts(counts={}){if(counts.jobs!==null&&counts.jobs!==undefined&&Number.isFinite(Number(counts.jobs)))STATE.boardCounts.jobs=Number(counts.jobs);if(counts.classifieds!==null&&counts.classifieds!==undefined&&Number.isFinite(Number(counts.classifieds)))STATE.boardCounts.classifieds=Number(counts.classifieds);renderNavBadges()},
-  refreshContracts:loadPublicContractState
+  refreshContracts:loadPublicContractState,
+  getContractState(){return{contracts:STATE.contracts,online:STATE.online,cached:STATE.cached,checked:STATE.checked,cacheTime:STATE.cacheTime}}
 };
 
 installStyles();installChrome();loadBoardCountsFromCache();renderSystem();renderAssignment();renderNavBadges();watchPageStatus();watchNav();loadPublicContractState();
