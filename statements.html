@@ -12,7 +12,7 @@
 *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace}
 header{position:sticky;top:0;z-index:5;background:rgba(17,19,21,.97);border-bottom:1px solid var(--line);padding:16px 18px 12px}.top{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}h1{margin:0;font-size:clamp(1.2rem,4vw,1.8rem);letter-spacing:.08em;text-transform:uppercase}.sub{color:var(--muted);font-size:.82rem;margin-top:3px}.navrow,.controls{display:flex;gap:8px;margin-top:13px;flex-wrap:wrap}.btn{font:inherit;color:var(--muted);background:transparent;border:1px solid var(--line);border-radius:3px;padding:8px 14px;cursor:pointer;font-weight:800;letter-spacing:.08em;text-decoration:none}.btn:hover{border-color:var(--accent);color:var(--text)}.btn.active{color:var(--text);border-color:var(--accent);background:rgba(212,168,75,.10)}.status{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:8px 18px;color:var(--muted);font-size:.78rem;border-bottom:1px solid #25292c}main{max-width:1180px;margin:0 auto;padding:18px}.sheet{width:min(100%,8.5in);min-height:11in;margin:0 auto;padding:.5in;background:#fff;color:#000;border:1px solid #c9c7bf;box-shadow:0 12px 36px rgba(0,0,0,.38);overflow:auto}.sheet pre{margin:0;min-width:max-content;white-space:pre;color:#000;font-family:"VT323","Courier New",monospace;font-size:16px;line-height:1;font-weight:400}.error{width:min(100%,8.5in);margin:0 auto;padding:24px;border:1px dashed #6d4e45;color:var(--muted);background:var(--panel)}
 @media(max-width:760px){.sheet{padding:20px;min-height:auto}}
-@page{size:letter;margin:0}@media print{body{background:#fff}header,.status{display:none!important}main{max-width:none;margin:0;padding:0}.sheet{width:8.5in;height:11in;min-height:11in;margin:0;padding:.5in;border:0;box-shadow:none;overflow:visible}.sheet pre{font-size:10pt;line-height:1}}
+@page{size:letter;margin:0}@media print{body{background:#fff}header,.status,.player-system-line,.player-assignment{display:none!important}main{max-width:none;margin:0;padding:0}.sheet{width:8.5in;height:11in;min-height:11in;margin:0;padding:.5in;border:0;box-shadow:none;overflow:visible}.sheet pre{font-size:10pt;line-height:1}}
 </style>
 </head>
 <body>
@@ -38,5 +38,6 @@ function load(){status.textContent="Loading current statements…";const old=doc
 john.onclick=()=>{selected="john";render()};prue.onclick=()=>{selected="prue";render()};document.getElementById("print").onclick=()=>window.print();document.getElementById("refresh").onclick=load;load();
 })();
 </script>
+<script src="player-shell-v1.js?v=20260828p1"></script>
 </body>
 </html>
