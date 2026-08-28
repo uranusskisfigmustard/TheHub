@@ -84,8 +84,10 @@ function renderAssignment(){
 function navElements(){return [...document.querySelectorAll('.navrow .navbtn, .navrow .btn')]}
 function navByLabel(label){return navElements().find(x=>String(x.textContent||'').replace(/\d+/g,'').trim().toUpperCase().startsWith(label))||null}
 function badge(el,id,count,active=false){
-  if(!el)return;let b=el.querySelector('#'+id);if(!b){b=document.createElement('span');b.id=id;b.className='player-nav-badge';el.appendChild(b)}
-  if(count===null||count===undefined||Number.isNaN(Number(count))){b.remove();return}
+  if(!el)return;
+  let b=el.querySelector('#'+id);
+  if(count===null||count===undefined||Number.isNaN(Number(count))){if(b)b.remove();return}
+  if(!b){b=document.createElement('span');b.id=id;b.className='player-nav-badge';el.appendChild(b)}
   const text=String(count);if(b.textContent!==text)b.textContent=text;b.classList.toggle('active-contract',Boolean(active));
 }
 function renderNavBadges(){
