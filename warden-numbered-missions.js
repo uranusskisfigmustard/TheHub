@@ -117,6 +117,7 @@
     const panel = document.createElement('section');
     panel.id = 'wcNumberedMissions';
     panel.className = 'panel';
+    panel.dataset.workspaces = 'dashboard';
     panel.innerHTML = `
       <div class="wc-numbered-head">
         <div>
@@ -131,6 +132,9 @@
     const anchor = document.getElementById('consoleResult');
     if (anchor) anchor.insertAdjacentElement('afterend', panel);
     else consoleRoot.prepend(panel);
+
+    const activeWorkspace = document.querySelector('.wc-workspace-btn.active')?.dataset.workspace || 'dashboard';
+    panel.classList.toggle('wc-workspace-hidden', activeWorkspace !== 'dashboard');
     render();
   }
 
