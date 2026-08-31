@@ -12,7 +12,7 @@ const STATE={contracts:null,online:false,checked:false,cached:false,cacheTime:0,
 
 function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function safeJson(key,fallback){try{return JSON.parse(localStorage.getItem(key)||'')||fallback}catch(_){return fallback}}
-function pageKind(){const p=location.pathname.toLowerCase();if(p.endsWith('/contracts.html'))return'logs';if(p.endsWith('/statements.html'))return'statements';return'board'}
+function pageKind(){const p=location.pathname.toLowerCase();if(p.endsWith('/contracts.html'))return'logs';if(p.endsWith('/statements.html'))return'statements';if(p.endsWith('/between-sessions.html'))return'intersession';return'board'}
 function apiCall(action){return new Promise((resolve,reject)=>{const callback='__playerShell'+Date.now()+Math.random().toString(36).slice(2);const script=document.createElement('script');const timer=setTimeout(()=>done(new Error('Public contract service timed out.')),15000);function done(err,payload){clearTimeout(timer);try{delete window[callback]}catch(_){window[callback]=undefined}script.remove();err?reject(err):resolve(payload)}window[callback]=payload=>done(null,payload);script.onerror=()=>done(new Error('Public contract service unavailable.'));script.src=API+'?action='+encodeURIComponent(action)+'&callback='+encodeURIComponent(callback)+'&_='+Date.now();document.head.appendChild(script)})}
 function saveContractCache(data){try{localStorage.setItem(CONTRACT_CACHE,JSON.stringify(data));localStorage.setItem(CONTRACT_CACHE_TIME,String(Date.now()))}catch(_){}}
 function readContractCache(){const data=safeJson(CONTRACT_CACHE,null);return data&&typeof data==='object'?data:null}
@@ -96,6 +96,12 @@ function renderAssignment(){
 
 function navElements(){return [...document.querySelectorAll('.navrow .navbtn, .navrow .btn')]}
 function navByLabel(label){return navElements().find(x=>String(x.textContent||'').replace(/\d+/g,'').trim().toUpperCase().startsWith(label))||null}
+function ensureNavigation(){
+  const nav=document.querySelector('.navrow');if(!nav||navByLabel('BETWEEN SESSIONS'))return;
+  const usesNavBtn=Boolean(nav.querySelector('.navbtn'));
+  if(usesNavBtn){const b=document.createElement('button');b.className='navbtn';b.type='button';b.textContent='BETWEEN SESSIONS';b.addEventListener('click',()=>{location.href='between-sessions.html'});nav.appendChild(b)}
+  else{const a=document.createElement('a');a.className='btn';a.href='between-sessions.html';a.textContent='BETWEEN SESSIONS';nav.appendChild(a)}
+}
 function badge(el,id,count,active=false){
   if(!el)return;
   let b=el.querySelector('#'+id);
@@ -131,7 +137,7 @@ function watchPageStatus(){
   const st=$('status');if(!st)return;new MutationObserver(()=>renderSystem()).observe(st,{childList:true,characterData:true,subtree:true});
 }
 function watchNav(){
-  const nav=document.querySelector('.navrow');if(!nav)return;new MutationObserver(()=>renderNavBadges()).observe(nav,{childList:true,subtree:true});
+  const nav=document.querySelector('.navrow');if(!nav)return;new MutationObserver(()=>{ensureNavigation();renderNavBadges()}).observe(nav,{childList:true,subtree:true});
 }
 
 window.__hubPlayerShell={
@@ -140,6 +146,6 @@ window.__hubPlayerShell={
   getContractState(){return{contracts:STATE.contracts,online:STATE.online,cached:STATE.cached,checked:STATE.checked,cacheTime:STATE.cacheTime}}
 };
 
-installStyles();installChrome();loadBoardCountsFromCache();renderSystem();renderAssignment();renderNavBadges();watchPageStatus();watchNav();loadPublicContractState();
-setTimeout(()=>{loadBoardCountsFromCache();renderNavBadges()},1200);
+installStyles();installChrome();ensureNavigation();loadBoardCountsFromCache();renderSystem();renderAssignment();renderNavBadges();watchPageStatus();watchNav();loadPublicContractState();
+setTimeout(()=>{ensureNavigation();loadBoardCountsFromCache();renderNavBadges()},1200);
 })();
