@@ -13,9 +13,10 @@ header{position:sticky;top:0;z-index:5;background:rgba(17,19,21,.97);border-bott
 h1{margin:0;font-size:clamp(1.2rem,4vw,1.8rem);letter-spacing:.08em;text-transform:uppercase}.sub{color:var(--muted);font-size:.82rem;margin-top:3px}
 .navrow,.controls{display:flex;gap:8px;margin-top:13px;flex-wrap:wrap}.btn{font:inherit;color:var(--muted);background:transparent;border:1px solid var(--line);border-radius:3px;padding:8px 14px;cursor:pointer;font-weight:800;letter-spacing:.08em;text-decoration:none}.btn:hover{border-color:var(--accent);color:var(--text)}.btn.active{color:var(--text);border-color:var(--accent);background:rgba(212,168,75,.10)}
 .status{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:8px 18px;color:var(--muted);font-size:.78rem;border-bottom:1px solid #25292c}
-main{max-width:960px;margin:0 auto;padding:18px}.period{margin-bottom:28px}.period-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px;padding-bottom:9px;border-bottom:1px solid var(--line)}.period-title{font-size:1rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.period-dates{color:var(--muted);font-size:.78rem}
+main{max-width:1280px;margin:0 auto;padding:18px}.intersession-layout{display:grid;grid-template-columns:210px minmax(0,960px) 210px;gap:24px;align-items:start}.period-selector{position:sticky;top:176px;min-width:0}.selector-label{margin:0 0 8px;color:var(--muted);font-size:.68rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.selector-btn{display:block;width:100%;text-align:left;font:inherit;color:var(--muted);background:#171b1f;border:1px solid var(--line);border-radius:3px;padding:10px 11px;cursor:pointer}.selector-btn:hover{border-color:var(--accent);color:var(--text)}.selector-btn.active{border-color:var(--accent);background:rgba(212,168,75,.10);color:var(--text)}.selector-period{display:block;font-size:.78rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase}.selector-dates{display:block;margin-top:3px;color:var(--muted);font-size:.68rem}.reading-column{grid-column:2;min-width:0}.layout-spacer{grid-column:3}.period{margin-bottom:28px}.period-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px;padding-bottom:9px;border-bottom:1px solid var(--line)}.period-title{font-size:1rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.period-dates{color:var(--muted);font-size:.78rem}
 .scene{background:linear-gradient(180deg,#171b1f 0%,#14181b 100%);border:1px solid var(--line);border-radius:4px;padding:18px;margin-bottom:14px;box-shadow:0 10px 24px rgba(0,0,0,.20)}.scene h2{margin:0 0 12px;font-size:1.06rem;letter-spacing:.06em;text-transform:uppercase}.scene p{margin:0 0 12px;color:#d8d4c8}.scene p:last-child{margin-bottom:0}.empty{padding:22px;border:1px dashed var(--line);color:var(--muted);background:var(--panel)}
-@media(max-width:760px){main{padding:12px}.scene{padding:15px}}
+@media(max-width:1100px){main{max-width:1000px}.intersession-layout{grid-template-columns:180px minmax(0,1fr);gap:18px}.layout-spacer{display:none}.reading-column{grid-column:2}}
+@media(max-width:760px){main{padding:12px}.intersession-layout{display:block}.period-selector{position:static;margin:0 0 14px}.selector-label{margin-bottom:6px}.selector-btn{max-width:100%}.scene{padding:15px}.reading-column{width:100%}}
 </style>
 </head>
 <body>
@@ -25,7 +26,19 @@ main{max-width:960px;margin:0 auto;padding:18px}.period{margin-bottom:28px}.peri
   <div class="controls" aria-label="Character selection"><button id="prue" class="btn active" type="button">PRUDENCE GREYMORE</button><button id="john" class="btn" type="button">JOHN SOBIESKI</button></div>
 </header>
 <div class="status"><span id="status">CURRENT INTERSESSION RECORD</span><span id="who">PRUDENCE GREYMORE</span></div>
-<main><div id="view"></div></main>
+<main>
+  <div class="intersession-layout">
+    <aside class="period-selector" aria-label="Between-session period selection">
+      <div class="selector-label">INTERSESSION PERIODS</div>
+      <button class="selector-btn active" type="button" aria-current="true" data-period="m2-m3">
+        <span class="selector-period">M2 → M3</span>
+        <span class="selector-dates">2237-241 → 2237-255</span>
+      </button>
+    </aside>
+    <div id="view" class="reading-column"></div>
+    <div class="layout-spacer" aria-hidden="true"></div>
+  </div>
+</main>
 <script>
 (()=>{
 'use strict';
