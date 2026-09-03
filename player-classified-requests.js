@@ -68,7 +68,7 @@
     const style = document.createElement('style');
     style.id = 'classifiedRequestStyles';
     style.textContent = `
-      .classified-request-row{margin-top:13px;padding-top:11px;border-top:1px solid #303538;display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+      .classified-request-row{margin:9px 0 10px;display:flex;align-items:center;justify-content:flex-end;gap:9px;flex-wrap:wrap}
       .classified-request-btn{font:inherit;font-size:.72rem;font-weight:800;letter-spacing:.06em;border:1px solid #d4a84b;border-radius:3px;background:rgba(212,168,75,.10);color:#e7e4dc;padding:8px 10px;cursor:pointer}
       .classified-request-btn:hover{background:rgba(212,168,75,.18)}
       .classified-request-note{font-size:.7rem;color:#aaa79f}
@@ -214,7 +214,9 @@
       row.className = 'classified-request-row';
       row.innerHTML = `<button type="button" class="classified-request-btn">REQUEST ITEM</button>`;
       row.querySelector('button')?.addEventListener('click', () => openModal(item, card));
-      card.appendChild(row);
+      const typeBar = card.querySelector('.type');
+      if (typeBar) card.insertBefore(row, typeBar);
+      else card.appendChild(row);
       card.dataset.classifiedRequestEnhanced = '1';
     });
   }
