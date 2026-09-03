@@ -212,7 +212,7 @@
       }
       const row = document.createElement('div');
       row.className = 'classified-request-row';
-      row.innerHTML = `<button type="button" class="classified-request-btn">REQUEST ITEM</button><span class="classified-request-note">Warden approval required.</span>`;
+      row.innerHTML = `<button type="button" class="classified-request-btn">REQUEST ITEM</button>`;
       row.querySelector('button')?.addEventListener('click', () => openModal(item, card));
       card.appendChild(row);
       card.dataset.classifiedRequestEnhanced = '1';
