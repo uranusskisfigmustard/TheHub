@@ -68,10 +68,10 @@
     const style = document.createElement('style');
     style.id = 'classifiedRequestStyles';
     style.textContent = `
-      .classified-request-row{margin:9px 0 10px;display:flex;align-items:center;justify-content:flex-end;gap:9px;flex-wrap:wrap}
-      .classified-request-btn{font:inherit;font-size:.72rem;font-weight:800;letter-spacing:.06em;border:1px solid #d4a84b;border-radius:3px;background:rgba(212,168,75,.10);color:#e7e4dc;padding:8px 10px;cursor:pointer}
+      .classified-card .type{display:flex;align-items:center;gap:12px}
+      .classified-request-row{margin-left:auto;display:flex;align-items:center;flex:0 0 auto}
+      .classified-request-btn{font:inherit;font-size:.68rem;font-weight:800;letter-spacing:.06em;border:1px solid #d4a84b;border-radius:3px;background:rgba(212,168,75,.10);color:#e7e4dc;padding:6px 9px;cursor:pointer;white-space:nowrap}
       .classified-request-btn:hover{background:rgba(212,168,75,.18)}
-      .classified-request-note{font-size:.7rem;color:#aaa79f}
       #${MODAL_ID}{position:fixed;inset:0;z-index:1450;background:rgba(0,0,0,.78);display:flex;align-items:center;justify-content:center;padding:18px;backdrop-filter:blur(4px)}
       #${MODAL_ID}.hidden{display:none!important}
       #${MODAL_ID} .cr-shell{width:min(560px,100%);background:#111315;border:1px solid #3a3f43;border-radius:5px;padding:21px;box-shadow:0 24px 60px rgba(0,0,0,.55)}
@@ -177,8 +177,6 @@
       showResult('REQUEST SENT // AWAITING WARDEN DECISION');
       const card = current.card;
       card?.querySelector('.classified-request-btn')?.setAttribute('disabled','disabled');
-      const note = card?.querySelector('.classified-request-note');
-      if (note) note.textContent = 'REQUEST SENT // PENDING';
       setTimeout(() => {
         if (card?.isConnected) card.remove();
         closeModal();
@@ -210,12 +208,12 @@
         card.dataset.classifiedRequestEnhanced = '1';
         return;
       }
-      const row = document.createElement('div');
+      const row = document.createElement('span');
       row.className = 'classified-request-row';
       row.innerHTML = `<button type="button" class="classified-request-btn">REQUEST ITEM</button>`;
       row.querySelector('button')?.addEventListener('click', () => openModal(item, card));
       const typeBar = card.querySelector('.type');
-      if (typeBar) card.insertBefore(row, typeBar);
+      if (typeBar) typeBar.appendChild(row);
       else card.appendChild(row);
       card.dataset.classifiedRequestEnhanced = '1';
     });
