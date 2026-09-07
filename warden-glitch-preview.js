@@ -35,8 +35,10 @@ function horizontalTear(){
   const clone=cloneTarget(target,'wg-tear-clone',150);
   if(!clone)return;
   const top=rand(18,70),height=rand(7,16),bottom=Math.max(0,100-top-height);
+  const shift=rand(8,22)*(Math.random()<.5?-1:1);
   clone.style.clipPath=`inset(${top}% 0 ${bottom}% 0)`;
-  clone.style.setProperty('--wg-shift',rand(8,22)*(Math.random()<.5?-1:1)+'px');
+  clone.style.setProperty('--wg-shift',shift+'px');
+  clone.style.setProperty('--wg-shift2',Math.round(shift*-.55)+'px');
 }
 
 function scanlineBurst(){
@@ -51,8 +53,8 @@ function textJitter(){
   const target=pick('h1, #status, #date, #console h2, #console .metric strong, #console .label, #console .title');
   if(!target)return;
   const a=cloneTarget(target,'wg-text-ghost-a',220),b=cloneTarget(target,'wg-text-ghost-b',220);
-  if(a)a.style.setProperty('--wg-jx',rand(2,5)+'px');
-  if(b)b.style.setProperty('--wg-jx','-'+rand(2,5)+'px');
+  if(a){const x=rand(2,5);a.style.setProperty('--wg-jx',x+'px');a.style.setProperty('--wg-jx2',Math.round(x*-.5)+'px')}
+  if(b){const x=-rand(2,5);b.style.setProperty('--wg-jx',x+'px');b.style.setProperty('--wg-jx2',Math.round(x*-.5)+'px')}
   touch(target,'wg-text-jitter',220);
 }
 
@@ -105,8 +107,11 @@ function frameMisalignment(){
   reset();
   const consoleEl=document.getElementById('console');
   if(!consoleEl)return;
-  consoleEl.style.setProperty('--wg-frame-x',rand(3,7)*(Math.random()<.5?-1:1)+'px');
-  consoleEl.style.setProperty('--wg-frame-y',rand(1,4)*(Math.random()<.5?-1:1)+'px');
+  const x=rand(3,7)*(Math.random()<.5?-1:1),y=rand(1,4)*(Math.random()<.5?-1:1);
+  consoleEl.style.setProperty('--wg-frame-x',x+'px');
+  consoleEl.style.setProperty('--wg-frame-y',y+'px');
+  consoleEl.style.setProperty('--wg-frame-x2',Math.round(x*-.45)+'px');
+  consoleEl.style.setProperty('--wg-frame-y2',Math.round(y*-.5)+'px');
   consoleEl.classList.add('wg-frame-misalignment');
   later(()=>consoleEl.classList.remove('wg-frame-misalignment'),300);
 }
@@ -137,14 +142,14 @@ function installStyles(){
     .wg-reset-row{margin-top:10px;display:flex;justify-content:flex-end}
     .wg-overlay,.wg-clone,.wg-corrupt-text{pointer-events:none!important;user-select:none!important}
     .wg-tear-clone{animation:wgTear 150ms steps(3,end) both;filter:contrast(1.25) brightness(1.1)}
-    @keyframes wgTear{0%{transform:translateX(0)}20%{transform:translateX(var(--wg-shift))}45%{transform:translateX(calc(var(--wg-shift) * -.55))}70%{transform:translateX(var(--wg-shift))}100%{transform:translateX(0)}}
+    @keyframes wgTear{0%{transform:translateX(0)}20%{transform:translateX(var(--wg-shift))}45%{transform:translateX(var(--wg-shift2))}70%{transform:translateX(var(--wg-shift))}100%{transform:translateX(0)}}
     .wg-scanline-burst{position:fixed;inset:0;z-index:2147483001;background:repeating-linear-gradient(to bottom,transparent 0,transparent 3px,rgba(231,228,220,.11) 4px,rgba(0,0,0,.18) 5px,transparent 6px);clip-path:inset(var(--wg-band-top) 0 calc(100vh - var(--wg-band-top) - 22vh) 0);animation:wgScanBurst 420ms linear both;mix-blend-mode:screen}
     @keyframes wgScanBurst{0%{transform:translateY(-16vh);opacity:0}18%{opacity:.85}78%{opacity:.55}100%{transform:translateY(26vh);opacity:0}}
     .wg-text-ghost-a,.wg-text-ghost-b{opacity:.48;animation:wgGhost 220ms steps(4,end) both;text-shadow:1px 0 rgba(231,228,220,.35)}
     .wg-text-ghost-b{opacity:.25}
     .wg-text-jitter{animation:wgTextJitter 220ms steps(5,end) both}
     @keyframes wgTextJitter{0%,100%{transform:none}20%{transform:translateX(1px)}40%{transform:translateX(-2px)}60%{transform:translate(1px,-1px)}80%{transform:translateX(-1px)}}
-    @keyframes wgGhost{0%,100%{transform:none}25%{transform:translateX(var(--wg-jx))}50%{transform:translateX(calc(var(--wg-jx) * -.5))}75%{transform:translateX(var(--wg-jx))}}
+    @keyframes wgGhost{0%,100%{transform:none}25%{transform:translateX(var(--wg-jx))}50%{transform:translateX(var(--wg-jx2))}75%{transform:translateX(var(--wg-jx))}}
     .wg-corrupt-text{position:fixed;z-index:2147483002;background:#111315;overflow:hidden;animation:wgCorrupt 190ms steps(3,end) both}
     @keyframes wgCorrupt{0%{opacity:0}12%{opacity:1}72%{opacity:1}100%{opacity:0}}
     .wg-partial-redraw{animation:wgPartialRedraw 520ms steps(10,end) both;transform-origin:top}
@@ -158,7 +163,7 @@ function installStyles(){
     .wg-brightness-pulse body{animation:wgBrightness 360ms steps(6,end) both}
     @keyframes wgBrightness{0%,100%{filter:none}16%{filter:brightness(.56) contrast(1.18)}36%{filter:brightness(.9) contrast(1.06)}55%{filter:brightness(.67) contrast(1.22)}76%{filter:brightness(1.08) contrast(1.08)}}
     .wg-frame-misalignment{animation:wgMisalign 300ms steps(4,end) both}
-    @keyframes wgMisalign{0%,100%{transform:none}20%{transform:translate(var(--wg-frame-x),var(--wg-frame-y))}50%{transform:translate(calc(var(--wg-frame-x) * -.45),calc(var(--wg-frame-y) * -.5))}78%{transform:translate(var(--wg-frame-x),0)}}
+    @keyframes wgMisalign{0%,100%{transform:none}20%{transform:translate(var(--wg-frame-x),var(--wg-frame-y))}50%{transform:translate(var(--wg-frame-x2),var(--wg-frame-y2))}78%{transform:translate(var(--wg-frame-x),0)}}
     @media(prefers-reduced-motion:reduce){.wg-tear-clone,.wg-scanline-burst,.wg-text-ghost-a,.wg-text-ghost-b,.wg-text-jitter,.wg-corrupt-text,.wg-partial-redraw,.wg-static-band,.wg-sync-slip body,.wg-frame-drop,.wg-brightness-pulse body,.wg-frame-misalignment{animation-duration:1ms!important}}
   `;document.head.appendChild(s);
 }
