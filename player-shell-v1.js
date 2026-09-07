@@ -139,6 +139,10 @@ function watchPageStatus(){
 function watchNav(){
   const nav=document.querySelector('.navrow');if(!nav)return;new MutationObserver(()=>{ensureNavigation();renderNavBadges()}).observe(nav,{childList:true,subtree:true});
 }
+function installGlitchLayer(){
+  if(document.getElementById('hubPlayerGlitchScriptV1')||window.__hubPlayerGlitch)return;
+  const s=document.createElement('script');s.id='hubPlayerGlitchScriptV1';s.src='player-glitch-v1.js?v=20260907a';s.defer=true;document.head.appendChild(s);
+}
 
 window.__hubPlayerShell={
   setBoardCounts(counts={}){if(counts.jobs!==null&&counts.jobs!==undefined&&Number.isFinite(Number(counts.jobs)))STATE.boardCounts.jobs=Number(counts.jobs);if(counts.classifieds!==null&&counts.classifieds!==undefined&&Number.isFinite(Number(counts.classifieds)))STATE.boardCounts.classifieds=Number(counts.classifieds);renderNavBadges()},
@@ -146,6 +150,6 @@ window.__hubPlayerShell={
   getContractState(){return{contracts:STATE.contracts,online:STATE.online,cached:STATE.cached,checked:STATE.checked,cacheTime:STATE.cacheTime}}
 };
 
-installStyles();installChrome();ensureNavigation();loadBoardCountsFromCache();renderSystem();renderAssignment();renderNavBadges();watchPageStatus();watchNav();loadPublicContractState();
+installStyles();installChrome();ensureNavigation();installGlitchLayer();loadBoardCountsFromCache();renderSystem();renderAssignment();renderNavBadges();watchPageStatus();watchNav();loadPublicContractState();
 setTimeout(()=>{ensureNavigation();loadBoardCountsFromCache();renderNavBadges()},1200);
 })();
