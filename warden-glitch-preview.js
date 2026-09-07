@@ -3,7 +3,10 @@
 
 const PANEL_ID='wardenGlitchPreview';
 const STYLE_ID='wardenGlitchPreviewStyles';
-const ACTIVE_CLASSNAMES=['wg-sync-slip','wg-brightness-pulse'];
+const ACTIVE_CLASSNAMES=[
+  'wg-sync-slip','wg-brightness-pulse',
+  'wg-crt-vroll','wg-crt-hhold','wg-crt-bloom','wg-crt-collapse','wg-crt-degauss','wg-crt-raster'
+];
 const CONSOLE_CLASSNAMES=['wg-frame-misalignment'];
 let timers=[];
 let overlays=[];
@@ -116,6 +119,67 @@ function frameMisalignment(){
   later(()=>consoleEl.classList.remove('wg-frame-misalignment'),300);
 }
 
+function crtVerticalRoll(){
+  reset();
+  document.documentElement.style.setProperty('--wg-vroll',rand(70,150)+'px');
+  document.documentElement.classList.add('wg-crt-vroll');
+  const seam=document.createElement('div');seam.className='wg-overlay wg-crt-roll-seam';seam.setAttribute('aria-hidden','true');
+  trackOverlay(seam,760);
+  later(()=>document.documentElement.classList.remove('wg-crt-vroll'),760);
+}
+
+function crtHorizontalHold(){
+  reset();
+  document.documentElement.style.setProperty('--wg-hhold',rand(10,24)*(Math.random()<.5?-1:1)+'px');
+  document.documentElement.classList.add('wg-crt-hhold');
+  later(()=>document.documentElement.classList.remove('wg-crt-hhold'),620);
+}
+
+function crtPhosphorAfterimage(){
+  reset();
+  const target=pick('header, .statusbar, #console .metrics, #console .panel');
+  if(!target)return;
+  const clone=cloneTarget(target,'wg-crt-afterimage',760);
+  if(!clone)return;
+  clone.style.setProperty('--wg-after-x',rand(2,5)+'px');
+  clone.style.setProperty('--wg-after-y',rand(1,3)+'px');
+}
+
+function crtBloom(){
+  reset();
+  document.documentElement.classList.add('wg-crt-bloom');
+  later(()=>document.documentElement.classList.remove('wg-crt-bloom'),720);
+}
+
+function crtVerticalCollapse(){
+  reset();
+  document.documentElement.classList.add('wg-crt-collapse');
+  const line=document.createElement('div');line.className='wg-overlay wg-crt-collapse-line';line.setAttribute('aria-hidden','true');
+  trackOverlay(line,680);
+  later(()=>document.documentElement.classList.remove('wg-crt-collapse'),680);
+}
+
+function crtDegauss(){
+  reset();
+  document.documentElement.classList.add('wg-crt-degauss');
+  later(()=>document.documentElement.classList.remove('wg-crt-degauss'),900);
+}
+
+function crtRasterFlicker(){
+  reset();
+  document.documentElement.classList.add('wg-crt-raster');
+  const raster=document.createElement('div');raster.className='wg-overlay wg-crt-raster-overlay';raster.setAttribute('aria-hidden','true');
+  trackOverlay(raster,820);
+  later(()=>document.documentElement.classList.remove('wg-crt-raster'),820);
+}
+
+function crtFlybackLines(){
+  reset();
+  const el=document.createElement('div');el.className='wg-overlay wg-crt-flyback';el.setAttribute('aria-hidden','true');
+  el.style.setProperty('--wg-fly-top',rand(8,30)+'vh');
+  trackOverlay(el,620);
+}
+
 const EFFECTS={
   tear:horizontalTear,
   scan:scanlineBurst,
@@ -127,6 +191,14 @@ const EFFECTS={
   dropout:frameDrop,
   brightness:brightnessPulse,
   misalign:frameMisalignment,
+  crtVroll:crtVerticalRoll,
+  crtHhold:crtHorizontalHold,
+  crtAfter:crtPhosphorAfterimage,
+  crtBloom:crtBloom,
+  crtCollapse:crtVerticalCollapse,
+  crtDegauss:crtDegauss,
+  crtRaster:crtRasterFlicker,
+  crtFlyback:crtFlybackLines,
   reset
 };
 
@@ -135,6 +207,7 @@ function installStyles(){
   const s=document.createElement('style');s.id=STYLE_ID;s.textContent=`
     #${PANEL_ID}{position:relative;overflow:hidden}
     .wg-intro{color:var(--muted);font-size:.78rem;margin:-4px 0 12px;max-width:850px}
+    .wg-subhead{margin:16px 0 8px;color:var(--accent);font-size:.72rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase}
     .wg-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(205px,1fr));gap:9px}
     .wg-choice{border:1px solid var(--line);background:var(--panel2);padding:10px;min-width:0}
     .wg-choice .btn{width:100%;text-align:left;padding:7px 9px;font-size:.72rem}
@@ -164,7 +237,38 @@ function installStyles(){
     @keyframes wgBrightness{0%,100%{filter:none}16%{filter:brightness(.56) contrast(1.18)}36%{filter:brightness(.9) contrast(1.06)}55%{filter:brightness(.67) contrast(1.22)}76%{filter:brightness(1.08) contrast(1.08)}}
     .wg-frame-misalignment{animation:wgMisalign 300ms steps(4,end) both}
     @keyframes wgMisalign{0%,100%{transform:none}20%{transform:translate(var(--wg-frame-x),var(--wg-frame-y))}50%{transform:translate(var(--wg-frame-x2),var(--wg-frame-y2))}78%{transform:translate(var(--wg-frame-x),0)}}
-    @media(prefers-reduced-motion:reduce){.wg-tear-clone,.wg-scanline-burst,.wg-text-ghost-a,.wg-text-ghost-b,.wg-text-jitter,.wg-corrupt-text,.wg-partial-redraw,.wg-static-band,.wg-sync-slip body,.wg-frame-drop,.wg-brightness-pulse body,.wg-frame-misalignment{animation-duration:1ms!important}}
+
+    .wg-crt-vroll body{animation:wgCrtVRoll 760ms cubic-bezier(.25,.02,.3,1) both;overflow-x:hidden}
+    @keyframes wgCrtVRoll{0%,100%{transform:translateY(0)}12%{transform:translateY(var(--wg-vroll))}27%{transform:translateY(calc(var(--wg-vroll) * -.55))}44%{transform:translateY(calc(var(--wg-vroll) * .35))}63%{transform:translateY(-18px)}79%{transform:translateY(7px)}}
+    .wg-crt-roll-seam{position:fixed;left:0;right:0;top:0;height:18px;z-index:2147483600;background:linear-gradient(to bottom,rgba(231,228,220,.32),rgba(17,19,21,.96),transparent);box-shadow:0 8px 26px rgba(231,228,220,.12);animation:wgCrtRollSeam 760ms linear both}
+    @keyframes wgCrtRollSeam{0%{transform:translateY(-30px);opacity:0}10%{opacity:.8}70%{opacity:.5}100%{transform:translateY(105vh);opacity:0}}
+
+    .wg-crt-hhold body{animation:wgCrtHHold 620ms steps(8,end) both;transform-origin:center}
+    @keyframes wgCrtHHold{0%,100%{transform:none}10%{transform:translateX(var(--wg-hhold)) skewX(.8deg)}22%{transform:translateX(calc(var(--wg-hhold) * -.65)) scaleX(1.018)}36%{transform:translateX(var(--wg-hhold)) scaleX(.986)}52%{transform:translateX(-5px) skewX(-.5deg)}69%{transform:translateX(8px)}84%{transform:translateX(-2px)}}
+
+    .wg-crt-afterimage{opacity:.45;filter:blur(.55px) brightness(1.18);animation:wgCrtAfter 760ms ease-out both;mix-blend-mode:screen}
+    @keyframes wgCrtAfter{0%{opacity:.52;transform:translate(var(--wg-after-x),var(--wg-after-y))}22%{opacity:.38;transform:translate(calc(var(--wg-after-x) * .55),var(--wg-after-y))}55%{opacity:.18;transform:translate(1px,0)}100%{opacity:0;transform:none}}
+
+    .wg-crt-bloom body{animation:wgCrtBloom 720ms ease-in-out both}
+    @keyframes wgCrtBloom{0%,100%{filter:none}15%{filter:brightness(1.18) contrast(1.04) blur(.25px)}34%{filter:brightness(1.38) contrast(.96) blur(.75px)}57%{filter:brightness(1.12) contrast(1.06) blur(.35px)}78%{filter:brightness(1.24) contrast(1) blur(.5px)}}
+
+    .wg-crt-collapse body{animation:wgCrtCollapse 680ms cubic-bezier(.3,0,.2,1) both;transform-origin:50% 50%}
+    @keyframes wgCrtCollapse{0%,100%{transform:scaleY(1);filter:none}16%{transform:scaleY(.74);filter:brightness(1.08)}31%{transform:scaleY(.08);filter:brightness(1.75) contrast(1.2)}42%{transform:scaleY(.018);filter:brightness(2.1) contrast(1.35)}55%{transform:scaleY(.22);filter:brightness(1.45)}73%{transform:scaleY(1.06);filter:brightness(1.08)}88%{transform:scaleY(.97)}}
+    .wg-crt-collapse-line{position:fixed;left:0;right:0;top:50%;height:2px;z-index:2147483645;background:rgba(231,228,220,.9);box-shadow:0 0 7px rgba(231,228,220,.72),0 0 22px rgba(231,228,220,.35);animation:wgCrtCollapseLine 680ms ease-in-out both}
+    @keyframes wgCrtCollapseLine{0%,15%,75%,100%{opacity:0}28%{opacity:.25}39%{opacity:1}54%{opacity:.55}65%{opacity:.12}}
+
+    .wg-crt-degauss body{animation:wgCrtDegauss 900ms ease-out both;transform-origin:center}
+    @keyframes wgCrtDegauss{0%,100%{transform:none;filter:none}8%{transform:scale(1.012,.986) rotate(.15deg);filter:brightness(1.08) contrast(1.04)}18%{transform:scale(.992,1.014) rotate(-.12deg);filter:brightness(.95)}31%{transform:scale(1.007,.997) skewX(.22deg)}46%{transform:scale(.997,1.004) skewX(-.12deg)}64%{transform:scale(1.002,.999)}82%{transform:scale(.999,1.001)}}
+
+    .wg-crt-raster body{animation:wgCrtRasterBody 820ms steps(10,end) both}
+    @keyframes wgCrtRasterBody{0%,100%{filter:none}8%{filter:brightness(.88)}16%{filter:brightness(1.08)}25%{filter:brightness(.94)}35%{filter:brightness(1.04)}48%{filter:brightness(.9)}62%{filter:brightness(1.06)}78%{filter:brightness(.96)}}
+    .wg-crt-raster-overlay{position:fixed;inset:0;z-index:2147483500;background:repeating-linear-gradient(to bottom,rgba(0,0,0,.16) 0 1px,transparent 1px 3px,rgba(231,228,220,.035) 3px 4px,transparent 4px 6px);animation:wgCrtRasterOverlay 820ms linear both;mix-blend-mode:multiply}
+    @keyframes wgCrtRasterOverlay{0%{opacity:.15;transform:translateY(-4px)}18%{opacity:.52}50%{opacity:.28;transform:translateY(3px)}78%{opacity:.48}100%{opacity:0;transform:translateY(6px)}}
+
+    .wg-crt-flyback{position:fixed;inset:0;z-index:2147483550;background:repeating-linear-gradient(174deg,transparent 0 23px,rgba(231,228,220,.16) 24px,transparent 25px 42px);clip-path:inset(var(--wg-fly-top) 0 52vh 0);animation:wgCrtFlyback 620ms steps(5,end) both;mix-blend-mode:screen}
+    @keyframes wgCrtFlyback{0%{opacity:0;transform:translateY(-10px)}13%{opacity:.7}37%{opacity:.32;transform:translateY(8px)}58%{opacity:.58;transform:translateY(-3px)}82%{opacity:.2}100%{opacity:0;transform:translateY(6px)}}
+
+    @media(prefers-reduced-motion:reduce){.wg-tear-clone,.wg-scanline-burst,.wg-text-ghost-a,.wg-text-ghost-b,.wg-text-jitter,.wg-corrupt-text,.wg-partial-redraw,.wg-static-band,.wg-sync-slip body,.wg-frame-drop,.wg-brightness-pulse body,.wg-frame-misalignment,.wg-crt-vroll body,.wg-crt-roll-seam,.wg-crt-hhold body,.wg-crt-afterimage,.wg-crt-bloom body,.wg-crt-collapse body,.wg-crt-collapse-line,.wg-crt-degauss body,.wg-crt-raster body,.wg-crt-raster-overlay,.wg-crt-flyback{animation-duration:1ms!important}}
   `;document.head.appendChild(s);
 }
 
@@ -176,6 +280,20 @@ function installPanel(){
   panel.innerHTML=`
     <h2>Glitch Preview</h2>
     <div class="wg-intro">WARDEN-ONLY visual test. Each button fires one effect immediately on this console. Nothing is transmitted to player-facing pages and no displayed data is changed.</div>
+
+    <div class="wg-subhead">CRT-SPECIFIC</div>
+    <div class="wg-grid">
+      <div class="wg-choice"><button class="btn primary" data-wg="crtVroll">VERTICAL HOLD ROLL</button><div class="wg-desc">The raster loses vertical lock, rolls, overshoots, and settles.</div></div>
+      <div class="wg-choice"><button class="btn primary" data-wg="crtHhold">HORIZONTAL HOLD LOSS</button><div class="wg-desc">Horizontal synchronization slips, pulling and shearing the picture sideways.</div></div>
+      <div class="wg-choice"><button class="btn primary" data-wg="crtAfter">PHOSPHOR AFTERIMAGE</button><div class="wg-desc">A faint displaced image lingers and decays after the picture moves.</div></div>
+      <div class="wg-choice"><button class="btn primary" data-wg="crtBloom">FOCUS / BLOOM BREATHING</button><div class="wg-desc">Brightness swells and the phosphor image briefly loses focus.</div></div>
+      <div class="wg-choice"><button class="btn primary" data-wg="crtCollapse">VERTICAL DEFLECTION COLLAPSE</button><div class="wg-desc">The raster collapses toward a bright horizontal line, then recovers.</div></div>
+      <div class="wg-choice"><button class="btn primary" data-wg="crtDegauss">DEGAUSS / GEOMETRY WOBBLE</button><div class="wg-desc">The picture bows and breathes as if the tube or deflection field is settling.</div></div>
+      <div class="wg-choice"><button class="btn primary" data-wg="crtRaster">RASTER FLICKER</button><div class="wg-desc">Visible scan structure and uneven brightness pulse across the tube.</div></div>
+      <div class="wg-choice"><button class="btn primary" data-wg="crtFlyback">FLYBACK / RETRACE LINES</button><div class="wg-desc">Faint retrace lines briefly become visible across the upper raster.</div></div>
+    </div>
+
+    <div class="wg-subhead">GENERAL DISPLAY FAULTS</div>
     <div class="wg-grid">
       <div class="wg-choice"><button class="btn" data-wg="tear">HORIZONTAL TEAR</button><div class="wg-desc">A narrow slice of the display jumps sideways and snaps back.</div></div>
       <div class="wg-choice"><button class="btn" data-wg="scan">SCANLINE BURST</button><div class="wg-desc">A dense interference band sweeps through part of the screen.</div></div>
