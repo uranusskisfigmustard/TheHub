@@ -1,45 +1,49 @@
-/* The Hub — mobile layout overrides */
+/* The Hub — shared mobile layout overrides */
 .mobile-filter-toggle { display:none; }
 
 @media (max-width:760px) {
   header {
-    padding:8px 10px 8px;
+    padding:8px 10px 8px !important;
   }
 
-  .topline {
-    flex-wrap:nowrap;
-    align-items:center;
-    gap:8px;
+  .topline,
+  .top {
+    flex-wrap:nowrap !important;
+    align-items:center !important;
+    gap:8px !important;
   }
 
-  .topline > div {
+  .topline > div,
+  .top > div {
     min-width:0;
   }
 
   h1 {
     min-width:0;
-    font-size:1rem;
+    font-size:1rem !important;
     line-height:1.15;
-    letter-spacing:.05em;
+    letter-spacing:.05em !important;
     white-space:nowrap;
     overflow:hidden;
     text-overflow:ellipsis;
   }
 
   .sub {
-    display:none;
+    display:none !important;
   }
 
-  #refreshBtn {
+  #refreshBtn,
+  button.refresh {
     flex:0 0 auto;
-    padding:6px 8px;
-    font-size:.7rem;
+    padding:6px 8px !important;
+    font-size:.7rem !important;
   }
 
   .navrow {
-    flex-wrap:nowrap;
-    gap:6px;
-    margin-top:7px;
+    display:flex !important;
+    flex-wrap:nowrap !important;
+    gap:6px !important;
+    margin-top:7px !important;
     padding-bottom:1px;
     overflow-x:auto;
     overscroll-behavior-x:contain;
@@ -47,15 +51,21 @@
     scrollbar-width:none;
   }
 
-  .navrow::-webkit-scrollbar {
+  .navrow::-webkit-scrollbar,
+  .controls::-webkit-scrollbar,
+  .statusbar::-webkit-scrollbar,
+  body > .status::-webkit-scrollbar,
+  .player-system-inner::-webkit-scrollbar {
     display:none;
   }
 
-  .navbtn {
-    flex:0 0 auto;
-    padding:6px 9px;
-    font-size:.7rem;
-    letter-spacing:.05em;
+  .navbtn,
+  .navrow > .btn {
+    flex:0 0 auto !important;
+    padding:6px 9px !important;
+    font-size:.7rem !important;
+    letter-spacing:.05em !important;
+    white-space:nowrap;
   }
 
   .player-nav-badge {
@@ -66,29 +76,39 @@
   }
 
   .controls {
-    grid-template-columns:minmax(0,1fr) auto auto;
-    gap:6px;
-    margin-top:7px;
+    display:flex !important;
+    flex-wrap:nowrap !important;
+    align-items:center;
+    gap:6px !important;
+    margin-top:7px !important;
+    overflow-x:auto;
+    overscroll-behavior-x:contain;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+  }
+
+  .controls > .btn {
+    flex:0 0 auto;
+    padding:7px 9px !important;
+    font-size:.7rem !important;
+    white-space:nowrap;
   }
 
   .controls #search {
-    grid-column:1;
-    grid-row:1;
+    flex:1 1 10rem;
     min-width:0;
     padding:7px 8px;
   }
 
   .controls .mobile-filter-toggle {
     display:block;
-    grid-column:2;
-    grid-row:1;
+    flex:0 0 auto;
     padding:7px 8px;
     font-size:.7rem;
   }
 
   .controls #clearBtn {
-    grid-column:3;
-    grid-row:1;
+    flex:0 0 auto;
     padding:7px 8px;
     font-size:.7rem;
   }
@@ -96,34 +116,36 @@
   .controls #primaryFilter,
   .controls #secondaryFilter {
     display:none;
-    grid-column:1 / -1;
+    flex:1 1 100%;
     width:100%;
+    min-width:100%;
     padding:8px;
   }
 
-  .controls #primaryFilter { grid-row:2; }
-  .controls #secondaryFilter { grid-row:3; }
+  .controls.mobile-filters-open {
+    flex-wrap:wrap !important;
+    overflow:visible;
+  }
 
   .controls.mobile-filters-open #primaryFilter,
   .controls.mobile-filters-open #secondaryFilter {
     display:block;
   }
 
-  .statusbar {
-    flex-wrap:nowrap;
-    gap:8px;
-    padding:6px 10px;
+  .statusbar,
+  body > .status {
+    display:flex !important;
+    flex-wrap:nowrap !important;
+    gap:8px !important;
+    padding:6px 10px !important;
     overflow-x:auto;
     overscroll-behavior-x:contain;
     scrollbar-width:none;
-    font-size:.68rem;
-  }
-
-  .statusbar::-webkit-scrollbar {
-    display:none;
+    font-size:.68rem !important;
   }
 
   .statusbar > *,
+  body > .status > *,
   .status-tools,
   .highlight-toggle {
     flex:0 0 auto;
@@ -148,10 +170,6 @@
     scrollbar-width:none;
   }
 
-  .player-system-inner::-webkit-scrollbar {
-    display:none;
-  }
-
   .player-assignment-inner {
     flex-wrap:nowrap !important;
     padding:5px 10px !important;
@@ -172,33 +190,46 @@
   }
 
   main {
-    padding:10px;
+    padding:10px !important;
   }
 
-  #cards {
-    grid-template-columns:1fr;
-    gap:10px;
+  #cards,
+  .grid {
+    grid-template-columns:1fr !important;
+    gap:10px !important;
   }
 
   .card {
-    padding:13px;
+    padding:13px !important;
+  }
+
+  .sheet {
+    padding:14px !important;
+  }
+
+  .scene {
+    padding:13px !important;
   }
 }
 
 @media (max-width:380px) {
   h1 {
-    font-size:.92rem;
+    font-size:.92rem !important;
   }
 
   #refreshBtn,
+  button.refresh,
   .navbtn,
+  .navrow > .btn,
+  .controls > .btn,
   .controls .mobile-filter-toggle,
   .controls #clearBtn {
-    font-size:.66rem;
+    font-size:.66rem !important;
   }
 
-  .navbtn {
-    padding-left:8px;
-    padding-right:8px;
+  .navbtn,
+  .navrow > .btn {
+    padding-left:8px !important;
+    padding-right:8px !important;
   }
 }
