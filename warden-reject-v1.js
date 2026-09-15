@@ -116,4 +116,12 @@ function attachRejectButtons() {
 const cards=document.getElementById('cards');
 if(cards) new MutationObserver(attachRejectButtons).observe(cards,{childList:true,subtree:true});
 attachRejectButtons();
+
+if(!document.getElementById('wardenBetweenSessionWorkflowScript')){
+  const s=document.createElement('script');
+  s.id='wardenBetweenSessionWorkflowScript';
+  s.src='warden-between-session-v1.js?v=20260915a';
+  s.defer=true;
+  document.head.appendChild(s);
+}
 })();
