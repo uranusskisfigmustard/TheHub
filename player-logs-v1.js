@@ -51,4 +51,12 @@ const initial=window.__hubPlayerShell?.getContractState?.();if(initial?.checked)
 const active=$('active'),history=$('history');if(active)new MutationObserver(schedule).observe(active,{childList:true});if(history)new MutationObserver(schedule).observe(history,{childList:true});
 window.addEventListener('hashchange',()=>setTimeout(highlightTarget,30));
 setTimeout(()=>{const s=window.__hubPlayerShell?.getContractState?.();if(s?.checked)applyState(s);else schedule()},700);
+
+if(!document.getElementById('betweenSessionWorkflowScript')){
+  const s=document.createElement('script');
+  s.id='betweenSessionWorkflowScript';
+  s.src='between-session-workflow-v1.js?v=20260915a';
+  s.defer=true;
+  document.head.appendChild(s);
+}
 })();
