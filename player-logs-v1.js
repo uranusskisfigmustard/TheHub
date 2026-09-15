@@ -6,6 +6,7 @@ const STATE={contracts:null,cached:false,cacheTime:0,scheduled:false};
 function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function credits(v){const n=Number(v||0);return n.toLocaleString('en-US',{minimumFractionDigits:n%1?2:0,maximumFractionDigits:2})+'cr'}
 function normalize(v){return String(v??'').toLowerCase().replace(/\s+/g,' ').trim()}
+function historyOrder(records){return records.slice().sort((a,b)=>String(a.closedDate||'').localeCompare(String(b.closedDate||'')))}
 
 function installStyles(){
   if($('playerLogsV1Styles'))return;
@@ -21,7 +22,7 @@ function meta(record){const rows=[];if(record.employer)rows.push(['Employer / So
 function renderCached(data){
   if(!STATE.cached||!data)return;const status=$('status');const activeEl=$('active'),historyEl=$('history');if(!activeEl||!historyEl)return;
   const baseFailed=/UNAVAILABLE/i.test(String(status?.textContent||''))||Boolean(activeEl.querySelector('.error'));if(!baseFailed)return;
-  const active=Array.isArray(data.active)?data.active:[],history=Array.isArray(data.history)?data.history:[];
+  const active=Array.isArray(data.active)?data.active:[],history=historyOrder(Array.isArray(data.history)?data.history:[]);
   if($('activeCount'))$('activeCount').textContent=active.length+' ACTIVE';if($('historyCount'))$('historyCount').textContent=history.length+' RECORDED';if($('total'))$('total').textContent=(active.length+history.length)+' CACHED RECORDS';
   activeEl.innerHTML=active.length?active.map(r=>`<article class="card active"><div class="title">${esc(r.title)}</div><div class="status">ACTIVE</div><div class="meta">${meta(r)}</div>${r.brief?.text?`<details><summary>View Mission Briefing</summary><pre class="brief">${esc(r.brief.text)}</pre></details>`:''}</article>`).join(''):'<div class="empty">NO ACTIVE CONTRACTS IN CACHED RECORD.</div>';
   historyEl.innerHTML=history.length?history.map(r=>{const cls=String(r.status||'').toLowerCase();return`<article class="card ${esc(cls)}"><div class="title">${esc(r.title)}</div><div class="status">${esc(r.status)}</div><div class="meta">${r.closedDate?`<div class="label">Closed</div><div class="value">${esc(r.closedDate)}</div>`:''}${r.participants?.length?`<div class="label">Participants</div><div class="value">${esc(r.participants.join(', '))}</div>`:''}</div><div class="payout">TOTAL PAYOUT // ${credits(r.totalPayout)}</div>${r.closeoutSummary?`<div class="summary">${esc(r.closeoutSummary)}</div>`:''}</article>`}).join(''):'<div class="empty">NO CLOSED CONTRACTS IN CACHED RECORD.</div>';
