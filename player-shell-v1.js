@@ -18,6 +18,19 @@ function saveContractCache(data){try{localStorage.setItem(CONTRACT_CACHE,JSON.st
 function readContractCache(){const data=safeJson(CONTRACT_CACHE,null);return data&&typeof data==='object'?data:null}
 function cacheAgeLabel(){if(!STATE.cacheTime)return'PREVIOUS SESSION';try{return new Date(STATE.cacheTime).toLocaleString()}catch(_){return'PREVIOUS SESSION'}}
 
+function installResponsiveLayer(){
+  if(!document.getElementById('hubMobileStyles')){
+    const link=document.createElement('link');
+    link.id='hubMobileStyles';link.rel='stylesheet';link.href='mobile.css?v=20260915m2';
+    document.head.appendChild(link);
+  }
+  if(!document.getElementById('hubMobileUiScript')){
+    const script=document.createElement('script');
+    script.id='hubMobileUiScript';script.src='mobile-ui.js?v=20260915m2';script.defer=true;
+    document.head.appendChild(script);
+  }
+}
+
 function installStyles(){
   if($('playerShellStyles'))return;
   const s=document.createElement('style');s.id='playerShellStyles';s.textContent=`
@@ -150,6 +163,6 @@ window.__hubPlayerShell={
   getContractState(){return{contracts:STATE.contracts,online:STATE.online,cached:STATE.cached,checked:STATE.checked,cacheTime:STATE.cacheTime}}
 };
 
-installStyles();installChrome();ensureNavigation();installGlitchLayer();loadBoardCountsFromCache();renderSystem();renderAssignment();renderNavBadges();watchPageStatus();watchNav();loadPublicContractState();
+installResponsiveLayer();installStyles();installChrome();ensureNavigation();installGlitchLayer();loadBoardCountsFromCache();renderSystem();renderAssignment();renderNavBadges();watchPageStatus();watchNav();loadPublicContractState();
 setTimeout(()=>{ensureNavigation();loadBoardCountsFromCache();renderNavBadges()},1200);
 })();
