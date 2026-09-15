@@ -37,10 +37,10 @@ function kindForRecord(record){
 }
 function badgeHtml(label='BETWEEN-SESSION'){return `<span class="bs-work-icon">${CLOCK_ICON}</span><span>${label}</span>`}
 function mediumHelpHtml(){
-  return `<details class="bs-work-help"><summary>${badgeHtml('WHAT YOU NEED TO DO')}</summary><div class="bs-work-copy"><strong>Brief completion summary required.</strong><br>Send the Warden a short description of the difficulty you encountered and how your crew handled it. A few sentences is enough. There is no required format. Mention the approach, division of work, equipment, precautions, or other decisions that mattered.<br><br>A reasonable approach may resolve the contract without further action. Risky or incomplete approaches may have additional consequences. Each participating character gains <strong>+1 Stress</strong> when the work is completed.</div></details>`;
+  return `<details class="bs-work-help"><summary>${badgeHtml('WHAT YOU NEED TO DO')}</summary><div class="bs-work-copy"><strong>Brief completion summary required.</strong><br>Send the Warden a short description of the difficulty you encountered and how your crew handled it. A few sentences is enough. Mention the approach, division of work, equipment, precautions, or other decisions that mattered.<br><br>A reasonable approach may resolve the contract without further action. Risky or incomplete approaches may have additional consequences. Each participating character gains <strong>+1 Stress</strong> when the work is completed. The reward is split between participating characters.</div></details>`;
 }
 function simpleHelpHtml(){
-  return `<details class="bs-work-help bs-work-simple"><summary>${badgeHtml('SIMPLE BETWEEN-SESSION WORK')}</summary><div class="bs-work-copy">This is a short between-session job rather than a full-session mission. Resolve it with the Warden outside normal session play. Each participating character gains <strong>+1 Stress</strong> when the work is completed.</div></details>`;
+  return `<details class="bs-work-help bs-work-simple"><summary>${badgeHtml('SIMPLE BETWEEN-SESSION WORK')}</summary><div class="bs-work-copy">This is a short between-session job. Each participating character gains <strong>+1 Stress</strong> when the work is completed. The reward is split between participating characters.</div></details>`;
 }
 function installStyles(){
   if($('betweenSessionWorkflowStyles'))return;
