@@ -6,7 +6,7 @@ const STATE={contracts:null,cached:false,cacheTime:0,scheduled:false};
 function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function credits(v){const n=Number(v||0);return n.toLocaleString('en-US',{minimumFractionDigits:n%1?2:0,maximumFractionDigits:2})+'cr'}
 function normalize(v){return String(v??'').toLowerCase().replace(/\s+/g,' ').trim()}
-function historyOrder(records){return records.slice().sort((a,b)=>String(a.closedDate||'').localeCompare(String(b.closedDate||'')))}
+function historyOrder(records){return records.slice().sort((a,b)=>String(b.closedDate||'').localeCompare(String(a.closedDate||'')))}
 
 function installStyles(){
   if($('playerLogsV1Styles'))return;
