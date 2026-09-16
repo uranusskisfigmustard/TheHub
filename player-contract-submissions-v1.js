@@ -7,7 +7,6 @@ const BOARD_EXPIRY_KEY='mothership_hub_board_session_expiry_v1';
 const $=id=>document.getElementById(id);
 let scheduled=false;
 
-function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c]))}
 function session(){
   try{
     const token=String(localStorage.getItem(BOARD_SESSION_KEY)||'').trim();
