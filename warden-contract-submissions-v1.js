@@ -3,13 +3,30 @@
 
 const API='https://script.google.com/macros/s/AKfycbzeW8vTooOCNEBia3_EMQ10r7BcbakXIwCD4ZaEOUEBOdCXl09tRHj76oxcUcsOKQK0/exec';
 const SESSION_KEY='mothership_hub_warden_session_v1';
+const POST_MESSAGE_SOURCE='mothership-contract-service-post';
 const $=id=>document.getElementById(id);
 let submissions=[],loading=false,scheduled=false;
 
 function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function norm(s){return String(s||'').trim().toUpperCase()}
 function session(){try{return String(localStorage.getItem(SESSION_KEY)||'').trim()}catch(_){return''}}
-function jsonp(action,p={}){return new Promise((resolve,reject)=>{const callback='__wardenSubmissions'+Date.now()+Math.random().toString(36).slice(2),script=document.createElement('script'),timer=setTimeout(()=>done(new Error('Warden submission service timed out.')),15000);function done(err,data){clearTimeout(timer);try{delete window[callback]}catch(_){window[callback]=undefined}script.remove();err?reject(err):resolve(data)}window[callback]=data=>done(null,data);script.onerror=()=>done(new Error('Warden submission service unavailable.'));script.src=API+'?'+new URLSearchParams({action,callback,...p,_:Date.now()});document.head.appendChild(script)})}
+function postService(action,p={}){return new Promise((resolve,reject)=>{
+  const requestId='wardenPost_'+Date.now()+'_'+Math.random().toString(36).slice(2);
+  const iframe=document.createElement('iframe');
+  const form=document.createElement('form');
+  const frameName='wardenPostFrame_'+Date.now()+'_'+Math.random().toString(36).slice(2);
+  let done=false;
+  iframe.name=frameName;iframe.hidden=true;iframe.setAttribute('aria-hidden','true');
+  form.method='POST';form.action=API;form.target=frameName;form.hidden=true;form.acceptCharset='UTF-8';
+  const fields={action,requestId,...p};
+  Object.entries(fields).forEach(([name,value])=>{const input=document.createElement('input');input.type='hidden';input.name=name;input.value=String(value??'');form.appendChild(input)});
+  const timer=setTimeout(()=>finish(new Error('Warden submission service timed out.')),15000);
+  function finish(err,payload){if(done)return;done=true;clearTimeout(timer);window.removeEventListener('message',onMessage);form.remove();iframe.remove();err?reject(err):resolve(payload)}
+  function onMessage(event){if(event.source!==iframe.contentWindow)return;const data=event.data;if(!data||data.source!==POST_MESSAGE_SOURCE||data.requestId!==requestId)return;finish(null,data.payload)}
+  window.addEventListener('message',onMessage);
+  iframe.addEventListener('error',()=>finish(new Error('Warden submission service unavailable.')),{once:true});
+  document.body.appendChild(iframe);document.body.appendChild(form);form.submit();
+})}
 
 function installStyles(){
   if($('wardenContractSubmissionStyles'))return;
@@ -65,7 +82,7 @@ async function load(){
   if(!token||!consoleEl||consoleEl.classList.contains('hidden')||loading)return;
   loading=true;
   try{
-    const response=await jsonp('wardensubmissions',{session:token});
+    const response=await postService('wardensubmissions',{session:token});
     if(!response?.ok)throw new Error(response?.error||response?.message||'Could not load player submissions.');
     submissions=Array.isArray(response.submissions)?response.submissions:[];
     render();
