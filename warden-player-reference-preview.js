@@ -50,13 +50,12 @@ const CATEGORIES = [
         status:'CURRENT',
         title:'Recovery & Training',
         items:[
-          ['Major Injury Recovery — Uncomplicated Fracture Baseline',[
-            'An uncomplicated fracture does not disappear when Health is restored.',
+          ['Injury Recovery',[
+            'An injury does not disappear when Health is restored.',
             'After competent ordinary treatment, its listed mechanical penalty remains through one full subsequent session.',
             'If recovery stays uncomplicated, the penalty ends after the following downtime and the associated Wound clears at about four in-game weeks from the injury.',
             'During recovery, a Critical Failure on a strenuous action that directly loads the injured body part causes 1d5 Health and delays recovery by one downtime interval.',
-            'Ordinary failure does not automatically reinjure you. More severe injuries, complications, and specialist procedures may use different recovery terms.',
-            'Compatible permanent Skill training may continue during recovery.'
+            'Ordinary failure does not automatically reinjure you; critical failure does. More severe injuries, complications, and specialist procedures may use different recovery terms.'
           ]],
           ['Rapid Skill Learning',[
             'Permanent Skill training is measured in completed sessions: Trained 3, Expert 5, Master 10.',
