@@ -70,7 +70,9 @@ function enhanceCard(card,record){
 }
 
 function enhance(){
-  const state=contractState(),records=Array.isArray(state?.active)?state.active:[];
+  const state=contractState();
+  if(state?.submissionEnabled!==true){document.querySelectorAll('#active .contract-submit').forEach(x=>x.remove());return}
+  const records=Array.isArray(state.active)?state.active:[];
   const cards=[...document.querySelectorAll('#active article.card.active')];
   cards.forEach((card,index)=>enhanceCard(card,records[index]));
 }
