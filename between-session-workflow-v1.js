@@ -46,7 +46,7 @@ function installStyles(){
   if($('betweenSessionWorkflowStyles'))return;
   const s=document.createElement('style');s.id='betweenSessionWorkflowStyles';s.textContent=`
     .bs-work-badge{display:inline-flex;align-items:center;gap:6px;width:max-content;max-width:100%;margin-top:7px;padding:4px 7px;border:1px solid #66879a;border-radius:3px;background:rgba(64,91,105,.13);color:#b8d3df;font-size:.66rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase}
-    .bs-work-badge.simple{border-color:#536249;color:#bdd2aa;background:rgba(48,66,43,.16)}
+    .bs-work-badge.simple{border-color:#66879a;color:#b8d3df;background:rgba(64,91,105,.13)}
     .bs-work-icon{display:inline-flex;width:14px;height:14px;flex:0 0 14px;vertical-align:-2px}.bs-work-icon svg{display:block;width:100%;height:100%}
     .bs-work-help{margin-top:10px;padding-top:9px;border-top:1px solid #303538}
     .bs-work-help>summary{display:flex;align-items:center;gap:6px;cursor:pointer;color:#b8d3df;font-weight:800;letter-spacing:.05em;text-transform:uppercase;font-size:.76rem}
