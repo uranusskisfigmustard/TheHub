@@ -4,6 +4,7 @@
 const API='https://script.google.com/macros/s/AKfycbzeW8vTooOCNEBia3_EMQ10r7BcbakXIwCD4ZaEOUEBOdCXl09tRHj76oxcUcsOKQK0/exec';
 const BOARD_SESSION_KEY='mothership_hub_board_session_v1';
 const BOARD_EXPIRY_KEY='mothership_hub_board_session_expiry_v1';
+const POST_MESSAGE_SOURCE='mothership-contract-service-post';
 const $=id=>document.getElementById(id);
 let scheduled=false;
 
@@ -17,7 +18,23 @@ function session(){
   }catch(_){}
   return'';
 }
-function jsonp(action,p={}){return new Promise((resolve,reject)=>{const callback='__contractSubmission'+Date.now()+Math.random().toString(36).slice(2),script=document.createElement('script'),timer=setTimeout(()=>done(new Error('Submission service timed out.')),15000);function done(err,data){clearTimeout(timer);try{delete window[callback]}catch(_){window[callback]=undefined}script.remove();err?reject(err):resolve(data)}window[callback]=data=>done(null,data);script.onerror=()=>done(new Error('Submission service unavailable.'));script.src=API+'?'+new URLSearchParams({action,callback,...p,_:Date.now()});document.head.appendChild(script)})}
+function postService(action,p={}){return new Promise((resolve,reject)=>{
+  const requestId='contractPost_'+Date.now()+'_'+Math.random().toString(36).slice(2);
+  const iframe=document.createElement('iframe');
+  const form=document.createElement('form');
+  const frameName='contractPostFrame_'+Date.now()+'_'+Math.random().toString(36).slice(2);
+  let done=false;
+  iframe.name=frameName;iframe.hidden=true;iframe.setAttribute('aria-hidden','true');
+  form.method='POST';form.action=API;form.target=frameName;form.hidden=true;form.acceptCharset='UTF-8';
+  const fields={action,requestId,...p};
+  Object.entries(fields).forEach(([name,value])=>{const input=document.createElement('input');input.type='hidden';input.name=name;input.value=String(value??'');form.appendChild(input)});
+  const timer=setTimeout(()=>finish(new Error('Submission service timed out.')),15000);
+  function finish(err,payload){if(done)return;done=true;clearTimeout(timer);window.removeEventListener('message',onMessage);form.remove();iframe.remove();err?reject(err):resolve(payload)}
+  function onMessage(event){if(event.source!==iframe.contentWindow)return;const data=event.data;if(!data||data.source!==POST_MESSAGE_SOURCE||data.requestId!==requestId)return;finish(null,data.payload)}
+  window.addEventListener('message',onMessage);
+  iframe.addEventListener('error',()=>finish(new Error('Submission service unavailable.')),{once:true});
+  document.body.appendChild(iframe);document.body.appendChild(form);form.submit();
+})}
 function authenticationError(value){
   const message=String(value?.error||value?.message||value||'').toLowerCase();
   return message.includes('board authentication required')||message.includes('invalid board access code')||message.includes('invalid board session')||message.includes('expired board session')||message.includes('session expired')||message.includes('authentication required');
@@ -33,12 +50,12 @@ async function sendSubmission(record,text){
   let token=await requestSession();
   if(!token)return{cancelled:true};
 
-  let response=await jsonp('contractsubmit',{session:token,job:String(record.jobId||''),contract:String(record.contractId||''),text});
+  let response=await postService('contractsubmit',{session:token,job:String(record.jobId||''),contract:String(record.contractId||''),text});
   if(authenticationError(response)){
     window.__hubBoardAuth?.clearSession?.();
     token=await requestSession('SESSION EXPIRED // ENTER REQUEST CODE');
     if(!token)return{cancelled:true};
-    response=await jsonp('contractsubmit',{session:token,job:String(record.jobId||''),contract:String(record.contractId||''),text});
+    response=await postService('contractsubmit',{session:token,job:String(record.jobId||''),contract:String(record.contractId||''),text});
   }
   return response;
 }
