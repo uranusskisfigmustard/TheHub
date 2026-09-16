@@ -7,7 +7,7 @@
 if(!document.getElementById('betweenSessionWorkflowScript')){
   const s=document.createElement('script');
   s.id='betweenSessionWorkflowScript';
-  s.src='between-session-workflow-v1.js?v=20260915c';
+  s.src='between-session-workflow-v1.js?v=20260915d';
   s.defer=true;
   document.head.appendChild(s);
 }
