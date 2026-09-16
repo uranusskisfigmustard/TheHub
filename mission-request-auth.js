@@ -12,6 +12,14 @@
 
   let authenticationInFlight = false;
 
+  function ensureAuthStyles() {
+    if (document.getElementById('boardAuthSharedStyles')) return;
+    const style = document.createElement('style');
+    style.id = 'boardAuthSharedStyles';
+    style.textContent = '#boardAccessGate.hidden,#boardAccessHeaderStatus.hidden{display:none!important}';
+    document.head.appendChild(style);
+  }
+
   function removeStoredSession() {
     try {
       localStorage.removeItem(TOKEN_KEY);
@@ -302,6 +310,7 @@
   }
 
   function installRequestGate() {
+    ensureAuthStyles();
     ensureGate();
     ensureHeaderStatus();
     ensureAcceptancePinHidden();
