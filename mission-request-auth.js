@@ -16,7 +16,7 @@
     if (document.getElementById('boardAuthSharedStyles')) return;
     const style = document.createElement('style');
     style.id = 'boardAuthSharedStyles';
-    style.textContent = '#boardAccessGate.hidden,#boardAccessHeaderStatus.hidden{display:none!important}';
+    style.textContent = '#boardAccessGate.hidden,#boardAccessHeaderStatus.hidden,#boardAccessGateResult.hidden{display:none!important}';
     document.head.appendChild(style);
   }
 
