@@ -75,12 +75,11 @@ function compactCard(card,record){
   addMetaRow(meta,'Expected Work',details.expectedWork);
 }
 
-function enhanceCard(card,record,submissionEnabled){
+function enhanceCard(card,record){
   if(!card||!record)return;
   compactCard(card,record);
   const recordKey=key(record);
   const prior=card.querySelector('.contract-submit');
-  if(!submissionEnabled){if(prior)prior.remove();return}
   if(prior&&prior.dataset.contractKey===recordKey)return;
   if(prior)prior.remove();
 
@@ -113,7 +112,7 @@ function enhance(){
   const state=contractState();
   const records=Array.isArray(state?.active)?state.active:[];
   const cards=[...document.querySelectorAll('#active article.card.active')];
-  cards.forEach((card,index)=>enhanceCard(card,records[index],state?.submissionEnabled===true));
+  cards.forEach((card,index)=>enhanceCard(card,records[index]));
 }
 
 installStyles();
