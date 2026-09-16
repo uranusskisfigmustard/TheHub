@@ -8,6 +8,8 @@ const $=id=>document.getElementById(id);
 let scheduled=false;
 
 function session(){
+  const shared=window.__hubBoardAuth?.getSessionToken?.();
+  if(shared)return String(shared).trim();
   try{
     const token=String(localStorage.getItem(BOARD_SESSION_KEY)||'').trim();
     const expiry=Number(localStorage.getItem(BOARD_EXPIRY_KEY)||0);
@@ -16,6 +18,30 @@ function session(){
   return'';
 }
 function jsonp(action,p={}){return new Promise((resolve,reject)=>{const callback='__contractSubmission'+Date.now()+Math.random().toString(36).slice(2),script=document.createElement('script'),timer=setTimeout(()=>done(new Error('Submission service timed out.')),15000);function done(err,data){clearTimeout(timer);try{delete window[callback]}catch(_){window[callback]=undefined}script.remove();err?reject(err):resolve(data)}window[callback]=data=>done(null,data);script.onerror=()=>done(new Error('Submission service unavailable.'));script.src=API+'?'+new URLSearchParams({action,callback,...p,_:Date.now()});document.head.appendChild(script)})}
+function authenticationError(value){
+  const message=String(value?.error||value?.message||value||'').toLowerCase();
+  return message.includes('board authentication required')||message.includes('invalid board access code')||message.includes('invalid board session')||message.includes('expired board session')||message.includes('session expired')||message.includes('authentication required');
+}
+async function requestSession(message=''){
+  const current=session();
+  if(current)return current;
+  const auth=window.__hubBoardAuth;
+  if(!auth?.requestAuthentication)return'';
+  return String(await auth.requestAuthentication(message)||'').trim();
+}
+async function sendSubmission(record,text){
+  let token=await requestSession();
+  if(!token)return{cancelled:true};
+
+  let response=await jsonp('contractsubmit',{session:token,job:String(record.jobId||''),contract:String(record.contractId||''),text});
+  if(authenticationError(response)){
+    window.__hubBoardAuth?.clearSession?.();
+    token=await requestSession('SESSION EXPIRED // ENTER REQUEST CODE');
+    if(!token)return{cancelled:true};
+    response=await jsonp('contractsubmit',{session:token,job:String(record.jobId||''),contract:String(record.contractId||''),text});
+  }
+  return response;
+}
 
 function installStyles(){
   if($('contractSubmissionStyles'))return;
@@ -93,17 +119,17 @@ function enhanceCard(card,record){
     const text=textarea.value.trim();
     result.textContent='';result.className='contract-submit-result';
     if(!text){result.textContent='ENTER AN ACTION BEFORE SUBMITTING.';result.classList.add('bad');return}
-    const token=session();
-    if(!token){result.textContent='BOARD ACCESS REQUIRED // OPEN CONTRACTS TO AUTHENTICATE.';result.classList.add('bad');return}
-    button.disabled=true;textarea.disabled=true;button.textContent='SUBMITTING…';
+
+    button.disabled=true;textarea.disabled=true;button.textContent=session()?'SUBMITTING…':'AUTHENTICATING…';
     try{
-      const response=await jsonp('contractsubmit',{session:token,job:String(record.jobId||''),contract:String(record.contractId||''),text});
+      const response=await sendSubmission(record,text);
+      if(response?.cancelled){result.textContent='SUBMISSION NOT SENT // AUTHORIZATION CANCELLED.';result.classList.add('bad');return}
       if(!response?.ok||!response?.submitted)throw new Error(response?.error||response?.message||'Submission was not accepted.');
       textarea.value='';count.textContent='0 / 2000';
       result.textContent='SUBMITTED TO WARDEN'+(response.campaignDate?' // '+response.campaignDate:'');result.classList.add('ok');
     }catch(error){
       const message=String(error?.message||error);
-      result.textContent=/session|auth/i.test(message)?'BOARD ACCESS REQUIRED // OPEN CONTRACTS TO AUTHENTICATE.':message.toUpperCase();result.classList.add('bad');
+      result.textContent=authenticationError(message)?'BOARD ACCESS REQUIRED // AUTHENTICATION FAILED.':message.toUpperCase();result.classList.add('bad');
     }finally{button.disabled=false;textarea.disabled=false;button.textContent='SUBMIT TO WARDEN'}
   });
 }
