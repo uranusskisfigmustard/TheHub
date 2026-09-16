@@ -20,6 +20,7 @@ function jsonp(action,p={}){return new Promise((resolve,reject)=>{const callback
 function installStyles(){
   if($('contractSubmissionStyles'))return;
   const s=document.createElement('style');s.id='contractSubmissionStyles';s.textContent=`
+    .contract-detail-value{white-space:normal;overflow-wrap:anywhere}
     .contract-submit{margin-top:14px;padding-top:12px;border-top:1px solid #303538}
     .contract-submit-label{font-size:.72rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#d8d4c8}
     .contract-submit-help{margin:4px 0 8px;color:var(--muted);font-size:.75rem;line-height:1.45}
@@ -36,17 +37,56 @@ function installStyles(){
 function contractState(){return window.__hubPlayerShell?.getContractState?.().contracts||null}
 function key(record){return String(record?.contractId||record?.jobId||'').trim()}
 function schedule(){if(scheduled)return;scheduled=true;setTimeout(()=>{scheduled=false;enhance()},35)}
-
-function enhanceCard(card,record){
+function cleanLine(value){return String(value||'').replace(/^\s*[-•]\s*/,'').replace(/\s+/g,' ').trim()}
+function section(text,heading,nextHeadings){
+  const source=String(text||'');
+  const safe=String(heading).replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+  const next=nextHeadings.map(x=>String(x).replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|');
+  const re=new RegExp('(?:^|\\n)'+safe+'\\s*\\n([\\s\\S]*?)(?=\\n\\s*(?:'+next+')\\s*(?:\\n|$)|$)','i');
+  return source.match(re)?.[1]||'';
+}
+function acceptedDetails(record){
+  const text=String(record?.brief?.text||'');
+  const paySection=section(text,'PAY',['EXPECTED WORK','AUTHORIZED / PROVIDED','ASSIGNMENT LIMITS','KNOWN RISKS','SUCCESSFUL CLOSEOUT']);
+  const payLines=paySection.split(/\r?\n/).map(cleanLine).filter(Boolean);
+  const workSection=section(text,'EXPECTED WORK',['AUTHORIZED / PROVIDED','ASSIGNMENT LIMITS','KNOWN RISKS','SUCCESSFUL CLOSEOUT']);
+  const workLines=workSection.split(/\r?\n/).map(cleanLine).filter(Boolean);
+  return {
+    payoutStress:cleanLine(record?.payoutStress)||payLines.join(' · '),
+    expectedWork:cleanLine(record?.expectedWork)||workLines[0]||''
+  };
+}
+function addMetaRow(meta,label,value){
+  if(!meta||!value)return;
+  const l=document.createElement('div');l.className='label contract-card-extra';l.textContent=label;
+  const v=document.createElement('div');v.className='value contract-detail-value contract-card-extra';v.textContent=value;
+  meta.append(l,v);
+}
+function compactCard(card,record){
   if(!card||!record)return;
+  card.querySelectorAll('.contract-card-extra').forEach(x=>x.remove());
+  card.querySelectorAll('details').forEach(details=>{
+    const summary=details.querySelector('summary');
+    if(/mission briefing/i.test(String(summary?.textContent||'')))details.remove();
+  });
+  const meta=card.querySelector('.meta');
+  const details=acceptedDetails(record);
+  addMetaRow(meta,'Payout / Stress',details.payoutStress);
+  addMetaRow(meta,'Expected Work',details.expectedWork);
+}
+
+function enhanceCard(card,record,submissionEnabled){
+  if(!card||!record)return;
+  compactCard(card,record);
   const recordKey=key(record);
   const prior=card.querySelector('.contract-submit');
+  if(!submissionEnabled){if(prior)prior.remove();return}
   if(prior&&prior.dataset.contractKey===recordKey)return;
   if(prior)prior.remove();
 
   const box=document.createElement('section');box.className='contract-submit';box.dataset.contractKey=recordKey;
   box.innerHTML=`<div class="contract-submit-label">WHAT DO YOU DO?</div><div class="contract-submit-help">Optional. Send a declared action to the Warden for review. Submitting does not resolve the contract.</div><textarea class="contract-submit-text" maxlength="2000" placeholder="Describe what you do…" aria-label="Describe what you do"></textarea><div class="contract-submit-row"><div><span class="contract-submit-count">0 / 2000</span><span class="contract-submit-result" aria-live="polite" style="margin-left:10px"></span></div><button type="button" class="contract-submit-btn">SUBMIT TO WARDEN</button></div>`;
-  (card.querySelector('details')||card).appendChild(box);
+  card.appendChild(box);
 
   const textarea=box.querySelector('.contract-submit-text'),button=box.querySelector('.contract-submit-btn'),count=box.querySelector('.contract-submit-count'),result=box.querySelector('.contract-submit-result');
   textarea.addEventListener('input',()=>{count.textContent=textarea.value.length+' / 2000';result.textContent='';result.className='contract-submit-result'});
@@ -71,10 +111,9 @@ function enhanceCard(card,record){
 
 function enhance(){
   const state=contractState();
-  if(state?.submissionEnabled!==true){document.querySelectorAll('#active .contract-submit').forEach(x=>x.remove());return}
-  const records=Array.isArray(state.active)?state.active:[];
+  const records=Array.isArray(state?.active)?state.active:[];
   const cards=[...document.querySelectorAll('#active article.card.active')];
-  cards.forEach((card,index)=>enhanceCard(card,records[index]));
+  cards.forEach((card,index)=>enhanceCard(card,records[index],state?.submissionEnabled===true));
 }
 
 installStyles();
