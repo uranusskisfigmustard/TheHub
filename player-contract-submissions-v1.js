@@ -46,7 +46,7 @@ function enhanceCard(card,record){
 
   const box=document.createElement('section');box.className='contract-submit';box.dataset.contractKey=recordKey;
   box.innerHTML=`<div class="contract-submit-label">WHAT DO YOU DO?</div><div class="contract-submit-help">Optional. Send a declared action to the Warden for review. Submitting does not resolve the contract.</div><textarea class="contract-submit-text" maxlength="2000" placeholder="Describe what you do…" aria-label="Describe what you do"></textarea><div class="contract-submit-row"><div><span class="contract-submit-count">0 / 2000</span><span class="contract-submit-result" aria-live="polite" style="margin-left:10px"></span></div><button type="button" class="contract-submit-btn">SUBMIT TO WARDEN</button></div>`;
-  card.appendChild(box);
+  (card.querySelector('details')||card).appendChild(box);
 
   const textarea=box.querySelector('.contract-submit-text'),button=box.querySelector('.contract-submit-btn'),count=box.querySelector('.contract-submit-count'),result=box.querySelector('.contract-submit-result');
   textarea.addEventListener('input',()=>{count.textContent=textarea.value.length+' / 2000';result.textContent='';result.className='contract-submit-result'});
