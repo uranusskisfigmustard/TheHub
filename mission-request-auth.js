@@ -108,6 +108,7 @@
     gate.querySelector('#boardAccessGateCancel')?.addEventListener('click', () => {
       document.getElementById('acceptCancelBtn')?.click();
       hideGate();
+      document.dispatchEvent(new CustomEvent('hub-board-auth-cancelled'));
     });
     return gate;
   }
@@ -153,6 +154,9 @@
     if (gatePin) gatePin.value = '';
     syncUi();
     hideGate();
+    document.dispatchEvent(new CustomEvent('hub-board-authenticated', {
+      detail: { token: cleanToken, expiresAt: expiry }
+    }));
     return true;
   }
 
@@ -234,6 +238,27 @@
     document.head.appendChild(script);
   }
 
+  function requestAuthentication(message = '') {
+    const current = readSession();
+    if (current) return Promise.resolve(current.token);
+
+    showGate(message);
+    return new Promise(resolve => {
+      let settled = false;
+      const finish = token => {
+        if (settled) return;
+        settled = true;
+        document.removeEventListener('hub-board-authenticated', onAuthenticated);
+        document.removeEventListener('hub-board-auth-cancelled', onCancelled);
+        resolve(String(token || '').trim());
+      };
+      const onAuthenticated = event => finish(event?.detail?.token || '');
+      const onCancelled = () => finish('');
+      document.addEventListener('hub-board-authenticated', onAuthenticated);
+      document.addEventListener('hub-board-auth-cancelled', onCancelled);
+    });
+  }
+
   function wrapPrivilegedJsonp(script) {
     if (!(script instanceof HTMLScriptElement) || !script.src) return;
     let url;
@@ -300,6 +325,12 @@
 
     setTimeout(syncUi, 0);
   }
+
+  window.__hubBoardAuth = Object.freeze({
+    getSessionToken: () => readSession()?.token || '',
+    requestAuthentication,
+    clearSession
+  });
 
   installJsonpInterceptor();
   installRequestGate();
