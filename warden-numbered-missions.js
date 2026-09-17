@@ -12,14 +12,14 @@
     {
       number: 'M2',
       title: 'Witness Window',
-      status: 'CANON v1.2 / NOT YET PLAYED',
+      status: 'CANON / PLAYED / COMPLETE',
       canonUrl: 'https://docs.google.com/document/d/1ifKMBwymozsStkZnsg6kfzfEwSYmicRfrFEtV0VZhBU/edit',
       wardenUrl: 'https://docs.google.com/document/d/1ztXF1mQ7BjYA0Gi7bHT_WxtXrctV9NUTg4eMvAmv17U/edit'
     },
     {
       number: 'M3',
       title: 'The Patient in Reserve',
-      status: 'CANON v1.0 / NOT YET PLAYED',
+      status: 'CANON / PLAYED / COMPLETE',
       canonUrl: 'https://docs.google.com/document/d/1lBYOeuNpfdAWlNWnBKCCJqCj4izhlYMg6JML44fLw_Q/edit',
       wardenUrl: 'https://docs.google.com/document/d/1_uMVPLcLVN6EE7JF5t_claaRakK3K4ylWgSAgDRg74Q/edit'
     }
