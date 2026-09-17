@@ -30,7 +30,7 @@ function postService(action,p={}){return new Promise((resolve,reject)=>{
   Object.entries(fields).forEach(([name,value])=>{const input=document.createElement('input');input.type='hidden';input.name=name;input.value=String(value??'');form.appendChild(input)});
   const timer=setTimeout(()=>finish(new Error('Submission service timed out.')),15000);
   function finish(err,payload){if(done)return;done=true;clearTimeout(timer);window.removeEventListener('message',onMessage);form.remove();iframe.remove();err?reject(err):resolve(payload)}
-  function onMessage(event){if(event.source!==iframe.contentWindow)return;const data=event.data;if(!data||data.source!==POST_MESSAGE_SOURCE||data.requestId!==requestId)return;finish(null,data.payload)}
+  function onMessage(event){const data=event.data;if(!data||data.source!==POST_MESSAGE_SOURCE||data.requestId!==requestId)return;finish(null,data.payload)}
   window.addEventListener('message',onMessage);
   iframe.addEventListener('error',()=>finish(new Error('Submission service unavailable.')),{once:true});
   document.body.appendChild(iframe);document.body.appendChild(form);form.submit();
