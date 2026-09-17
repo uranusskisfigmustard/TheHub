@@ -5,7 +5,7 @@ const SESSION_KEY='mothership_hub_warden_session_v1';
 const LOCAL_KEY='mothership_hub_player_reference_working_v1';
 const TABLE_MAX_COLS=12;
 const $=id=>document.getElementById(id);
-const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c]));
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmt=s=>esc(s).replace(/&lt;strong&gt;([\s\S]*?)&lt;\/strong&gt;/gi,'<strong>$1</strong>');
 let state={data:null,mode:'preview',active:'',dirty:false,source:'preview'};
 
