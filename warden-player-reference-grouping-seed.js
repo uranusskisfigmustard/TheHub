@@ -165,8 +165,8 @@ const data=[{
             ['Powered Grip Module','18,000cr','1','Advantage to hold/crush/resist disarmament; no Strength/melee-damage bonus.'],
             ['Vestibular Stabilizer','20,000cr','1','Prevents routine motion sickness and gravity/movement disorientation.'],
             ['OGRE','24,000cr','1','Integrated HUD and data overlay.'],
-            ['Emergency Disconnect','35,000cr','0','Once/mission, sever an active neural connection. Task fails; connection-only consequences are avoided.'],
-            ['Isolation Buffer','40,000cr','+0','Requires Pilot Jack. Once/mission, abrupt disconnection causes no Stress/interface Save.'],
+            ['Emergency Disconnect','35,000cr','N/A Add-on','Once/mission, sever an active neural connection. Task fails; connection-only consequences are avoided.'],
+            ['Isolation Buffer','40,000cr','N/A Add-on','Requires Pilot Jack. Once/mission, abrupt disconnection causes no Stress/interface Save.'],
             ['Pilot Jack Core','50,000cr','1','Includes one control package. Advantage for directly assisted precision operation; no credential/security/Skill/compatibility bypass.'],
             ['Tri-Mode Optics','75,000cr','1','Choose three: low-light, thermal, magnification, or recording. Advantage does not stack.']
           ]),
