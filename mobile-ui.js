@@ -1,6 +1,20 @@
 (() => {
   'use strict';
 
+  function normalizeReferenceAddOnSlots() {
+    if (!/player-reference\.html$/i.test(location.pathname)) return;
+    document.querySelectorAll('.ref-table tbody tr').forEach(row => {
+      const cells = row.querySelectorAll('td');
+      if (cells.length < 3) return;
+      const item = String(cells[0].textContent || '').trim();
+      if (item === 'Emergency Disconnect' || item === 'Isolation Buffer') {
+        cells[2].textContent = 'N/A Add-on';
+      }
+    });
+  }
+
+  normalizeReferenceAddOnSlots();
+
   const controls = document.querySelector('.controls');
   if (!controls || document.getElementById('mobileFilterToggle')) return;
 
