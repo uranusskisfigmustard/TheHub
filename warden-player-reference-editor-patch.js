@@ -1,7 +1,7 @@
 (() => {
 'use strict';
 
-const PATCH_FLAG='__wcPlayerReferenceEditorPatch_20260918b';
+const PATCH_FLAG='__wcPlayerReferenceEditorPatch_20260918c';
 if(window[PATCH_FLAG]) return;
 window[PATCH_FLAG]=true;
 
@@ -49,22 +49,79 @@ function autoRows(textarea){
   textarea.rows=Math.max(2,Math.min(8,lines+1));
 }
 
+function cleanGradeTitle(text){
+  const t=String(text||'').trim().replace(/^#{1,6}\s*/,'');
+  return /^Grade\s+[0-4]\b/i.test(t)?t:'';
+}
+
 function gradeTitleForTable(table){
   const first=String(table?.querySelector('tbody tr td')?.textContent||'').trim();
   return GRADE_TITLES[first]||'';
 }
 
-function wrapGradeTable(wrap,title){
-  if(!wrap || wrap.dataset.wcGradeWrapped==='1') return;
+function makeDetails(title){
   const details=document.createElement('details');
   details.className='wc-ref-grade-details';
   const summary=document.createElement('summary');
   summary.className='wc-ref-grade-summary';
-  summary.textContent=title;
+  summary.textContent=cleanGradeTitle(title)||title;
   details.appendChild(summary);
-  wrap.parentNode.insertBefore(details,wrap);
-  details.appendChild(wrap);
-  wrap.dataset.wcGradeWrapped='1';
+  return details;
+}
+
+function wrapWholeGradeItem(item,heading,title){
+  if(item.dataset.wcGradeProcessed==='1') return true;
+  const details=makeDetails(title);
+  item.insertBefore(details,heading?heading.nextSibling:item.firstChild);
+  [...item.children].forEach(child=>{
+    if(child!==heading && child!==details) details.appendChild(child);
+  });
+  if(heading) heading.hidden=true;
+  item.dataset.wcGradeProcessed='1';
+  return true;
+}
+
+function splitLegacyCombinedItem(item,heading){
+  const children=[...item.children].filter(x=>x!==heading);
+  const markers=children.filter(x=>x.tagName==='P' && cleanGradeTitle(x.textContent));
+  if(!markers.length) return false;
+
+  markers.forEach(marker=>{
+    if(!marker.isConnected) return;
+    const title=cleanGradeTitle(marker.textContent);
+    const details=makeDetails(title);
+    item.insertBefore(details,marker);
+    let next=marker.nextSibling;
+    marker.remove();
+    while(next){
+      const current=next;
+      next=current.nextSibling;
+      if(current.nodeType===1 && current.tagName==='P' && cleanGradeTitle(current.textContent)) break;
+      details.appendChild(current);
+    }
+  });
+
+  if(heading && (/Grades\s+0[–-]4/i.test(heading.textContent)||heading.textContent.trim()==='Untitled Item')) heading.hidden=true;
+  item.dataset.wcGradeProcessed='1';
+  return true;
+}
+
+function wrapGradeTablesFallback(item,heading){
+  let found=false;
+  item.querySelectorAll(':scope > .wc-ref-table-wrap').forEach(wrap=>{
+    const table=wrap.querySelector(':scope > table.wc-ref-table');
+    const title=gradeTitleForTable(table);
+    if(!title) return;
+    found=true;
+    const details=makeDetails(title);
+    item.insertBefore(details,wrap);
+    details.appendChild(wrap);
+  });
+  if(found){
+    if(heading && (heading.textContent.trim()==='Untitled Item'||/Grades\s+0[–-]4/i.test(heading.textContent))) heading.hidden=true;
+    item.dataset.wcGradeProcessed='1';
+  }
+  return found;
 }
 
 function upgradeTableEditors(){
@@ -87,29 +144,18 @@ function upgradeTableEditors(){
   });
 
   document.querySelectorAll('.wc-ref-editor-item').forEach(item=>{
+    if(item.dataset.wcGradeProcessed==='1') return;
     const heading=item.querySelector(':scope > h4');
-    let foundGrade=false;
+    const headingGrade=cleanGradeTitle(heading?.textContent);
 
-    item.querySelectorAll(':scope > .wc-ref-table-wrap').forEach(wrap=>{
-      const table=wrap.querySelector(':scope > table.wc-ref-table');
-      const title=gradeTitleForTable(table);
-      if(!title) return;
-      foundGrade=true;
-      wrapGradeTable(wrap,title);
-    });
-
-    /* Some render passes may already have a grade wrapper; recognize those too. */
-    item.querySelectorAll(':scope > .wc-ref-grade-details > .wc-ref-table-wrap').forEach(wrap=>{
-      const table=wrap.querySelector(':scope > table.wc-ref-table');
-      if(gradeTitleForTable(table)) foundGrade=true;
-    });
-
-    if(foundGrade){
-      if(heading) heading.hidden=true;
+    if(headingGrade){
+      wrapWholeGradeItem(item,heading,headingGrade);
       return;
     }
 
-    /* Non-grade section-level tables intentionally have no meaningless heading. */
+    if(splitLegacyCombinedItem(item,heading)) return;
+    if(wrapGradeTablesFallback(item,heading)) return;
+
     if(heading && heading.textContent.trim()==='Untitled Item' && item.querySelector(':scope > .wc-ref-table-wrap')){
       heading.hidden=true;
     }
@@ -122,38 +168,14 @@ function installStyles(){
   style.id='wcRefMultilineTablePatchStyles';
   style.textContent=`
     .wc-ref-table td{white-space:pre-wrap}
-    .wc-ref-table-cell-multiline{
-      min-width:160px;
-      min-height:4.4em;
-      resize:vertical;
-      line-height:1.35;
-      white-space:pre-wrap;
-    }
-    .wc-ref-grade-details{
-      margin:0 0 10px;
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.015);
-    }
-    .wc-ref-grade-summary{
-      cursor:pointer;
-      list-style:none;
-      padding:10px 12px;
-      color:var(--text);
-      font-size:.78rem;
-      font-weight:800;
-      letter-spacing:.035em;
-    }
+    .wc-ref-table-cell-multiline{min-width:160px;min-height:4.4em;resize:vertical;line-height:1.35;white-space:pre-wrap}
+    .wc-ref-grade-details{margin:0 0 10px;border:1px solid var(--line);background:rgba(255,255,255,.015)}
+    .wc-ref-grade-summary{cursor:pointer;list-style:none;padding:10px 12px;color:var(--text);font-size:.78rem;font-weight:800;letter-spacing:.035em}
     .wc-ref-grade-summary::-webkit-details-marker{display:none}
-    .wc-ref-grade-summary::before{
-      content:'▸';
-      display:inline-block;
-      width:1.2em;
-      color:var(--accent);
-    }
+    .wc-ref-grade-summary::before{content:'▸';display:inline-block;width:1.2em;color:var(--accent)}
     .wc-ref-grade-details[open]>.wc-ref-grade-summary::before{content:'▾'}
-    .wc-ref-grade-details>.wc-ref-table-wrap{
-      margin:0 10px 10px;
-    }
+    .wc-ref-grade-details>.wc-ref-table-wrap,.wc-ref-grade-details>p{margin-left:10px;margin-right:10px}
+    .wc-ref-grade-details>.wc-ref-table-wrap:last-child,.wc-ref-grade-details>p:last-child{margin-bottom:10px}
   `;
   document.head.appendChild(style);
 }
