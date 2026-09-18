@@ -1,16 +1,11 @@
 (() => {
 'use strict';
 
-const PATCH_FLAG='__wcPlayerReferenceEditorPatch_20260918';
+const PATCH_FLAG='__wcPlayerReferenceEditorPatch_20260918b';
 if(window[PATCH_FLAG]) return;
 window[PATCH_FLAG]=true;
 
-/*
- * The Player Reference editor uses JSONP <script> loads for the private
- * Warden service. A deployment transition or transient Apps Script response
- * can raise script.onerror even though the next request succeeds. Retry one
- * failed reference-service load before surfacing the editor's existing error.
- */
+/* Retry one transient JSONP load failure before surfacing the editor error. */
 const head=document.head;
 const nativeHeadAppend=head.append.bind(head);
 head.append=function(...nodes){
@@ -19,7 +14,6 @@ head.append=function(...nodes){
     const src=String(node.src||'');
     if(!src.includes('script.google.com/macros/s/') || !src.includes('callback=__wcRef')) return;
     if(node.dataset.wcRefRetryWrapped==='1') return;
-
     const originalError=node.onerror;
     node.dataset.wcRefRetryWrapped='1';
     node.onerror=function(event){
@@ -28,7 +22,6 @@ head.append=function(...nodes){
         return;
       }
       node.dataset.wcRefRetried='1';
-
       const retry=document.createElement('script');
       retry.async=true;
       retry.src=src+(src.includes('?')?'&':'?')+'_wcRefRetry=1';
@@ -56,40 +49,28 @@ function autoRows(textarea){
   textarea.rows=Math.max(2,Math.min(8,lines+1));
 }
 
-function directPreviewTable(item){
-  return item.querySelector(':scope > .wc-ref-table-wrap > table.wc-ref-table');
-}
-
-function inferGradeTitle(item,table){
-  const heading=item.querySelector(':scope > h4');
-  const existing=String(heading?.textContent||'').trim();
-  if(/^Grade\s+[0-4]\b/i.test(existing)) return existing;
+function gradeTitleForTable(table){
   const first=String(table?.querySelector('tbody tr td')?.textContent||'').trim();
   return GRADE_TITLES[first]||'';
 }
 
-function makeGradeCollapsible(item,title){
-  if(item.dataset.wcGradeCollapsible==='1') return;
-  const heading=item.querySelector(':scope > h4');
+function wrapGradeTable(wrap,title){
+  if(!wrap || wrap.dataset.wcGradeWrapped==='1') return;
   const details=document.createElement('details');
   details.className='wc-ref-grade-details';
   const summary=document.createElement('summary');
   summary.className='wc-ref-grade-summary';
   summary.textContent=title;
   details.appendChild(summary);
-  [...item.children].forEach(child=>{
-    if(child!==heading) details.appendChild(child);
-  });
-  if(heading) heading.remove();
-  item.appendChild(details);
-  item.dataset.wcGradeCollapsible='1';
+  wrap.parentNode.insertBefore(details,wrap);
+  details.appendChild(wrap);
+  wrap.dataset.wcGradeWrapped='1';
 }
 
 function upgradeTableEditors(){
   document.querySelectorAll('.wc-ref-table-edit tbody td .wc-ref-editor-field').forEach(input=>{
     if(String(input.tagName||'').toUpperCase()!=='INPUT') return;
     if(input.dataset.wcRefMultilineSource==='1') return;
-
     input.dataset.wcRefMultilineSource='1';
     const textarea=document.createElement('textarea');
     textarea.className='wc-ref-editor-textarea wc-ref-table-cell-multiline';
@@ -97,34 +78,41 @@ function upgradeTableEditors(){
     textarea.setAttribute('aria-label','Table cell');
     textarea.title='Enter inserts a new line. Blank lines are preserved.';
     autoRows(textarea);
-
     textarea.addEventListener('input',()=>{
       input.value=textarea.value;
       if(typeof input.oninput==='function') input.oninput();
       autoRows(textarea);
     });
-
     input.replaceWith(textarea);
   });
 
   document.querySelectorAll('.wc-ref-editor-item').forEach(item=>{
-    if(item.dataset.wcGradeCollapsible==='1') return;
     const heading=item.querySelector(':scope > h4');
-    const table=directPreviewTable(item);
-    if(!table) return;
+    let foundGrade=false;
 
-    const gradeTitle=inferGradeTitle(item,table);
-    if(gradeTitle){
-      if(heading){
-        heading.hidden=false;
-        heading.textContent=gradeTitle;
-      }
-      makeGradeCollapsible(item,gradeTitle);
+    item.querySelectorAll(':scope > .wc-ref-table-wrap').forEach(wrap=>{
+      const table=wrap.querySelector(':scope > table.wc-ref-table');
+      const title=gradeTitleForTable(table);
+      if(!title) return;
+      foundGrade=true;
+      wrapGradeTable(wrap,title);
+    });
+
+    /* Some render passes may already have a grade wrapper; recognize those too. */
+    item.querySelectorAll(':scope > .wc-ref-grade-details > .wc-ref-table-wrap').forEach(wrap=>{
+      const table=wrap.querySelector(':scope > table.wc-ref-table');
+      if(gradeTitleForTable(table)) foundGrade=true;
+    });
+
+    if(foundGrade){
+      if(heading) heading.hidden=true;
       return;
     }
 
-    /* Non-grade section-level tables intentionally have no item heading. */
-    if(heading && heading.textContent.trim()==='Untitled Item') heading.hidden=true;
+    /* Non-grade section-level tables intentionally have no meaningless heading. */
+    if(heading && heading.textContent.trim()==='Untitled Item' && item.querySelector(':scope > .wc-ref-table-wrap')){
+      heading.hidden=true;
+    }
   });
 }
 
@@ -163,11 +151,8 @@ function installStyles(){
       color:var(--accent);
     }
     .wc-ref-grade-details[open]>.wc-ref-grade-summary::before{content:'▾'}
-    .wc-ref-grade-details>.wc-ref-table-wrap,
-    .wc-ref-grade-details>p{
-      margin-left:10px;
-      margin-right:10px;
-      margin-bottom:10px;
+    .wc-ref-grade-details>.wc-ref-table-wrap{
+      margin:0 10px 10px;
     }
   `;
   document.head.appendChild(style);
