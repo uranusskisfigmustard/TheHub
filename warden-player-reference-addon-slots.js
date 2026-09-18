@@ -1,6 +1,9 @@
 (() => {
 'use strict';
 
+// Legacy compatibility shim. Current player-reference data stores the canonical
+// add-on slot labels directly, so this must never continuously observe/rewrite
+// the Warden DOM.
 const KEY='mothership_hub_player_reference_working_v1';
 const ADDONS=new Set(['Emergency Disconnect','Isolation Buffer']);
 
@@ -36,12 +39,17 @@ function normalizeRenderedTables(){
   document.querySelectorAll('table tbody tr').forEach(row=>{
     const cells=row.querySelectorAll('td');
     if(cells.length<3) return;
-    if(ADDONS.has(String(cells[0].textContent||'').trim())) cells[2].textContent='N/A Add-on';
+    if(
+      ADDONS.has(String(cells[0].textContent||'').trim()) &&
+      String(cells[2].textContent||'')!=='N/A Add-on'
+    ) cells[2].textContent='N/A Add-on';
   });
 }
 
 normalizeStoredDraft();
-if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',normalizeRenderedTables,{once:true});
-normalizeRenderedTables();
-new MutationObserver(normalizeRenderedTables).observe(document.documentElement,{childList:true,subtree:true});
+if(document.readyState==='loading'){
+  document.addEventListener('DOMContentLoaded',normalizeRenderedTables,{once:true});
+}else{
+  normalizeRenderedTables();
+}
 })();
