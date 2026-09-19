@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const BUILD = '20260919-warden-functional-preview-1';
+  const BUILD = '20260919-warden-functional-preview-2';
   const SESSION_KEY = 'hub-preview:warden-session';
   const EXPIRY_KEY = 'hub-preview:warden-expiry';
   const shellRoot = document.getElementById('wardenPreviewShell');
@@ -18,6 +18,11 @@
     submissions: [],
     classifieds: null,
     version: null,
+    progression: null,
+    npcs: null,
+    factions: null,
+    adjustments: null,
+    reference: null,
     lastRefresh: 0,
     transport: window.HubWardenApi?.transport || 'UNAVAILABLE'
   };
@@ -40,6 +45,20 @@
       localStorage.removeItem(SESSION_KEY);
       localStorage.removeItem(EXPIRY_KEY);
     } catch (_) {}
+  }
+
+  function clearReadState() {
+    state.feed = null;
+    state.audit = null;
+    state.submissions = [];
+    state.classifieds = null;
+    state.version = null;
+    state.progression = null;
+    state.npcs = null;
+    state.factions = null;
+    state.adjustments = null;
+    state.reference = null;
+    state.lastRefresh = 0;
   }
 
   function loadPreviewSession() {
@@ -106,14 +125,9 @@
 
   function placeholder(workspace) {
     const copy = {
-      session: ['Session', 'Session close, between-session administration, and campaign-date processing are still being migrated.', ['Session close', 'Between-session work', 'Campaign date and recurring charges']],
-      npcs: ['NPCs', 'NPC continuity tools are still being migrated from watcher-dependent legacy modules.', ['NPC index', 'Current state', 'Explicit portrait/meta load']],
-      factions: ['Factions', 'Faction continuity tools are still being migrated.', ['Faction index', 'Access state', 'Obligations and current needs']],
-      progression: ['Progression', 'Character and campaign progression administration is still being migrated.', ['PC continuity snapshot', 'Skills / qualifications / legal access', 'Equipment / cybernetics / finances']],
-      reference: ['Player Reference', 'Warden Reference editing and publication controls are still being migrated.', ['Draft', 'Exact player preview', 'Publish / stale-section review']],
       admin: ['Admin', 'Administrative maintenance beyond Audit Tools is still being migrated.', ['Derived output maintenance', 'Service state', 'Explicit maintenance actions']]
     };
-    const data = copy[workspace.id] || [workspace.label, workspace.summary, ['Workspace']];
+    const data = copy[workspace.id] || [workspace.label, workspace.summary || 'Workspace migration pending.', ['Workspace']];
     contentRoot.innerHTML = `
       <div class="warden-page-heading"><div><h1>${esc(data[0])}</h1><p>${esc(data[1])}</p></div><div class="warden-status-chip">MIGRATION PENDING</div></div>
       <div class="warden-preview-grid">${data[2].map(item => `<div class="warden-preview-card"><strong>${esc(item).toUpperCase()}</strong><span>Not yet active in this functional preview.</span></div>`).join('')}</div>
@@ -126,21 +140,25 @@
       renderAuth();
       return;
     }
-    if (workspace.id === 'dashboard' && window.HubWardenDashboard) {
-      window.HubWardenDashboard.render(contentRoot, state);
-    } else if (workspace.id === 'contracts' && window.HubWardenContracts) {
-      window.HubWardenContracts.render(contentRoot, state);
-    } else if (workspace.id === 'audit' && window.HubWardenAuditTools) {
-      window.HubWardenAuditTools.render(contentRoot, state);
-    } else {
-      placeholder(workspace);
-    }
+    const renderers = {
+      dashboard: window.HubWardenDashboard,
+      contracts: window.HubWardenContracts,
+      session: window.HubWardenSession,
+      npcs: window.HubWardenNpcs,
+      factions: window.HubWardenFactions,
+      progression: window.HubWardenProgression,
+      reference: window.HubWardenReference,
+      audit: window.HubWardenAuditTools
+    };
+    const module = renderers[workspace.id];
+    if (module && typeof module.render === 'function') module.render(contentRoot, state);
+    else placeholder(workspace);
     shell?.setStatusRight(state.feed?.campaignDate ? `CAMPAIGN DATE ${state.feed.campaignDate}` : 'READ-ONLY');
   }
 
-  async function readOptional(action) {
+  async function readOptional(action, params = {}, options = {}) {
     try {
-      const result = await window.HubWardenApi.request(action, { session: state.session });
+      const result = await window.HubWardenApi.request(action, { session: state.session, ...params }, options);
       return result?.ok ? result : null;
     } catch (_) {
       return null;
@@ -159,16 +177,27 @@
       if (!feed?.ok) throw new Error(feed?.error || feed?.message || 'Could not load Warden feed.');
       state.feed = feed;
 
-      const [audit, submissions, classifieds, version] = await Promise.all([
+      const [audit, submissions, classifieds, version, progression, npcs, factions, adjustments, reference] = await Promise.all([
         readOptional('wardenaudit'),
         readOptional('wardensubmissions'),
         readOptional('wardenclassifiedrequests'),
-        readOptional('wardenversion')
+        readOptional('wardenversion'),
+        readOptional('wardenprogressionfeed', {}, { timeoutMs: 35000 }),
+        readOptional('wardennpcfeed', {}, { timeoutMs: 35000 }),
+        readOptional('wardenfactionfeed', {}, { timeoutMs: 35000 }),
+        readOptional('wardenadjustfeed', {}, { timeoutMs: 35000 }),
+        readOptional('wardenreferenceget', {}, { timeoutMs: 35000 })
       ]);
+
       state.audit = audit;
       state.submissions = Array.isArray(submissions?.submissions) ? submissions.submissions : [];
       state.classifieds = classifieds;
       state.version = version;
+      state.progression = progression;
+      state.npcs = npcs;
+      state.factions = factions;
+      state.adjustments = adjustments;
+      state.reference = reference;
       state.lastRefresh = Date.now();
 
       refreshButton.hidden = false;
@@ -179,6 +208,7 @@
       const message = String(error?.message || error);
       if (/session|auth/i.test(message)) {
         clearPreviewSession();
+        clearReadState();
         renderAuth(message);
       } else {
         setDiagnostic('READ ERROR // ' + message);
@@ -211,11 +241,7 @@
   refreshButton.addEventListener('click', refreshReads);
   lockButton.addEventListener('click', () => {
     clearPreviewSession();
-    state.feed = null;
-    state.audit = null;
-    state.submissions = [];
-    state.classifieds = null;
-    state.version = null;
+    clearReadState();
     renderAuth();
   });
 
