@@ -90,7 +90,7 @@ jobs:
 
       - name: Commit changed snapshot
         run: |
-          if git diff --quiet -- data/player-statements.json; then
+          if [ -z "$(git status --porcelain -- data/player-statements.json)" ]; then
             echo 'No statement changes.'
             exit 0
           fi
