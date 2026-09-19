@@ -5,9 +5,13 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="robots" content="noindex,nofollow">
   <title>The Hub — Player Console Preview</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="player-shell.css?v=20260919-preview-4">
   <link rel="stylesheet" href="player-reference.css?v=20260919-preview-4">
   <link rel="stylesheet" href="between-sessions.css?v=20260919-preview-1">
+  <link rel="stylesheet" href="statements.css?v=20260919-preview-1">
 </head>
 <body data-preview-mode="read-only">
   <div id="previewShell"></div>
@@ -28,7 +32,7 @@
       </dl>
 
       <div class="preview-safety">
-        This preview intentionally does not call live board APIs, submit purchases, accept contracts, mutate Warden state, or reuse production storage keys. It may read canonical static page data where needed to validate migrated read-only pages.
+        This preview does not submit purchases, accept contracts, mutate Warden state, or reuse production storage keys. Migrated read-only pages may read canonical static data or call an existing read-only service endpoint; any preview cache uses a separate hub-preview namespace.
       </div>
 
       <div class="preview-diagnostics" id="previewDiagnostics">Waiting for shell initialization…</div>
@@ -68,6 +72,28 @@
         <div class="layout-spacer" aria-hidden="true"></div>
       </div>
     </section>
+
+    <section class="statements-page" id="statementsPage" hidden aria-labelledby="statementsTitle">
+      <div class="statements-heading">
+        <div class="preview-kicker">MIGRATED PAGE PREVIEW</div>
+        <h1 id="statementsTitle">Statements</h1>
+        <p class="statements-sub">Hub Claims Registry recovery-debt account statements.</p>
+      </div>
+
+      <div class="statement-controls" aria-label="Statement controls">
+        <button class="statement-btn active" type="button" data-statement-character="prue" aria-pressed="true">PRUDENCE GREYMORE</button>
+        <button class="statement-btn" type="button" data-statement-character="john" aria-pressed="false">JOHN SOBIESKI</button>
+        <button class="statement-btn" type="button" data-statement-print>PRINT STATEMENT</button>
+        <button class="statement-btn" type="button" data-statement-refresh>REFRESH</button>
+      </div>
+
+      <div class="statement-status">
+        <span data-statement-status>Loading current statements…</span>
+        <span data-statement-who></span>
+      </div>
+
+      <div data-statement-view></div>
+    </section>
   </main>
 
   <noscript>
@@ -79,6 +105,7 @@
   <script src="player-reference.js?v=20260919-preview-4"></script>
   <script src="../between-sessions-data.js?v=20260919-preview-1"></script>
   <script src="between-sessions.js?v=20260919-preview-1"></script>
-  <script src="preview-page.js?v=20260919-preview-6"></script>
+  <script src="statements.js?v=20260919-preview-1"></script>
+  <script src="preview-page.js?v=20260919-preview-7"></script>
 </body>
 </html>
