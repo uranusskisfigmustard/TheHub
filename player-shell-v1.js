@@ -26,7 +26,7 @@ function installResponsiveLayer(){
   }
   if(!document.getElementById('hubMobileUiScript')){
     const script=document.createElement('script');
-    script.id='hubMobileUiScript';script.src='mobile-ui.js?v=20260919nav2';script.defer=true;
+    script.id='hubMobileUiScript';script.src='mobile-ui.js?v=20260919rollback1';script.defer=true;
     document.head.appendChild(script);
   }
 }
