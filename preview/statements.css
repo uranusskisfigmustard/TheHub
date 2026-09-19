@@ -74,12 +74,27 @@
   gap: 10px;
   flex-wrap: wrap;
   padding: 8px 0;
-  margin: 0 0 14px;
+  margin: 0;
   color: var(--muted);
   font-size: .78rem;
   border-top: 1px solid #25292c;
   border-bottom: 1px solid #25292c;
 }
+
+.statement-diagnostic {
+  margin: 6px 0 14px;
+  padding: 7px 9px;
+  border: 1px dashed #454b50;
+  color: var(--muted);
+  background: rgba(255,255,255,.015);
+  font-size: .68rem;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.statement-diagnostic[data-state="ok"] { border-color: #66805b; color: #bdd2aa; }
+.statement-diagnostic[data-state="warn"] { border-color: var(--accent); color: var(--accent); }
+.statement-diagnostic[data-state="error"] { border-color: #8a5147; color: #d28a7e; }
 
 .statement-sheet {
   width: min(100%, 8.5in);
@@ -138,6 +153,7 @@
   .statements-heading,
   .statement-controls,
   .statement-status,
+  .statement-diagnostic,
   #previewPlaceholder,
   #playerReferencePage,
   #betweenSessionsPage {
