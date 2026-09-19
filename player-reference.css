@@ -1,0 +1,72 @@
+#playerReferencePage[hidden] { display: none; }
+
+.player-main.reference-mode { width: min(100% - 28px, 1180px); }
+.player-reference-page { width: 100%; }
+.player-reference-heading { margin: 0 0 14px; }
+.player-reference-heading h1 {
+  margin: 6px 0 4px;
+  font-size: clamp(1.25rem, 5vw, 2rem);
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+.player-reference-sub,
+.reference-intro { color: #d5d0c4; }
+.player-reference-sub { margin: 0; font-size: .84rem; }
+.reference-intro { margin: 0 0 14px; font-size: .84rem; }
+.ref-group {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  margin: 0 0 10px;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.ref-group > summary {
+  cursor: pointer;
+  list-style: none;
+  padding: 13px 15px;
+  font-weight: 800;
+  letter-spacing: .055em;
+  text-transform: uppercase;
+  background: #171b1f;
+}
+.ref-group > summary::-webkit-details-marker,
+.grade > summary::-webkit-details-marker { display: none; }
+.ref-group > summary::before,
+.grade > summary::before {
+  content: '▸';
+  display: inline-block;
+  width: 1.2em;
+  color: var(--accent);
+}
+.ref-group[open] > summary::before,
+.grade[open] > summary::before { content: '▾'; }
+.ref-group-body { padding: 4px 14px 14px; }
+.ref-item { padding: 11px 0; border-top: 1px solid #303538; }
+.ref-item:first-child { border-top: 0; }
+.ref-item h2 { margin: 0 0 7px; font-size: .92rem; letter-spacing: .035em; }
+.ref-item p,
+.ref-bullet { margin: 5px 0; font-size: .82rem; color: #ddd8cb; }
+.ref-bullet { display: block; position: relative; padding-left: 1.25em; }
+.ref-bullet::before { content: '-'; position: absolute; left: 0; color: var(--muted); }
+.ref-bold { font-weight: 800; color: var(--text); }
+.table-wrap { width: 100%; overflow-x: auto; margin: 8px 0; }
+.ref-table { border-collapse: collapse; min-width: 100%; font-size: .76rem; }
+.ref-table th,
+.ref-table td {
+  border: 1px solid var(--line);
+  padding: 7px 8px;
+  text-align: left;
+  vertical-align: top;
+}
+.ref-table th { background: #15191c; color: var(--text); font-weight: 800; }
+.ref-table td { color: #ddd8cb; }
+.grade { margin: 8px 0; border: 1px solid var(--line); background: #15191c; }
+.grade > summary { cursor: pointer; list-style: none; padding: 10px 12px; font-size: .82rem; font-weight: 800; }
+.grade-body { padding: 0 10px 10px; }
+.grade-subhead { margin: 12px 0 5px; font-size: .78rem; font-weight: 800; letter-spacing: .04em; }
+.reference-footnote { padding: 4px 0 24px; color: #777; font-size: .72rem; }
+
+@media (max-width: 560px) {
+  .player-main.reference-mode { width: min(100% - 20px, 1180px); }
+  .ref-table { min-width: 560px; }
+}
