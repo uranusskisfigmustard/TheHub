@@ -1,6 +1,10 @@
 (() => {
   'use strict';
 
+  const previewMain = document.getElementById('previewMain');
+  const placeholder = document.getElementById('previewPlaceholder');
+  const referencePage = document.getElementById('playerReferencePage');
+  const referenceRoot = document.getElementById('referenceRoot');
   const title = document.getElementById('previewPageTitle');
   const summary = document.getElementById('previewPageSummary');
   const route = document.getElementById('previewProductionRoute');
@@ -10,6 +14,19 @@
 
   function render(detail) {
     if (!detail || !detail.page || !detail.group) return;
+
+    const isReference = detail.page.id === 'reference';
+    placeholder.hidden = isReference;
+    referencePage.hidden = !isReference;
+    previewMain.classList.toggle('reference-mode', isReference);
+
+    if (isReference) {
+      if (window.HubPlayerReferenceContent) {
+        window.HubPlayerReferenceContent.render(referenceRoot);
+      }
+      return;
+    }
+
     title.textContent = detail.page.label;
     summary.textContent = detail.page.summary;
     route.textContent = detail.page.productionHref;
@@ -28,12 +45,16 @@
   }
 
   window.addEventListener('error', event => {
-    diagnostics.textContent = 'PREVIEW ERROR: ' + (event.message || 'Unknown script error');
-    diagnostics.dataset.state = 'error';
+    if (diagnostics && !placeholder.hidden) {
+      diagnostics.textContent = 'PREVIEW ERROR: ' + (event.message || 'Unknown script error');
+      diagnostics.dataset.state = 'error';
+    }
   });
 
   window.addEventListener('unhandledrejection', event => {
-    diagnostics.textContent = 'PREVIEW PROMISE ERROR: ' + String(event.reason || 'Unknown rejection');
-    diagnostics.dataset.state = 'error';
+    if (diagnostics && !placeholder.hidden) {
+      diagnostics.textContent = 'PREVIEW PROMISE ERROR: ' + String(event.reason || 'Unknown rejection');
+      diagnostics.dataset.state = 'error';
+    }
   });
 })();
