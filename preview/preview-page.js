@@ -12,6 +12,10 @@
   const group = document.getElementById('previewGroup');
   const diagnostics = document.getElementById('previewDiagnostics');
 
+  function collapseReferenceGroups() {
+    referenceRoot.querySelectorAll(':scope > details.ref-group').forEach(group => { group.open = false; });
+  }
+
   function render(detail) {
     if (!detail || !detail.page || !detail.group) return;
 
@@ -23,6 +27,7 @@
     if (isReference) {
       if (window.HubPlayerReferenceContent) {
         window.HubPlayerReferenceContent.render(referenceRoot);
+        collapseReferenceGroups();
       }
       return;
     }
