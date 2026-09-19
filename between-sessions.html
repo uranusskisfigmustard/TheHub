@@ -1,49 +1,54 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>The Hub — Between Sessions</title>
-<style>
-:root{--bg:#111315;--panel:#191c1f;--panel2:#202428;--text:#e7e4dc;--muted:#aaa79f;--line:#3a3f43;--accent:#d4a84b}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;line-height:1.55}
-header{position:sticky;top:0;z-index:5;background:rgba(17,19,21,.97);border-bottom:1px solid var(--line);padding:16px 18px 12px;backdrop-filter:blur(5px)}
-.topline{display:flex;gap:12px;align-items:flex-end;justify-content:space-between;flex-wrap:wrap}
-h1{margin:0;font-size:clamp(1.2rem,4vw,1.8rem);letter-spacing:.08em;text-transform:uppercase}.sub{color:var(--muted);font-size:.82rem;margin-top:3px}
-.navrow,.controls{display:flex;gap:8px;margin-top:13px;flex-wrap:wrap}.btn{font:inherit;color:var(--muted);background:transparent;border:1px solid var(--line);border-radius:3px;padding:8px 14px;cursor:pointer;font-weight:800;letter-spacing:.08em;text-decoration:none}.btn:hover{border-color:var(--accent);color:var(--text)}.btn.active{color:var(--text);border-color:var(--accent);background:rgba(212,168,75,.10)}
-.status{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:8px 18px;color:var(--muted);font-size:.78rem;border-bottom:1px solid #25292c}
-main{max-width:1280px;margin:0 auto;padding:18px}.intersession-layout{display:grid;grid-template-columns:210px minmax(0,960px) 210px;gap:24px;align-items:start}.period-selector{position:sticky;top:176px;min-width:0}.selector-label{margin:0 0 8px;color:var(--muted);font-size:.68rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.selector-btn{display:block;width:100%;text-align:left;font:inherit;color:var(--muted);background:#171b1f;border:1px solid var(--line);border-radius:3px;padding:10px 11px;cursor:pointer;margin-bottom:8px}.selector-btn:hover{border-color:var(--accent);color:var(--text)}.selector-btn.active{border-color:var(--accent);background:rgba(212,168,75,.10);color:var(--text)}.selector-period{display:block;font-size:.78rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase}.selector-dates{display:block;margin-top:3px;color:var(--muted);font-size:.68rem}.reading-column{grid-column:2;min-width:0}.layout-spacer{grid-column:3}.period{margin-bottom:28px}.period-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px;padding-bottom:9px;border-bottom:1px solid var(--line)}.period-title{font-size:1rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.period-dates{color:var(--muted);font-size:.78rem}
-.scene{background:linear-gradient(180deg,#171b1f 0%,#14181b 100%);border:1px solid var(--line);border-radius:4px;padding:18px;margin-bottom:14px;box-shadow:0 10px 24px rgba(0,0,0,.20)}.scene h2{margin:0 0 12px;font-size:1.06rem;letter-spacing:.06em;text-transform:uppercase}.scene p{margin:0 0 12px;color:#d8d4c8}.scene p:last-child{margin-bottom:0}.empty{padding:22px;border:1px dashed var(--line);color:var(--muted);background:var(--panel)}
-@media(max-width:1100px){main{max-width:1000px}.intersession-layout{grid-template-columns:180px minmax(0,1fr);gap:18px}.layout-spacer{display:none}.reading-column{grid-column:2}}
-@media(max-width:760px){main{padding:12px}.intersession-layout{display:block}.period-selector{position:static;margin:0 0 14px}.scene{padding:15px}.reading-column{width:100%}}
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>The Hub — Between Sessions</title>
+  <link rel="stylesheet" href="player-shell.css?v=20260919-betweenprod1">
+  <link rel="stylesheet" href="between-sessions.css?v=20260919-betweenprod1">
 </head>
-<body>
-<header>
-  <div class="topline"><div><h1>The Hub // Between Sessions</h1><div class="sub">Scenes and developments occurring between completed missions.</div></div></div>
-  <nav class="navrow" aria-label="Hub navigation"><a class="btn" href="./">CONTRACTS</a><a class="btn" href="contracts.html">CONTRACT LOGS</a><a class="btn" href="./#classifieds">CLASSIFIEDS</a><a class="btn" href="statements.html">STATEMENTS</a><a class="btn active" href="between-sessions.html">BETWEEN SESSIONS</a></nav>
-  <div class="controls" aria-label="Character selection"><button id="prue" class="btn active" type="button">PRUDENCE GREYMORE</button><button id="john" class="btn" type="button">JOHN SOBIESKI</button></div>
-</header>
-<div class="status"><span id="status">CURRENT INTERSESSION RECORD</span><span id="who">PRUDENCE GREYMORE</span></div>
-<main><div class="intersession-layout"><aside id="periodSelector" class="period-selector" aria-label="Between-session period selection"></aside><div id="view" class="reading-column"></div><div class="layout-spacer" aria-hidden="true"></div></div></main>
-<script src="between-sessions-data.js"></script>
-<script>
-(()=>{
-'use strict';
-const PERIODS=window.BETWEEN_SESSION_PERIODS||{};
-const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const periodKey=p=>{const matches=String(p?.dates||p?.dateLabel||'').match(/(\d{4})-(\d{3})/g)||[];const last=matches[matches.length-1]||'';const [year,day]=last.split('-').map(Number);return Number.isFinite(year)&&Number.isFinite(day)?year*1000+day:0};
-const ORDERED_PERIODS=Object.entries(PERIODS).sort((a,b)=>periodKey(b[1])-periodKey(a[1]));
-const view=document.getElementById('view'),selector=document.getElementById('periodSelector'),who=document.getElementById('who'),prue=document.getElementById('prue'),john=document.getElementById('john');
-let selectedPeriod=ORDERED_PERIODS[0]?.[0]||null,selectedCharacter='prue';
-function renderSelector(){selector.innerHTML='<div class="selector-label">INTERSESSION PERIODS</div>'+ORDERED_PERIODS.map(([id,p])=>`<button class="selector-btn ${id===selectedPeriod?'active':''}" type="button" data-period="${esc(id)}" aria-current="${id===selectedPeriod?'true':'false'}"><span class="selector-period">${esc(p.label)}</span><span class="selector-dates">${esc(p.dateLabel)}</span></button>`).join('')}
-function render(){const p=selectedPeriod?PERIODS[selectedPeriod]:null,r=p?.characters?.[selectedCharacter];prue.classList.toggle('active',selectedCharacter==='prue');john.classList.toggle('active',selectedCharacter==='john');if(!r){who.textContent='';view.innerHTML='<div class="empty">NO INTERSESSION RECORD FOR THIS CHARACTER.</div>';return}who.textContent=r.name.toUpperCase();view.innerHTML=`<section class="period"><div class="period-head"><div class="period-title">${esc(r.name)} // ${esc(p.interval)}</div><div class="period-dates">${esc(p.dates)}</div></div>${r.scenes.map(scene=>`<article class="scene"><h2>${esc(scene.title)}</h2>${scene.paragraphs.map(x=>`<p>${esc(x)}</p>`).join('')}</article>`).join('')}</section>`}
-selector.addEventListener('click',e=>{const b=e.target.closest('[data-period]');if(!b||!PERIODS[b.dataset.period])return;selectedPeriod=b.dataset.period;renderSelector();render()});
-prue.addEventListener('click',()=>{selectedCharacter='prue';render()});john.addEventListener('click',()=>{selectedCharacter='john';render()});
-renderSelector();render();
-})();
-</script>
-<script src="player-shell-v1.js?v=20260831p3"></script>
+<body data-page="between-sessions">
+  <div id="playerShell"></div>
+
+  <main class="player-main between-sessions-mode">
+    <section id="betweenSessionsPage" class="between-sessions-page" aria-labelledby="betweenSessionsTitle">
+      <div class="between-sessions-heading">
+        <h1 id="betweenSessionsTitle">Between Sessions</h1>
+        <p class="between-sessions-sub">Scenes and developments occurring between completed missions.</p>
+      </div>
+
+      <div class="between-character-controls" aria-label="Character selection">
+        <button class="between-character-btn active" type="button" data-between-character="prue" aria-pressed="true">PRUDENCE GREYMORE</button>
+        <button class="between-character-btn" type="button" data-between-character="john" aria-pressed="false">JOHN SOBIESKI</button>
+      </div>
+
+      <div class="between-status">
+        <span>CURRENT INTERSESSION RECORD</span>
+        <span data-between-who>PRUDENCE GREYMORE</span>
+      </div>
+
+      <div class="intersession-layout">
+        <aside class="period-selector" data-between-selector aria-label="Between-session period selection"></aside>
+        <div class="reading-column" data-between-view></div>
+        <div class="layout-spacer" aria-hidden="true"></div>
+      </div>
+    </section>
+  </main>
+
+  <noscript><div class="hub-shell-fatal">JavaScript is required for the player console.</div></noscript>
+  <script src="player-routes.js?v=20260919-betweenprod1"></script>
+  <script src="player-shell.js?v=20260919-betweenprod1"></script>
+  <script src="between-sessions-data.js?v=20260919-betweenprod1"></script>
+  <script src="between-sessions.js?v=20260919-betweenprod1"></script>
+  <script>
+    (() => {
+      if (!window.HubBetweenSessionsContent || typeof window.HubBetweenSessionsContent.render !== 'function') {
+        throw new Error('Between Sessions content module failed to load.');
+      }
+      const root = document.getElementById('betweenSessionsPage');
+      if (!root) throw new Error('Between Sessions root is unavailable.');
+      window.HubBetweenSessionsContent.render(root, window.BETWEEN_SESSION_PERIODS || {});
+    })();
+  </script>
 </body>
 </html>
