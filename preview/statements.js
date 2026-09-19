@@ -37,6 +37,7 @@
     let loadState = '';
     let requestSerial = 0;
     let requestTimer = null;
+    let activeCallback = null;
 
     function renderView() {
       const row = rows[selected];
@@ -66,12 +67,21 @@
       try { localStorage.setItem(cacheKey, JSON.stringify(data)); } catch (_) {}
     }
 
+    function clearTimer() {
+      if (!requestTimer) return;
+      clearTimeout(requestTimer);
+      requestTimer = null;
+    }
+
+    function clearCallback(name) {
+      if (!name) return;
+      try { delete window[name]; } catch (_) { window[name] = undefined; }
+      if (activeCallback === name) activeCallback = null;
+    }
+
     function use(data, label, serial) {
       if (serial !== requestSerial) return;
-      if (requestTimer) {
-        clearTimeout(requestTimer);
-        requestTimer = null;
-      }
+      clearTimer();
       rows = data;
       loadState = label;
       cacheRows(data);
@@ -81,10 +91,7 @@
 
     function fallback(reason, serial) {
       if (serial !== requestSerial) return;
-      if (requestTimer) {
-        clearTimeout(requestTimer);
-        requestTimer = null;
-      }
+      clearTimer();
       setRefreshBusy(false);
       try {
         const cached = JSON.parse(localStorage.getItem(cacheKey) || '{}');
@@ -104,12 +111,14 @@
       const serial = ++requestSerial;
       const now = Date.now();
       const callback = '__hubStatements_' + now + '_' + serial;
-      const scriptId = 'statementQuery_' + serial;
+      const script = document.createElement('script');
 
       setRefreshBusy(true);
       status.textContent = 'REFRESHING STATEMENTS…';
-      root.querySelectorAll('script[data-statement-query]').forEach(node => node.remove());
-      if (requestTimer) clearTimeout(requestTimer);
+      clearTimer();
+      clearCallback(activeCallback);
+      document.querySelectorAll('script[data-statement-query]').forEach(node => node.remove());
+      activeCallback = callback;
 
       window[callback] = function receiveStatements(resp) {
         try {
@@ -132,22 +141,23 @@
         } catch (error) {
           fallback(error.message, serial);
         } finally {
-          try { delete window[callback]; } catch (_) { window[callback] = undefined; }
+          clearCallback(callback);
+          script.remove();
         }
       };
 
-      const script = document.createElement('script');
-      script.id = scriptId;
       script.dataset.statementQuery = 'true';
       script.src = api + '?' + new URLSearchParams({ action: 'statements', callback, _: now });
       script.onerror = () => {
-        try { delete window[callback]; } catch (_) { window[callback] = undefined; }
+        clearCallback(callback);
+        script.remove();
         fallback('Network or Hub service error.', serial);
       };
       document.body.appendChild(script);
 
       requestTimer = setTimeout(() => {
-        try { delete window[callback]; } catch (_) { window[callback] = undefined; }
+        clearCallback(callback);
+        script.remove();
         fallback('Statement request timed out.', serial);
       }, 25000);
     }
