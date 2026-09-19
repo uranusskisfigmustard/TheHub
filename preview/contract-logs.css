@@ -1,0 +1,41 @@
+.contract-logs-page { width: 100%; }
+.preview-main.contract-logs-mode { width: min(100% - 28px, 1180px); }
+.contract-logs-heading { margin-bottom: 14px; }
+.contract-logs-heading h1 { margin: 6px 0 4px; font-size: clamp(1.25rem, 5vw, 2rem); letter-spacing: .05em; text-transform: uppercase; }
+.contract-logs-heading p { margin: 0; color: #d5d0c4; font-size: .84rem; }
+.contract-preview-warning { margin-bottom: 14px; padding: 11px 13px; border: 1px solid var(--accent); background: rgba(212,168,75,.08); color: #e4d6b2; font-size: .78rem; font-weight: 800; letter-spacing: .035em; }
+.contract-log-toolbar { display:flex; justify-content:space-between; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:14px; padding:10px 12px; border:1px solid var(--line); background:var(--panel); }
+.contract-log-status { color:var(--muted); font-size:.75rem; }
+.contract-log-status[data-state="ok"] { color:#a9bd98; }
+.contract-log-status[data-state="warn"] { color:var(--accent); }
+.contract-log-status[data-state="error"] { color:#d58a7c; }
+.contract-log-tools { display:flex; align-items:center; gap:9px; color:var(--muted); font-size:.7rem; }
+.contract-log-tools button { font:inherit; min-height:38px; padding:7px 10px; color:var(--muted); background:transparent; border:1px solid var(--line); border-radius:3px; cursor:pointer; font-weight:900; letter-spacing:.06em; }
+.contract-log-tools button:hover:not(:disabled), .contract-log-tools button:focus-visible { color:var(--text); border-color:var(--accent); outline:none; }
+.contract-log-section { margin-bottom:28px; }
+.contract-log-section-head { display:flex; justify-content:space-between; align-items:baseline; gap:10px; margin-bottom:10px; padding-bottom:7px; border-bottom:1px solid var(--line); }
+.contract-log-section-head h2 { margin:0; font-size:1rem; letter-spacing:.07em; text-transform:uppercase; }
+.contract-log-section-head span { color:var(--muted); font-size:.74rem; }
+.contract-log-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+.contract-log-card { padding:15px; border:1px solid #363c40; background:#15181b; }
+.contract-log-card.active { border-color:#536249; }
+.contract-log-card.completed { border-color:#66879a; }
+.contract-log-card.failed { border-color:#76574f; }
+.contract-log-card.abandoned { border-color:#5d5d5d; }
+.contract-card-title { font-size:1.02rem; font-weight:900; letter-spacing:.04em; text-transform:uppercase; }
+.contract-card-status { display:inline-block; margin:8px 0 10px; padding:3px 7px; border:1px solid var(--line); color:var(--muted); font-size:.68rem; font-weight:900; letter-spacing:.07em; text-transform:uppercase; }
+.contract-log-card.active .contract-card-status { border-color:#536249; color:#bdd2aa; }
+.contract-log-card.completed .contract-card-status { border-color:#66879a; color:#b8d3df; }
+.contract-log-card.failed .contract-card-status { border-color:#76574f; color:#d9aaa0; }
+.contract-card-meta { display:grid; grid-template-columns:max-content 1fr; gap:4px 10px; margin-top:4px; }
+.contract-meta-label, .contract-card-detail span, .contract-submission-preview > span { color:var(--muted); font-size:.68rem; font-weight:900; letter-spacing:.07em; text-transform:uppercase; }
+.contract-meta-value { overflow-wrap:anywhere; font-size:.82rem; }
+.contract-card-detail { display:grid; gap:3px; margin-top:10px; padding-top:9px; border-top:1px solid #303538; }
+.contract-card-detail strong { font-size:.8rem; font-weight:700; }
+.contract-card-payout { margin-top:11px; color:var(--accent); font-weight:900; }
+.contract-card-summary { margin-top:10px; padding-top:9px; border-top:1px solid #303538; color:#d5d0c4; font-size:.82rem; }
+.contract-submission-preview { margin-top:14px; padding-top:12px; border-top:1px solid #303538; }
+.contract-submission-preview p { margin:5px 0 9px; color:var(--muted); font-size:.75rem; }
+.contract-submission-preview button { width:100%; min-height:40px; padding:8px 10px; font:inherit; color:var(--muted); background:transparent; border:1px solid var(--line); border-radius:3px; font-size:.7rem; font-weight:900; letter-spacing:.06em; cursor:not-allowed; opacity:.65; }
+.contract-log-empty { grid-column:1/-1; padding:18px; border:1px dashed #4a4f53; color:var(--muted); background:#15181b; }
+@media (max-width:760px){ .preview-main.contract-logs-mode{width:min(100% - 20px,1180px)} .contract-log-grid{grid-template-columns:1fr} .contract-log-toolbar{align-items:stretch} .contract-log-tools{justify-content:space-between} }
