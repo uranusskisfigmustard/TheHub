@@ -5,6 +5,7 @@
   const placeholder = document.getElementById('previewPlaceholder');
   const referencePage = document.getElementById('playerReferencePage');
   const referenceRoot = document.getElementById('referenceRoot');
+  const betweenSessionsPage = document.getElementById('betweenSessionsPage');
   const title = document.getElementById('previewPageTitle');
   const summary = document.getElementById('previewPageSummary');
   const route = document.getElementById('previewProductionRoute');
@@ -13,22 +14,39 @@
   const diagnostics = document.getElementById('previewDiagnostics');
 
   function collapseReferenceGroups() {
-    referenceRoot.querySelectorAll(':scope > details.ref-group').forEach(group => { group.open = false; });
+    referenceRoot.querySelectorAll(':scope > details.ref-group').forEach(item => { item.open = false; });
   }
 
   function render(detail) {
     if (!detail || !detail.page || !detail.group) return;
 
     const isReference = detail.page.id === 'reference';
-    placeholder.hidden = isReference;
+    const isBetweenSessions = detail.page.id === 'between-sessions';
+    const isMigratedPage = isReference || isBetweenSessions;
+
+    placeholder.hidden = isMigratedPage;
     referencePage.hidden = !isReference;
+    betweenSessionsPage.hidden = !isBetweenSessions;
     previewMain.classList.toggle('reference-mode', isReference);
+    previewMain.classList.toggle('between-sessions-mode', isBetweenSessions);
 
     if (isReference) {
-      if (window.HubPlayerReferenceContent) {
-        window.HubPlayerReferenceContent.render(referenceRoot);
-        collapseReferenceGroups();
+      if (!window.HubPlayerReferenceContent || typeof window.HubPlayerReferenceContent.render !== 'function') {
+        throw new Error('Player Reference preview module failed to load.');
       }
+      window.HubPlayerReferenceContent.render(referenceRoot);
+      collapseReferenceGroups();
+      return;
+    }
+
+    if (isBetweenSessions) {
+      if (!window.HubBetweenSessionsContent || typeof window.HubBetweenSessionsContent.render !== 'function') {
+        throw new Error('Between Sessions preview module failed to load.');
+      }
+      if (!window.BETWEEN_SESSION_PERIODS) {
+        throw new Error('Between Sessions canonical data failed to load.');
+      }
+      window.HubBetweenSessionsContent.render(betweenSessionsPage, window.BETWEEN_SESSION_PERIODS);
       return;
     }
 
