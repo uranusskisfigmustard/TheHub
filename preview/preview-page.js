@@ -9,6 +9,8 @@
   const statementsPage = document.getElementById('statementsPage');
   const purchasesPage = document.getElementById('purchasesPage');
   const purchaseRoot = document.getElementById('purchaseRoot');
+  const contractLogsPage = document.getElementById('contractLogsPage');
+  const contractLogsRoot = document.getElementById('contractLogsRoot');
   const title = document.getElementById('previewPageTitle');
   const summary = document.getElementById('previewPageSummary');
   const route = document.getElementById('previewProductionRoute');
@@ -30,17 +32,20 @@
     const isBetweenSessions = detail.page.id === 'between-sessions';
     const isStatements = detail.page.id === 'statements';
     const isPurchases = detail.page.id === 'purchases';
-    const isMigratedPage = isReference || isBetweenSessions || isStatements || isPurchases;
+    const isContractLogs = detail.page.id === 'contract-logs';
+    const isMigratedPage = isReference || isBetweenSessions || isStatements || isPurchases || isContractLogs;
 
     placeholder.hidden = isMigratedPage;
     referencePage.hidden = !isReference;
     betweenSessionsPage.hidden = !isBetweenSessions;
     statementsPage.hidden = !isStatements;
     purchasesPage.hidden = !isPurchases;
+    contractLogsPage.hidden = !isContractLogs;
     previewMain.classList.toggle('reference-mode', isReference);
     previewMain.classList.toggle('between-sessions-mode', isBetweenSessions);
     previewMain.classList.toggle('statements-mode', isStatements);
     previewMain.classList.toggle('purchases-mode', isPurchases);
+    previewMain.classList.toggle('contract-logs-mode', isContractLogs);
 
     if (isReference) {
       if (!window.HubPlayerReferenceContent || typeof window.HubPlayerReferenceContent.render !== 'function') {
@@ -83,6 +88,18 @@
         api: HUB_API,
         sessionKey: 'hub-preview:board-session-v1',
         sessionExpiryKey: 'hub-preview:board-session-expiry-v1'
+      });
+      return;
+    }
+
+    if (isContractLogs) {
+      if (!window.HubContractLogsPreview || typeof window.HubContractLogsPreview.render !== 'function') {
+        throw new Error('Contract Logs preview module failed to load.');
+      }
+      window.HubContractLogsPreview.render(contractLogsRoot, {
+        api: HUB_API,
+        cacheKey: 'hub-preview:contractfeed-v1',
+        cacheTimeKey: 'hub-preview:contractfeed-v1:time'
       });
       return;
     }
