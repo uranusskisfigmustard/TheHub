@@ -7,6 +7,8 @@
   const referenceRoot = document.getElementById('referenceRoot');
   const betweenSessionsPage = document.getElementById('betweenSessionsPage');
   const statementsPage = document.getElementById('statementsPage');
+  const purchasesPage = document.getElementById('purchasesPage');
+  const purchaseRoot = document.getElementById('purchaseRoot');
   const title = document.getElementById('previewPageTitle');
   const summary = document.getElementById('previewPageSummary');
   const route = document.getElementById('previewProductionRoute');
@@ -14,7 +16,7 @@
   const group = document.getElementById('previewGroup');
   const diagnostics = document.getElementById('previewDiagnostics');
 
-  const STATEMENTS_API = 'https://script.google.com/macros/s/AKfycbzeW8vTooOCNEBia3_EMQ10r7BcbakXIwCD4ZaEOUEBOdCXl09tRHj76oxcUcsOKQK0/exec';
+  const HUB_API = 'https://script.google.com/macros/s/AKfycbzeW8vTooOCNEBia3_EMQ10r7BcbakXIwCD4ZaEOUEBOdCXl09tRHj76oxcUcsOKQK0/exec';
   const STATEMENTS_SNAPSHOT = 'https://raw.githubusercontent.com/uranusskisfigmustard/TheHub/main/data/player-statements.json';
 
   function collapseReferenceGroups() {
@@ -27,15 +29,18 @@
     const isReference = detail.page.id === 'reference';
     const isBetweenSessions = detail.page.id === 'between-sessions';
     const isStatements = detail.page.id === 'statements';
-    const isMigratedPage = isReference || isBetweenSessions || isStatements;
+    const isPurchases = detail.page.id === 'purchases';
+    const isMigratedPage = isReference || isBetweenSessions || isStatements || isPurchases;
 
     placeholder.hidden = isMigratedPage;
     referencePage.hidden = !isReference;
     betweenSessionsPage.hidden = !isBetweenSessions;
     statementsPage.hidden = !isStatements;
+    purchasesPage.hidden = !isPurchases;
     previewMain.classList.toggle('reference-mode', isReference);
     previewMain.classList.toggle('between-sessions-mode', isBetweenSessions);
     previewMain.classList.toggle('statements-mode', isStatements);
+    previewMain.classList.toggle('purchases-mode', isPurchases);
 
     if (isReference) {
       if (!window.HubPlayerReferenceContent || typeof window.HubPlayerReferenceContent.render !== 'function') {
@@ -62,10 +67,22 @@
         throw new Error('Statements preview module failed to load.');
       }
       window.HubStatementsContent.render(statementsPage, {
-        api: STATEMENTS_API,
+        api: HUB_API,
         snapshotUrl: STATEMENTS_SNAPSHOT,
         cacheKey: 'hub-preview:statement-export-v3',
         legacyCacheKeys: ['hub-preview:statement-export-v1', 'hub-preview:statement-export-v2']
+      });
+      return;
+    }
+
+    if (isPurchases) {
+      if (!window.HubPurchasesPreview || typeof window.HubPurchasesPreview.render !== 'function') {
+        throw new Error('Purchase Board preview module failed to load.');
+      }
+      window.HubPurchasesPreview.render(purchaseRoot, {
+        api: HUB_API,
+        sessionKey: 'hub-preview:board-session-v1',
+        sessionExpiryKey: 'hub-preview:board-session-expiry-v1'
       });
       return;
     }
