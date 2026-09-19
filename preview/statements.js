@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const BUILD = '20260919-statements-preview-3';
+  const BUILD = '20260919-statements-preview-4';
   const esc = value => String(value ?? '')
     .replaceAll('&', '&amp;')
     .replaceAll('<', '&lt;')
@@ -12,9 +12,11 @@
     if (root.dataset.rendered === 'true') return;
 
     const api = String(options.api || '').trim();
+    const snapshotUrl = String(options.snapshotUrl || '').trim();
     const cacheKey = String(options.cacheKey || '').trim();
     const legacyCacheKeys = Array.isArray(options.legacyCacheKeys) ? options.legacyCacheKeys : [];
     if (!api) throw new Error('Statements API endpoint is unavailable.');
+    if (!snapshotUrl) throw new Error('Statements snapshot URL is unavailable.');
     if (!cacheKey) throw new Error('Statements cache key is unavailable.');
 
     const view = root.querySelector('[data-statement-view]');
@@ -43,8 +45,8 @@
     let selected = 'prue';
     let loadState = '';
     let requestSerial = 0;
-    let requestTimer = null;
-    let requestController = null;
+    let liveTimer = null;
+    let snapshotController = null;
     let activeJsonpCallback = null;
 
     function renderView() {
@@ -75,73 +77,12 @@
       try { localStorage.setItem(cacheKey, JSON.stringify(data)); } catch (_) {}
     }
 
-    function clearTimer() {
-      if (requestTimer) {
-        clearTimeout(requestTimer);
-        requestTimer = null;
-      }
-    }
-
-    function removeJsonpScripts() {
-      document.querySelectorAll('script[data-statement-query]').forEach(node => node.remove());
-    }
-
-    function clearJsonpCallback() {
-      if (!activeJsonpCallback) return;
-      try { delete window[activeJsonpCallback]; } catch (_) { window[activeJsonpCallback] = undefined; }
-      activeJsonpCallback = null;
-    }
-
-    function cancelActiveRequest() {
-      clearTimer();
-      if (requestController) {
-        try { requestController.abort(); } catch (_) {}
-        requestController = null;
-      }
-      clearJsonpCallback();
-      removeJsonpScripts();
-    }
-
-    function use(data, label, serial, transport) {
-      if (serial !== requestSerial) return;
-      cancelActiveRequest();
-      rows = data;
-      loadState = label;
-      cacheRows(data);
-      setRefreshBusy(false);
-      setDiagnostic(`${transport} SUCCEEDED`, 'ok');
-      renderView();
-    }
-
-    function fallback(reason, serial) {
-      if (serial !== requestSerial) return;
-      cancelActiveRequest();
-      setRefreshBusy(false);
-      try {
-        const cached = JSON.parse(localStorage.getItem(cacheKey) || '{}');
-        if (Object.keys(cached).length) {
-          rows = cached;
-          loadState = 'CACHED / STALE // ' + reason;
-          setDiagnostic(`LIVE REQUESTS FAILED; USING PREVIEW CACHE // ${reason}`, 'warn');
-          renderView();
-          return;
-        }
-      } catch (_) {}
-      rows = {};
-      loadState = 'STATEMENT INFORMATION UNAVAILABLE // ' + reason;
-      setDiagnostic(`LIVE REQUESTS FAILED; NO PREVIEW CACHE // ${reason}`, 'error');
-      renderView();
-    }
-
-    function normalizeResponse(resp, transportLabel, serial, transportName) {
-      if (serial !== requestSerial) return;
-      if (!resp || resp.ok !== true) throw new Error(resp?.error || 'Statement service error.');
-
-      const list = Array.isArray(resp.statements) ? resp.statements : [];
+    function normalizePayload(payload) {
+      if (!payload || payload.ok !== true) throw new Error(payload?.error || 'Statement feed error.');
       const data = {};
-      list.forEach(item => {
+      (Array.isArray(payload.statements) ? payload.statements : []).forEach(item => {
         const key = String(item?.key || '').trim().toLowerCase();
-        if (!key) return;
+        if (key !== 'john' && key !== 'prue') return;
         data[key] = {
           key,
           character: String(item?.character || ''),
@@ -149,34 +90,86 @@
           statementText: String(item?.statementText || '')
         };
       });
-
-      if (!Object.keys(data).length) throw new Error('Statement service returned no rows.');
-      use(
-        data,
-        `${transportLabel} // LOADED ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`,
-        serial,
-        transportName
-      );
+      if (!data.john && !data.prue) throw new Error('Statement feed returned no player rows.');
+      return data;
     }
 
-    function requestJsonp(serial, directFailureReason) {
+    function show(data, label, serial, cache = true) {
+      if (serial !== requestSerial) return false;
+      rows = data;
+      loadState = label;
+      if (cache) cacheRows(data);
+      renderView();
+      return true;
+    }
+
+    function clearLiveRequest() {
+      if (liveTimer) {
+        clearTimeout(liveTimer);
+        liveTimer = null;
+      }
+      document.querySelectorAll('script[data-statement-query]').forEach(node => node.remove());
+      if (activeJsonpCallback) {
+        try { delete window[activeJsonpCallback]; } catch (_) { window[activeJsonpCallback] = undefined; }
+        activeJsonpCallback = null;
+      }
+    }
+
+    function cancelAll() {
+      clearLiveRequest();
+      if (snapshotController) {
+        try { snapshotController.abort(); } catch (_) {}
+        snapshotController = null;
+      }
+    }
+
+    function useLocalCache(serial, reason) {
+      if (serial !== requestSerial || Object.keys(rows).length) return false;
+      try {
+        const cached = JSON.parse(localStorage.getItem(cacheKey) || '{}');
+        if (cached && Object.keys(cached).length) {
+          show(cached, 'CACHED / STALE', serial, false);
+          setDiagnostic(`SNAPSHOT UNAVAILABLE; USING PREVIEW CACHE (${reason})`, 'warn');
+          return true;
+        }
+      } catch (_) {}
+      return false;
+    }
+
+    function finishLiveFailure(serial, reason) {
       if (serial !== requestSerial) return;
-      clearTimer();
-      requestController = null;
-      removeJsonpScripts();
-      clearJsonpCallback();
-      status.textContent = 'RETRYING STATEMENTS IN COMPATIBILITY MODE…';
-      setDiagnostic(`DIRECT FAILED: ${directFailureReason} // COMPATIBILITY STARTING`, 'warn');
+      clearLiveRequest();
+      setRefreshBusy(false);
+      if (Object.keys(rows).length) {
+        setDiagnostic(`SNAPSHOT AVAILABLE // LIVE REQUEST BLOCKED (${reason})`, 'warn');
+        renderView();
+        return;
+      }
+      if (useLocalCache(serial, reason)) return;
+      loadState = '';
+      status.textContent = 'STATEMENT INFORMATION UNAVAILABLE';
+      setDiagnostic(`NO SNAPSHOT OR CACHE // LIVE REQUEST FAILED (${reason})`, 'error');
+      renderView();
+    }
+
+    function requestLive(serial) {
+      if (serial !== requestSerial) return;
+      clearLiveRequest();
+      setDiagnostic(Object.keys(rows).length ? 'SNAPSHOT LOADED // LIVE REQUEST STARTING' : 'LIVE REQUEST STARTING', 'working');
 
       const now = Date.now();
       const callback = '__hubStatements_' + now + '_' + serial;
       activeJsonpCallback = callback;
 
-      window[callback] = function receiveStatements(resp) {
+      window[callback] = function receiveStatements(payload) {
         try {
-          normalizeResponse(resp, 'LIVE / COMPATIBILITY', serial, 'COMPATIBILITY');
+          const data = normalizePayload(payload);
+          show(data, 'LIVE', serial, true);
+          clearLiveRequest();
+          setRefreshBusy(false);
+          setDiagnostic('LIVE REQUEST SUCCEEDED', 'ok');
         } catch (error) {
-          fallback(`COMPATIBILITY RESPONSE ERROR: ${error.message}`, serial);
+          finishLiveFailure(serial, 'response error: ' + error.message);
         }
       };
 
@@ -184,61 +177,49 @@
       script.dataset.statementQuery = 'true';
       script.src = api + '?' + new URLSearchParams({ action: 'statements', callback, ts: now });
       script.referrerPolicy = 'no-referrer';
-      script.onerror = () => {
-        fallback(`DIRECT FAILED: ${directFailureReason}; COMPATIBILITY SCRIPT BLOCKED`, serial);
-      };
+      script.onerror = () => finishLiveFailure(serial, 'compatibility script blocked');
       document.body.appendChild(script);
 
-      requestTimer = setTimeout(() => {
-        fallback(`DIRECT FAILED: ${directFailureReason}; COMPATIBILITY TIMED OUT`, serial);
-      }, 18000);
+      liveTimer = setTimeout(() => finishLiveFailure(serial, 'compatibility request timed out'), 12000);
     }
 
-    async function requestDirect(serial) {
-      if (serial !== requestSerial) return;
+    async function loadSnapshot(serial) {
       const controller = new AbortController();
-      requestController = controller;
+      snapshotController = controller;
       const timeout = setTimeout(() => controller.abort(), 7000);
-      setDiagnostic('DIRECT REQUEST STARTING', 'working');
-
       try {
-        const url = api + '?' + new URLSearchParams({ action: 'statements', ts: Date.now() });
-        const response = await fetch(url, {
+        const separator = snapshotUrl.includes('?') ? '&' : '?';
+        const response = await fetch(snapshotUrl + separator + 'ts=' + Date.now(), {
           method: 'GET',
-          mode: 'cors',
           credentials: 'omit',
           cache: 'no-store',
-          redirect: 'follow',
           signal: controller.signal,
-          headers: { Accept: 'application/json, text/plain, */*' }
+          headers: { Accept: 'application/json' }
         });
         if (serial !== requestSerial) return;
         if (!response.ok) throw new Error('HTTP ' + response.status);
-        const text = await response.text();
-        let payload;
-        try {
-          payload = JSON.parse(text);
-        } catch (_) {
-          throw new Error('direct response was not JSON');
-        }
-        normalizeResponse(payload, 'LIVE / DIRECT', serial, 'DIRECT');
+        const data = normalizePayload(await response.json());
+        show(data, 'SYNCED SNAPSHOT', serial, true);
+        setDiagnostic('SNAPSHOT LOADED // LIVE REQUEST STARTING', 'working');
       } catch (error) {
         if (serial !== requestSerial) return;
-        const reason = error?.name === 'AbortError' ? 'request timed out' : String(error?.message || 'request failed');
-        requestJsonp(serial, reason);
+        const reason = error?.name === 'AbortError' ? 'snapshot request timed out' : String(error?.message || 'snapshot request failed');
+        useLocalCache(serial, reason);
+        if (!Object.keys(rows).length) setDiagnostic(`SNAPSHOT FAILED (${reason}) // LIVE REQUEST STARTING`, 'warn');
       } finally {
         clearTimeout(timeout);
-        if (requestController === controller) requestController = null;
+        if (snapshotController === controller) snapshotController = null;
       }
+      requestLive(serial);
     }
 
     function load() {
       const serial = ++requestSerial;
-      cancelActiveRequest();
+      cancelAll();
       setRefreshBusy(true);
       status.textContent = 'REFRESHING STATEMENTS…';
-      setDiagnostic('LOAD REQUESTED', 'working');
-      requestDirect(serial);
+      setDiagnostic('SYNCED SNAPSHOT REQUEST STARTING', 'working');
+      loadSnapshot(serial);
     }
 
     john.addEventListener('click', () => {
