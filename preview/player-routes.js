@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const BUILD = '20260919-preview-2';
+  const BUILD = '20260919-preview-3';
   const STORAGE_PREFIX = 'hub-preview:';
 
   const groups = [
