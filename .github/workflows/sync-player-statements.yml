@@ -2,8 +2,8 @@ name: Sync player statements
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: '*/5 * * * *'
+  repository_dispatch:
+    types: [player-statements-refreshed]
   push:
     paths:
       - '.github/workflows/sync-player-statements.yml'
