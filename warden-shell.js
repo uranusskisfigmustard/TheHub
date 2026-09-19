@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const BUILD = '20260919-warden-shell-preview-1';
+  const BUILD = '20260919-warden-shell-2';
   const config = window.HubWardenRoutes;
 
   function createShell(root, options = {}) {
@@ -26,18 +26,21 @@
           <div class="warden-shell-title">THE HUB // WARDEN CONSOLE</div>
           <div class="warden-shell-subtitle">PRIVATE CAMPAIGN ADMINISTRATION</div>
         </div>
-        <div class="warden-shell-mode">STRUCTURAL PREVIEW</div>
+        <div class="warden-shell-mode" data-warden-mode></div>
       </div>
       <nav class="warden-primary-nav" aria-label="Warden console sections"></nav>
       <div class="warden-nav-divider" aria-hidden="true"></div>
       <nav class="warden-secondary-nav" aria-label="Warden console workspaces"></nav>
-      <div class="warden-shell-status"><span data-warden-active></span><span>THE HUB</span></div>
+      <div class="warden-shell-status"><span data-warden-active></span><span data-warden-status-right>THE HUB</span></div>
     `;
     root.replaceChildren(header);
 
     const primary = header.querySelector('.warden-primary-nav');
     const secondary = header.querySelector('.warden-secondary-nav');
     const activeLabel = header.querySelector('[data-warden-active]');
+    const modeLabel = header.querySelector('[data-warden-mode]');
+    const statusRight = header.querySelector('[data-warden-status-right]');
+    modeLabel.textContent = String(options.modeLabel || 'WARDEN CONSOLE');
 
     function activeWorkspace() {
       return workspaceMap.get(activeWorkspaceId);
@@ -97,6 +100,14 @@
       return true;
     }
 
+    function setMode(text) {
+      modeLabel.textContent = String(text || '');
+    }
+
+    function setStatusRight(text) {
+      statusRight.textContent = String(text || '');
+    }
+
     render();
     queueMicrotask(emitChange);
 
@@ -104,7 +115,9 @@
       build: BUILD,
       get workspace() { return activeWorkspace(); },
       get group() { return activeGroup(); },
-      setWorkspace
+      setWorkspace,
+      setMode,
+      setStatusRight
     });
   }
 
