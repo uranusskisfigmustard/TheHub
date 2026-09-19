@@ -26,7 +26,7 @@ function installResponsiveLayer(){
   }
   if(!document.getElementById('hubMobileUiScript')){
     const script=document.createElement('script');
-    script.id='hubMobileUiScript';script.src='mobile-ui.js?v=20260919rollback1';script.defer=true;
+    script.id='hubMobileUiScript';script.src='mobile-ui.js?v=20260919stable2';script.defer=true;
     document.head.appendChild(script);
   }
 }
@@ -75,7 +75,6 @@ function statementState(){
   }
   const c=safeJson(STATEMENTS_CACHE,null);return c&&typeof c==='object'&&Object.keys(c).length?'AVAILABLE':'AVAILABLE';
 }
-
 function renderSystem(){
   const host=$('playerSystemInner');if(!host)return;
   const active=Array.isArray(STATE.contracts?.active)?STATE.contracts.active:[];
@@ -86,23 +85,16 @@ function renderSystem(){
     else if(STATE.cached)linkState=`<span class="player-system-item warn">BOARD LINK CACHED // ${esc(cacheAgeLabel())}</span>`;
     else linkState='<span class="player-system-item bad">BOARD LINK DEGRADED</span>';
   }
-  const items=[
-    linkState,
-    STATE.checked?`<span class="player-system-item ${active.length?'live':''}">${active.length} ACTIVE CONTRACT${active.length===1?'':'S'}</span>`:'<span class="player-system-item">CONTRACT STATE CHECKING</span>',
-    `<span class="player-system-item ${state==='UNAVAILABLE'?'bad':state==='CACHED'?'warn':''}">STATEMENTS ${esc(state)}</span>`
-  ];
-  host.innerHTML=items.join('<span aria-hidden="true">·</span>');
+  host.innerHTML=[linkState,STATE.checked?`<span class="player-system-item ${active.length?'live':''}">${active.length} ACTIVE CONTRACT${active.length===1?'':'S'}</span>`:'<span class="player-system-item">CONTRACT STATE CHECKING</span>',`<span class="player-system-item ${state==='UNAVAILABLE'?'bad':state==='CACHED'?'warn':''}">STATEMENTS ${esc(state)}</span>`].join('<span aria-hidden="true">·</span>');
 }
-
 function renderAssignment(){
   const strip=$('playerAssignmentStrip'),host=$('playerAssignmentInner');if(!strip||!host)return;
   const active=Array.isArray(STATE.contracts?.active)?STATE.contracts.active:[];
   if(!active.length){strip.classList.add('hidden');host.innerHTML='';return}
-  const first=active[0]||{};const participants=Array.isArray(first.participants)?first.participants.filter(Boolean):[];
+  const first=active[0]||{},participants=Array.isArray(first.participants)?first.participants.filter(Boolean):[];
   const extra=active.length>1?` · +${active.length-1} MORE`:'';
   const meta=[participants.length?participants.join(', '):'',first.acceptedDate?`ACCEPTED ${first.acceptedDate}`:''].filter(Boolean).join(' · ');
-  const id=String(first.contractId||first.jobId||'').trim();
-  const href=id?'contracts.html#contract='+encodeURIComponent(id):'contracts.html';
+  const id=String(first.contractId||first.jobId||'').trim(),href=id?'contracts.html#contract='+encodeURIComponent(id):'contracts.html';
   host.innerHTML=`<div class="player-assignment-main"><span class="player-assignment-label">ACTIVE ASSIGNMENT${active.length===1?'':'S'}</span><span class="player-assignment-title">${esc(first.title||first.contractId||first.jobId||'Contract')}</span>${meta?`<span class="player-assignment-meta">· ${esc(meta)}</span>`:''}${extra?`<span class="player-assignment-meta">${esc(extra)}</span>`:''}</div><a class="player-assignment-link" href="${href}">VIEW CONTRACT LOG</a>`;
   strip.classList.remove('hidden');
 }
@@ -132,10 +124,7 @@ function renderNavBadges(){
   badge(navByLabel('CONTRACT LOGS'),'playerLogsBadge',active,active>0);
   badge(navByLabel('CLASSIFIEDS'),'playerClassifiedsBadge',STATE.boardCounts.classifieds,false);
 }
-
-function announceContracts(){
-  window.dispatchEvent(new CustomEvent('hub-player-contracts-updated',{detail:{contracts:STATE.contracts,online:STATE.online,cached:STATE.cached,cacheTime:STATE.cacheTime}}));
-}
+function announceContracts(){window.dispatchEvent(new CustomEvent('hub-player-contracts-updated',{detail:{contracts:STATE.contracts,online:STATE.online,cached:STATE.cached,cacheTime:STATE.cacheTime}}))}
 async function loadPublicContractState(){
   STATE.cached=false;
   try{
@@ -143,18 +132,10 @@ async function loadPublicContractState(){
     STATE.contracts=data;STATE.online=true;STATE.cacheTime=Date.now();saveContractCache(data);
   }catch(_){
     const cached=readContractCache();
-    if(cached){STATE.contracts=cached;STATE.cached=true;STATE.cacheTime=Number(localStorage.getItem(CONTRACT_CACHE_TIME)||0)}
-    else STATE.contracts={active:[],history:[]};
+    if(cached){STATE.contracts=cached;STATE.cached=true;STATE.cacheTime=Number(localStorage.getItem(CONTRACT_CACHE_TIME)||0)}else STATE.contracts={active:[],history:[]};
     STATE.online=false;
   }
   STATE.checked=true;renderSystem();renderAssignment();renderNavBadges();announceContracts();
-}
-
-function watchPageStatus(){
-  const st=$('status');if(!st)return;new MutationObserver(()=>renderSystem()).observe(st,{childList:true,characterData:true,subtree:true});
-}
-function watchNav(){
-  const nav=document.querySelector('.navrow');if(!nav)return;new MutationObserver(()=>{ensureNavigation();renderNavBadges()}).observe(nav,{childList:true,subtree:true});
 }
 function installGlitchLayer(){
   if(document.getElementById('hubPlayerGlitchScriptV1')||window.__hubPlayerGlitch)return;
@@ -167,6 +148,6 @@ window.__hubPlayerShell={
   getContractState(){return{contracts:STATE.contracts,online:STATE.online,cached:STATE.cached,checked:STATE.checked,cacheTime:STATE.cacheTime}}
 };
 
-installResponsiveLayer();installStyles();installChrome();ensureNavigation();installGlitchLayer();loadBoardCountsFromCache();renderSystem();renderAssignment();renderNavBadges();watchPageStatus();watchNav();loadPublicContractState();
-setTimeout(()=>{ensureNavigation();loadBoardCountsFromCache();renderNavBadges()},1200);
+installResponsiveLayer();installStyles();installChrome();ensureNavigation();installGlitchLayer();loadBoardCountsFromCache();renderSystem();renderAssignment();renderNavBadges();loadPublicContractState();
+setTimeout(()=>{ensureNavigation();loadBoardCountsFromCache();renderNavBadges();renderSystem()},1200);
 })();
