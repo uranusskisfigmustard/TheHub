@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const BUILD = '20260919-warden-preview-1';
+  const BUILD = '20260919-warden-preview-2';
   const shellRoot = document.getElementById('wardenPreviewShell');
   const contentRoot = document.getElementById('wardenPreviewContent');
   const diagnostic = document.getElementById('wardenPreviewDiagnostic');
@@ -14,7 +14,8 @@
     factions: ['Factions', 'Structural home for Warden-facing faction records.', ['Faction index', 'Access state', 'Current obligations']],
     progression: ['Progression', 'Structural home for campaign progression administration.', ['Character progression', 'Finances and access', 'Campaign state']],
     reference: ['Player Reference', 'Structural home for Warden administration of the Player Reference.', ['Reference draft', 'Review controls', 'Player-facing publication']],
-    admin: ['Admin', 'Structural home for administrative and audit tools.', ['Audit tools', 'Service state', 'Administrative controls']]
+    audit: ['Audit Tools', 'Structural home for explicit, Warden-initiated audit actions.', ['Transaction IDs', 'Amend / undo closeouts', 'Legacy / read-only records', 'Integrity checks']],
+    admin: ['Admin', 'Structural home for service state and administrative controls.', ['Service state', 'Administrative controls']]
   });
 
   function renderWorkspace(workspace) {
@@ -26,7 +27,7 @@
         ${data[2].map(item => `<div class="warden-preview-card"><strong>${item.toUpperCase()}</strong><span>Placeholder only. No campaign records or state-changing controls are loaded in this public preview.</span></div>`).join('')}
       </div>
     `;
-    diagnostic.textContent = `${BUILD}\nACTIVE WORKSPACE // ${workspace.id.toUpperCase()}\nREAD-ONLY // NO BACKEND // NO PRODUCTION STORAGE`;
+    diagnostic.textContent = `${BUILD}\nACTIVE WORKSPACE // ${workspace.id.toUpperCase()}\nREAD-ONLY // NO BACKEND // NO PRODUCTION STORAGE // NO WATCHERS`;
   }
 
   if (!window.HubWardenShell || typeof window.HubWardenShell.createShell !== 'function') {
