@@ -94,26 +94,20 @@
       primary.appendChild(link);
     }
 
-    header.append(top, primary);
+    const divider = document.createElement('div');
+    divider.className = 'hub-nav-divider';
+    divider.setAttribute('aria-hidden', 'true');
+
+    header.append(top, primary, divider);
 
     if (activeGroup.pages.length > 1) {
-      const submenu = document.createElement('div');
-      submenu.className = 'hub-secondary-group';
-      submenu.setAttribute('aria-label', activeGroup.label + ' submenu');
-
-      const submenuLabel = document.createElement('div');
-      submenuLabel.className = 'hub-secondary-label';
-      submenuLabel.textContent = activeGroup.label + ' // SUBMENU';
-
       const secondary = document.createElement('nav');
       secondary.className = 'hub-secondary-nav';
       secondary.setAttribute('aria-label', activeGroup.label + ' destinations');
       for (const page of activeGroup.pages) {
         secondary.appendChild(makeLink(page.label, page.previewHref, 'hub-secondary-link', page.id === activePage.id));
       }
-
-      submenu.append(submenuLabel, secondary);
-      header.appendChild(submenu);
+      header.appendChild(secondary);
     }
 
     const status = document.createElement('div');
