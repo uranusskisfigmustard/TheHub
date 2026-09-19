@@ -15,6 +15,7 @@
   const diagnostics = document.getElementById('previewDiagnostics');
 
   const STATEMENTS_API = 'https://script.google.com/macros/s/AKfycbzeW8vTooOCNEBia3_EMQ10r7BcbakXIwCD4ZaEOUEBOdCXl09tRHj76oxcUcsOKQK0/exec';
+  const STATEMENTS_SNAPSHOT = 'https://raw.githubusercontent.com/uranusskisfigmustard/TheHub/main/data/player-statements.json';
 
   function collapseReferenceGroups() {
     referenceRoot.querySelectorAll(':scope > details.ref-group').forEach(item => { item.open = false; });
@@ -62,6 +63,7 @@
       }
       window.HubStatementsContent.render(statementsPage, {
         api: STATEMENTS_API,
+        snapshotUrl: STATEMENTS_SNAPSHOT,
         cacheKey: 'hub-preview:statement-export-v3',
         legacyCacheKeys: ['hub-preview:statement-export-v1', 'hub-preview:statement-export-v2']
       });
