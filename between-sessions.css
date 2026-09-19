@@ -34,25 +34,33 @@
 
 .between-character-btn {
   font: inherit;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
   color: var(--muted);
   background: transparent;
   border: 1px solid var(--line);
   border-radius: 3px;
-  padding: 9px 12px;
+  padding: 8px 10px;
   cursor: pointer;
-  font-weight: 800;
-  letter-spacing: .06em;
+  font-weight: 900;
+  letter-spacing: .07em;
   text-transform: uppercase;
 }
 
 .between-character-btn:hover,
-.between-character-btn.active {
+.between-character-btn.active,
+.between-character-btn:focus-visible {
   color: var(--text);
   border-color: var(--accent);
+  outline: none;
 }
 
 .between-character-btn.active {
   background: rgba(212, 168, 75, .10);
+  box-shadow: inset 0 -3px 0 var(--accent);
 }
 
 .between-status {
@@ -166,7 +174,7 @@
   border-radius: 4px;
   padding: 18px;
   margin-bottom: 14px;
-  box-shadow: 0 10px 24px rgba(0, 0, 0, .20);
+  box-shadow: 0 10px 24px rgba(0,0,0,.20);
 }
 
 .scene h2 {
@@ -215,7 +223,10 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
   }
-  .between-character-btn { min-height: 44px; }
+  .between-character-btn {
+    padding: 9px 7px;
+    font-size: .78rem;
+  }
   .scene { padding: 15px; }
   .reading-column { width: 100%; }
 }
