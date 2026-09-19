@@ -18,6 +18,9 @@
     { key:'reference', label:'REFERENCE', defaultKey:'reference' }
   ];
 
+  let normalizing = false;
+  let queued = false;
+
   function installHeaderStyles() {
     if (document.getElementById('hubCanonicalHeaderStyles')) return;
     const style = document.createElement('style');
@@ -90,25 +93,17 @@
   }
 
   function normalizeSources(nav) {
-    const nodes = NAV_ITEMS.map(item => {
+    return NAV_ITEMS.map(item => {
       let node = findItem(nav, item.label);
       if (!node) {
         node = createItem(nav, item);
         nav.appendChild(node);
       }
-      if (node.tagName === 'A') node.setAttribute('href', item.href);
-      node.classList.add('hub-nav-source');
+      if (node.tagName === 'A' && node.getAttribute('href') !== item.href) node.setAttribute('href', item.href);
+      if (!node.classList.contains('hub-nav-source')) node.classList.add('hub-nav-source');
       node.dataset.hubNavKey = item.key;
       return { item, node };
     });
-
-    const desired = nodes.map(x => x.node);
-    const recognized = directNavItems(nav).filter(node =>
-      NAV_ITEMS.some(item => normalizedLabel(node).startsWith(item.label))
-    );
-    const ordered = recognized.length === desired.length && desired.every((node, i) => recognized[i] === node);
-    if (!ordered) desired.forEach(node => nav.appendChild(node));
-    return nodes;
   }
 
   function groupForKey(key) {
@@ -150,7 +145,7 @@
         primary.appendChild(button);
       }
       const active = group.key === activeGroup;
-      button.classList.toggle('active', active);
+      if (button.classList.contains('active') !== active) button.classList.toggle('active', active);
       button.setAttribute('aria-current', active ? 'page' : 'false');
     });
   }
@@ -159,7 +154,7 @@
     const sourceBadge = source?.querySelector('.player-nav-badge');
     let proxyBadge = proxy.querySelector('.player-nav-badge');
     if (!sourceBadge) {
-      proxyBadge?.remove();
+      if (proxyBadge) proxyBadge.remove();
       return;
     }
     if (!proxyBadge) {
@@ -167,8 +162,10 @@
       proxyBadge.className = 'player-nav-badge';
       proxy.appendChild(proxyBadge);
     }
-    proxyBadge.textContent = sourceBadge.textContent || '';
-    proxyBadge.className = sourceBadge.className;
+    const text = sourceBadge.textContent || '';
+    if (proxyBadge.textContent !== text) proxyBadge.textContent = text;
+    const cls = sourceBadge.className;
+    if (proxyBadge.className !== cls) proxyBadge.className = cls;
     proxyBadge.removeAttribute('id');
   }
 
@@ -185,63 +182,63 @@
         link = document.createElement('a');
         link.className = 'hub-secondary-link';
         link.dataset.hubKey = item.key;
-        secondary.appendChild(link);
-      }
-      link.href = item.href;
-      const labelNode = link.querySelector('.hub-secondary-label');
-      if (!labelNode) {
-        link.textContent = '';
         const span = document.createElement('span');
         span.className = 'hub-secondary-label';
         span.textContent = item.label;
         link.appendChild(span);
+        secondary.appendChild(link);
       }
+      if (link.getAttribute('href') !== item.href) link.setAttribute('href', item.href);
       const source = sources.find(x => x.item.key === item.key)?.node;
       syncProxyBadge(link, source);
       const active = item.key === activeKey;
-      link.classList.toggle('active', active);
+      if (link.classList.contains('active') !== active) link.classList.toggle('active', active);
       if (active) link.setAttribute('aria-current', 'page');
       else link.removeAttribute('aria-current');
     });
   }
 
   function normalizeNavigation() {
+    if (normalizing) return false;
     const nav = document.querySelector('.navrow');
     if (!nav) return false;
-    installHeaderStyles();
-    nav.classList.add('hub-tiered-nav');
-    const sources = normalizeSources(nav);
-    const activeKey = currentKey();
-    const activeGroup = groupForKey(activeKey);
-    const { primary, secondary } = createTierHosts(nav);
-    renderPrimary(primary, activeGroup);
-    renderSecondary(secondary, sources, activeKey, activeGroup);
-    return true;
+    normalizing = true;
+    try {
+      installHeaderStyles();
+      if (!nav.classList.contains('hub-tiered-nav')) nav.classList.add('hub-tiered-nav');
+      const sources = normalizeSources(nav);
+      const activeKey = currentKey();
+      const activeGroup = groupForKey(activeKey);
+      const { primary, secondary } = createTierHosts(nav);
+      renderPrimary(primary, activeGroup);
+      renderSecondary(secondary, sources, activeKey, activeGroup);
+      return true;
+    } finally {
+      normalizing = false;
+    }
   }
 
   function watchNavigation() {
     const nav = document.querySelector('.navrow');
     if (!nav || nav.dataset.canonicalNavWatch === '1') return;
     nav.dataset.canonicalNavWatch = '1';
-    let queued = false;
     new MutationObserver(mutations => {
-      const externalMutation = mutations.some(m => {
+      const relevant = mutations.some(m => {
         const target = m.target.nodeType === 1 ? m.target : m.target.parentElement;
         return !target?.closest?.('.hub-tiered-primary,.hub-tiered-secondary');
       });
-      if (!externalMutation || queued) return;
+      if (!relevant || queued || normalizing) return;
       queued = true;
       queueMicrotask(() => {
         queued = false;
         normalizeNavigation();
       });
-    }).observe(nav, { childList:true, subtree:true, characterData:true, attributes:true, attributeFilter:['class'] });
+    }).observe(nav, { childList:true, subtree:true });
   }
 
   function installMobileFilters() {
     const controls = document.querySelector('.controls');
     if (!controls || document.getElementById('mobileFilterToggle')) return;
-
     const primary = document.getElementById('primaryFilter');
     const secondary = document.getElementById('secondaryFilter');
     const search = document.getElementById('search');
@@ -263,10 +260,7 @@
       toggle.textContent = open ? 'CLOSE' : 'FILTERS';
     }
 
-    toggle.addEventListener('click', () => {
-      setOpen(!controls.classList.contains('mobile-filters-open'));
-    });
-
+    toggle.addEventListener('click', () => setOpen(!controls.classList.contains('mobile-filters-open')));
     window.addEventListener('resize', () => {
       if (window.innerWidth > 760 && controls.classList.contains('mobile-filters-open')) setOpen(false);
     }, { passive:true });
@@ -277,6 +271,7 @@
   watchNavigation();
   installMobileFilters();
   window.addEventListener('hashchange', normalizeNavigation);
+  window.addEventListener('hub-player-contracts-updated', normalizeNavigation);
   setTimeout(() => { normalizeNavigation(); watchNavigation(); }, 250);
   setTimeout(normalizeNavigation, 1000);
 })();
