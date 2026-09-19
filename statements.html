@@ -1,45 +1,64 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>The Hub — Statements</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
-<style>
-:root{--bg:#111315;--panel:#191c1f;--text:#e7e4dc;--muted:#aaa79f;--line:#3a3f43;--accent:#d4a84b}
-*{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;line-height:1.45}
-header{position:sticky;top:0;z-index:5;background:rgba(17,19,21,.97);border-bottom:1px solid var(--line);padding:16px 18px 12px;backdrop-filter:blur(5px)}.top{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}h1{margin:0;font-size:clamp(1.2rem,4vw,1.8rem);letter-spacing:.08em;text-transform:uppercase}.sub{color:var(--muted);font-size:.82rem;margin-top:3px}.navrow,.controls{display:flex;gap:8px;margin-top:13px;flex-wrap:wrap}.btn{font:inherit;color:var(--muted);background:transparent;border:1px solid var(--line);border-radius:3px;padding:8px 14px;cursor:pointer;font-weight:800;letter-spacing:.08em;text-decoration:none}.btn:hover{border-color:var(--accent);color:var(--text)}.btn.active{color:var(--text);border-color:var(--accent);background:rgba(212,168,75,.10)}.btn:disabled{opacity:.6;cursor:wait}.status{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:8px 18px;color:var(--muted);font-size:.78rem;border-bottom:1px solid #25292c}main{max-width:1180px;margin:0 auto;padding:18px}.sheet{width:min(100%,8.5in);margin:0 auto;padding:28px;background:linear-gradient(180deg,#171b1f 0%,#14181b 100%);color:var(--text);border:1px solid var(--line);border-radius:4px;box-shadow:0 12px 36px rgba(0,0,0,.32);overflow:auto}.sheet pre{margin:0;min-width:max-content;white-space:pre;color:var(--text);font-family:"VT323","Courier New",monospace;font-size:18px;line-height:1.1;font-weight:400}.error{width:min(100%,8.5in);margin:0 auto;padding:24px;border:1px dashed #6d4e45;color:var(--muted);background:var(--panel)}
-@media(max-width:760px){.sheet{padding:20px}.sheet pre{font-size:17px}}
-@page{size:letter;margin:0}@media print{body{background:#fff;color:#000}header,.status,.player-system-line,.player-assignment{display:none!important}main{max-width:none;margin:0;padding:0}.sheet{width:8.5in;height:11in;min-height:11in;margin:0;padding:.5in;background:#fff;color:#000;border:0;border-radius:0;box-shadow:none;overflow:visible}.sheet pre{color:#000;font-size:10pt;line-height:1}}
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>The Hub — Statements</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="player-shell.css?v=20260919-statementsprod1">
+  <link rel="stylesheet" href="statements.css?v=20260919-statementsprod1">
 </head>
-<body>
-<header>
-  <div class="top"><div><h1>The Hub // Statements</h1><div class="sub">Hub Claims Registry recovery-debt account statements.</div></div></div>
-  <nav class="navrow" aria-label="Hub navigation"><a class="btn" href="./">CONTRACTS</a><a class="btn" href="contracts.html">CONTRACT LOGS</a><a class="btn" href="./#classifieds">CLASSIFIEDS</a><a class="btn active" href="statements.html">STATEMENTS</a><a class="btn" href="between-sessions.html">BETWEEN SESSIONS</a></nav>
-  <div class="controls"><button id="prue" class="btn active">PRUDENCE GREYMORE</button><button id="john" class="btn">JOHN SOBIESKI</button><button id="print" class="btn">PRINT STATEMENT</button><button id="refresh" class="btn">REFRESH</button></div>
-</header>
-<div class="status"><span id="status">Loading current statements…</span><span id="who"></span></div>
-<main><div id="view"></div></main>
-<script>
-(()=>{
-const API='https://script.google.com/macros/s/AKfycbzeW8vTooOCNEBia3_EMQ10r7BcbakXIwCD4ZaEOUEBOdCXl09tRHj76oxcUcsOKQK0/exec';
-const CACHE='hub_statement_export_v3';
-try{localStorage.removeItem('hub_statement_export_v1');localStorage.removeItem('hub_statement_export_v2')}catch(_){}
-const view=document.getElementById('view'),status=document.getElementById('status'),who=document.getElementById('who'),john=document.getElementById('john'),prue=document.getElementById('prue'),refresh=document.getElementById('refresh');
-let rows={},selected='prue',loadState='',requestSerial=0,requestTimer=null;
-const esc=s=>String(s??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;');
-function render(){const r=rows[selected];john.classList.toggle('active',selected==='john');prue.classList.toggle('active',selected==='prue');if(!r){view.innerHTML='<div class="error">Statement data unavailable.</div>';who.textContent='';if(!loadState)status.textContent='STATEMENT DATA UNAVAILABLE';return}status.textContent=`${loadState?loadState+' // ':''}AS OF ${r.asOf||'—'}`;who.textContent=r.character||'';view.innerHTML=`<article class="sheet"><pre>${esc(r.statementText||'')}</pre></article>`}
-function setRefreshBusy(busy){refresh.disabled=busy;refresh.textContent=busy?'REFRESHING…':'REFRESH'}
-function cacheRows(data){try{localStorage.setItem(CACHE,JSON.stringify(data))}catch(_){}}
-function use(data,label,serial){if(serial!==requestSerial)return;if(requestTimer){clearTimeout(requestTimer);requestTimer=null}rows=data;loadState=label;cacheRows(data);setRefreshBusy(false);render()}
-function fallback(reason,serial){if(serial!==requestSerial)return;if(requestTimer){clearTimeout(requestTimer);requestTimer=null}setRefreshBusy(false);try{const c=JSON.parse(localStorage.getItem(CACHE)||'{}');if(Object.keys(c).length){rows=c;loadState='CACHED / STALE // '+reason;render();return}}catch(_){}rows={};loadState='STATEMENT DATA UNAVAILABLE // '+reason;render()}
-function load(){const serial=++requestSerial,n=Date.now(),cb='__hubStatements_'+n;setRefreshBusy(true);status.textContent='REFRESHING STATEMENTS…';const old=document.getElementById('statementQuery');if(old)old.remove();if(requestTimer)clearTimeout(requestTimer);window[cb]=function(resp){try{if(serial!==requestSerial)return;if(!resp||resp.ok!==true)throw Error(resp?.error||'Statement service error.');const list=Array.isArray(resp.statements)?resp.statements:[];const data={};list.forEach(r=>{const key=String(r?.key||'').trim().toLowerCase();if(key)data[key]={key,character:String(r?.character||''),asOf:String(r?.asOf||''),statementText:String(r?.statementText||'')}});if(!Object.keys(data).length)throw Error('Statement service returned no rows.');use(data,'LIVE // LOADED '+new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}),serial)}catch(e){fallback(e.message,serial)}finally{try{delete window[cb]}catch(_){window[cb]=undefined}}};const s=document.createElement('script');s.id='statementQuery';s.src=API+'?'+new URLSearchParams({action:'statements',callback:cb,_:n});s.onerror=()=>{try{delete window[cb]}catch(_){window[cb]=undefined}fallback('Network or Hub service error.',serial)};document.body.appendChild(s);requestTimer=setTimeout(()=>{try{delete window[cb]}catch(_){window[cb]=undefined}fallback('Statement request timed out.',serial)},25000)}
-john.onclick=()=>{selected='john';render()};prue.onclick=()=>{selected='prue';render()};document.getElementById('print').onclick=()=>window.print();refresh.onclick=load;load();
-})();
-</script>
-<script src="player-shell-v1.js?v=20260828p2"></script>
+<body data-page="statements">
+  <div id="playerShell"></div>
+
+  <main class="player-main statements-mode">
+    <section id="statementsPage" class="statements-page" aria-labelledby="statementsTitle">
+      <div class="statements-heading">
+        <h1 id="statementsTitle">Statements</h1>
+        <p class="statements-sub">Hub Claims Registry recovery-debt account statements.</p>
+      </div>
+
+      <div class="statement-controls" aria-label="Statement controls">
+        <button class="statement-btn active" type="button" data-statement-character="prue" aria-pressed="true">PRUDENCE GREYMORE</button>
+        <button class="statement-btn" type="button" data-statement-character="john" aria-pressed="false">JOHN SOBIESKI</button>
+        <button class="statement-btn" type="button" data-statement-print>PRINT STATEMENT</button>
+        <button class="statement-btn" type="button" data-statement-refresh>REFRESH</button>
+      </div>
+
+      <div class="statement-status">
+        <span data-statement-status>Loading current statements…</span>
+        <span data-statement-who></span>
+      </div>
+
+      <div data-statement-view></div>
+    </section>
+  </main>
+
+  <noscript><div class="hub-shell-fatal">JavaScript is required for the player console.</div></noscript>
+
+  <script src="player-routes.js?v=20260919-statementsprod1"></script>
+  <script src="player-shell.js?v=20260919-statementsprod1"></script>
+  <script src="statements.js?v=20260919-statementsprod1"></script>
+  <script>
+    (() => {
+      const STATEMENTS_API = 'https://script.google.com/macros/s/AKfycbzeW8vTooOCNEBia3_EMQ10r7BcbakXIwCD4ZaEOUEBOdCXl09tRHj76oxcUcsOKQK0/exec';
+
+      if (!window.HubStatementsContent || typeof window.HubStatementsContent.render !== 'function') {
+        throw new Error('Statements content module failed to load.');
+      }
+
+      const root = document.getElementById('statementsPage');
+      if (!root) throw new Error('Statements root is unavailable.');
+
+      window.HubStatementsContent.render(root, {
+        api: STATEMENTS_API,
+        snapshotUrl: './data/player-statements.json',
+        cacheKey: 'hub_statement_export_v3',
+        legacyCacheKeys: ['hub_statement_export_v1', 'hub_statement_export_v2']
+      });
+    })();
+  </script>
 </body>
 </html>
