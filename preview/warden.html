@@ -2,21 +2,31 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="robots" content="noindex,nofollow">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-  <title>The Hub — Warden Console Structural Preview</title>
-  <link rel="stylesheet" href="../warden-shell.css?v=20260919-warden-preview-1">
+  <title>The Hub — Warden Console Functional Preview</title>
+  <link rel="stylesheet" href="../warden-shell.css?v=20260919-warden-functional-preview-1">
 </head>
 <body class="warden-preview-body">
   <div id="wardenPreviewShell"></div>
   <main class="warden-preview-main">
-    <div class="warden-preview-notice">READ-ONLY STRUCTURAL PREVIEW // This public preview contains no campaign records, Warden authentication, production session storage, or state-changing controls. Production Warden remains unchanged.</div>
+    <div class="warden-preview-notice">READ-ONLY FUNCTIONAL PREVIEW // Live Warden reads are allowed after Warden authentication. Mutation controls are disabled. Preview uses separate browser storage. Production Warden remains unchanged.</div>
+    <div class="warden-preview-toolbar">
+      <button id="wardenPreviewPlayer" class="warden-button" type="button">RETURN TO PLAYER PAGE</button>
+      <div class="warden-toolbar-spacer"></div>
+      <button id="wardenPreviewRefresh" class="warden-button" type="button" hidden>REFRESH READS</button>
+      <button id="wardenPreviewLock" class="warden-button danger" type="button" hidden>LOCK PREVIEW</button>
+    </div>
     <section id="wardenPreviewContent" class="warden-preview-panel" aria-live="polite"></section>
     <div id="wardenPreviewDiagnostic" class="warden-preview-diagnostic">WAITING FOR WARDEN PREVIEW BOOT…</div>
   </main>
-  <script src="../warden-routes.js?v=20260919-warden-preview-1"></script>
-  <script src="../warden-shell.js?v=20260919-warden-preview-1"></script>
-  <script src="warden-preview.js?v=20260919-warden-preview-1"></script>
+  <script src="../warden-routes.js?v=20260919-warden-functional-preview-1"></script>
+  <script src="../warden-shell.js?v=20260919-warden-functional-preview-1"></script>
+  <script src="../warden-api.js?v=20260919-warden-functional-preview-1"></script>
+  <script src="../warden-dashboard.js?v=20260919-warden-functional-preview-1"></script>
+  <script src="../warden-contracts.js?v=20260919-warden-functional-preview-1"></script>
+  <script src="../warden-audit-tools.js?v=20260919-warden-functional-preview-1"></script>
+  <script src="warden-preview.js?v=20260919-warden-functional-preview-1"></script>
 </body>
 </html>
