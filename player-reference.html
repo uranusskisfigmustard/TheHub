@@ -34,6 +34,7 @@
       const root = document.getElementById('referenceRoot');
       if (!root) throw new Error('Player Reference root is unavailable.');
       window.HubPlayerReferenceContent.render(root);
+      root.querySelectorAll(':scope > details.ref-group').forEach(group => { group.open = false; });
     })();
   </script>
 </body>
