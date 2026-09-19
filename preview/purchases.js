@@ -1,10 +1,10 @@
 (() => {
   'use strict';
 
-  const BUILD = '20260919-purchases-preview-1';
+  const BUILD = '20260919-purchases-preview-2';
   const POST_SOURCE = 'mothership-contract-service-post';
   const DEFAULT_SESSION_KEY = 'hub-preview:board-session-v1';
-  const DEFAULT_SESSION_EXPIRY_KEY = 'hub-preview:board-session-expiry-v1';
+  const DEFAULT_EXPIRY_KEY = 'hub-preview:board-session-expiry-v1';
 
   const esc = value => String(value ?? '')
     .replaceAll('&', '&amp;')
@@ -13,7 +13,6 @@
     .replaceAll('"', '&quot;');
 
   const credit = value => Number(value || 0).toLocaleString('en-US', {
-    minimumFractionDigits: 0,
     maximumFractionDigits: 2
   }) + 'cr';
 
@@ -23,8 +22,7 @@
 
     const api = String(options.api || '').trim();
     const sessionKey = String(options.sessionKey || DEFAULT_SESSION_KEY);
-    const sessionExpiryKey = String(options.sessionExpiryKey || DEFAULT_SESSION_EXPIRY_KEY);
-
+    const expiryKey = String(options.sessionExpiryKey || DEFAULT_EXPIRY_KEY);
     if (!api) throw new Error('Purchase Board API endpoint is unavailable.');
 
     let setup = null;
@@ -34,8 +32,7 @@
     let finance = null;
     let items = [];
     let selectedCategory = 'ALL';
-    let query = '';
-    let transportLabel = '';
+    let searchText = '';
     let busy = false;
 
     root.innerHTML = `
@@ -100,22 +97,23 @@
       <div class="purchase-page-status" data-purchase-status>LOADING PURCHASE BOARD SETUP…</div>
     `;
 
-    const characterControls = root.querySelector('[data-purchase-characters]');
-    const authPanel = root.querySelector('[data-purchase-auth]');
-    const authForm = root.querySelector('[data-purchase-auth-form]');
-    const pinInput = root.querySelector('[data-purchase-pin]');
-    const authButton = root.querySelector('[data-purchase-auth-button]');
-    const authStatus = root.querySelector('[data-purchase-auth-status]');
-    const market = root.querySelector('[data-purchase-market]');
-    const who = root.querySelector('[data-purchase-who]');
-    const financeRoot = root.querySelector('[data-purchase-finance]');
-    const search = root.querySelector('[data-purchase-search]');
-    const count = root.querySelector('[data-purchase-count]');
-    const categories = root.querySelector('[data-purchase-categories]');
-    const itemRoot = root.querySelector('[data-purchase-items]');
-    const refreshButton = root.querySelector('[data-purchase-refresh]');
-    const pageStatus = root.querySelector('[data-purchase-status]');
-    const transport = root.querySelector('[data-purchase-transport]');
+    const el = selector => root.querySelector(selector);
+    const characterControls = el('[data-purchase-characters]');
+    const authPanel = el('[data-purchase-auth]');
+    const authForm = el('[data-purchase-auth-form]');
+    const pinInput = el('[data-purchase-pin]');
+    const authButton = el('[data-purchase-auth-button]');
+    const authStatus = el('[data-purchase-auth-status]');
+    const market = el('[data-purchase-market]');
+    const who = el('[data-purchase-who]');
+    const financeRoot = el('[data-purchase-finance]');
+    const search = el('[data-purchase-search]');
+    const count = el('[data-purchase-count]');
+    const categories = el('[data-purchase-categories]');
+    const itemRoot = el('[data-purchase-items]');
+    const refreshButton = el('[data-purchase-refresh]');
+    const pageStatus = el('[data-purchase-status]');
+    const transport = el('[data-purchase-transport]');
 
     function setStatus(message, state = '') {
       pageStatus.textContent = String(message || '');
@@ -131,43 +129,44 @@
       });
     }
 
-    function updateTransport(label) {
-      transportLabel = String(label || '').trim();
-      transport.textContent = transportLabel ? `TRANSPORT // ${transportLabel}` : 'TRANSPORT // —';
+    function setTransport(label) {
+      transport.textContent = `TRANSPORT // ${String(label || '—').toUpperCase()}`;
     }
 
-    function loadStoredSession() {
+    function clearSession() {
+      sessionToken = '';
+      sessionExpiry = 0;
+      try {
+        localStorage.removeItem(sessionKey);
+        localStorage.removeItem(expiryKey);
+      } catch (_) {}
+    }
+
+    function loadSession() {
       try {
         const token = String(localStorage.getItem(sessionKey) || '').trim();
-        const expiry = Number(localStorage.getItem(sessionExpiryKey) || 0);
+        const expiry = Number(localStorage.getItem(expiryKey) || 0);
         if (token && expiry > Date.now() + 5000) {
           sessionToken = token;
           sessionExpiry = expiry;
           return true;
         }
       } catch (_) {}
-      clearStoredSession();
+      clearSession();
       return false;
     }
 
     function saveSession(payload) {
-      sessionToken = String(payload?.sessionToken || '').trim();
-      sessionExpiry = Number(payload?.expiresAtMs || 0);
-      if (!sessionToken || !sessionExpiry) return false;
+      const token = String(payload?.sessionToken || '').trim();
+      const expiry = Number(payload?.expiresAtMs || 0);
+      if (!token || !expiry) return false;
+      sessionToken = token;
+      sessionExpiry = expiry;
       try {
-        localStorage.setItem(sessionKey, sessionToken);
-        localStorage.setItem(sessionExpiryKey, String(sessionExpiry));
+        localStorage.setItem(sessionKey, token);
+        localStorage.setItem(expiryKey, String(expiry));
       } catch (_) {}
       return true;
-    }
-
-    function clearStoredSession() {
-      sessionToken = '';
-      sessionExpiry = 0;
-      try {
-        localStorage.removeItem(sessionKey);
-        localStorage.removeItem(sessionExpiryKey);
-      } catch (_) {}
     }
 
     function postRequest(action, params = {}, timeoutMs = 18000) {
@@ -176,20 +175,18 @@
         const frame = document.createElement('iframe');
         const form = document.createElement('form');
         const frameName = `purchasePost_${requestId.replace(/[^A-Za-z0-9_]/g, '_')}`;
-        let timer = null;
         let settled = false;
+        let timer = null;
 
         frame.name = frameName;
         frame.hidden = true;
         frame.setAttribute('aria-hidden', 'true');
-
         form.method = 'POST';
         form.action = api;
         form.target = frameName;
         form.hidden = true;
 
-        const fields = Object.assign({}, params, { action, requestId });
-        Object.entries(fields).forEach(([name, value]) => {
+        Object.entries({ ...params, action, requestId }).forEach(([name, value]) => {
           if (value === undefined || value === null) return;
           const input = document.createElement('input');
           input.type = 'hidden';
@@ -198,19 +195,19 @@
           form.appendChild(input);
         });
 
-        function cleanup() {
+        const cleanup = () => {
           window.removeEventListener('message', onMessage);
           if (timer) clearTimeout(timer);
           form.remove();
           setTimeout(() => frame.remove(), 0);
-        }
+        };
 
-        function finish(fn, value) {
+        const finish = (fn, value) => {
           if (settled) return;
           settled = true;
           cleanup();
           fn(value);
-        }
+        };
 
         function onMessage(event) {
           const data = event?.data;
@@ -221,10 +218,7 @@
         window.addEventListener('message', onMessage);
         document.body.appendChild(frame);
         document.body.appendChild(form);
-
-        timer = setTimeout(() => {
-          finish(reject, new Error('POST compatibility transport timed out.'));
-        }, timeoutMs);
+        timer = setTimeout(() => finish(reject, new Error('POST compatibility transport timed out.')), timeoutMs);
 
         try {
           form.submit();
@@ -238,30 +232,30 @@
       return new Promise((resolve, reject) => {
         const callback = `__hubPurchasePreview_${Date.now()}_${Math.random().toString(36).slice(2)}`;
         const script = document.createElement('script');
-        let timer = null;
         let settled = false;
+        let timer = null;
 
-        function cleanup() {
+        const cleanup = () => {
           if (timer) clearTimeout(timer);
           script.remove();
           try { delete window[callback]; } catch (_) { window[callback] = undefined; }
-        }
+        };
 
-        function finish(fn, value) {
+        const finish = (fn, value) => {
           if (settled) return;
           settled = true;
           cleanup();
           fn(value);
-        }
+        };
 
         window[callback] = payload => finish(resolve, payload || {});
-
-        const queryParams = Object.assign({}, params, {
+        const queryParams = new URLSearchParams({
+          ...Object.fromEntries(Object.entries(params).map(([key, value]) => [key, String(value)])),
           action,
           callback,
-          ts: Date.now()
+          ts: String(Date.now())
         });
-        script.src = api + '?' + new URLSearchParams(queryParams);
+        script.src = `${api}?${queryParams}`;
         script.referrerPolicy = 'no-referrer';
         script.onerror = () => finish(reject, new Error('Legacy compatibility script blocked.'));
         document.body.appendChild(script);
@@ -275,15 +269,15 @@
         const payload = await postRequest(action, params);
         const unsupported = payload?.ok === false && /unknown submission-service action/i.test(String(payload?.error || ''));
         if (!unsupported) {
-          updateTransport('POST COMPATIBILITY');
+          setTransport('POST COMPATIBILITY');
           return payload;
         }
       } catch (_) {
-        // A legacy deployment may not yet have the compatibility route. Fall through.
+        // Current production may still be on the legacy deployment until the audited backend is redeployed.
       }
 
       const payload = await jsonpRequest(legacyAction, params);
-      updateTransport('LEGACY JSONP');
+      setTransport('LEGACY JSONP');
       return payload;
     }
 
@@ -297,7 +291,6 @@
           ${esc(name).toUpperCase()}
         </button>
       `).join('');
-
       characterControls.querySelectorAll('[data-purchase-character]').forEach(button => {
         button.addEventListener('click', () => selectCharacter(button.dataset.purchaseCharacter || ''));
       });
@@ -308,24 +301,25 @@
         financeRoot.innerHTML = '';
         return;
       }
-
       const cells = [
-        ['PERSONAL BALANCE', credit(finance.personalBalance)],
-        ['PRINCIPAL', credit(finance.principalBalance)],
-        ['FINANCING AVAILABLE', credit(finance.financingAvailable)],
-        ['PRINCIPAL CAP', credit(finance.principalCap)]
+        ['PERSONAL BALANCE', finance.personalBalance],
+        ['PRINCIPAL', finance.principalBalance],
+        ['FINANCING AVAILABLE', finance.financingAvailable],
+        ['PRINCIPAL CAP', finance.principalCap]
       ];
-
       financeRoot.innerHTML = cells.map(([label, value]) => `
         <div class="purchase-finance-cell">
           <span>${esc(label)}</span>
-          <strong>${esc(value)}</strong>
+          <strong>${esc(credit(value))}</strong>
         </div>
       `).join('');
     }
 
     function categoryList() {
-      return ['ALL', ...Array.from(new Set(items.map(item => String(item.category || '').trim().filter(Boolean))).sort((a, b) => a.localeCompare(b))];
+      const unique = new Set(
+        items.map(item => String(item.category || '').trim()).filter(Boolean)
+      );
+      return ['ALL', ...Array.from(unique).sort((a, b) => a.localeCompare(b))];
     }
 
     function renderCategories() {
@@ -334,7 +328,6 @@
           class="purchase-category-btn${selectedCategory === category ? ' active' : ''}"
           data-purchase-category="${esc(category)}">${esc(category)}</button>
       `).join('');
-
       categories.querySelectorAll('[data-purchase-category]').forEach(button => {
         button.addEventListener('click', () => {
           selectedCategory = button.dataset.purchaseCategory || 'ALL';
@@ -345,28 +338,27 @@
     }
 
     function filteredItems() {
-      const needle = String(query || '').trim().toLowerCase();
+      const needle = String(searchText || '').trim().toLowerCase();
       return items.filter(item => {
         if (selectedCategory !== 'ALL' && String(item.category || '') !== selectedCategory) return false;
         if (!needle) return true;
-        const haystack = [item.item, item.category, item.provider, item.mechanics, item.minimumAccess].join(' ').toLowerCase();
-        return haystack.includes(needle);
+        return [item.item, item.category, item.provider, item.mechanics, item.minimumAccess]
+          .join(' ')
+          .toLowerCase()
+          .includes(needle);
       }).sort((a, b) => String(a.item || '').localeCompare(String(b.item || '')));
     }
 
-    function purchaseFinanceNote(item) {
+    function financingNote(item) {
       if (!item?.canPurchase || !finance) return '';
-      const price = Number(item.price || 0);
-      const personal = Number(finance.personalBalance || 0);
-      const shortfall = Math.max(0, Math.round((price - personal) * 100) / 100);
+      const shortfall = Math.max(0, Math.round((Number(item.price || 0) - Number(finance.personalBalance || 0)) * 100) / 100);
       const room = Number(finance.financingAvailable || 0);
-
       if (shortfall <= 0.005) return 'PERSONAL BALANCE // SUFFICIENT';
       if (shortfall > room + 0.005) return `FINANCE BLOCK // ${credit(shortfall)} SHORTFALL EXCEEDS AVAILABLE ROOM`;
       return `FINANCING WOULD REQUIRE CONFIRMATION // ${credit(shortfall)} SHORTFALL`;
     }
 
-    function itemBadge(item) {
+    function badge(item) {
       if (!item.canPurchase) return '<span class="purchase-badge progress">ACCESS IN PROGRESS</span>';
       if (item.restricted) return '<span class="purchase-badge restricted">RESTRICTED // CLEARED</span>';
       return '<span class="purchase-badge">AVAILABLE</span>';
@@ -375,7 +367,6 @@
     function renderItems() {
       const visible = filteredItems();
       count.textContent = `${visible.length} OF ${items.length} ITEMS`;
-
       if (!visible.length) {
         itemRoot.innerHTML = '<div class="purchase-empty">No items match the current filter.</div>';
         return;
@@ -383,14 +374,13 @@
 
       itemRoot.innerHTML = visible.map(item => {
         const progress = !item.canPurchase;
-        const financeNote = purchaseFinanceNote(item);
-        const access = progress ? `
+        const accessBlock = progress ? `
           <div class="purchase-access-block">
             ${item.progressStanding ? `<div><span>QUALIFICATION ROUTE</span><strong>${esc(item.progressStanding)}</strong></div>` : ''}
             ${item.minimumAccess ? `<div><span>REMAINING ACCESS</span><strong>${esc(item.minimumAccess)}</strong></div>` : ''}
           </div>
         ` : '';
-
+        const financeNote = financingNote(item);
         return `
           <article class="purchase-item${progress ? ' progress' : ''}${item.restricted ? ' restricted' : ''}">
             <div class="purchase-item-top">
@@ -400,14 +390,12 @@
               </div>
               <div class="purchase-price">${esc(item.priceLabel || credit(item.price))}</div>
             </div>
-            <div class="purchase-item-badges">${itemBadge(item)}</div>
+            <div class="purchase-item-badges">${badge(item)}</div>
             <p class="purchase-mechanics">${esc(item.mechanics)}</p>
             <div class="purchase-provider">PROVIDER // ${esc(item.provider || 'Hub merchant')}</div>
-            ${access}
+            ${accessBlock}
             ${financeNote ? `<div class="purchase-finance-note">${esc(financeNote)}</div>` : ''}
-            <button type="button" class="purchase-disabled-btn" disabled>
-              ${progress ? 'LOCKED' : 'PREVIEW // PURCHASE DISABLED'}
-            </button>
+            <button type="button" class="purchase-disabled-btn" disabled>${progress ? 'LOCKED' : 'PREVIEW // PURCHASE DISABLED'}</button>
           </article>
         `;
       }).join('');
@@ -429,18 +417,15 @@
       renderItems();
     }
 
-    function isAuthFailure(payload) {
-      return /board authentication required|invalid board access code|session/i.test(String(payload?.error || ''));
-    }
+    const isAuthFailure = payload => /board authentication required|invalid board access code|session/i.test(String(payload?.error || ''));
 
     async function loadCatalog() {
       if (!selectedCharacter) {
         setStatus('SELECT A PC BEFORE SHOPPING');
         return;
       }
-
       if (!sessionToken || sessionExpiry <= Date.now() + 5000) {
-        clearStoredSession();
+        clearSession();
         showAuth('Board authentication is required before inventory is returned.');
         setStatus('BOARD ACCESS REQUIRED');
         return;
@@ -448,16 +433,14 @@
 
       setBusy(true);
       setStatus(`LOADING ${selectedCharacter.toUpperCase()} CATALOG…`);
-
       try {
         const payload = await request('purchasecatalog', {
           session: sessionToken,
           character: selectedCharacter
         });
-
         if (!payload || payload.ok !== true) {
           if (isAuthFailure(payload)) {
-            clearStoredSession();
+            clearSession();
             showAuth('Session expired. Re-enter the Board PIN.');
             setStatus('BOARD ACCESS REQUIRED', 'error');
             return;
@@ -468,7 +451,7 @@
         finance = payload.finance || null;
         items = Array.isArray(payload.items) ? payload.items : [];
         selectedCategory = 'ALL';
-        query = '';
+        searchText = '';
         search.value = '';
         showMarket();
         setStatus(`${selectedCharacter.toUpperCase()} // ${items.length} PLAYER-SAFE CATALOG ITEMS // READ-ONLY PREVIEW`, 'ok');
@@ -493,8 +476,7 @@
         setStatus('SELECT A PC BEFORE SHOPPING');
         return;
       }
-
-      if (loadStoredSession()) {
+      if (loadSession()) {
         await loadCatalog();
       } else {
         showAuth('Board authentication is required before inventory is returned.');
@@ -505,7 +487,6 @@
     async function authenticate(event) {
       event.preventDefault();
       if (busy || !selectedCharacter) return;
-
       const pin = String(pinInput.value || '').trim();
       if (!pin) {
         authStatus.textContent = 'Enter the Board PIN.';
@@ -514,11 +495,10 @@
 
       setBusy(true);
       authStatus.textContent = 'AUTHENTICATING…';
-
       try {
         const payload = await request('purchaseauthenticate', { pin });
         if (!payload || payload.ok !== true || !payload.authenticated || !saveSession(payload)) {
-          throw new Error( payload?.error || 'Board authentication failed.');
+          throw new Error(payload?.error || 'Board authentication failed.');
         }
         pinInput.value = '';
         authStatus.textContent = 'BOARD ACCESS // AUTHENTICATED';
@@ -532,14 +512,12 @@
     }
 
     search.addEventListener('input', () => {
-      query = search.value || '';
+      searchText = search.value || '';
       renderItems();
     });
-
     refreshButton.addEventListener('click', () => {
       if (!busy) loadCatalog();
     });
-
     authForm.addEventListener('submit', authenticate);
 
     root.dataset.rendered = 'true';
@@ -549,11 +527,11 @@
       try {
         const payload = await request('purchasesetup');
         if (!payload || payload.ok !== true || payload.available === false) {
-          throw new Error( payload?.error || 'Purchase Board setup unavailable.');
+          throw new Error(payload?.error || 'Purchase Board setup unavailable.');
         }
         setup = payload;
         renderCharacters();
-        loadStoredSession();
+        loadSession();
         setStatus('SELECT A PC BEFORE SHOPPING');
       } catch (error) {
         characterControls.innerHTML = '<div class="purchase-empty">Purchase Board setup could not be loaded.</div>';
@@ -564,8 +542,5 @@
     })();
   }
 
-  window.HubPurchasesPreview = Object.freeze({
-    build: BUILD,
-    render
-  });
+  window.HubPurchasesPreview = Object.freeze({ build: BUILD, render });
 })();
