@@ -7,6 +7,7 @@
   <title>The Hub — Player Console Preview</title>
   <link rel="stylesheet" href="player-shell.css?v=20260919-preview-4">
   <link rel="stylesheet" href="player-reference.css?v=20260919-preview-4">
+  <link rel="stylesheet" href="between-sessions.css?v=20260919-preview-1">
 </head>
 <body data-preview-mode="read-only">
   <div id="previewShell"></div>
@@ -27,7 +28,7 @@
       </dl>
 
       <div class="preview-safety">
-        This preview intentionally does not load live board data, submit purchases, accept contracts, mutate Warden state, or reuse production storage keys. It exists to validate shared shell structure, navigation hierarchy, responsive behavior, and initialization safety before any production page is migrated.
+        This preview intentionally does not call live board APIs, submit purchases, accept contracts, mutate Warden state, or reuse production storage keys. It may read canonical static page data where needed to validate migrated read-only pages.
       </div>
 
       <div class="preview-diagnostics" id="previewDiagnostics">Waiting for shell initialization…</div>
@@ -43,6 +44,30 @@
       <div id="referenceRoot"></div>
       <div class="reference-footnote">Only currently relevant player-facing systems are shown.</div>
     </section>
+
+    <section class="between-sessions-page" id="betweenSessionsPage" hidden aria-labelledby="betweenSessionsTitle">
+      <div class="between-sessions-heading">
+        <div class="preview-kicker">MIGRATED PAGE PREVIEW</div>
+        <h1 id="betweenSessionsTitle">Between Sessions</h1>
+        <p class="between-sessions-sub">Scenes and developments occurring between completed missions.</p>
+      </div>
+
+      <div class="between-character-controls" aria-label="Character selection">
+        <button class="between-character-btn active" type="button" data-between-character="prue" aria-pressed="true">PRUDENCE GREYMORE</button>
+        <button class="between-character-btn" type="button" data-between-character="john" aria-pressed="false">JOHN SOBIESKI</button>
+      </div>
+
+      <div class="between-status">
+        <span>CURRENT INTERSESSION RECORD</span>
+        <span data-between-who>PRUDENCE GREYMORE</span>
+      </div>
+
+      <div class="intersession-layout">
+        <aside class="period-selector" data-between-selector aria-label="Between-session period selection"></aside>
+        <div class="reading-column" data-between-view></div>
+        <div class="layout-spacer" aria-hidden="true"></div>
+      </div>
+    </section>
   </main>
 
   <noscript>
@@ -52,6 +77,8 @@
   <script src="player-routes.js?v=20260919-preview-4"></script>
   <script src="player-shell.js?v=20260919-preview-4"></script>
   <script src="player-reference.js?v=20260919-preview-4"></script>
-  <script src="preview-page.js?v=20260919-preview-5"></script>
+  <script src="../between-sessions-data.js?v=20260919-preview-1"></script>
+  <script src="between-sessions.js?v=20260919-preview-1"></script>
+  <script src="preview-page.js?v=20260919-preview-6"></script>
 </body>
 </html>
