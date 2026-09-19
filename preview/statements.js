@@ -1,6 +1,7 @@
 (() => {
   'use strict';
 
+  const BUILD = '20260919-statements-preview-3';
   const esc = value => String(value ?? '')
     .replaceAll('&', '&amp;')
     .replaceAll('<', '&lt;')
@@ -19,13 +20,19 @@
     const view = root.querySelector('[data-statement-view]');
     const status = root.querySelector('[data-statement-status]');
     const who = root.querySelector('[data-statement-who]');
+    const diagnostic = root.querySelector('[data-statement-diagnostic]');
     const john = root.querySelector('[data-statement-character="john"]');
     const prue = root.querySelector('[data-statement-character="prue"]');
     const printButton = root.querySelector('[data-statement-print]');
     const refresh = root.querySelector('[data-statement-refresh]');
 
-    if (!view || !status || !who || !john || !prue || !printButton || !refresh) {
+    if (!view || !status || !who || !diagnostic || !john || !prue || !printButton || !refresh) {
       throw new Error('Statements page controls are incomplete.');
+    }
+
+    function setDiagnostic(message, state = '') {
+      diagnostic.textContent = `${BUILD} // ${message}`;
+      diagnostic.dataset.state = state;
     }
 
     for (const key of legacyCacheKeys) {
@@ -95,13 +102,14 @@
       removeJsonpScripts();
     }
 
-    function use(data, label, serial) {
+    function use(data, label, serial, transport) {
       if (serial !== requestSerial) return;
       cancelActiveRequest();
       rows = data;
       loadState = label;
       cacheRows(data);
       setRefreshBusy(false);
+      setDiagnostic(`${transport} SUCCEEDED`, 'ok');
       renderView();
     }
 
@@ -114,16 +122,18 @@
         if (Object.keys(cached).length) {
           rows = cached;
           loadState = 'CACHED / STALE // ' + reason;
+          setDiagnostic(`LIVE REQUESTS FAILED; USING PREVIEW CACHE // ${reason}`, 'warn');
           renderView();
           return;
         }
       } catch (_) {}
       rows = {};
       loadState = 'STATEMENT INFORMATION UNAVAILABLE // ' + reason;
+      setDiagnostic(`LIVE REQUESTS FAILED; NO PREVIEW CACHE // ${reason}`, 'error');
       renderView();
     }
 
-    function normalizeResponse(resp, transportLabel, serial) {
+    function normalizeResponse(resp, transportLabel, serial, transportName) {
       if (serial !== requestSerial) return;
       if (!resp || resp.ok !== true) throw new Error(resp?.error || 'Statement service error.');
 
@@ -141,7 +151,12 @@
       });
 
       if (!Object.keys(data).length) throw new Error('Statement service returned no rows.');
-      use(data, `${transportLabel} // LOADED ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`, serial);
+      use(
+        data,
+        `${transportLabel} // LOADED ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`,
+        serial,
+        transportName
+      );
     }
 
     function requestJsonp(serial, directFailureReason) {
@@ -151,6 +166,7 @@
       removeJsonpScripts();
       clearJsonpCallback();
       status.textContent = 'RETRYING STATEMENTS IN COMPATIBILITY MODE…';
+      setDiagnostic(`DIRECT FAILED: ${directFailureReason} // COMPATIBILITY STARTING`, 'warn');
 
       const now = Date.now();
       const callback = '__hubStatements_' + now + '_' + serial;
@@ -158,9 +174,9 @@
 
       window[callback] = function receiveStatements(resp) {
         try {
-          normalizeResponse(resp, 'LIVE / COMPATIBILITY', serial);
+          normalizeResponse(resp, 'LIVE / COMPATIBILITY', serial, 'COMPATIBILITY');
         } catch (error) {
-          fallback(error.message, serial);
+          fallback(`COMPATIBILITY RESPONSE ERROR: ${error.message}`, serial);
         }
       };
 
@@ -169,18 +185,12 @@
       script.src = api + '?' + new URLSearchParams({ action: 'statements', callback, ts: now });
       script.referrerPolicy = 'no-referrer';
       script.onerror = () => {
-        const reason = directFailureReason
-          ? `DIRECT REQUEST FAILED / COMPATIBILITY REQUEST BLOCKED (${directFailureReason})`
-          : 'COMPATIBILITY REQUEST BLOCKED BY BROWSER OR NETWORK';
-        fallback(reason, serial);
+        fallback(`DIRECT FAILED: ${directFailureReason}; COMPATIBILITY SCRIPT BLOCKED`, serial);
       };
       document.body.appendChild(script);
 
       requestTimer = setTimeout(() => {
-        const reason = directFailureReason
-          ? `DIRECT REQUEST FAILED / COMPATIBILITY REQUEST TIMED OUT (${directFailureReason})`
-          : 'COMPATIBILITY REQUEST TIMED OUT';
-        fallback(reason, serial);
+        fallback(`DIRECT FAILED: ${directFailureReason}; COMPATIBILITY TIMED OUT`, serial);
       }, 18000);
     }
 
@@ -189,6 +199,7 @@
       const controller = new AbortController();
       requestController = controller;
       const timeout = setTimeout(() => controller.abort(), 7000);
+      setDiagnostic('DIRECT REQUEST STARTING', 'working');
 
       try {
         const url = api + '?' + new URLSearchParams({ action: 'statements', ts: Date.now() });
@@ -208,12 +219,12 @@
         try {
           payload = JSON.parse(text);
         } catch (_) {
-          throw new Error('Direct response was not JSON');
+          throw new Error('direct response was not JSON');
         }
-        normalizeResponse(payload, 'LIVE / DIRECT', serial);
+        normalizeResponse(payload, 'LIVE / DIRECT', serial, 'DIRECT');
       } catch (error) {
         if (serial !== requestSerial) return;
-        const reason = error?.name === 'AbortError' ? 'direct request timed out' : String(error?.message || 'direct request failed');
+        const reason = error?.name === 'AbortError' ? 'request timed out' : String(error?.message || 'request failed');
         requestJsonp(serial, reason);
       } finally {
         clearTimeout(timeout);
@@ -226,6 +237,7 @@
       cancelActiveRequest();
       setRefreshBusy(true);
       status.textContent = 'REFRESHING STATEMENTS…';
+      setDiagnostic('LOAD REQUESTED', 'working');
       requestDirect(serial);
     }
 
@@ -244,5 +256,5 @@
     load();
   }
 
-  window.HubStatementsContent = Object.freeze({ render });
+  window.HubStatementsContent = Object.freeze({ build: BUILD, render });
 })();
