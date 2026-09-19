@@ -31,7 +31,9 @@
       if (!window.HubPlayerReferenceContent || typeof window.HubPlayerReferenceContent.render !== 'function') {
         throw new Error('Player Reference content module failed to load.');
       }
-      window.HubPlayerReferenceContent.render();
+      const root = document.getElementById('referenceRoot');
+      if (!root) throw new Error('Player Reference root is unavailable.');
+      window.HubPlayerReferenceContent.render(root);
     })();
   </script>
 </body>
