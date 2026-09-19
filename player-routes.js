@@ -1,12 +1,12 @@
 (() => {
   'use strict';
 
-  const BUILD = '20260919-prod-shell-1';
+  const BUILD = '20260919-boardprod1';
   const groups = [
     {
       id: 'board', label: 'BOARD', defaultPage: 'contracts', pages: [
         { id: 'contracts', label: 'CONTRACTS', href: './', summary: 'Formal Mission Board work and contract opportunities.' },
-        { id: 'classifieds', label: 'CLASSIFIEDS', href: './#classifieds', summary: 'Informal opportunities, jobs, rumors, requests, notices, and other non-Mission-Board leads.' }
+        { id: 'classifieds', label: 'CLASSIFIEDS', href: 'classifieds.html', summary: 'Informal opportunities, jobs, rumors, requests, notices, and other non-Mission-Board leads.' }
       ]
     },
     {
