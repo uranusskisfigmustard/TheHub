@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const BUILD = '20260919-warden-routes-1';
+  const BUILD = '20260919-warden-routes-2';
   const groups = [
     {
       id: 'dashboard', label: 'DASHBOARD', defaultWorkspace: 'dashboard', workspaces: [
@@ -27,8 +27,9 @@
       ]
     },
     {
-      id: 'admin', label: 'ADMIN', defaultWorkspace: 'admin', workspaces: [
-        { id: 'admin', label: 'ADMIN', summary: 'Administrative tools and audit functions.' }
+      id: 'admin', label: 'ADMIN', defaultWorkspace: 'audit', workspaces: [
+        { id: 'audit', label: 'AUDIT TOOLS', summary: 'Audited transaction review, amendment, undo, and integrity checks.' },
+        { id: 'admin', label: 'ADMIN', summary: 'Service state and administrative controls.' }
       ]
     }
   ];
