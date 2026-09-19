@@ -11,6 +11,8 @@
   const purchaseRoot = document.getElementById('purchaseRoot');
   const contractLogsPage = document.getElementById('contractLogsPage');
   const contractLogsRoot = document.getElementById('contractLogsRoot');
+  const boardPreviewPage = document.getElementById('boardPreviewPage');
+  const boardPreviewRoot = document.getElementById('boardPreviewRoot');
   const title = document.getElementById('previewPageTitle');
   const summary = document.getElementById('previewPageSummary');
   const route = document.getElementById('previewProductionRoute');
@@ -33,7 +35,8 @@
     const isStatements = detail.page.id === 'statements';
     const isPurchases = detail.page.id === 'purchases';
     const isContractLogs = detail.page.id === 'contract-logs';
-    const isMigratedPage = isReference || isBetweenSessions || isStatements || isPurchases || isContractLogs;
+    const isBoard = detail.page.id === 'contracts' || detail.page.id === 'classifieds';
+    const isMigratedPage = isReference || isBetweenSessions || isStatements || isPurchases || isContractLogs || isBoard;
 
     placeholder.hidden = isMigratedPage;
     referencePage.hidden = !isReference;
@@ -41,11 +44,13 @@
     statementsPage.hidden = !isStatements;
     purchasesPage.hidden = !isPurchases;
     contractLogsPage.hidden = !isContractLogs;
+    boardPreviewPage.hidden = !isBoard;
     previewMain.classList.toggle('reference-mode', isReference);
     previewMain.classList.toggle('between-sessions-mode', isBetweenSessions);
     previewMain.classList.toggle('statements-mode', isStatements);
     previewMain.classList.toggle('purchases-mode', isPurchases);
     previewMain.classList.toggle('contract-logs-mode', isContractLogs);
+    previewMain.classList.toggle('board-mode', isBoard);
 
     if (isReference) {
       if (!window.HubPlayerReferenceContent || typeof window.HubPlayerReferenceContent.render !== 'function') {
@@ -100,6 +105,18 @@
         api: HUB_API,
         cacheKey: 'hub-preview:contractfeed-v1',
         cacheTimeKey: 'hub-preview:contractfeed-v1:time'
+      });
+      return;
+    }
+
+    if (isBoard) {
+      if (!window.HubBoardPreview || typeof window.HubBoardPreview.render !== 'function') {
+        throw new Error('Board/Classifieds preview module failed to load.');
+      }
+      window.HubBoardPreview.render(boardPreviewRoot, {
+        api: HUB_API,
+        mode: detail.page.id === 'classifieds' ? 'classifieds' : 'jobs',
+        cachePrefix: 'hub-preview:board:'
       });
       return;
     }
