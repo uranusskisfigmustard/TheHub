@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>The Hub — Classifieds</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="player-shell.css?v=20260919-boardprod1">
+  <link rel="stylesheet" href="board.css?v=20260919-boardprod1">
+</head>
+<body data-page="classifieds">
+  <div id="playerShell"></div>
+  <main class="player-main board-mode">
+    <section class="board-page" aria-label="Classifieds"><div id="boardRoot"></div></section>
+  </main>
+  <a class="warden-shortcut" href="warden.html" aria-label="Console">//</a>
+  <noscript><div class="hub-shell-fatal">JavaScript is required for the player console.</div></noscript>
+  <script src="player-routes.js?v=20260919-boardprod1"></script>
+  <script src="player-shell.js?v=20260919-boardprod1"></script>
+  <script src="board.js?v=20260919-boardprod1"></script>
+  <script>
+    (() => {
+      if (!window.HubBoardContent || typeof window.HubBoardContent.render !== 'function') throw new Error('Board content module failed to load.');
+      window.HubBoardContent.render(document.getElementById('boardRoot'), { mode: 'classifieds' });
+    })();
+  </script>
+</body>
+</html>
