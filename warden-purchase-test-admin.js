@@ -6,6 +6,7 @@
   const SESSION_KEY = 'mothership_hub_warden_session_v1';
   const $ = id => document.getElementById(id);
   let state = null;
+  let supported = false;
   let previewToken = '';
   let rollbackPreview = null;
   let busy = false;
@@ -113,7 +114,7 @@
     const blocked = Boolean(state?.blocked);
     const s = state?.session || null;
     const last = state?.lastResult || null;
-    const status = blocked ? 'ROLLBACK BLOCKED' : active ? 'TEST SESSION ACTIVE' : 'INACTIVE';
+    const status = !supported ? 'SERVICE CHECK REQUIRED' : blocked ? 'ROLLBACK BLOCKED' : active ? 'TEST SESSION ACTIVE' : 'INACTIVE';
     const statusClass = blocked ? 'pt-bad' : active ? 'pt-ok' : '';
     const previewHtml = rollbackPreview ? `<div class="pt-preview ${rollbackPreview.integrityOk ? 'pt-ok' : 'pt-bad'}"><strong>ROLLBACK PREVIEW</strong><br>Finance rows: ${esc(rollbackPreview.financeRows)}<br>Equipment rows: ${esc(rollbackPreview.equipmentRows)}<br>${rollbackPreview.integrityOk ? 'INTEGRITY CHECK // PASS' : 'INTEGRITY CHECK // FAILED<br>' + esc((rollbackPreview.issues || []).join(' '))}</div>` : '';
 
@@ -133,11 +134,11 @@
       ${blocked ? `<div class="notice bad">ROLLBACK BLOCKED // ${esc(s?.rollbackError || 'Tracked test rows no longer match the recorded receipts.')}<br><br>Further test purchases are blocked. The emergency ledger backup has been retained.</div>` : ''}
       ${!active && !blocked && last ? `<div class="notice ok">LAST TEST ROLLBACK // ${esc(last.transactionCount || 0)} purchase(s) // ${esc(last.financeRowsRemoved || 0)} finance row(s) // ${esc(last.equipmentRowsRemoved || 0)} Equipment row(s) // ${esc(last.automatic ? 'AUTO' : 'MANUAL')}</div>` : ''}
       <div class="pt-actions">
-        <button id="wardenPurchaseTestStart" class="btn primary" type="button" ${active || blocked || busy ? 'disabled' : ''}>START TEST SESSION</button>
+        <button id="wardenPurchaseTestStart" class="btn primary" type="button" ${!supported || active || blocked || busy ? 'disabled' : ''}>START TEST SESSION</button>
         <button id="wardenPurchaseTestTouch" class="btn" type="button" ${!active || busy ? 'disabled' : ''}>RESET 60-MIN TIMER</button>
         <button id="wardenPurchaseTestPreview" class="btn" type="button" ${!active || busy ? 'disabled' : ''}>PREVIEW ROLLBACK</button>
         <button id="wardenPurchaseTestRollback" class="btn danger" type="button" ${!previewToken || !rollbackPreview?.integrityOk || blocked || busy ? 'disabled' : ''}>ROLL BACK TEST SESSION</button>
-        <button id="wardenPurchaseTestRefresh" class="btn" type="button" ${busy ? 'disabled' : ''}>REFRESH STATE</button>
+        <button id="wardenPurchaseTestRefresh" class="btn" type="button" ${busy ? 'disabled' : ''}>CHECK / REFRESH STATE</button>
       </div>
       <div class="pt-note">Inactivity is server-side Purchase Board / Admin activity. Keeping a browser tab open does not keep the test alive. No polling or watcher is used.</div>
       <div id="wardenPurchaseTestPreviewBox">${previewHtml}</div>
@@ -158,11 +159,13 @@
     try {
       const result = await jsonp(touch ? 'wardenpurchaseteststate' : 'wardenpurchaseteststate');
       if (!result?.ok) throw new Error(result?.error || 'Purchase Test state unavailable.');
+      supported = true;
       state = result;
       previewToken = '';
       rollbackPreview = null;
       render();
     } catch (error) {
+      supported = false;
       render();
       setNotice(String(error?.message || error), 'bad');
     } finally {
