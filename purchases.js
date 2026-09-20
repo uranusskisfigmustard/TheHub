@@ -1,10 +1,11 @@
 (() => {
   'use strict';
 
-  const BUILD = '20260919-purchasesprod1';
+  const BUILD = '20260920-purchasesprod2';
   const POST_SOURCE = 'mothership-contract-service-post';
   const DEFAULT_SESSION_KEY = 'mothership_hub_board_session_v1';
   const DEFAULT_EXPIRY_KEY = 'mothership_hub_board_session_expiry_v1';
+  const SETUP_CACHE_KEY = 'mothership_hub_purchase_setup_v1';
 
   const esc = value => String(value ?? '')
     .replaceAll('&', '&amp;')
@@ -184,6 +185,28 @@
         localStorage.setItem(expiryKey, String(expiry));
       } catch (_) {}
       return true;
+    }
+
+    function readSetupCache() {
+      try {
+        const cached = JSON.parse(localStorage.getItem(SETUP_CACHE_KEY) || 'null');
+        if (!cached || cached.ok !== true || cached.available === false || !Array.isArray(cached.characters) || !cached.characters.length) return null;
+        return cached;
+      } catch (_) {
+        return null;
+      }
+    }
+
+    function saveSetupCache(payload) {
+      if (!payload || payload.ok !== true || payload.available === false || !Array.isArray(payload.characters) || !payload.characters.length) return;
+      try {
+        localStorage.setItem(SETUP_CACHE_KEY, JSON.stringify({
+          ok: true,
+          available: true,
+          characters: payload.characters.map(String).filter(Boolean),
+          principalCap: Number(payload.principalCap || 0)
+        }));
+      } catch (_) {}
     }
 
     function postRequest(action, params = {}, timeoutMs = 18000) {
@@ -675,22 +698,40 @@
 
     root.dataset.rendered = 'true';
 
+    const cachedSetup = readSetupCache();
+    if (cachedSetup) {
+      setup = cachedSetup;
+      renderCharacters();
+      loadSession();
+      setStatus('SELECT A PC BEFORE SHOPPING // REFRESHING SETUP');
+    }
+
     (async () => {
-      setBusy(true);
       try {
         const payload = await request('purchasesetup');
         if (!payload || payload.ok !== true || payload.available === false) {
           throw new Error(payload?.error || 'Purchase Board setup unavailable.');
         }
         setup = payload;
+        saveSetupCache(payload);
+        const characters = Array.isArray(payload.characters) ? payload.characters.map(String).filter(Boolean) : [];
+        if (selectedCharacter && !characters.includes(selectedCharacter)) {
+          selectedCharacter = '';
+          finance = null;
+          items = [];
+          market.hidden = true;
+          authPanel.hidden = true;
+        }
         renderCharacters();
         loadSession();
-        setStatus('SELECT A PC BEFORE SHOPPING');
+        if (!selectedCharacter) setStatus('SELECT A PC BEFORE SHOPPING');
       } catch (error) {
-        characterControls.innerHTML = '<div class="purchase-empty">Purchase Board setup could not be loaded.</div>';
-        setStatus(String(error?.message || error || 'Purchase Board unavailable.'), 'error');
-      } finally {
-        setBusy(false);
+        if (setup) {
+          if (!selectedCharacter) setStatus('SELECT A PC BEFORE SHOPPING // SETUP REFRESH UNAVAILABLE', 'warn');
+        } else {
+          characterControls.innerHTML = '<div class="purchase-empty">Purchase Board setup could not be loaded.</div>';
+          setStatus(String(error?.message || error || 'Purchase Board unavailable.'), 'error');
+        }
       }
     })();
   }
