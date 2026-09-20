@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const BUILD = '20260919-statements-prod1';
+  const BUILD = '20260920-statements-fast1';
 
   const esc = value => String(value ?? '')
     .replaceAll('&', '&amp;')
@@ -239,8 +239,9 @@
       const serial = ++requestSerial;
 
       cancelAll();
+      const showedCache = useLocalCache(serial);
       setRefreshBusy(true);
-      status.textContent = 'REFRESHING STATEMENTS…';
+      if (!showedCache) status.textContent = 'REFRESHING STATEMENTS…';
       loadSnapshot(serial);
     }
 
