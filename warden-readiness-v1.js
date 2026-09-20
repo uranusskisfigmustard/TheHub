@@ -5,6 +5,7 @@ const READY_RE = /WARDEN CONSOLE READY/i;
 const LOADING_RE = /LOADING WARDEN RECORDS|CONNECTING TO WARDEN/i;
 const ERROR_RE = /WARDEN SERVICE ERROR/i;
 let lastState = '';
+let hasConnected = false;
 
 const $ = id => document.getElementById(id);
 
@@ -15,10 +16,18 @@ function stateFromDom(){
   const unlocked = Boolean(consoleEl && !consoleEl.classList.contains('hidden'));
   const authVisible = Boolean(authEl && !authEl.classList.contains('hidden'));
   const text = String(statusEl?.textContent || '');
-  if(authVisible && !unlocked) return 'AUTH';
-  if(READY_RE.test(text)) return 'READY';
+
+  if(authVisible && !unlocked){
+    hasConnected = false;
+    return 'AUTH';
+  }
   if(ERROR_RE.test(text)) return 'ERROR';
+  if(READY_RE.test(text)){
+    hasConnected = true;
+    return 'READY';
+  }
   if(unlocked && LOADING_RE.test(text)) return 'CONNECTING';
+  if(unlocked && hasConnected) return 'READY';
   if(unlocked) return 'CONNECTING';
   return 'AUTH';
 }
@@ -61,10 +70,13 @@ function sync(){
 }
 
 function observe(){
-  const target = document.documentElement;
-  if(!target) return;
+  const statusEl = $('status');
+  const consoleEl = $('console');
+  const authEl = $('auth');
   const observer = new MutationObserver(sync);
-  observer.observe(target,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:['class']});
+  if(statusEl) observer.observe(statusEl,{subtree:true,childList:true,characterData:true});
+  if(consoleEl) observer.observe(consoleEl,{attributes:true,attributeFilter:['class']});
+  if(authEl) observer.observe(authEl,{attributes:true,attributeFilter:['class']});
   sync();
 }
 
