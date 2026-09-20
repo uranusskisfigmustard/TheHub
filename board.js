@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const BUILD = '20260919-board-prod-1';
+  const BUILD = '20260920-board-prod-2';
   const API = 'https://script.google.com/macros/s/AKfycbzeW8vTooOCNEBia3_EMQ10r7BcbakXIwCD4ZaEOUEBOdCXl09tRHj76oxcUcsOKQK0/exec';
   const POST_SOURCE = 'mothership-contract-service-post';
   const SHEET_ID = '1bg6UsBTaNanhCm9xwWbafEag6TpinCuGdlmkqv-c38c';
@@ -207,6 +207,7 @@
       classifieds: [],
       eligibility: {},
       eligibilityValid: false,
+      liveReady: false,
       qualificationFilter: 'all',
       jobsSource: 'LOADING CONTRACTS…',
       classifiedsSource: 'LOADING CLASSIFIEDS…',
@@ -221,6 +222,24 @@
       state.eligibility = JSON.parse(localStorage.getItem(ELIGIBILITY_CACHE) || '{}') || {};
       state.eligibilityValid = localStorage.getItem(ELIGIBILITY_LIVE) === '1';
     } catch (_) {}
+
+    if (mode === 'jobs') {
+      const cached = readCache(JOBS_CACHE, JOBS_TIME);
+      if (cached.rows.length) {
+        state.jobs = cached.rows;
+        state.jobsSource = `CACHED // REFRESHING // Contracts last loaded: ${cached.time || 'unknown'}`;
+        state.qualificationTransport = state.eligibilityValid
+          ? 'QUALIFICATION TRANSPORT // CACHED'
+          : 'QUALIFICATION TRANSPORT // CHECKING';
+      }
+    } else {
+      const cached = readCache(CLASSIFIEDS_CACHE, CLASSIFIEDS_TIME);
+      if (cached.rows.length) {
+        state.classifieds = cached.rows;
+        state.classifiedsSource = `CACHED // REFRESHING // Classifieds last loaded: ${cached.time || 'unknown'}`;
+        state.classifiedsTransport = 'CLASSIFIEDS TRANSPORT // CACHED';
+      }
+    }
 
     root.innerHTML = `
       <div class="board-heading">
@@ -341,6 +360,11 @@
       cards.innerHTML = filtered.map(job => {
         const jobId = String(job['Job ID'] || '').trim();
         const details = String(job.Details || '').trim();
+        const action = jobId
+          ? state.liveReady
+            ? `<button class="board-action" type="button" data-accept-job="${esc(jobId)}">ACCEPT CONTRACT</button>`
+            : '<button class="board-action" type="button" disabled>REFRESHING…</button>'
+          : '';
         return `<article class="board-card contract-card">
           <div class="board-title">${esc(job.Title)}</div>
           <div class="board-pay">${esc(job.Pay)}</div>
@@ -349,7 +373,7 @@
           <div class="board-summary">${esc(job.Summary)}</div>
           ${details ? `<details class="board-details"><summary>View Details</summary><div>${esc(details)}</div></details>` : ''}
           ${betweenSessionBlock(job)}
-          ${jobId ? `<button class="board-action" type="button" data-accept-job="${esc(jobId)}">ACCEPT CONTRACT</button>` : ''}
+          ${action}
         </article>`;
       }).join('');
     }
@@ -375,12 +399,17 @@
       cards.innerHTML = filtered.map(row => {
         const wanted = /^(WANTED|ISO)\s*[—-]/i.test(String(row.Title || '').trim());
         const key = `${String(row.Title || '').trim()}\u241f${String(row.Price || '').trim()}\u241f${String(row.Category || '').trim()}`;
+        const action = wanted
+          ? ''
+          : state.liveReady
+            ? `<button class="board-action" type="button" data-request-classified="${esc(key)}">REQUEST ITEM</button>`
+            : '<button class="board-action" type="button" disabled>REFRESHING…</button>';
         return `<article class="board-card classified-card">
           <div class="board-title">${esc(row.Title)}</div>
           <div class="board-pay">${esc(row.Price)}</div>
           <div class="board-meta">${esc(row.Category)}</div>
           <div class="board-summary">${esc(row.Description)}</div>
-          ${wanted ? '' : `<button class="board-action" type="button" data-request-classified="${esc(key)}">REQUEST ITEM</button>`}
+          ${action}
         </article>`;
       }).join('');
     }
@@ -431,14 +460,17 @@
     }
 
     async function loadJobs() {
-      state.jobsSource = 'LOADING CONTRACTS…';
+      state.liveReady = false;
+      state.jobsSource = state.jobs.length ? 'CACHED // REFRESHING CONTRACTS…' : 'LOADING CONTRACTS…';
       renderCurrent();
       try {
         const rows = await loadJobsSheet();
         state.jobs = rows.sort((a, b) => Number(a['Sort Order'] || 9999) - Number(b['Sort Order'] || 9999));
+        state.liveReady = true;
         state.jobsSource = `LIVE // Contracts loaded ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
         saveCache(JOBS_CACHE, JOBS_TIME, state.jobs);
       } catch (error) {
+        state.liveReady = false;
         const cached = readCache(JOBS_CACHE, JOBS_TIME);
         state.jobs = cached.rows;
         state.jobsSource = cached.rows.length
@@ -451,8 +483,11 @@
     }
 
     async function loadClassifieds() {
-      state.classifiedsSource = 'LOADING CLASSIFIEDS…';
-      state.classifiedsTransport = 'CLASSIFIEDS TRANSPORT // CHECKING';
+      state.liveReady = false;
+      state.classifiedsSource = state.classifieds.length ? 'CACHED // REFRESHING CLASSIFIEDS…' : 'LOADING CLASSIFIEDS…';
+      state.classifiedsTransport = state.classifieds.length
+        ? 'CLASSIFIEDS TRANSPORT // CACHED'
+        : 'CLASSIFIEDS TRANSPORT // CHECKING';
       renderCurrent();
       try {
         const response = await postRequest('classifiedsfeed', {}, 30000);
@@ -460,10 +495,12 @@
           throw new Error(response?.error || 'Classifieds feed unavailable.');
         }
         state.classifieds = response.classifieds.sort((a, b) => Number(a['Sort Order'] || 9999) - Number(b['Sort Order'] || 9999));
+        state.liveReady = true;
         state.classifiedsSource = `LIVE // Classifieds loaded ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
         state.classifiedsTransport = 'CLASSIFIEDS TRANSPORT // POST COMPATIBILITY';
         saveCache(CLASSIFIEDS_CACHE, CLASSIFIEDS_TIME, state.classifieds);
       } catch (error) {
+        state.liveReady = false;
         const cached = readCache(CLASSIFIEDS_CACHE, CLASSIFIEDS_TIME);
         state.classifieds = cached.rows;
         state.classifiedsSource = cached.rows.length
@@ -583,7 +620,7 @@
 
     async function openAcceptance(jobId) {
       const job = state.jobs.find(row => String(row['Job ID'] || '').trim() === jobId);
-      if (!job) return;
+      if (!job || !state.liveReady) return;
       const modal = ensureAcceptanceModal();
       state.acceptance = { jobId, job, contractorConfirmed: false, contractorRecord: null, authorization: false, session: '' };
       modal.dataset.busy = '0';
@@ -814,6 +851,7 @@
     }
 
     async function openClassifiedRequest(key) {
+      if (!state.liveReady) return;
       const row = state.classifieds.find(item => `${String(item.Title || '').trim()}\u241f${String(item.Price || '').trim()}\u241f${String(item.Category || '').trim()}` === key);
       if (!row) return;
       const modal = ensureRequestModal();
