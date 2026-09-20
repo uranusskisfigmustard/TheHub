@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const BUILD = '20260920-warden-purchase-test-admin-2';
+  const BUILD = '20260920-warden-purchase-test-admin-3';
   const API = 'https://script.google.com/macros/s/AKfycbzeW8vTooOCNEBia3_EMQ10r7BcbakXIwCD4ZaEOUEBOdCXl09tRHj76oxcUcsOKQK0/exec';
   const SESSION_KEY = 'mothership_hub_warden_session_v1';
   const POST_SOURCE = 'mothership-contract-service-post';
@@ -184,6 +184,16 @@
     host.className = 'notice' + (noticeKind ? ' ' + noticeKind : '') + (noticeMessage ? '' : ' hidden');
   }
 
+  function backupStatus(active, blocked, s, last) {
+    if (active || blocked) {
+      if (s?.backupLabel) return s.backupLabel;
+      if (s?.backupSheets) return '2 HIDDEN SHEETS';
+      return '—';
+    }
+    if (!last) return '—';
+    return last.backupDeleted ? 'DELETED AFTER ROLLBACK' : 'RETAINED / CHECK LEDGER';
+  }
+
   function render() {
     const panel = installPanel();
     if (!panel) return;
@@ -199,7 +209,7 @@
 
     panel.innerHTML = `
       <h2>Purchase Board Test Session</h2>
-      <div class="small">Run real Purchase Board transactions against the live progression logic, then remove only the tracked test purchases. A full Progression Ledger backup is retained as emergency protection.</div>
+      <div class="small">Run real Purchase Board transactions against the live progression logic, then remove only the tracked test purchases. Hidden emergency copies of Credits &amp; Debt and Equipment are retained during the test.</div>
       <div class="pt-grid">
         <div class="pt-cell ${statusClass}"><span>Status</span><strong>${esc(status)}</strong></div>
         <div class="pt-cell"><span>Session</span><strong>${esc(s?.id || '—')}</strong></div>
@@ -208,10 +218,10 @@
         <div class="pt-cell"><span>Last Activity</span><strong>${esc(when(s?.lastActivityAt))}</strong></div>
         <div class="pt-cell"><span>Auto-Rollback</span><strong>${esc(active ? when(s?.expiresAt) : '60 MIN INACTIVITY')}</strong></div>
         <div class="pt-cell"><span>Last Activity Source</span><strong>${esc(s?.lastActivitySource || '—')}</strong></div>
-        <div class="pt-cell"><span>Emergency Backup</span><strong>${esc(s?.backupFileId || (last?.backupTrashed ? 'CLEANED AFTER ROLLBACK' : '—'))}</strong></div>
+        <div class="pt-cell"><span>Emergency Backup</span><strong>${esc(backupStatus(active, blocked, s, last))}</strong></div>
       </div>
-      ${blocked ? `<div class="notice bad">ROLLBACK BLOCKED // ${esc(s?.rollbackError || 'Tracked test rows no longer match the recorded receipts.')}<br><br>Further test purchases are blocked. The emergency ledger backup has been retained.</div>` : ''}
-      ${!active && !blocked && last ? `<div class="notice ok">LAST TEST ROLLBACK // ${esc(last.transactionCount || 0)} purchase(s) // ${esc(last.financeRowsRemoved || 0)} finance row(s) // ${esc(last.equipmentRowsRemoved || 0)} Equipment row(s) // ${esc(last.automatic ? 'AUTO' : 'MANUAL')}</div>` : ''}
+      ${blocked ? `<div class="notice bad">ROLLBACK BLOCKED // ${esc(s?.rollbackError || 'Tracked test rows no longer match the recorded receipts.')}<br><br>Further test purchases are blocked. The hidden emergency sheet backups have been retained.</div>` : ''}
+      ${!active && !blocked && last ? `<div class="notice ok">LAST TEST ROLLBACK // ${esc(last.transactionCount || 0)} purchase(s) // ${esc(last.financeRowsRemoved || 0)} finance row(s) // ${esc(last.equipmentRowsRemoved || 0)} Equipment row(s) // ${esc(last.automatic ? 'AUTO' : 'MANUAL')} // ${esc(last.backupDeleted ? 'BACKUPS DELETED' : 'BACKUPS RETAINED')}</div>` : ''}
       <div class="pt-actions">
         <button id="wardenPurchaseTestStart" class="btn primary" type="button" ${!supported || active || blocked || busy ? 'disabled' : ''}>START TEST SESSION</button>
         <button id="wardenPurchaseTestTouch" class="btn" type="button" ${!active || busy ? 'disabled' : ''}>RESET 60-MIN TIMER</button>
@@ -253,7 +263,7 @@
 
   async function startTest() {
     if (busy || state?.active || state?.blocked || !session()) return;
-    if (!confirm('Start a Purchase Board test session?\n\nA Progression Ledger backup will be created. Purchases made while the test is active will be tracked and automatically rolled back after 60 minutes of inactivity.')) return;
+    if (!confirm('Start a Purchase Board test session?\n\nHidden emergency copies of Credits & Debt and Equipment will be created. Purchases made while the test is active will be tracked and automatically rolled back after 60 minutes of inactivity.')) return;
     busy = true; previewToken = ''; rollbackPreview = null; noticeMessage = ''; noticeKind = ''; render();
     try {
       const result = await request('wardenpurchaseteststart');
