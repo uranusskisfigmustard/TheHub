@@ -11,15 +11,18 @@ Scope: frontend-only Warden console work. Do not change Google Apps Script contr
 
 ## Frontend performance work
 
-- [x] Preconnect to the immutable base source and Apps Script host.
+- [x] Preconnect to the Apps Script host.
 - [x] Start downloading all Warden patch scripts and styles immediately.
 - [x] Execute patch scripts with `defer` so downloads can overlap while preserving script order.
-- [x] Cache the immutable pinned base HTML instead of forcing a fresh network copy on every load.
+- [x] Cache the immutable base HTML instead of forcing a fresh network copy on every load.
+- [x] Materialize the pinned base Warden HTML in the repo as `warden-base-v1.html`, preserving the original pinned blob exactly.
+- [x] Load the base shell from the same origin instead of `raw.githubusercontent.com`.
 - [x] Use `content-visibility` on long Warden panels/cards to reduce offscreen layout and paint work without lazy-loading data.
+- [x] Avoid delayed header-nav normalization passes when the first normalization already succeeds.
 - [x] Keep the player-style visual layer separate from application behavior.
-- [ ] Materialize the pinned base Warden HTML directly in the repository so `warden.html` no longer needs the bootstrap fetch / `document.write` replacement step.
+- [ ] Flatten the generated Warden page so `warden.html` no longer needs the remaining same-origin bootstrap fetch / `document.write` replacement step.
 - [ ] After functional parity is confirmed, consider a generated Warden frontend bundle to reduce the large number of individual patch-file requests while retaining source modules for maintenance.
-- [ ] Add lightweight client-side timing diagnostics for bootstrap, first shell paint, backend-ready, and workspace-ready states if further tuning is needed.
+- [ ] Expand the existing client-side performance marks into a small diagnostic readout only if further tuning is needed.
 
 ## Out of scope unless separately approved
 
