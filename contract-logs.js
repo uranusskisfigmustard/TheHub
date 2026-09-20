@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const BUILD = '20260919-contract-logs-prod-1';
+  const BUILD = '20260920-contract-logs-fast1';
   const POST_SOURCE = 'mothership-contract-service-post';
   const MAX_SUBMISSION_CHARS = 2000;
   const JOBS_CACHE_KEY = 'mothership_hub_jobs_v5';
@@ -344,8 +344,18 @@
       if (busy) return;
       busy = true;
       refresh.disabled = true;
-      setStatus('LOADING CONTRACT RECORD…');
-      activeRoot.innerHTML = historyRoot.innerHTML = '<div class="contract-log-empty">LOADING…</div>';
+
+      const cached = readCache();
+      if (cached) {
+        active = Array.isArray(cached.payload.active) ? cached.payload.active : [];
+        history = Array.isArray(cached.payload.history) ? cached.payload.history : [];
+        renderAll();
+        const when = cached.cachedAt ? new Date(cached.cachedAt).toLocaleString() : 'previous session';
+        setStatus(`CACHED / REFRESHING // LAST VERIFIED ${when}`, 'warn');
+      } else {
+        setStatus('LOADING CONTRACT RECORD…');
+        activeRoot.innerHTML = historyRoot.innerHTML = '<div class="contract-log-empty">LOADING…</div>';
+      }
 
       try {
         const payload = await requestFeed();
@@ -356,11 +366,7 @@
         renderAll();
         setStatus(`${active.length + history.length} CONTRACT RECORDS // CURRENT`, 'ok');
       } catch (error) {
-        const cached = readCache();
         if (cached) {
-          active = Array.isArray(cached.payload.active) ? cached.payload.active : [];
-          history = Array.isArray(cached.payload.history) ? cached.payload.history : [];
-          renderAll();
           const when = cached.cachedAt ? new Date(cached.cachedAt).toLocaleString() : 'previous session';
           setStatus(`CACHED / STALE // LAST VERIFIED ${when}`, 'warn');
         } else {
