@@ -1,10 +1,12 @@
 (() => {
   'use strict';
 
-  const BUILD = '20260920-warden-purchase-test-admin-1';
+  const BUILD = '20260920-warden-purchase-test-admin-2';
   const API = 'https://script.google.com/macros/s/AKfycbzeW8vTooOCNEBia3_EMQ10r7BcbakXIwCD4ZaEOUEBOdCXl09tRHj76oxcUcsOKQK0/exec';
   const SESSION_KEY = 'mothership_hub_warden_session_v1';
+  const POST_SOURCE = 'mothership-contract-service-post';
   const $ = id => document.getElementById(id);
+
   let state = null;
   let supported = false;
   let previewToken = '';
@@ -12,6 +14,7 @@
   let busy = false;
   let noticeMessage = '';
   let noticeKind = '';
+  let transport = '';
 
   function session() {
     try { return String(localStorage.getItem(SESSION_KEY) || '').trim(); }
@@ -32,28 +35,102 @@
   }
 
   function money(value) {
-    return (Number(value || 0)).toLocaleString(undefined, {maximumFractionDigits:2}) + 'cr';
+    return Number(value || 0).toLocaleString(undefined, {maximumFractionDigits:2}) + 'cr';
   }
 
-  function jsonp(action, params = {}) {
+  function postRequest(action, params = {}, timeoutMs = 30000) {
+    return new Promise((resolve, reject) => {
+      const requestId = `purchase-test-${Date.now()}-${Math.random().toString(36).slice(2,10)}`;
+      const iframe = document.createElement('iframe');
+      const form = document.createElement('form');
+      const frameName = `purchaseTestPost_${requestId.replace(/[^A-Za-z0-9_]/g,'_')}`;
+      let settled = false;
+      let timer = null;
+
+      iframe.name = frameName;
+      iframe.hidden = true;
+      iframe.setAttribute('aria-hidden','true');
+      form.method = 'POST';
+      form.action = API;
+      form.target = frameName;
+      form.hidden = true;
+      form.acceptCharset = 'UTF-8';
+
+      Object.entries({action, requestId, session:session(), ...params}).forEach(([name,value]) => {
+        if (value === undefined || value === null) return;
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = name;
+        input.value = String(value);
+        form.appendChild(input);
+      });
+
+      function cleanup() {
+        window.removeEventListener('message', onMessage);
+        if (timer) clearTimeout(timer);
+        form.remove();
+        setTimeout(() => iframe.remove(), 0);
+      }
+
+      function finish(fn, value) {
+        if (settled) return;
+        settled = true;
+        cleanup();
+        fn(value);
+      }
+
+      function onMessage(event) {
+        const data = event?.data;
+        if (!data || data.source !== POST_SOURCE || data.requestId !== requestId) return;
+        finish(resolve, data.payload || {});
+      }
+
+      window.addEventListener('message', onMessage);
+      iframe.addEventListener('error', () => finish(reject, new Error('Could not reach the Warden service.')), {once:true});
+      document.body.appendChild(iframe);
+      document.body.appendChild(form);
+      timer = setTimeout(() => finish(reject, new Error('Purchase Test service timed out.')), timeoutMs);
+      try { form.submit(); }
+      catch (error) { finish(reject, error); }
+    });
+  }
+
+  function jsonpRequest(action, params = {}, timeoutMs = 30000) {
     return new Promise((resolve, reject) => {
       const callback = '__purchaseTestAdmin_' + Date.now() + '_' + Math.random().toString(36).slice(2);
       const script = document.createElement('script');
-      const timer = setTimeout(() => finish(new Error('Purchase Test service timed out.')), 30000);
-      let finished = false;
+      let settled = false;
+      const timer = setTimeout(() => finish(new Error('Purchase Test service timed out.')), timeoutMs);
+
       function finish(error, payload) {
-        if (finished) return;
-        finished = true;
+        if (settled) return;
+        settled = true;
         clearTimeout(timer);
         try { delete window[callback]; } catch (_) { window[callback] = undefined; }
         script.remove();
         error ? reject(error) : resolve(payload);
       }
-      window[callback] = payload => finish(null, payload);
+
+      window[callback] = payload => finish(null, payload || {});
       script.onerror = () => finish(new Error('Could not reach the Warden service.'));
       script.src = API + '?' + new URLSearchParams({action, callback, session:session(), ...params});
       document.head.appendChild(script);
     });
+  }
+
+  async function request(action, params = {}) {
+    try {
+      const payload = await postRequest(action, params);
+      const unsupported = payload?.ok === false && /unknown submission-service action/i.test(String(payload?.error || ''));
+      if (!unsupported) {
+        transport = 'POST COMPATIBILITY';
+        return payload;
+      }
+    } catch (_) {}
+
+    const payload = await jsonpRequest(action, params);
+    transport = 'LEGACY JSONP';
+    return payload;
   }
 
   function installStyles() {
@@ -116,7 +193,9 @@
     const last = state?.lastResult || null;
     const status = !supported ? 'SERVICE CHECK REQUIRED' : blocked ? 'ROLLBACK BLOCKED' : active ? 'TEST SESSION ACTIVE' : 'INACTIVE';
     const statusClass = blocked ? 'pt-bad' : active ? 'pt-ok' : '';
-    const previewHtml = rollbackPreview ? `<div class="pt-preview ${rollbackPreview.integrityOk ? 'pt-ok' : 'pt-bad'}"><strong>ROLLBACK PREVIEW</strong><br>Finance rows: ${esc(rollbackPreview.financeRows)}<br>Equipment rows: ${esc(rollbackPreview.equipmentRows)}<br>${rollbackPreview.integrityOk ? 'INTEGRITY CHECK // PASS' : 'INTEGRITY CHECK // FAILED<br>' + esc((rollbackPreview.issues || []).join(' '))}</div>` : '';
+    const previewHtml = rollbackPreview
+      ? `<div class="pt-preview ${rollbackPreview.integrityOk ? 'pt-ok' : 'pt-bad'}"><strong>ROLLBACK PREVIEW</strong><br>Finance rows: ${esc(rollbackPreview.financeRows)}<br>Equipment rows: ${esc(rollbackPreview.equipmentRows)}<br>${rollbackPreview.integrityOk ? 'INTEGRITY CHECK // PASS' : 'INTEGRITY CHECK // FAILED<br>' + esc((rollbackPreview.issues || []).join(' '))}</div>`
+      : '';
 
     panel.innerHTML = `
       <h2>Purchase Board Test Session</h2>
@@ -140,7 +219,7 @@
         <button id="wardenPurchaseTestRollback" class="btn danger" type="button" ${!previewToken || !rollbackPreview?.integrityOk || blocked || busy ? 'disabled' : ''}>ROLL BACK TEST SESSION</button>
         <button id="wardenPurchaseTestRefresh" class="btn" type="button" ${busy ? 'disabled' : ''}>CHECK / REFRESH STATE</button>
       </div>
-      <div class="pt-note">Inactivity is server-side Purchase Board / Admin activity. Keeping a browser tab open does not keep the test alive. No polling or watcher is used.</div>
+      <div class="pt-note">Inactivity is server-side Purchase Board / Admin activity. Keeping a browser tab open does not keep the test alive. No polling or watcher is used.${transport ? ` // ${esc(transport)}` : ''}</div>
       <div id="wardenPurchaseTestPreviewBox">${previewHtml}</div>
       <div id="wardenPurchaseTestMessage" class="notice${noticeKind ? ' ' + esc(noticeKind) : ''}${noticeMessage ? '' : ' hidden'}">${esc(noticeMessage)}</div>
     `;
@@ -149,24 +228,22 @@
     $('wardenPurchaseTestTouch')?.addEventListener('click', resetTimer);
     $('wardenPurchaseTestPreview')?.addEventListener('click', previewRollback);
     $('wardenPurchaseTestRollback')?.addEventListener('click', rollbackTest);
-    $('wardenPurchaseTestRefresh')?.addEventListener('click', () => loadState(false));
+    $('wardenPurchaseTestRefresh')?.addEventListener('click', loadState);
     syncVisibility();
   }
 
-  async function loadState(touch = true) {
+  async function loadState() {
     if (!session() || busy) return;
     busy = true;
     try {
-      const result = await jsonp(touch ? 'wardenpurchaseteststate' : 'wardenpurchaseteststate');
+      const result = await request('wardenpurchaseteststate');
       if (!result?.ok) throw new Error(result?.error || 'Purchase Test state unavailable.');
       supported = true;
       state = result;
       previewToken = '';
       rollbackPreview = null;
-      render();
     } catch (error) {
       supported = false;
-      render();
       setNotice(String(error?.message || error), 'bad');
     } finally {
       busy = false;
@@ -177,12 +254,12 @@
   async function startTest() {
     if (busy || state?.active || state?.blocked || !session()) return;
     if (!confirm('Start a Purchase Board test session?\n\nA Progression Ledger backup will be created. Purchases made while the test is active will be tracked and automatically rolled back after 60 minutes of inactivity.')) return;
-    busy = true; previewToken = ''; rollbackPreview = null; setNotice('', ''); render();
+    busy = true; previewToken = ''; rollbackPreview = null; noticeMessage = ''; noticeKind = ''; render();
     try {
-      const result = await jsonp('wardenpurchaseteststart');
+      const result = await request('wardenpurchaseteststart');
       if (!result?.ok) throw new Error(result?.error || 'Could not start Purchase Test session.');
+      supported = true;
       state = result;
-      render();
       setNotice('PURCHASE TEST SESSION ACTIVE // AUTO-ROLLBACK AFTER 60 MINUTES OF INACTIVITY', 'ok');
     } catch (error) {
       setNotice(String(error?.message || error), 'bad');
@@ -191,12 +268,11 @@
 
   async function resetTimer() {
     if (busy || !state?.active || !session()) return;
-    busy = true; previewToken = ''; rollbackPreview = null; setNotice('', ''); render();
+    busy = true; previewToken = ''; rollbackPreview = null; noticeMessage = ''; noticeKind = ''; render();
     try {
-      const result = await jsonp('wardenpurchasetesttouch');
+      const result = await request('wardenpurchasetesttouch');
       if (!result?.ok) throw new Error(result?.error || 'Could not reset Purchase Test timer.');
       state = result;
-      render();
       setNotice('INACTIVITY TIMER RESET // 60 MINUTES', 'ok');
     } catch (error) {
       setNotice(String(error?.message || error), 'bad');
@@ -205,9 +281,9 @@
 
   async function previewRollback() {
     if (busy || !state?.active || !session()) return;
-    busy = true; previewToken = ''; rollbackPreview = null; setNotice('', ''); render();
+    busy = true; previewToken = ''; rollbackPreview = null; noticeMessage = ''; noticeKind = ''; render();
     try {
-      const result = await jsonp('wardenpurchasetestpreview');
+      const result = await request('wardenpurchasetestpreview');
       if (!result?.ok || !result.stateToken) throw new Error(result?.error || 'Rollback Preview unavailable.');
       previewToken = result.stateToken;
       rollbackPreview = result;
@@ -221,18 +297,16 @@
     if (!confirm('Roll back the current Purchase Board test session?\n\nOnly the tracked test Purchase / Cash Advance / Equipment records will be removed.')) return;
     busy = true; render();
     try {
-      const result = await jsonp('wardenpurchasetestrollback', {stateToken:previewToken});
+      const result = await request('wardenpurchasetestrollback', {stateToken:previewToken});
       if (!result?.ok) throw new Error(result?.error || 'Purchase Test rollback failed.');
       previewToken = '';
       rollbackPreview = null;
-      state = await jsonp('wardenpurchaseteststate');
-      render();
+      state = await request('wardenpurchaseteststate');
       setNotice('PURCHASE TEST SESSION ROLLED BACK', 'ok');
     } catch (error) {
       previewToken = '';
       rollbackPreview = null;
-      try { state = await jsonp('wardenpurchaseteststate'); } catch (_) {}
-      render();
+      try { state = await request('wardenpurchaseteststate'); } catch (_) {}
       setNotice(String(error?.message || error), 'bad');
     } finally { busy = false; render(); }
   }
@@ -243,7 +317,7 @@
       if (!button) return;
       setTimeout(() => {
         syncVisibility();
-        if (button.dataset.workspace === 'admin' && session()) loadState(true);
+        if (button.dataset.workspace === 'admin' && session()) loadState();
       }, 0);
     }, true);
   }
@@ -251,5 +325,5 @@
   installStyles();
   installPanel();
   bindWorkspace();
-  window.HubWardenPurchaseTestAdmin = Object.freeze({ build:BUILD, refresh:loadState });
+  window.HubWardenPurchaseTestAdmin = Object.freeze({build:BUILD, refresh:loadState});
 })();
