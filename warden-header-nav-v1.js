@@ -91,5 +91,5 @@ function normalize(){
     return true;
   }finally{normalizing=false;}
 }
-normalize();setTimeout(normalize,0);setTimeout(normalize,250);setTimeout(normalize,1000);
+if(!normalize()){setTimeout(normalize,0);setTimeout(normalize,250);setTimeout(normalize,1000);}
 })();
