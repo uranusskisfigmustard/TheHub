@@ -1,0 +1,94 @@
+/* Warden frontend readiness + rendering performance layer. No backend contract changes. */
+
+.wc-connection-state{
+  display:inline-flex;
+  min-height:30px;
+  align-items:center;
+  padding:4px 8px;
+  border:1px solid #495056;
+  border-radius:3px;
+  color:var(--muted);
+  font-size:.64rem;
+  font-weight:900;
+  letter-spacing:.07em;
+  white-space:nowrap;
+}
+.wc-connection-state[data-state="ready"]{border-color:#66805b;color:#bdd2aa}
+.wc-connection-state[data-state="connecting"]{border-color:var(--accent);color:#d9c79e}
+.wc-connection-state[data-state="error"]{border-color:var(--danger);color:#d58a7c}
+
+/* Render the interface while the authoritative feed is connecting, but prevent campaign actions. */
+.wc-backend-pending #wardenWorkspaceNav button,
+.wc-backend-pending #wcOpsBar input,
+.wc-backend-pending #wcOpsBar button,
+.wc-backend-pending #console button,
+.wc-backend-pending #console input,
+.wc-backend-pending #console select,
+.wc-backend-pending #console textarea,
+.wc-backend-pending #console summary{
+  pointer-events:none!important;
+  cursor:progress!important;
+}
+.wc-backend-pending #wardenWorkspaceNav,
+.wc-backend-pending #wcOpsBar,
+.wc-backend-pending #console{
+  --wc-pending-opacity:.58;
+}
+.wc-backend-pending #wardenWorkspaceNav button,
+.wc-backend-pending #wcOpsBar input,
+.wc-backend-pending #wcOpsBar button,
+.wc-backend-pending #console button,
+.wc-backend-pending #console input,
+.wc-backend-pending #console select,
+.wc-backend-pending #console textarea{
+  opacity:var(--wc-pending-opacity)!important;
+}
+.wc-backend-pending #console{position:relative}
+.wc-backend-pending #console::before{
+  content:'CONNECTING // CONTROLS LOCKED';
+  display:block;
+  width:fit-content;
+  margin:0 0 10px;
+  padding:5px 8px;
+  border:1px solid var(--accent);
+  color:#d9c79e;
+  background:rgba(212,168,75,.06);
+  font-size:.66rem;
+  font-weight:900;
+  letter-spacing:.07em;
+}
+
+/* Keep connection/recovery controls available even while records are loading. */
+.wc-backend-pending #refresh,
+.wc-backend-pending #lock,
+.wc-backend-pending #playerPage{
+  pointer-events:auto!important;
+  opacity:1!important;
+  cursor:pointer!important;
+}
+
+/* Reduce layout/paint work on long Warden workspaces without lazy-loading data or scripts. */
+.panel,
+.wc-live-card,
+.card,
+.npcitem,
+.facitem,
+.wc-subhistory,
+.wc-collapsible{
+  content-visibility:auto;
+  contain-intrinsic-size:auto 220px;
+}
+.modal:not(.hidden),
+.shell,
+.adjshell,
+.progshell,
+.npcshell,
+.facshell{
+  content-visibility:visible;
+  contain-intrinsic-size:none;
+}
+
+@media(max-width:560px){
+  .wc-connection-state{font-size:.6rem;padding:4px 6px}
+  .wc-backend-pending #console::before{width:100%;text-align:center}
+}
