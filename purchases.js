@@ -1,11 +1,12 @@
 (() => {
   'use strict';
 
-  const BUILD = '20260920-purchasesprod2';
+  const BUILD = '20260920-purchasesprod3';
   const POST_SOURCE = 'mothership-contract-service-post';
   const DEFAULT_SESSION_KEY = 'mothership_hub_board_session_v1';
   const DEFAULT_EXPIRY_KEY = 'mothership_hub_board_session_expiry_v1';
-  const SETUP_CACHE_KEY = 'mothership_hub_purchase_setup_v1';
+  const BUNDLE_CACHE_KEY = 'mothership_hub_purchase_bundle_v1';
+  const STATIC_CHARACTERS = Object.freeze(['Prudence Greymore', 'John Sobieski']);
 
   const esc = value => String(value ?? '')
     .replaceAll('&', '&amp;')
@@ -26,7 +27,7 @@
     const expiryKey = String(options.sessionExpiryKey || DEFAULT_EXPIRY_KEY);
     if (!api) throw new Error('Purchase Board API endpoint is unavailable.');
 
-    let setup = null;
+    let characters = [...STATIC_CHARACTERS];
     let selectedCharacter = '';
     let sessionToken = '';
     let sessionExpiry = 0;
@@ -36,6 +37,10 @@
     let searchText = '';
     let busy = false;
     let currentItem = null;
+    let liveBundle = null;
+    let cachedBundle = null;
+    let bundlePromise = null;
+    let catalogLive = false;
 
     root.innerHTML = `
       <div class="purchases-heading">
@@ -93,7 +98,7 @@
         <div class="purchase-items" data-purchase-items></div>
       </section>
 
-      <div class="purchase-page-status" data-purchase-status>LOADING PURCHASE BOARD SETUP…</div>
+      <div class="purchase-page-status" data-purchase-status>SELECT A PC</div>
 
       <div class="purchase-modal" data-purchase-modal hidden aria-hidden="true">
         <div class="purchase-modal-card" role="dialog" aria-modal="true" aria-labelledby="purchaseModalTitle">
@@ -141,7 +146,7 @@
       refreshButton.disabled = busy;
       switchButton.disabled = busy;
       cancelButton.disabled = busy;
-      confirmButton.disabled = busy || !currentItem;
+      confirmButton.disabled = busy || !currentItem || !catalogLive;
       root.querySelectorAll('[data-purchase-character], [data-purchase-buy], [data-purchase-category]').forEach(button => {
         button.disabled = busy || button.dataset.locked === 'true';
       });
@@ -154,6 +159,9 @@
     function clearSession() {
       sessionToken = '';
       sessionExpiry = 0;
+      liveBundle = null;
+      bundlePromise = null;
+      catalogLive = false;
       try {
         localStorage.removeItem(sessionKey);
         localStorage.removeItem(expiryKey);
@@ -187,26 +195,42 @@
       return true;
     }
 
-    function readSetupCache() {
+    function normalizeBundle(payload) {
+      if (!payload || payload.ok !== true || !payload.catalogs || typeof payload.catalogs !== 'object') return null;
+      const names = Array.isArray(payload.characters)
+        ? payload.characters.map(value => String(value || '').trim()).filter(Boolean)
+        : Object.keys(payload.catalogs).map(value => String(value || '').trim()).filter(Boolean);
+      if (!names.length) return null;
+      const catalogs = {};
+      names.forEach(name => {
+        const source = payload.catalogs[name];
+        if (!source || typeof source !== 'object') return;
+        catalogs[name] = {
+          finance: source.finance || null,
+          items: Array.isArray(source.items) ? source.items : []
+        };
+      });
+      if (!Object.keys(catalogs).length) return null;
+      return {
+        ok: true,
+        characters: names,
+        principalCap: Number(payload.principalCap || 0),
+        catalogs
+      };
+    }
+
+    function readBundleCache() {
       try {
-        const cached = JSON.parse(localStorage.getItem(SETUP_CACHE_KEY) || 'null');
-        if (!cached || cached.ok !== true || cached.available === false || !Array.isArray(cached.characters) || !cached.characters.length) return null;
-        return cached;
+        return normalizeBundle(JSON.parse(localStorage.getItem(BUNDLE_CACHE_KEY) || 'null'));
       } catch (_) {
         return null;
       }
     }
 
-    function saveSetupCache(payload) {
-      if (!payload || payload.ok !== true || payload.available === false || !Array.isArray(payload.characters) || !payload.characters.length) return;
-      try {
-        localStorage.setItem(SETUP_CACHE_KEY, JSON.stringify({
-          ok: true,
-          available: true,
-          characters: payload.characters.map(String).filter(Boolean),
-          principalCap: Number(payload.principalCap || 0)
-        }));
-      } catch (_) {}
+    function saveBundleCache(bundle) {
+      const normalized = normalizeBundle(bundle);
+      if (!normalized) return;
+      try { localStorage.setItem(BUNDLE_CACHE_KEY, JSON.stringify(normalized)); } catch (_) {}
     }
 
     function postRequest(action, params = {}, timeoutMs = 18000) {
@@ -259,12 +283,7 @@
         document.body.appendChild(frame);
         document.body.appendChild(form);
         timer = setTimeout(() => finish(reject, new Error('Purchase service timed out.')), timeoutMs);
-
-        try {
-          form.submit();
-        } catch (error) {
-          finish(reject, error);
-        }
+        try { form.submit(); } catch (error) { finish(reject, error); }
       });
     }
 
@@ -280,7 +299,6 @@
           script.remove();
           try { delete window[callback]; } catch (_) { window[callback] = undefined; }
         };
-
         const finish = (fn, value) => {
           if (settled) return;
           settled = true;
@@ -312,9 +330,7 @@
           noteTransport('POST COMPATIBILITY');
           return payload;
         }
-      } catch (_) {
-        // Preserve legacy compatibility if the POST path is unavailable.
-      }
+      } catch (_) {}
 
       const payload = await jsonpRequest(legacyAction, params);
       noteTransport('LEGACY JSONP');
@@ -324,7 +340,6 @@
     const isAuthFailure = payload => /board authentication required|invalid board access code|session|authentication/i.test(String(payload?.error || payload?.message || ''));
 
     function renderCharacters() {
-      const characters = Array.isArray(setup?.characters) ? setup.characters : [];
       characterControls.innerHTML = characters.map(name => `
         <button type="button"
           class="purchase-character-btn${selectedCharacter === name ? ' active' : ''}"
@@ -421,14 +436,15 @@
           <div class="purchase-access-block">
             ${item.progressStanding ? `<div><span>QUALIFICATION ROUTE</span><strong>${esc(item.progressStanding)}</strong></div>` : ''}
             ${item.minimumAccess ? `<div><span>REMAINING ACCESS</span><strong>${esc(item.minimumAccess)}</strong></div>` : ''}
-          </div>
-        ` : '';
+          </div>` : '';
         const funding = affordability(item);
-        const button = progress
-          ? '<button type="button" class="purchase-disabled-btn" data-locked="true" disabled>LOCKED</button>'
-          : funding.ok
-            ? `<button type="button" class="purchase-buy-btn" data-purchase-buy="${Number(item.catalogRow)}">BUY</button>`
-            : '<button type="button" class="purchase-disabled-btn" data-locked="true" disabled>FINANCE BLOCK</button>';
+        const button = !catalogLive
+          ? '<button type="button" class="purchase-disabled-btn" data-locked="true" disabled>REFRESHING…</button>'
+          : progress
+            ? '<button type="button" class="purchase-disabled-btn" data-locked="true" disabled>LOCKED</button>'
+            : funding.ok
+              ? `<button type="button" class="purchase-buy-btn" data-purchase-buy="${Number(item.catalogRow)}">BUY</button>`
+              : '<button type="button" class="purchase-disabled-btn" data-locked="true" disabled>FINANCE BLOCK</button>';
         return `
           <article class="purchase-item${progress ? ' progress' : ''}${item.restricted ? ' restricted' : ''}">
             <div class="purchase-item-top">
@@ -444,8 +460,7 @@
             ${accessBlock}
             ${funding.label ? `<div class="purchase-finance-note${funding.ok ? '' : ' blocked'}">${esc(funding.label)}</div>` : ''}
             ${button}
-          </article>
-        `;
+          </article>`;
       }).join('');
 
       itemRoot.querySelectorAll('[data-purchase-buy]').forEach(button => {
@@ -483,14 +498,13 @@
     }
 
     function openPurchase(rowNumber) {
-      if (busy) return;
+      if (busy || !catalogLive) return;
       const item = items.find(candidate => Number(candidate.catalogRow) === Number(rowNumber));
       if (!item || item.canPurchase === false) return;
 
       const funding = affordability(item);
       currentItem = item;
       modalTitle.textContent = 'Confirm Purchase';
-
       const personal = Number(finance?.personalBalance || 0);
       const principal = Number(finance?.principalBalance || 0);
       const shortfall = funding.shortfall || 0;
@@ -509,7 +523,6 @@
         body += summaryRow('Payment', 'Personal Balance');
       }
       body += '</div>';
-
       if (shortfall > 0.005 && funding.ok) {
         body += `<div class="purchase-modal-warning">This purchase requires financing. Confirming adds <strong>${esc(credit(shortfall))}</strong> to ${esc(selectedCharacter)}'s principal.</div>`;
       }
@@ -524,8 +537,79 @@
       modal.setAttribute('aria-hidden', 'false');
     }
 
+    function applyCatalog(character, bundle, live) {
+      const source = bundle?.catalogs?.[character];
+      if (!source) return false;
+      finance = source.finance || null;
+      items = Array.isArray(source.items) ? source.items : [];
+      catalogLive = Boolean(live);
+      selectedCategory = 'ALL';
+      searchText = '';
+      search.value = '';
+      showMarket();
+      const buyable = items.filter(item => item.canPurchase !== false).length;
+      const progress = items.filter(item => item.accessState === 'restricted_in_progress').length;
+      if (catalogLive) {
+        setStatus(`${buyable} ITEM${buyable === 1 ? '' : 'S'} AVAILABLE${progress ? ` // ${progress} ACCESS PATH${progress === 1 ? '' : 'S'} IN PROGRESS` : ''} FOR ${character.toUpperCase()}`, 'ok');
+      } else {
+        setStatus(`${character.toUpperCase()} // CACHED CATALOG // REFRESHING LIVE BALANCES & ACCESS`, 'warn');
+      }
+      return true;
+    }
+
+    async function loadBundleLive(force = false) {
+      if (!sessionToken || sessionExpiry <= Date.now() + 5000) throw new Error('Board authentication required.');
+      if (liveBundle && !force) return liveBundle;
+      if (bundlePromise && !force) return bundlePromise;
+
+      bundlePromise = (async () => {
+        let payload = null;
+        try {
+          payload = await postRequest('purchasebundle', { session: sessionToken }, 30000);
+          const unsupported = payload?.ok === false && /unknown submission-service action/i.test(String(payload?.error || ''));
+          if (unsupported) payload = null;
+          else noteTransport('POST COMPATIBILITY');
+        } catch (_) {
+          payload = null;
+        }
+
+        if (!payload) {
+          const fallbackCharacters = characters.length ? characters : [...STATIC_CHARACTERS];
+          const entries = await Promise.all(fallbackCharacters.map(async character => {
+            const single = await request('purchasecatalog', { session: sessionToken, character });
+            if (!single || single.ok !== true) throw new Error(single?.error || `Purchase catalog unavailable for ${character}.`);
+            return [character, { finance: single.finance || null, items: Array.isArray(single.items) ? single.items : [] }];
+          }));
+          payload = {
+            ok: true,
+            characters: fallbackCharacters,
+            catalogs: Object.fromEntries(entries)
+          };
+        }
+
+        if (!payload || payload.ok !== true) {
+          if (isAuthFailure(payload)) throw new Error(payload?.error || payload?.message || 'Board authentication required.');
+          throw new Error(payload?.error || 'Purchase catalog preload unavailable.');
+        }
+
+        const normalized = normalizeBundle(payload);
+        if (!normalized) throw new Error('Purchase catalog preload returned incomplete data.');
+        liveBundle = normalized;
+        characters = normalized.characters.length ? normalized.characters : characters;
+        renderCharacters();
+        saveBundleCache(normalized);
+        return normalized;
+      })();
+
+      try {
+        return await bundlePromise;
+      } finally {
+        bundlePromise = null;
+      }
+    }
+
     async function commitPurchase() {
-      if (!currentItem || busy || currentItem.canPurchase === false) return;
+      if (!currentItem || busy || !catalogLive || currentItem.canPurchase === false) return;
       if (!sessionToken || sessionExpiry <= Date.now() + 5000) {
         clearSession();
         closeModal(true);
@@ -567,6 +651,10 @@
         }
 
         finance = payload.finance || finance;
+        if (liveBundle?.catalogs?.[selectedCharacter]) {
+          liveBundle.catalogs[selectedCharacter].finance = finance;
+          saveBundleCache(liveBundle);
+        }
         renderFinance();
         closeModal(true);
         renderItems();
@@ -577,54 +665,46 @@
         setBusy(false);
         if (!modal.hidden && currentItem) {
           const updatedFunding = affordability(currentItem);
-          confirmButton.disabled = !updatedFunding.ok;
+          confirmButton.disabled = !updatedFunding.ok || !catalogLive;
           confirmButton.textContent = updatedFunding.shortfall > 0.005 ? 'CONFIRM & FINANCE' : 'CONFIRM PURCHASE';
         }
       }
     }
 
-    async function loadCatalog() {
+    async function showSelectedCatalog(force = false) {
       if (!selectedCharacter) {
         setStatus('SELECT A PC BEFORE SHOPPING');
         return;
       }
       if (!sessionToken || sessionExpiry <= Date.now() + 5000) {
         clearSession();
-        showAuth('Board authentication is required before inventory is returned.');
+        showAuth('Board authentication is required before inventory is shown.');
         setStatus('BOARD ACCESS REQUIRED');
         return;
       }
 
-      setBusy(true);
-      setStatus(`LOADING ${selectedCharacter.toUpperCase()} CATALOG…`);
-      try {
-        const payload = await request('purchasecatalog', {
-          session: sessionToken,
-          character: selectedCharacter
-        });
-        if (!payload || payload.ok !== true) {
-          if (isAuthFailure(payload)) {
-            clearSession();
-            showAuth('Session expired. Re-enter the Board PIN.');
-            setStatus('BOARD ACCESS REQUIRED', 'error');
-            return;
-          }
-          throw new Error(payload?.error || 'Purchase catalog unavailable.');
-        }
+      if (!force && liveBundle && applyCatalog(selectedCharacter, liveBundle, true)) return;
+      if (!force && cachedBundle) applyCatalog(selectedCharacter, cachedBundle, false);
+      if (!cachedBundle?.catalogs?.[selectedCharacter]) {
+        market.hidden = true;
+        setStatus(`PRELOADING ${selectedCharacter.toUpperCase()} CATALOG…`);
+      }
 
-        finance = payload.finance || null;
-        items = Array.isArray(payload.items) ? payload.items : [];
-        selectedCategory = 'ALL';
-        searchText = '';
-        search.value = '';
-        showMarket();
-        const buyable = items.filter(item => item.canPurchase !== false).length;
-        const progress = items.filter(item => item.accessState === 'restricted_in_progress').length;
-        setStatus(`${buyable} ITEM${buyable === 1 ? '' : 'S'} AVAILABLE${progress ? ` // ${progress} ACCESS PATH${progress === 1 ? '' : 'S'} IN PROGRESS` : ''} FOR ${selectedCharacter.toUpperCase()}`, 'ok');
+      try {
+        const bundle = await loadBundleLive(force);
+        if (selectedCharacter && bundle.catalogs?.[selectedCharacter]) applyCatalog(selectedCharacter, bundle, true);
       } catch (error) {
-        setStatus(String(error?.message || error || 'Purchase catalog unavailable.'), 'error');
-      } finally {
-        setBusy(false);
+        if (isAuthFailure({ error: error?.message })) {
+          clearSession();
+          showAuth('Session expired. Re-enter the Board PIN.');
+          setStatus('BOARD ACCESS REQUIRED', 'error');
+          return;
+        }
+        if (!market.hidden && !catalogLive) {
+          setStatus(`${selectedCharacter.toUpperCase()} // CACHED CATALOG // LIVE REFRESH UNAVAILABLE`, 'warn');
+        } else {
+          setStatus(String(error?.message || error || 'Purchase catalog unavailable.'), 'error');
+        }
       }
     }
 
@@ -633,6 +713,7 @@
       selectedCharacter = String(name || '').trim();
       finance = null;
       items = [];
+      catalogLive = false;
       selectedCategory = 'ALL';
       searchText = '';
       renderCharacters();
@@ -641,13 +722,13 @@
 
       if (!selectedCharacter) {
         authPanel.hidden = true;
-        setStatus('SELECT A PC BEFORE SHOPPING');
+        setStatus(sessionToken ? 'SELECT A PC // CATALOGS PRELOADING IN BACKGROUND' : 'SELECT A PC');
         return;
       }
       if (loadSession()) {
-        await loadCatalog();
+        await showSelectedCatalog(false);
       } else {
-        showAuth('Board authentication is required before inventory is returned.');
+        showAuth('Board authentication is required before inventory is shown.');
         setStatus(`${selectedCharacter.toUpperCase()} SELECTED // BOARD ACCESS REQUIRED`);
       }
     }
@@ -670,7 +751,8 @@
         }
         pinInput.value = '';
         authStatus.textContent = 'BOARD ACCESS // AUTHENTICATED';
-        await loadCatalog();
+        cachedBundle = readBundleCache();
+        await showSelectedCatalog(true);
       } catch (error) {
         authStatus.textContent = String(error?.message || error || 'Board authentication failed.');
         setStatus('BOARD AUTHENTICATION FAILED', 'error');
@@ -683,8 +765,15 @@
       searchText = search.value || '';
       renderItems();
     });
-    refreshButton.addEventListener('click', () => {
-      if (!busy) loadCatalog();
+    refreshButton.addEventListener('click', async () => {
+      if (busy || !selectedCharacter) return;
+      setBusy(true);
+      try {
+        setStatus(`REFRESHING ${selectedCharacter.toUpperCase()} CATALOG…`);
+        await showSelectedCatalog(true);
+      } finally {
+        setBusy(false);
+      }
     });
     switchButton.addEventListener('click', () => {
       if (!busy) selectCharacter('');
@@ -697,43 +786,22 @@
     });
 
     root.dataset.rendered = 'true';
+    renderCharacters();
 
-    const cachedSetup = readSetupCache();
-    if (cachedSetup) {
-      setup = cachedSetup;
-      renderCharacters();
-      loadSession();
-      setStatus('SELECT A PC BEFORE SHOPPING // REFRESHING SETUP');
+    const hasSession = loadSession();
+    if (hasSession) {
+      cachedBundle = readBundleCache();
+      setStatus('SELECT A PC // PRELOADING CATALOGS IN BACKGROUND');
+      loadBundleLive(false).then(bundle => {
+        if (selectedCharacter && bundle.catalogs?.[selectedCharacter]) applyCatalog(selectedCharacter, bundle, true);
+        else if (!selectedCharacter) setStatus('SELECT A PC // CATALOGS READY', 'ok');
+      }).catch(error => {
+        if (!selectedCharacter) setStatus('SELECT A PC // LIVE PRELOAD UNAVAILABLE', 'warn');
+        if (isAuthFailure({ error: error?.message })) clearSession();
+      });
+    } else {
+      setStatus('SELECT A PC');
     }
-
-    (async () => {
-      try {
-        const payload = await request('purchasesetup');
-        if (!payload || payload.ok !== true || payload.available === false) {
-          throw new Error(payload?.error || 'Purchase Board setup unavailable.');
-        }
-        setup = payload;
-        saveSetupCache(payload);
-        const characters = Array.isArray(payload.characters) ? payload.characters.map(String).filter(Boolean) : [];
-        if (selectedCharacter && !characters.includes(selectedCharacter)) {
-          selectedCharacter = '';
-          finance = null;
-          items = [];
-          market.hidden = true;
-          authPanel.hidden = true;
-        }
-        renderCharacters();
-        loadSession();
-        if (!selectedCharacter) setStatus('SELECT A PC BEFORE SHOPPING');
-      } catch (error) {
-        if (setup) {
-          if (!selectedCharacter) setStatus('SELECT A PC BEFORE SHOPPING // SETUP REFRESH UNAVAILABLE', 'warn');
-        } else {
-          characterControls.innerHTML = '<div class="purchase-empty">Purchase Board setup could not be loaded.</div>';
-          setStatus(String(error?.message || error || 'Purchase Board unavailable.'), 'error');
-        }
-      }
-    })();
   }
 
   window.HubPurchasesContent = Object.freeze({ build: BUILD, render });
