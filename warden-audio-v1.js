@@ -61,11 +61,42 @@
   }
 
   function startMachinery(){
-    const ctx=ensureAudio(),group=ctx.createGain();group.gain.value=1;group.connect(S.master);
-    const oscs=[];
-    [[27,.025,'sine'],[53.5,.012,'triangle'],[86,.006,'sawtooth'],[113,.0035,'triangle']].forEach(([f,v,type])=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type=type;o.frequency.value=f;g.gain.value=v;o.connect(g).connect(group);o.start();oscs.push(o);});
-    const noise=ctx.createBufferSource();noise.buffer=S.noise;noise.loop=true;const bp=ctx.createBiquadFilter();bp.type='bandpass';bp.frequency.value=430;bp.Q.value=.65;const ng=ctx.createGain();ng.gain.value=.012;noise.connect(bp).connect(ng).connect(group);noise.start();
-    return()=>{try{noise.stop()}catch(_){ }oscs.forEach(o=>{try{o.stop()}catch(_){}});try{group.disconnect()}catch(_){}};
+    const ctx=ensureAudio(),group=ctx.createGain();group.gain.value=1.18;group.connect(S.master);
+    const nodes=[];
+
+    // Broad low pressure: this is the physical "oomf," not a clean musical tone.
+    const rumble=ctx.createBufferSource();rumble.buffer=S.noise;rumble.loop=true;
+    const rhp=ctx.createBiquadFilter();rhp.type='highpass';rhp.frequency.value=24;
+    const rlp=ctx.createBiquadFilter();rlp.type='lowpass';rlp.frequency.value=150;
+    const rg=ctx.createGain();rg.gain.value=.082;
+    rumble.connect(rhp).connect(rlp).connect(rg).connect(group);rumble.start();nodes.push(rumble);
+
+    // Loaded motor / bearing roar fills the mid-low range so it masks speech like real machinery.
+    const body=ctx.createBufferSource();body.buffer=S.noise;body.loop=true;
+    const bhp=ctx.createBiquadFilter();bhp.type='highpass';bhp.frequency.value=115;
+    const blp=ctx.createBiquadFilter();blp.type='lowpass';blp.frequency.value=1150;
+    const bg=ctx.createGain();bg.gain.value=.052;
+    body.connect(bhp).connect(blp).connect(bg).connect(group);body.start();nodes.push(body);
+
+    // Hard mechanical wash / belt and bearing texture.
+    const grind=ctx.createBufferSource();grind.buffer=S.noise;grind.loop=true;
+    const gbp=ctx.createBiquadFilter();gbp.type='bandpass';gbp.frequency.value=680;gbp.Q.value=.42;
+    const gg=ctx.createGain();gg.gain.value=.025;
+    grind.connect(gbp).connect(gg).connect(group);grind.start();nodes.push(grind);
+
+    // Fundamental machine vibration. Kept low enough to read as mass rather than melody.
+    [[26.5,.036,'sine'],[53,.018,'triangle'],[79.5,.009,'triangle']].forEach(([f,v,type])=>{
+      const o=ctx.createOscillator(),g=ctx.createGain();o.type=type;o.frequency.value=f;g.gain.value=v;o.connect(g).connect(group);o.start();nodes.push(o);
+    });
+
+    // Slow cyclic loading makes the machinery breathe under torque without producing an audible note.
+    const loadBus=ctx.createGain();loadBus.gain.value=.74;loadBus.connect(group);
+    const loadNoise=ctx.createBufferSource();loadNoise.buffer=S.noise;loadNoise.loop=true;
+    const llp=ctx.createBiquadFilter();llp.type='lowpass';llp.frequency.value=230;
+    const lng=ctx.createGain();lng.gain.value=.052;loadNoise.connect(llp).connect(lng).connect(loadBus);loadNoise.start();nodes.push(loadNoise);
+    const lfo=ctx.createOscillator(),lfg=ctx.createGain();lfo.type='sine';lfo.frequency.value=.72;lfg.gain.value=.18;lfo.connect(lfg).connect(loadBus.gain);lfo.start();nodes.push(lfo);
+
+    return()=>{nodes.forEach(n=>{try{n.stop()}catch(_){}});try{group.disconnect()}catch(_){}};
   }
 
   function startLightHum(){
