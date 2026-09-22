@@ -8,7 +8,7 @@
   const layerDefs=[
     {id:'room',label:'ROOM BED',mode:'continuous',desc:'Ventilation + low industrial room tone'},
     {id:'machinery',label:'HEAVY MACHINERY',mode:'continuous',desc:'Loaded motors, torque strokes, bearings, and heavy mechanical cycling'},
-    {id:'light',label:'FLUORESCENT HUM',mode:'continuous',desc:'Steady fluorescent ballast hum with thin electrical whine'},
+    {id:'light',label:'FLUORESCENT FLICKER',mode:'intermittent',desc:'Failing tube restrikes, starter clicks, and short ballast buzzes',first:[3,9],gap:[14,32]},
     {id:'rocks',label:'ROCK / MATERIAL',mode:'intermittent',desc:'Audible granular scrape, tumble, and dense material settling',first:[7,16],gap:[22,48]},
     {id:'metal',label:'METAL / CHUTE',mode:'intermittent',desc:'Broadband chute clank, shell impact, and settling steel',first:[10,24],gap:[22,52]},
     {id:'relays',label:'CONTROL RELAYS',mode:'intermittent',desc:'Dry mechanical relay clicks and brief contact chatter',first:[7,15],gap:[14,35]}
@@ -65,8 +65,6 @@
     const continuous=[],pulseNodes=new Set();
     let alive=true,pulseTimer=null;
 
-    // A real motor-like body: low fundamental driven into soft saturation so small speakers
-    // reproduce upper harmonics instead of losing all of the physical weight below ~70 Hz.
     const motor=ctx.createOscillator();motor.type='triangle';motor.frequency.value=46;
     const motorDrive=ctx.createGain();motorDrive.gain.value=.34;
     const saturator=ctx.createWaveShaper();
@@ -80,19 +78,16 @@
     const motorGain=ctx.createGain();motorGain.gain.value=.065;
     motor.connect(motorDrive).connect(saturator).connect(motorLP).connect(motorGain).connect(group);motor.start();continuous.push(motor);
 
-    // A second, quieter shaft/bearing component prevents the motor from becoming a single note.
     const shaft=ctx.createOscillator();shaft.type='triangle';shaft.frequency.value=91;
     const shaftGain=ctx.createGain();shaftGain.gain.value=.018;
     shaft.connect(shaftGain).connect(group);shaft.start();continuous.push(shaft);
 
-    // Restrained mechanical texture. This is intentionally much quieter than the old broadband wash.
     const body=ctx.createBufferSource();body.buffer=S.noise;body.loop=true;
     const bhp=ctx.createBiquadFilter();bhp.type='highpass';bhp.frequency.value=150;
     const blp=ctx.createBiquadFilter();blp.type='lowpass';blp.frequency.value=980;
     const bg=ctx.createGain();bg.gain.value=.018;
     body.connect(bhp).connect(blp).connect(bg).connect(group);body.start();continuous.push(body);
 
-    // Slight unevenness in the rotating mass, subtle enough not to sound like tremolo/music.
     const wobble=ctx.createOscillator();wobble.type='sine';wobble.frequency.value=.83;
     const wobbleGain=ctx.createGain();wobbleGain.gain.value=.012;
     wobble.connect(wobbleGain).connect(motorGain.gain);wobble.start();continuous.push(wobble);
@@ -106,8 +101,6 @@
       if(!alive)return;
       const t=ctx.currentTime+.015+delay;
       const dur=secondary?rand(.18,.28):rand(.28,.42);
-
-      // Dense low-mid impact. Centered high enough to survive laptop speakers.
       const hit=ctx.createBufferSource();hit.buffer=S.noise;
       const hp=ctx.createBiquadFilter();hp.type='highpass';hp.frequency.value=70;
       const lp=ctx.createBiquadFilter();lp.type='lowpass';lp.frequency.value=390;
@@ -118,7 +111,6 @@
       hg.gain.exponentialRampToValueAtTime(.0001,t+dur);
       hit.connect(hp).connect(lp).connect(hg).connect(group);hit.start(t);hit.stop(t+dur+.03);retire(hit,(delay+dur+.2)*1000);
 
-      // Short resonant cabinet/frame bloom around 150–260 Hz gives the impact chest/body.
       const frame=ctx.createBufferSource();frame.buffer=S.noise;
       const bp=ctx.createBiquadFilter();bp.type='bandpass';bp.frequency.value=secondary?rand(185,260):rand(125,205);bp.Q.value=1.4;
       const fg=ctx.createGain();
@@ -127,7 +119,6 @@
       fg.gain.exponentialRampToValueAtTime(.0001,t+dur*.92);
       frame.connect(bp).connect(fg).connect(group);frame.start(t);frame.stop(t+dur+.03);retire(frame,(delay+dur+.2)*1000);
 
-      // Brief motor loading: the running motor itself swells as the mechanism bites.
       const base=Math.max(.0001,motorGain.gain.value);
       motorGain.gain.cancelScheduledValues(t);
       motorGain.gain.setValueAtTime(base,t);
@@ -156,16 +147,60 @@
     };
   }
 
-  function startLightHum(){
-    const ctx=ensureAudio(),group=ctx.createGain();group.gain.value=.78;group.connect(S.master),nodes=[];
-    [[60,.0026],[120,.0042],[240,.0015]].forEach(([f,v])=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type='sine';o.frequency.value=f;g.gain.value=v;o.connect(g).connect(group);o.start();nodes.push(o);});
-    const hiss=ctx.createBufferSource();hiss.buffer=S.noise;hiss.loop=true;
-    const hp=ctx.createBiquadFilter();hp.type='highpass';hp.frequency.value=1350;
-    const lp=ctx.createBiquadFilter();lp.type='lowpass';lp.frequency.value=5200;
-    const hg=ctx.createGain();hg.gain.value=.0068;hiss.connect(hp).connect(lp).connect(hg).connect(group);hiss.start();nodes.push(hiss);
-    const whineNoise=ctx.createBufferSource();whineNoise.buffer=S.noise;whineNoise.loop=true;
-    const bp=ctx.createBiquadFilter();bp.type='bandpass';bp.frequency.value=2850;bp.Q.value=8.5;
-    const wg=ctx.createGain();wg.gain.value=.0048;whineNoise.connect(bp).connect(wg).connect(group);whineNoise.start();nodes.push(whineNoise);
+  function fireFluorescentFlicker(){
+    const ctx=ensureAudio(),nodes=[],group=ctx.createGain();group.gain.value=.95;group.connect(S.master);
+    const base=now()+.025;
+    const flashes=2+Math.floor(Math.random()*5);
+    let cursor=base;
+
+    function click(t,strong=false){
+      const src=ctx.createBufferSource();src.buffer=S.noise;
+      const hp=ctx.createBiquadFilter();hp.type='highpass';hp.frequency.value=strong?1500:2200;
+      const lp=ctx.createBiquadFilter();lp.type='lowpass';lp.frequency.value=6200;
+      const g=ctx.createGain();g.gain.setValueAtTime(strong?.080:.050,t);g.gain.exponentialRampToValueAtTime(.0001,t+(strong?.025:.018));
+      src.connect(hp).connect(lp).connect(g).connect(group);src.start(t);src.stop(t+.04);nodes.push(src);
+    }
+
+    function sputter(t,dur,strong=false){
+      const src=ctx.createBufferSource();src.buffer=S.noise;
+      const hp=ctx.createBiquadFilter();hp.type='highpass';hp.frequency.value=420;
+      const lp=ctx.createBiquadFilter();lp.type='lowpass';lp.frequency.value=3600;
+      const bp=ctx.createBiquadFilter();bp.type='bandpass';bp.frequency.value=strong?1250:1750;bp.Q.value=.75;
+      const g=ctx.createGain();
+      g.gain.setValueAtTime(.0001,t);
+      g.gain.exponentialRampToValueAtTime(strong?.042:.027,t+.012);
+      g.gain.setValueAtTime(strong?.032:.020,t+Math.max(.018,dur*.48));
+      g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+      src.connect(hp).connect(lp).connect(bp).connect(g).connect(group);src.start(t);src.stop(t+dur+.03);nodes.push(src);
+    }
+
+    function ballastBuzz(t,dur,strong=false){
+      const buzz=ctx.createOscillator();buzz.type='triangle';buzz.frequency.value=120+rand(-2.5,2.5);
+      const harmonic=ctx.createOscillator();harmonic.type='sine';harmonic.frequency.value=240+rand(-4,4);
+      const bg=ctx.createGain(),hg=ctx.createGain();
+      bg.gain.setValueAtTime(.0001,t);bg.gain.exponentialRampToValueAtTime(strong?.025:.014,t+.025);bg.gain.setValueAtTime(strong?.021:.011,t+Math.max(.04,dur-.06));bg.gain.exponentialRampToValueAtTime(.0001,t+dur);
+      hg.gain.setValueAtTime(.0001,t);hg.gain.exponentialRampToValueAtTime(strong?.010:.006,t+.018);hg.gain.exponentialRampToValueAtTime(.0001,t+dur*.9);
+      buzz.connect(bg).connect(group);harmonic.connect(hg).connect(group);buzz.start(t);harmonic.start(t);buzz.stop(t+dur+.03);harmonic.stop(t+dur+.03);nodes.push(buzz,harmonic);
+    }
+
+    click(cursor,true);
+    for(let i=0;i<flashes;i++){
+      cursor+=rand(.055,.22);
+      const dur=rand(.045,.18),strong=i===flashes-1||Math.random()<.28;
+      sputter(cursor,dur,strong);
+      if(Math.random()<.82)ballastBuzz(cursor,dur+rand(.025,.11),strong);
+      if(Math.random()<.65)click(cursor+dur+rand(.015,.07),false);
+    }
+
+    if(Math.random()<.62){
+      cursor+=rand(.18,.55);
+      click(cursor,true);
+      const hold=rand(.28,.8);
+      sputter(cursor+.02,hold,true);
+      ballastBuzz(cursor+.02,hold,true);
+    }
+
+    const total=Math.max(.8,cursor-base+1.2);
     return()=>{nodes.forEach(n=>{try{n.stop()}catch(_){}});try{group.disconnect()}catch(_){}};
   }
 
@@ -227,7 +262,7 @@
     return()=>nodes.forEach(n=>{try{n.stop()}catch(_){}});
   }
 
-  const eventFns={rocks:fireRocks,metal:fireMetal,relays:fireRelays};
+  const eventFns={light:fireFluorescentFlicker,rocks:fireRocks,metal:fireMetal,relays:fireRelays};
   function clearLayerTimer(id){const t=S.timers.get(id);if(t)clearTimeout(t);S.timers.delete(id)}
   function clearEventStops(id){const set=S.eventStops.get(id);if(set){set.forEach(fn=>{try{fn()}catch(_){}});set.clear()}}
   function scheduleNext(def,isFirst=false){
@@ -241,7 +276,7 @@
     if(on){
       if(S.active.has(id))return;S.active.add(id);
       if(def.mode==='continuous'){
-        const stop=id==='room'?startRoom():id==='machinery'?startMachinery():startLightHum();S.continuous.set(id,stop);
+        const stop=id==='room'?startRoom():startMachinery();S.continuous.set(id,stop);
       }else scheduleNext(def,true);
     }else{
       S.active.delete(id);clearLayerTimer(id);clearEventStops(id);const stop=S.continuous.get(id);if(stop){try{stop()}catch(_){ }S.continuous.delete(id)}
