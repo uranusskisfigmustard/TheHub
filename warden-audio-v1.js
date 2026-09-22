@@ -7,7 +7,7 @@
 
   const layerDefs=[
     {id:'room',label:'ROOM BED',mode:'continuous',desc:'Ventilation + low industrial room tone'},
-    {id:'machinery',label:'HEAVY MACHINERY',mode:'continuous',desc:'Motors, loaded bearings, low mechanical thrum'},
+    {id:'machinery',label:'HEAVY MACHINERY',mode:'continuous',desc:'Loaded motors, torque strokes, bearings, and heavy mechanical cycling'},
     {id:'light',label:'FLUORESCENT HUM',mode:'continuous',desc:'Steady fluorescent ballast hum with thin electrical whine'},
     {id:'rocks',label:'ROCK / MATERIAL',mode:'intermittent',desc:'Audible granular scrape, tumble, and dense material settling',first:[7,16],gap:[22,48]},
     {id:'metal',label:'METAL / CHUTE',mode:'intermittent',desc:'Broadband chute clank, shell impact, and settling steel',first:[10,24],gap:[22,52]},
@@ -61,42 +61,99 @@
   }
 
   function startMachinery(){
-    const ctx=ensureAudio(),group=ctx.createGain();group.gain.value=1.18;group.connect(S.master);
-    const nodes=[];
+    const ctx=ensureAudio(),group=ctx.createGain();group.gain.value=1.16;group.connect(S.master);
+    const continuous=[],pulseNodes=new Set();
+    let alive=true,pulseTimer=null;
 
-    // Broad low pressure: this is the physical "oomf," not a clean musical tone.
-    const rumble=ctx.createBufferSource();rumble.buffer=S.noise;rumble.loop=true;
-    const rhp=ctx.createBiquadFilter();rhp.type='highpass';rhp.frequency.value=24;
-    const rlp=ctx.createBiquadFilter();rlp.type='lowpass';rlp.frequency.value=150;
-    const rg=ctx.createGain();rg.gain.value=.082;
-    rumble.connect(rhp).connect(rlp).connect(rg).connect(group);rumble.start();nodes.push(rumble);
+    // A real motor-like body: low fundamental driven into soft saturation so small speakers
+    // reproduce upper harmonics instead of losing all of the physical weight below ~70 Hz.
+    const motor=ctx.createOscillator();motor.type='triangle';motor.frequency.value=46;
+    const motorDrive=ctx.createGain();motorDrive.gain.value=.34;
+    const saturator=ctx.createWaveShaper();
+    const curve=new Float32Array(1024);
+    for(let i=0;i<curve.length;i++){
+      const x=(i/(curve.length-1))*2-1;
+      curve[i]=Math.tanh(3.6*x);
+    }
+    saturator.curve=curve;saturator.oversample='2x';
+    const motorLP=ctx.createBiquadFilter();motorLP.type='lowpass';motorLP.frequency.value=520;motorLP.Q.value=.35;
+    const motorGain=ctx.createGain();motorGain.gain.value=.065;
+    motor.connect(motorDrive).connect(saturator).connect(motorLP).connect(motorGain).connect(group);motor.start();continuous.push(motor);
 
-    // Loaded motor / bearing roar fills the mid-low range so it masks speech like real machinery.
+    // A second, quieter shaft/bearing component prevents the motor from becoming a single note.
+    const shaft=ctx.createOscillator();shaft.type='triangle';shaft.frequency.value=91;
+    const shaftGain=ctx.createGain();shaftGain.gain.value=.018;
+    shaft.connect(shaftGain).connect(group);shaft.start();continuous.push(shaft);
+
+    // Restrained mechanical texture. This is intentionally much quieter than the old broadband wash.
     const body=ctx.createBufferSource();body.buffer=S.noise;body.loop=true;
-    const bhp=ctx.createBiquadFilter();bhp.type='highpass';bhp.frequency.value=115;
-    const blp=ctx.createBiquadFilter();blp.type='lowpass';blp.frequency.value=1150;
-    const bg=ctx.createGain();bg.gain.value=.052;
-    body.connect(bhp).connect(blp).connect(bg).connect(group);body.start();nodes.push(body);
+    const bhp=ctx.createBiquadFilter();bhp.type='highpass';bhp.frequency.value=150;
+    const blp=ctx.createBiquadFilter();blp.type='lowpass';blp.frequency.value=980;
+    const bg=ctx.createGain();bg.gain.value=.018;
+    body.connect(bhp).connect(blp).connect(bg).connect(group);body.start();continuous.push(body);
 
-    // Hard mechanical wash / belt and bearing texture.
-    const grind=ctx.createBufferSource();grind.buffer=S.noise;grind.loop=true;
-    const gbp=ctx.createBiquadFilter();gbp.type='bandpass';gbp.frequency.value=680;gbp.Q.value=.42;
-    const gg=ctx.createGain();gg.gain.value=.025;
-    grind.connect(gbp).connect(gg).connect(group);grind.start();nodes.push(grind);
+    // Slight unevenness in the rotating mass, subtle enough not to sound like tremolo/music.
+    const wobble=ctx.createOscillator();wobble.type='sine';wobble.frequency.value=.83;
+    const wobbleGain=ctx.createGain();wobbleGain.gain.value=.012;
+    wobble.connect(wobbleGain).connect(motorGain.gain);wobble.start();continuous.push(wobble);
 
-    // Fundamental machine vibration. Kept low enough to read as mass rather than melody.
-    [[26.5,.036,'sine'],[53,.018,'triangle'],[79.5,.009,'triangle']].forEach(([f,v,type])=>{
-      const o=ctx.createOscillator(),g=ctx.createGain();o.type=type;o.frequency.value=f;g.gain.value=v;o.connect(g).connect(group);o.start();nodes.push(o);
-    });
+    function retire(node,delayMs){
+      pulseNodes.add(node);
+      setTimeout(()=>pulseNodes.delete(node),delayMs);
+    }
 
-    // Slow cyclic loading makes the machinery breathe under torque without producing an audible note.
-    const loadBus=ctx.createGain();loadBus.gain.value=.74;loadBus.connect(group);
-    const loadNoise=ctx.createBufferSource();loadNoise.buffer=S.noise;loadNoise.loop=true;
-    const llp=ctx.createBiquadFilter();llp.type='lowpass';llp.frequency.value=230;
-    const lng=ctx.createGain();lng.gain.value=.052;loadNoise.connect(llp).connect(lng).connect(loadBus);loadNoise.start();nodes.push(loadNoise);
-    const lfo=ctx.createOscillator(),lfg=ctx.createGain();lfo.type='sine';lfo.frequency.value=.72;lfg.gain.value=.18;lfo.connect(lfg).connect(loadBus.gain);lfo.start();nodes.push(lfo);
+    function torqueStroke(delay=0,secondary=false){
+      if(!alive)return;
+      const t=ctx.currentTime+.015+delay;
+      const dur=secondary?rand(.18,.28):rand(.28,.42);
 
-    return()=>{nodes.forEach(n=>{try{n.stop()}catch(_){}});try{group.disconnect()}catch(_){}};
+      // Dense low-mid impact. Centered high enough to survive laptop speakers.
+      const hit=ctx.createBufferSource();hit.buffer=S.noise;
+      const hp=ctx.createBiquadFilter();hp.type='highpass';hp.frequency.value=70;
+      const lp=ctx.createBiquadFilter();lp.type='lowpass';lp.frequency.value=390;
+      const hg=ctx.createGain();
+      const peak=secondary?rand(.055,.075):rand(.095,.135);
+      hg.gain.setValueAtTime(.0001,t);
+      hg.gain.exponentialRampToValueAtTime(peak,t+.025);
+      hg.gain.exponentialRampToValueAtTime(.0001,t+dur);
+      hit.connect(hp).connect(lp).connect(hg).connect(group);hit.start(t);hit.stop(t+dur+.03);retire(hit,(delay+dur+.2)*1000);
+
+      // Short resonant cabinet/frame bloom around 150–260 Hz gives the impact chest/body.
+      const frame=ctx.createBufferSource();frame.buffer=S.noise;
+      const bp=ctx.createBiquadFilter();bp.type='bandpass';bp.frequency.value=secondary?rand(185,260):rand(125,205);bp.Q.value=1.4;
+      const fg=ctx.createGain();
+      fg.gain.setValueAtTime(.0001,t);
+      fg.gain.exponentialRampToValueAtTime(secondary?.035:.060,t+.035);
+      fg.gain.exponentialRampToValueAtTime(.0001,t+dur*.92);
+      frame.connect(bp).connect(fg).connect(group);frame.start(t);frame.stop(t+dur+.03);retire(frame,(delay+dur+.2)*1000);
+
+      // Brief motor loading: the running motor itself swells as the mechanism bites.
+      const base=Math.max(.0001,motorGain.gain.value);
+      motorGain.gain.cancelScheduledValues(t);
+      motorGain.gain.setValueAtTime(base,t);
+      motorGain.gain.linearRampToValueAtTime(secondary?.078:.095,t+.045);
+      motorGain.gain.exponentialRampToValueAtTime(.065,t+dur+.10);
+    }
+
+    function scheduleStroke(first=false){
+      if(!alive)return;
+      const wait=(first?rand(.35,.75):rand(.72,1.35))*1000;
+      pulseTimer=setTimeout(()=>{
+        if(!alive)return;
+        torqueStroke(0,false);
+        if(Math.random()<.38)torqueStroke(rand(.14,.24),true);
+        scheduleStroke(false);
+      },wait);
+    }
+    scheduleStroke(true);
+
+    return()=>{
+      alive=false;
+      if(pulseTimer)clearTimeout(pulseTimer);
+      continuous.forEach(n=>{try{n.stop()}catch(_){}});
+      pulseNodes.forEach(n=>{try{n.stop()}catch(_){}});pulseNodes.clear();
+      try{group.disconnect()}catch(_){ }
+    };
   }
 
   function startLightHum(){
