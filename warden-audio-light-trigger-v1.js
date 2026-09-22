@@ -52,7 +52,10 @@
     const row=toggle.closest('.wa-layer');if(!row)return false;
     if(row.querySelector('[data-light-hum-trigger]'))return true;
     const btn=document.createElement('button');
-    btn.className='wa-mini';btn.type='button';btn.textContent='TRIGGER';btn.setAttribute('data-light-hum-trigger','');
+    btn.className='wa-trigger';
+    btn.type='button';
+    btn.textContent='TRIGGER';
+    btn.setAttribute('data-light-hum-trigger','');
     btn.addEventListener('click',()=>{triggerHum();btn.classList.add('fired');setTimeout(()=>btn.classList.remove('fired'),350);});
     row.appendChild(btn);
     return true;
