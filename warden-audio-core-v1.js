@@ -5,9 +5,10 @@
   if(!NativeCtx)return;
 
   let nativeCtx=null;
-  let upperInput=null,cleanInput=null,dry=null,wet=null,out=null;
-  let delayA=null,delayB=null,filterA=null,filterB=null,feedbackA=null,feedbackB=null;
+  let upperInput=null,cleanInput=null,upperDry=null,out=null,granularBus=null;
+  let recorder=null,silentSink=null;
   let stretching=false;
+  let ringL=null,ringR=null,ringPos=0,ringFilled=0;
   const proxies=new Map();
 
   function ensureCore(){
@@ -17,28 +18,41 @@
 
     upperInput=nativeCtx.createGain();
     cleanInput=nativeCtx.createGain();
-    dry=nativeCtx.createGain();dry.gain.value=1;
-    wet=nativeCtx.createGain();wet.gain.value=.0001;
+    upperDry=nativeCtx.createGain();upperDry.gain.value=1;
+    granularBus=nativeCtx.createGain();granularBus.gain.value=1;
     out=nativeCtx.createDynamicsCompressor();
-    out.threshold.value=-16;out.knee.value=20;out.ratio.value=3;out.attack.value=.008;out.release.value=.38;
+    out.threshold.value=-16;out.knee.value=20;out.ratio.value=3;out.attack.value=.008;out.release.value=.42;
 
-    delayA=nativeCtx.createDelay(2.5);delayA.delayTime.value=.075;
-    delayB=nativeCtx.createDelay(3.5);delayB.delayTime.value=.13;
-    filterA=nativeCtx.createBiquadFilter();filterA.type='lowpass';filterA.frequency.value=1700;filterA.Q.value=.25;
-    filterB=nativeCtx.createBiquadFilter();filterB.type='lowpass';filterB.frequency.value=950;filterB.Q.value=.3;
-    feedbackA=nativeCtx.createGain();feedbackA.gain.value=.14;
-    feedbackB=nativeCtx.createGain();feedbackB.gain.value=.11;
+    // Familiar M-17 audio: normal path plus rolling capture for DEPTH STRETCH.
+    upperInput.connect(upperDry).connect(out);
+    granularBus.connect(out);
 
-    // Familiar M-17 audio: eligible for DEPTH STRETCH.
-    upperInput.connect(dry).connect(out);
-    upperInput.connect(delayA).connect(filterA).connect(wet).connect(out);
-    upperInput.connect(delayB).connect(filterB).connect(wet);
-    delayA.connect(feedbackA).connect(delayA);
-    delayB.connect(feedbackB).connect(delayB);
-
-    // DISLOCATION and everything below it: bypasses DEPTH STRETCH.
+    // Stage 3+ bypasses the familiar-audio stretch path entirely.
     cleanInput.connect(out);
     out.connect(nativeDestination);
+
+    // Keep roughly ten seconds of the familiar mix in memory. ScriptProcessor is
+    // intentionally used here because it remains broadly supported in Chromium and
+    // lets this page remain GitHub-only without a separate worklet asset.
+    const ringSeconds=10;
+    const ringFrames=Math.max(1,Math.floor(nativeCtx.sampleRate*ringSeconds));
+    ringL=new Float32Array(ringFrames);
+    ringR=new Float32Array(ringFrames);
+    recorder=nativeCtx.createScriptProcessor(4096,2,2);
+    silentSink=nativeCtx.createGain();silentSink.gain.value=0;
+    upperInput.connect(recorder);recorder.connect(silentSink).connect(nativeDestination);
+    recorder.onaudioprocess=e=>{
+      const input=e.inputBuffer;
+      const left=input.numberOfChannels?input.getChannelData(0):null;
+      const right=input.numberOfChannels>1?input.getChannelData(1):left;
+      if(!left)return;
+      for(let i=0;i<left.length;i++){
+        ringL[ringPos]=left[i]||0;
+        ringR[ringPos]=(right&&right[i])||left[i]||0;
+        ringPos=(ringPos+1)%ringL.length;
+        ringFilled=Math.min(ringFilled+1,ringL.length);
+      }
+    };
     return nativeCtx;
   }
 
@@ -78,50 +92,86 @@
     return nativeCtx;
   }
 
+  function recentBuffer(seconds){
+    resume();
+    const wanted=Math.min(ringFilled,Math.floor(nativeCtx.sampleRate*seconds));
+    if(wanted<Math.floor(nativeCtx.sampleRate*.35))return null;
+    const b=nativeCtx.createBuffer(2,wanted,nativeCtx.sampleRate);
+    const l=b.getChannelData(0),r=b.getChannelData(1);
+    let start=(ringPos-wanted+ringL.length)%ringL.length;
+    for(let i=0;i<wanted;i++){
+      const idx=(start+i)%ringL.length;
+      l[i]=ringL[idx];r[i]=ringR[idx];
+    }
+    return b;
+  }
+
+  function scheduleGrain(buffer,when,offset,duration,level,pan){
+    const src=nativeCtx.createBufferSource();src.buffer=buffer;
+    const g=nativeCtx.createGain();
+    const attack=Math.min(.11,duration*.42);
+    const release=Math.min(.13,duration*.48);
+    g.gain.setValueAtTime(.0001,when);
+    g.gain.linearRampToValueAtTime(level,when+attack);
+    g.gain.setValueAtTime(level,Math.max(when+attack,when+duration-release));
+    g.gain.linearRampToValueAtTime(.0001,when+duration);
+    if(nativeCtx.createStereoPanner){
+      const p=nativeCtx.createStereoPanner();p.pan.value=Math.max(-1,Math.min(1,pan));
+      src.connect(g).connect(p).connect(granularBus);
+    }else src.connect(g).connect(granularBus);
+    src.start(when,Math.max(0,Math.min(buffer.duration-.02,offset)),Math.min(duration,buffer.duration-offset));
+    try{src.stop(when+duration+.03);}catch(_){ }
+    return src;
+  }
+
   function triggerStretch(strength=1){
     resume();
-    const t=nativeCtx.currentTime;
-    const intensity=Math.max(.45,Math.min(1.25,Number(strength)||1));
-    const rise=1.2+Math.random()*.9;
-    const hold=.65+Math.random()*1.35;
-    const release=1.8+Math.random()*1.4;
-    const end=t+rise+hold+release;
+    if(stretching)return 0;
+    const intensity=Math.max(.5,Math.min(1.3,Number(strength)||1));
+    const captureSeconds=1.55+.65*intensity;
+    const buffer=recentBuffer(captureSeconds);
+    if(!buffer)return 0;
+
+    const t=nativeCtx.currentTime+.035;
+    const stretchFactor=2.15+.75*intensity;
+    const eventDuration=Math.min(7.4,buffer.duration*stretchFactor+1.2);
+    const grainDur=.28+.08*intensity;
+    const outHop=.105+.018*(1.3-intensity);
+    const sourceHop=outHop/stretchFactor;
+    const level=.22+.07*intensity;
+    const sourceSpan=Math.max(.2,buffer.duration-grainDur-.02);
+    const grainCount=Math.ceil(eventDuration/outHop)+2;
     stretching=true;
 
-    [dry.gain,wet.gain,delayA.delayTime,delayB.delayTime,filterA.frequency,filterB.frequency,feedbackA.gain,feedbackB.gain].forEach(p=>p.cancelScheduledValues(t));
+    // Let the stretched capture dominate without fully erasing the living room beneath it.
+    upperDry.gain.cancelScheduledValues(t);
+    upperDry.gain.setValueAtTime(upperDry.gain.value,t);
+    upperDry.gain.linearRampToValueAtTime(.28,t+.55);
+    upperDry.gain.setValueAtTime(.28,t+Math.max(.7,eventDuration-.8));
+    upperDry.gain.linearRampToValueAtTime(1,t+eventDuration+.25);
 
-    dry.gain.setValueAtTime(dry.gain.value,t);
-    dry.gain.linearRampToValueAtTime(Math.max(.42,.68-.12*intensity),t+rise);
-    dry.gain.setValueAtTime(Math.max(.42,.68-.12*intensity),t+rise+hold);
-    dry.gain.linearRampToValueAtTime(1,end);
+    // The capture advances through source time much more slowly than wall-clock time.
+    // Long overlapping grains and soft windows create the drawn-out waveform instead
+    // of the repeated taps/chop of a conventional delay.
+    for(let i=0;i<grainCount;i++){
+      const when=t+i*outHop;
+      const nominal=i*sourceHop;
+      const offset=Math.min(sourceSpan,nominal)+(Math.random()-.5)*.012;
+      const drift=(Math.random()-.5)*.16;
+      scheduleGrain(buffer,when,Math.max(0,offset),grainDur,level*(.86+Math.random()*.18),drift);
+    }
 
-    wet.gain.setValueAtTime(Math.max(.0001,wet.gain.value),t);
-    wet.gain.exponentialRampToValueAtTime(.20+.12*intensity,t+rise);
-    wet.gain.setValueAtTime(.20+.12*intensity,t+rise+hold);
-    wet.gain.exponentialRampToValueAtTime(.0001,end);
+    // A second, quieter grain stream trails slightly behind to widen the space without
+    // creating discrete echoes.
+    for(let i=0;i<grainCount;i+=2){
+      const when=t+.075+i*outHop;
+      const nominal=i*sourceHop*.96;
+      const offset=Math.min(sourceSpan,nominal)+(Math.random()-.5)*.016;
+      scheduleGrain(buffer,when,Math.max(0,offset),grainDur*.92,level*.38,(Math.random()<.5?-1:1)*(.25+Math.random()*.25));
+    }
 
-    delayA.delayTime.setValueAtTime(delayA.delayTime.value,t);
-    delayA.delayTime.linearRampToValueAtTime(.62+.28*intensity,t+rise);
-    delayA.delayTime.linearRampToValueAtTime(1.12+.34*intensity,t+rise+hold);
-    delayA.delayTime.linearRampToValueAtTime(.075,end);
-
-    delayB.delayTime.setValueAtTime(delayB.delayTime.value,t);
-    delayB.delayTime.linearRampToValueAtTime(1.05+.36*intensity,t+rise);
-    delayB.delayTime.linearRampToValueAtTime(1.82+.42*intensity,t+rise+hold);
-    delayB.delayTime.linearRampToValueAtTime(.13,end);
-
-    filterA.frequency.setValueAtTime(filterA.frequency.value,t);
-    filterA.frequency.exponentialRampToValueAtTime(620,t+rise+hold);
-    filterA.frequency.exponentialRampToValueAtTime(1700,end);
-    filterB.frequency.setValueAtTime(filterB.frequency.value,t);
-    filterB.frequency.exponentialRampToValueAtTime(310,t+rise+hold);
-    filterB.frequency.exponentialRampToValueAtTime(950,end);
-
-    feedbackA.gain.setValueAtTime(feedbackA.gain.value,t);feedbackA.gain.linearRampToValueAtTime(.25,t+rise);feedbackA.gain.linearRampToValueAtTime(.14,end);
-    feedbackB.gain.setValueAtTime(feedbackB.gain.value,t);feedbackB.gain.linearRampToValueAtTime(.20,t+rise);feedbackB.gain.linearRampToValueAtTime(.11,end);
-
-    setTimeout(()=>{stretching=false;},Math.ceil((end-t)*1000)+100);
-    return end-t;
+    setTimeout(()=>{stretching=false;},Math.ceil((eventDuration+.4)*1000));
+    return eventDuration;
   }
 
   window.WardenAudioCore={
@@ -132,6 +182,5 @@
     triggerStretch
   };
 
-  // Safe default for anything not explicitly scoped by the page.
   bindScope('clean');
 })();
