@@ -3,9 +3,20 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>The Hub — Warden Audio</title>
-<link rel="stylesheet" href="warden-audio-v1.css?v=20260922b">
-<link rel="stylesheet" href="warden-audio-page.css?v=20260922a">
+<script>
+  window.__WARDEN_AUDIO_BUILD='20260922-2341-H';
+  window.__WARDEN_AUDIO_CACHE=Date.now().toString(36);
+  ['warden-audio-v1.css','warden-audio-page.css'].forEach(href=>{
+    const link=document.createElement('link');
+    link.rel='stylesheet';
+    link.href=href+'?fresh='+window.__WARDEN_AUDIO_CACHE;
+    document.head.appendChild(link);
+  });
+</script>
 </head>
 <body class="audio-page">
 <header class="audio-page-header">
@@ -13,8 +24,12 @@
     <div>
       <div class="audio-page-title">THE HUB // WARDEN AUDIO</div>
       <div class="audio-page-sub">Dedicated live-session soundboard — GitHub-only / browser-generated audio</div>
+      <div class="audio-page-sub" id="audioBuildStamp">BUILD 20260922-2341-H</div>
     </div>
-    <a class="audio-page-return" href="warden.html">RETURN TO WARDEN CONSOLE</a>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end">
+      <button class="audio-page-return" id="audioForceReload" type="button">FORCE FRESH LOAD</button>
+      <a class="audio-page-return" href="warden.html">RETURN TO WARDEN CONSOLE</a>
+    </div>
   </div>
 </header>
 <main class="audio-page-main">
@@ -25,19 +40,41 @@
   <div id="audioMount"></div>
 </main>
 
-<script src="warden-audio-core-v1.js?v=20260922c"></script>
-<script>window.WardenAudioCore&&window.WardenAudioCore.bindScope('upper');</script>
-<script src="warden-audio-v1.js?v=20260922g"></script>
-<script src="warden-audio-light-trigger-v1.js?v=20260922b"></script>
-<script src="warden-audio-group1-role-swap-v1.js?v=20260922a"></script>
-<script src="warden-audio-signal-v1.js?v=20260922c"></script>
-
-<script>window.WardenAudioCore&&window.WardenAudioCore.bindScope('clean');</script>
-<script src="warden-audio-dislocation-v1.js?v=20260922d"></script>
-<script src="warden-audio-late-v1.js?v=20260922d"></script>
-
 <script>
-(()=>{
+(async()=>{
+  const token=window.__WARDEN_AUDIO_CACHE||Date.now().toString(36);
+  const loadScript=src=>new Promise((resolve,reject)=>{
+    const s=document.createElement('script');
+    s.src=src+'?fresh='+token;
+    s.async=false;
+    s.onload=resolve;
+    s.onerror=()=>reject(new Error('Failed to load '+src));
+    document.body.appendChild(s);
+  });
+
+  document.getElementById('audioForceReload').addEventListener('click',()=>{
+    const u=new URL(window.location.href);
+    u.searchParams.set('fresh',Date.now().toString());
+    window.location.replace(u.toString());
+  });
+
+  try{
+    await loadScript('warden-audio-core-v1.js');
+    window.WardenAudioCore&&window.WardenAudioCore.bindScope('upper');
+    await loadScript('warden-audio-v1.js');
+    await loadScript('warden-audio-light-trigger-v1.js');
+    await loadScript('warden-audio-group1-role-swap-v1.js');
+    await loadScript('warden-audio-signal-v1.js');
+
+    window.WardenAudioCore&&window.WardenAudioCore.bindScope('clean');
+    await loadScript('warden-audio-dislocation-v1.js');
+    await loadScript('warden-audio-late-v1.js');
+  }catch(err){
+    const mount=document.getElementById('audioMount');
+    mount.innerHTML='<div class="audio-page-intro"><strong>AUDIO LOAD ERROR</strong><p>'+String(err.message||err)+'</p></div>';
+    return;
+  }
+
   let tries=0;
   const timer=setInterval(()=>{
     tries++;
