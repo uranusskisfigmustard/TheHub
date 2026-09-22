@@ -49,7 +49,7 @@
   }
 
   function startRoom(){
-    const ctx=ensureAudio(),group=ctx.createGain();group.gain.value=1;group.connect(S.master);
+    const ctx=ensureAudio(),group=ctx.createGain();group.gain.value=.72;group.connect(S.master);
     const src=ctx.createBufferSource();src.buffer=S.noise;src.loop=true;
     const hp=ctx.createBiquadFilter();hp.type='highpass';hp.frequency.value=85;
     const lp=ctx.createBiquadFilter();lp.type='lowpass';lp.frequency.value=1750;
@@ -61,7 +61,7 @@
   }
 
   function startMachinery(){
-    const ctx=ensureAudio(),group=ctx.createGain();group.gain.value=.72;group.connect(S.master);
+    const ctx=ensureAudio(),group=ctx.createGain();group.gain.value=1;group.connect(S.master);
     const oscs=[];
     [[27,.025,'sine'],[53.5,.012,'triangle'],[86,.006,'sawtooth'],[113,.0035,'triangle']].forEach(([f,v,type])=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type=type;o.frequency.value=f;g.gain.value=v;o.connect(g).connect(group);o.start();oscs.push(o);});
     const noise=ctx.createBufferSource();noise.buffer=S.noise;noise.loop=true;const bp=ctx.createBiquadFilter();bp.type='bandpass';bp.frequency.value=430;bp.Q.value=.65;const ng=ctx.createGain();ng.gain.value=.012;noise.connect(bp).connect(ng).connect(group);noise.start();
