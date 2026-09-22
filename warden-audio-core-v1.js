@@ -4,14 +4,19 @@
   const NativeCtx=window.AudioContext||window.webkitAudioContext;
   if(!NativeCtx)return;
 
-  let nativeCtx=null,proxyCtx=null,input=null,dry=null,wet=null,out=null,delayA=null,delayB=null,filterA=null,filterB=null,feedbackA=null,feedbackB=null,stretching=false;
+  let nativeCtx=null;
+  let upperInput=null,cleanInput=null,dry=null,wet=null,out=null;
+  let delayA=null,delayB=null,filterA=null,filterB=null,feedbackA=null,feedbackB=null;
+  let stretching=false;
+  const proxies=new Map();
 
-  function init(){
-    if(proxyCtx)return proxyCtx;
+  function ensureCore(){
+    if(nativeCtx)return nativeCtx;
     nativeCtx=new NativeCtx();
     const nativeDestination=nativeCtx.destination;
 
-    input=nativeCtx.createGain();
+    upperInput=nativeCtx.createGain();
+    cleanInput=nativeCtx.createGain();
     dry=nativeCtx.createGain();dry.gain.value=1;
     wet=nativeCtx.createGain();wet.gain.value=.0001;
     out=nativeCtx.createDynamicsCompressor();
@@ -24,30 +29,54 @@
     feedbackA=nativeCtx.createGain();feedbackA.gain.value=.14;
     feedbackB=nativeCtx.createGain();feedbackB.gain.value=.11;
 
-    input.connect(dry).connect(out);
-    input.connect(delayA).connect(filterA).connect(wet).connect(out);
-    input.connect(delayB).connect(filterB).connect(wet);
+    // Familiar M-17 audio: eligible for DEPTH STRETCH.
+    upperInput.connect(dry).connect(out);
+    upperInput.connect(delayA).connect(filterA).connect(wet).connect(out);
+    upperInput.connect(delayB).connect(filterB).connect(wet);
     delayA.connect(feedbackA).connect(delayA);
     delayB.connect(feedbackB).connect(delayB);
-    out.connect(nativeDestination);
 
-    proxyCtx=new Proxy(nativeCtx,{
+    // DISLOCATION and everything below it: bypasses DEPTH STRETCH.
+    cleanInput.connect(out);
+    out.connect(nativeDestination);
+    return nativeCtx;
+  }
+
+  function proxyFor(scope){
+    ensureCore();
+    const normalized=scope==='upper'?'upper':'clean';
+    if(proxies.has(normalized))return proxies.get(normalized);
+    const destination=normalized==='upper'?upperInput:cleanInput;
+    const proxy=new Proxy(nativeCtx,{
       get(target,prop){
-        if(prop==='destination')return input;
+        if(prop==='destination')return destination;
         const value=Reflect.get(target,prop,target);
         return typeof value==='function'?value.bind(target):value;
       }
     });
-    return proxyCtx;
+    proxies.set(normalized,proxy);
+    return proxy;
   }
 
-  function SharedAudioContext(){return init();}
-  SharedAudioContext.prototype=NativeCtx.prototype;
-  try{Object.setPrototypeOf(SharedAudioContext,NativeCtx);}catch(_){ }
-  window.AudioContext=SharedAudioContext;
-  if(window.webkitAudioContext)window.webkitAudioContext=SharedAudioContext;
+  function makeScopedConstructor(scope){
+    function ScopedAudioContext(){return proxyFor(scope);}
+    ScopedAudioContext.prototype=NativeCtx.prototype;
+    try{Object.setPrototypeOf(ScopedAudioContext,NativeCtx);}catch(_){ }
+    return ScopedAudioContext;
+  }
 
-  function resume(){const ctx=init();if(nativeCtx.state==='suspended')nativeCtx.resume();return ctx;}
+  function bindScope(scope){
+    const ctor=makeScopedConstructor(scope);
+    window.AudioContext=ctor;
+    if(window.webkitAudioContext)window.webkitAudioContext=ctor;
+    return ctor;
+  }
+
+  function resume(){
+    ensureCore();
+    if(nativeCtx.state==='suspended')nativeCtx.resume();
+    return nativeCtx;
+  }
 
   function triggerStretch(strength=1){
     resume();
@@ -96,9 +125,13 @@
   }
 
   window.WardenAudioCore={
-    get context(){return resume();},
-    get input(){resume();return input;},
+    bindScope,
+    get upperInput(){resume();return upperInput;},
+    get cleanInput(){resume();return cleanInput;},
     get stretching(){return stretching;},
     triggerStretch
   };
+
+  // Safe default for anything not explicitly scoped by the page.
+  bindScope('clean');
 })();
