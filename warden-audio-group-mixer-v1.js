@@ -18,12 +18,12 @@ const state={
   g2:.18
 };
 
-// Track HTMLAudioElement volume as a source-level "base" volume, then apply the
-// group multiplier beneath it. This lets the existing MASTER control and each
-// sound's own mix level continue to work exactly as before.
-const NativeAudio=window.Audio;
-const volumeDesc=Object.getOwnPropertyDescriptor(HTMLMediaElement.prototype,'volume');
+// IMPORTANT: do not replace window.Audio and do not redefine media.volume.
+// START M-17 creates several HTMLAudioElement loops at once; constructor/property
+// interception caused the AK freeze. We leave browser media objects completely native.
 const media={g1:new Set(),g2:new Set()};
+const info=new WeakMap();
+const nativePlay=HTMLMediaElement.prototype.play;
 
 function classify(src){
   src=String(src||'');
@@ -40,38 +40,25 @@ function classify(src){
 
 function groupGain(group){return group==='g1'?state.g1:state.g2;}
 
-function installVolumeProxy(a,group){
-  if(!a||a.__waGroupMixerInstalled||!volumeDesc||!volumeDesc.get||!volumeDesc.set)return a;
-  let base=clamp(Number(volumeDesc.get.call(a))||1,0,1);
-  Object.defineProperty(a,'volume',{
-    configurable:true,
-    enumerable:true,
-    get(){return base;},
-    set(v){
-      base=clamp(Number(v)||0,0,1);
-      try{volumeDesc.set.call(a,clamp(base*groupGain(group),0,1));}catch(_){ }
-    }
-  });
-  a.__waGroupMixerInstalled=true;
-  a.__waGroupMixerGroup=group;
-  a.__waGroupMixerBase=()=>base;
+function registerMedia(a){
+  if(!a||info.has(a))return;
+  const group=classify(a.currentSrc||a.src);
+  const base=clamp(Number(a.volume)||0,0,1);
+  const rec={group,base,lastApplied:null};
+  info.set(a,rec);
   media[group].add(a);
   const forget=()=>media[group].delete(a);
   a.addEventListener('ended',forget,{once:true});
   a.addEventListener('error',forget,{once:true});
-  a.volume=base;
-  return a;
+  applyMediaOne(a,false);
 }
 
-function WrappedAudio(src){
-  const a=new NativeAudio(src);
-  return installVolumeProxy(a,classify(src));
-}
-try{
-  WrappedAudio.prototype=NativeAudio.prototype;
-  Object.setPrototypeOf(WrappedAudio,NativeAudio);
-}catch(_){ }
-window.Audio=WrappedAudio;
+// Register normal media when it actually begins playback. This observes native Audio;
+// it does not construct, clone, proxy, or restart anything.
+HTMLMediaElement.prototype.play=function(...args){
+  registerMedia(this);
+  return nativePlay.apply(this,args);
+};
 
 function recompute(){
   const x=clamp(state.crossfade,0,1);
@@ -79,14 +66,25 @@ function recompute(){
   state.g2=clamp(state.group2Min+(.95-state.group2Min)*x,0,.95);
 }
 
-function applyMedia(){
+function applyMediaOne(a,refreshBase=false){
+  const rec=info.get(a);
+  if(!rec)return;
+  try{
+    const current=clamp(Number(a.volume)||0,0,1);
+    // On MASTER changes, the owning engine writes a fresh ungrouped level first.
+    // Capture that as the new base, then reapply only the group multiplier.
+    if(refreshBase || (rec.lastApplied!==null && Math.abs(current-rec.lastApplied)>.025)){
+      rec.base=current;
+    }
+    const target=clamp(rec.base*groupGain(rec.group),0,1);
+    if(Math.abs(current-target)>.001)a.volume=target;
+    rec.lastApplied=target;
+  }catch(_){ }
+}
+
+function applyMedia(refreshBase=false){
   ['g1','g2'].forEach(group=>{
-    media[group].forEach(a=>{
-      try{
-        const base=typeof a.__waGroupMixerBase==='function'?a.__waGroupMixerBase():Number(a.volume)||0;
-        volumeDesc.set.call(a,clamp(base*groupGain(group),0,1));
-      }catch(_){ }
-    });
+    media[group].forEach(a=>applyMediaOne(a,refreshBase));
   });
 }
 
@@ -97,13 +95,13 @@ function applyWebAudio(){
     const upper=core.upperInput;
     const t=upper.context.currentTime;
     upper.gain.cancelScheduledValues(t);
-    upper.gain.setTargetAtTime(state.g1,t,.06);
+    upper.gain.setTargetAtTime(state.g1,t,.08);
   }catch(_){ }
   try{
     const clean=core.cleanInput;
     const t=clean.context.currentTime;
     clean.gain.cancelScheduledValues(t);
-    clean.gain.setTargetAtTime(state.g2,t,.06);
+    clean.gain.setTargetAtTime(state.g2,t,.08);
   }catch(_){ }
 }
 
@@ -118,7 +116,7 @@ function render(){
 
 function apply(){
   recompute();
-  applyMedia();
+  applyMedia(false);
   applyWebAudio();
   render();
 }
@@ -139,6 +137,17 @@ function setCrossfade(v){
   apply();
 }
 
+function bindMaster(){
+  const slider=document.getElementById('waVolume');
+  if(!slider||slider.dataset.groupMixerBound)return;
+  slider.dataset.groupMixerBound='1';
+  slider.addEventListener('input',()=>{
+    // Let Group 1/2 engines calculate their normal MASTER-relative volumes first.
+    // Then record those native values as the new source bases and reapply grouping.
+    setTimeout(()=>applyMedia(true),0);
+  });
+}
+
 function build(){
   if(document.getElementById('waGroupMixer'))return true;
   const dock=document.getElementById('wardenAudioDock');
@@ -154,11 +163,12 @@ function build(){
       <label class="wa-volume"><span>GROUP 2 MIN <b id="waGroup2Readout">${Math.round(state.g2*100)}%</b></span><input id="waGroup2Min" type="range" min="0" max="0.95" step="0.01" value="${state.group2Min}"></label>
       <label class="wa-volume"><span>CROSSFADE <b id="waCrossfadeReadout">${Math.round(state.crossfade*100)}%</b></span><input id="waGroupCrossfade" type="range" min="0" max="1" step="0.01" value="${state.crossfade}"></label>
     </div>
-    <small style="display:block;margin-top:6px;opacity:.72">0% crossfade = Group 1 at its MAX and Group 2 at its MIN. 100% = Group 1 silent and Group 2 at 95%. MASTER still controls overall loudness.</small>`;
+    <small style="display:block;margin-top:6px;opacity:.72">0% = Group 1 at its selected MAX and Group 2 at its selected MIN. 100% = Group 1 silent and Group 2 at 95%. MASTER remains the overall output control.</small>`;
   body.insertBefore(section,body.children[1]||null);
   document.getElementById('waGroup1Max').addEventListener('input',e=>setGroup1Max(e.target.value));
   document.getElementById('waGroup2Min').addEventListener('input',e=>setGroup2Min(e.target.value));
   document.getElementById('waGroupCrossfade').addEventListener('input',e=>setCrossfade(e.target.value));
+  bindMaster();
   apply();
   return true;
 }
@@ -167,15 +177,8 @@ recompute();
 let tries=0;
 const wait=setInterval(()=>{
   tries++;
-  apply();
-  if(build()||tries>120)clearInterval(wait);
+  if(build()||tries>120){clearInterval(wait);apply();}
 },100);
 
-window.WardenGroupMixer={
-  state,
-  setGroup1Max,
-  setGroup2Min,
-  setCrossfade,
-  apply
-};
+window.WardenGroupMixer={state,setGroup1Max,setGroup2Min,setCrossfade,apply};
 })();
