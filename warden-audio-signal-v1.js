@@ -14,13 +14,19 @@
   const ANSWER_SAMPLE='https://opengameart.org/sites/default/files/monster_roar.wav';
 
   const defs=[
-    {id:'orePulse',label:'ORE PULSE',desc:'Real Southern Cassowary call — low, bodily beacon pulse'},
+    {id:'orePulse',label:'ORE PULSE',desc:'Filtered real Southern Cassowary call — low, bodily beacon pulse'},
     {id:'answer',label:'ANSWERING PULSE',desc:'Distant recorded deep-creature reply — slower, larger, and nonlocal'}
   ];
 
   const S={active:new Set(),timers:new Map(),playing:new Map(),started:new Map()};
   const rand=(a,b)=>a+Math.random()*(b-a);
   const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+
+  // Cassowary cleanup. Two gentle low-passes strongly reduce birds/hiss above the useful
+  // boom while the high-pass removes subsonic handling/wind rumble. A small 90 Hz lift
+  // restores body on laptop/TV speakers. If CORS filtering fails, playback falls back to
+  // the original unfiltered recording rather than going silent.
+  const F={ctx:null,nodes:new Map(),disabled:false};
 
   function masterVolume(){
     const slider=document.getElementById('waVolume');
@@ -52,9 +58,53 @@
     a.volume=clamp(masterVolume()*mix*fade,0,1);
   }
 
+  function primeOreFilter(){
+    if(F.disabled)return null;
+    try{
+      if(!F.ctx){
+        const Ctx=window.AudioContext||window.webkitAudioContext;
+        if(!Ctx){F.disabled=true;return null;}
+        F.ctx=new Ctx();
+      }
+      if(F.ctx.state==='suspended')F.ctx.resume().catch(()=>{});
+      return F.ctx;
+    }catch(_){F.disabled=true;return null;}
+  }
+
+  function wireOreFilter(a){
+    const ctx=primeOreFilter();
+    if(!ctx)return false;
+    try{
+      const src=ctx.createMediaElementSource(a);
+      const hp=ctx.createBiquadFilter();
+      hp.type='highpass';hp.frequency.value=28;hp.Q.value=.65;
+
+      const body=ctx.createBiquadFilter();
+      body.type='peaking';body.frequency.value=90;body.Q.value=.9;body.gain.value=4.0;
+
+      const lp1=ctx.createBiquadFilter();
+      lp1.type='lowpass';lp1.frequency.value=285;lp1.Q.value=.7;
+      const lp2=ctx.createBiquadFilter();
+      lp2.type='lowpass';lp2.frequency.value=285;lp2.Q.value=.7;
+
+      src.connect(hp);hp.connect(body);body.connect(lp1);lp1.connect(lp2);lp2.connect(ctx.destination);
+      F.nodes.set(a,[src,hp,body,lp1,lp2]);
+      return true;
+    }catch(_){
+      F.disabled=true;
+      return false;
+    }
+  }
+
+  function releaseFilter(a){
+    const nodes=F.nodes.get(a);
+    if(nodes){nodes.forEach(n=>{try{n.disconnect();}catch(_){ }});F.nodes.delete(a);}
+  }
+
   function retire(id,a){
     const set=S.playing.get(id);
     if(set)set.delete(a);
+    releaseFilter(a);
   }
 
   function stopTrack(id,a){
@@ -78,29 +128,59 @@
     a.dataset.waHoldTimer=String(hold);
   }
 
+  function playOreRawFallback(manual=false){
+    const a=new Audio(ORE_SAMPLE);
+    a.preload='auto';
+    a.dataset.waFade='1';
+    a.dataset.waMix=String(manual?1.0:.76);
+    setPitchMode(a,1.0);
+    applyVolume(a);
+    if(!S.playing.has('orePulse'))S.playing.set('orePulse',new Set());
+    S.playing.get('orePulse').add(a);
+    const cleanup=()=>retire('orePulse',a);
+    a.addEventListener('ended',cleanup,{once:true});
+    a.addEventListener('error',cleanup,{once:true});
+    const p=a.play();
+    if(p&&typeof p.catch==='function')p.catch(cleanup);
+    fadeTrack('orePulse',a,manual?4800:3200,800);
+  }
+
   function playRecorded(id,manual=false){
     const isAnswer=id==='answer';
-    const a=new Audio(isAnswer?ANSWER_SAMPLE:ORE_SAMPLE);
+    const a=new Audio();
+    if(!isAnswer&&!F.disabled)a.crossOrigin='anonymous';
+    a.src=isAnswer?ANSWER_SAMPLE:ORE_SAMPLE;
     a.preload='auto';
     a.dataset.waFade='1';
     a.dataset.waMix=String(isAnswer?(manual?.78:.54):(manual?1.0:.76));
 
-    // Keep the cassowary recording at its natural pitch for the first audition.
-    // The reply remains slowed so it reads as something much larger and farther away.
+    // Keep the cassowary at natural pitch. The reply remains slowed so it reads as
+    // something much larger and farther away.
     setPitchMode(a,isAnswer?.72:1.0);
     applyVolume(a);
 
     if(!S.playing.has(id))S.playing.set(id,new Set());
     S.playing.get(id).add(a);
 
+    let fallbackUsed=false;
     const cleanup=()=>retire(id,a);
     a.addEventListener('ended',cleanup,{once:true});
-    a.addEventListener('error',cleanup,{once:true});
+    a.addEventListener('error',()=>{
+      cleanup();
+      if(!isAnswer&&!fallbackUsed){
+        fallbackUsed=true;
+        F.disabled=true;
+        playOreRawFallback(manual);
+      }
+    },{once:true});
 
-    // Give the real cassowary call enough time to establish its characteristic boom.
     const begin=()=>{
+      if(!isAnswer&&!F.disabled)wireOreFilter(a);
       const p=a.play();
-      if(p&&typeof p.catch==='function')p.catch(cleanup);
+      if(p&&typeof p.catch==='function')p.catch(()=>{
+        cleanup();
+        if(!isAnswer&&!fallbackUsed){fallbackUsed=true;F.disabled=true;playOreRawFallback(manual);}
+      });
       if(isAnswer)fadeTrack(id,a,manual?4700:5200,1900);
       else fadeTrack(id,a,manual?4800:3200,800);
     };
@@ -148,6 +228,7 @@
     on=!!on;
     if(on){
       if(S.active.has(id))return;
+      if(id==='orePulse')primeOreFilter();
       S.active.add(id);
       S.started.set(id,performance.now());
       schedule(id,true);
@@ -162,10 +243,10 @@
 
   function trigger(id){
     if(!defs.some(d=>d.id===id))return;
+    if(id==='orePulse')primeOreFilter();
     playRecorded(id,true);
     const b=document.querySelector(`[data-signal-trigger="${id}"]`);
     if(b){b.classList.add('fired');setTimeout(()=>b.classList.remove('fired'),350);}
-    // Manual audition while enabled resets the automatic clock to avoid an immediate duplicate.
     if(S.active.has(id))schedule(id,false);
   }
 
