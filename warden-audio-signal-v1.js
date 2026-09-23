@@ -8,7 +8,7 @@
   const ANSWER_SAMPLE='https://opengameart.org/sites/default/files/monster_roar.wav';
 
   const defs=[
-    {id:'orePulse',label:'ORE PULSE',desc:'Cassowary-spectrum modeled boom — low bodily pulse with no field-recording noise'},
+    {id:'orePulse',label:'ORE PULSE',desc:'Cassowary-spectrum modeled boom — long, deep bodily pulse with no field-recording noise'},
     {id:'answer',label:'ANSWERING PULSE',desc:'Distant recorded deep-creature reply — slower, larger, and nonlocal'}
   ];
 
@@ -58,10 +58,12 @@
     const b=ctx.createBuffer(1,frames,ctx.sampleRate);
     const d=b.getChannelData(0);
     let x=0;
+    let drift=0;
     for(let i=0;i<frames;i++){
       const white=Math.random()*2-1;
-      x=.965*x+.035*white;
-      d[i]=x;
+      drift=.994*drift+.006*white;
+      x=.976*x+.024*white;
+      d[i]=x*.72+drift*.42;
     }
     let peak=0;
     for(let i=0;i<frames;i++)peak=Math.max(peak,Math.abs(d[i]));
@@ -81,84 +83,101 @@
   }
 
   // Measured cassowary reference:
-  // Southern cassowary boom extends to ~32 Hz and individual pulses are ~0.8 s.
-  // Dwarf cassowary shows strong low harmonics near 25/50/75/100 Hz, with a rough
-  // 100-200 Hz roar-like component at call boundaries. This model adapts that anatomy
-  // to small speakers by keeping a faint 32 Hz foundation while making 64/96/128 Hz
-  // the audible body. Resonances are excited by low, irregular noise rather than clean
-  // oscillators so the result behaves more like a vibrating throat/chest than a synth chord.
+  // Southern cassowary boom reaches ~32 Hz. Dwarf cassowary shows strong low harmonics
+  // near 25/50/75/100 Hz, plus a rougher 100-200 Hz boundary component.
+  // This model deliberately extends the envelope beyond a literal single bird pulse so the
+  // table effect has the same sense of chest/room pressure the field recording conveyed.
+  // Most audible mass is carried by 48/72/96 Hz, with 32 Hz only reinforcing the floor.
   function playOre(manual=false){
     const ctx=audioContext();
     if(!ctx)return ()=>{};
 
     const now=ctx.currentTime+.01;
-    const dur=rand(.78,.92);
+    const dur=rand(2.4,3.0);
     const source=ctx.createBufferSource();
-    source.buffer=makeLowNoiseBuffer(ctx,dur+.12);
+    source.buffer=makeLowNoiseBuffer(ctx,dur+.25);
 
     const pre=ctx.createBiquadFilter();
     pre.type='lowpass';
-    pre.frequency.value=230;
-    pre.Q.value=.55;
+    pre.frequency.value=185;
+    pre.Q.value=.5;
 
     const bodyBus=ctx.createGain();
     const bodyEnv=ctx.createGain();
+
     const comp=ctx.createDynamicsCompressor();
-    comp.threshold.value=-26;
-    comp.knee.value=15;
-    comp.ratio.value=2.1;
-    comp.attack.value=.012;
-    comp.release.value=.22;
+    comp.threshold.value=-29;
+    comp.knee.value=18;
+    comp.ratio.value=2.4;
+    comp.attack.value=.025;
+    comp.release.value=.48;
 
     const output=ctx.createGain();
     const p=progress('orePulse');
-    const autoMix=.68+.22*p;
+    const autoMix=.72+.18*p;
     output.gain.value=masterVolume()*(manual?1:autoMix);
 
     source.connect(pre);
     pre.connect(bodyBus);
 
     const resonances=[
-      {f:32,g:.16,q:2.0},
-      {f:64,g:.58,q:3.2},
-      {f:96,g:.72,q:3.0},
-      {f:128,g:.38,q:2.5}
+      {f:32,g:.12,q:2.4},
+      {f:48,g:.62,q:4.4},
+      {f:72,g:.92,q:4.1},
+      {f:96,g:.70,q:3.7},
+      {f:120,g:.28,q:2.7}
     ];
 
     const nodes=[source,pre,bodyBus,bodyEnv,comp,output];
     resonances.forEach(r=>{
       const filter=ctx.createBiquadFilter();
       filter.type='bandpass';
-      filter.frequency.value=r.f*rand(.987,1.013);
+      filter.frequency.value=r.f*rand(.992,1.008);
       filter.Q.value=r.q;
       const gain=ctx.createGain();
-      gain.gain.value=r.g*rand(.92,1.08);
+      gain.gain.value=r.g*rand(.94,1.06);
       bodyBus.connect(filter);
       filter.connect(gain);
       gain.connect(bodyEnv);
       nodes.push(filter,gain);
     });
 
-    // Brief rough throat component, analogous to the measured 100-200 Hz roar-like edge.
+    // A second broad chest resonance gives the boom physical width instead of a single pulse.
+    const chest=ctx.createBiquadFilter();
+    chest.type='bandpass';
+    chest.frequency.value=rand(54,62);
+    chest.Q.value=1.15;
+    const chestGain=ctx.createGain();
+    chestGain.gain.value=.38;
+    pre.connect(chest);
+    chest.connect(chestGain);
+    chestGain.connect(bodyEnv);
+    nodes.push(chest,chestGain);
+
+    // Restrained throat texture at the front and very end; it should not become the focus.
     const throat=ctx.createBiquadFilter();
     throat.type='bandpass';
-    throat.frequency.value=rand(138,164);
-    throat.Q.value=.85;
+    throat.frequency.value=rand(125,150);
+    throat.Q.value=.72;
     const throatGain=ctx.createGain();
-    throatGain.gain.setValueAtTime(0,now);
-    throatGain.gain.linearRampToValueAtTime(.34,now+.035);
-    throatGain.gain.exponentialRampToValueAtTime(.035,now+.25);
-    throatGain.gain.setValueAtTime(.0001,now+.34);
+    throatGain.gain.setValueAtTime(.0001,now);
+    throatGain.gain.linearRampToValueAtTime(.17,now+.09);
+    throatGain.gain.exponentialRampToValueAtTime(.018,now+.48);
+    throatGain.gain.setValueAtTime(.012,now+Math.max(.7,dur-.42));
+    throatGain.gain.linearRampToValueAtTime(.07,now+Math.max(.8,dur-.24));
+    throatGain.gain.exponentialRampToValueAtTime(.0001,now+dur);
     pre.connect(throat);
     throat.connect(throatGain);
     throatGain.connect(bodyEnv);
     nodes.push(throat,throatGain);
 
-    // Cassowary-like pulse envelope: fast inflation, bodily plateau, soft collapse.
+    // Long pressure envelope: gradual inflation, broad hold, then a heavy lingering collapse.
     bodyEnv.gain.setValueAtTime(.0001,now);
-    bodyEnv.gain.exponentialRampToValueAtTime(.82,now+.045);
-    bodyEnv.gain.linearRampToValueAtTime(1.0,now+.14);
-    bodyEnv.gain.setValueAtTime(.94,now+Math.max(.18,dur-.28));
+    bodyEnv.gain.exponentialRampToValueAtTime(.34,now+.11);
+    bodyEnv.gain.linearRampToValueAtTime(.82,now+.34);
+    bodyEnv.gain.linearRampToValueAtTime(1.0,now+.62);
+    bodyEnv.gain.setValueAtTime(.98,now+Math.max(.75,dur-1.05));
+    bodyEnv.gain.linearRampToValueAtTime(.62,now+Math.max(1.0,dur-.62));
     bodyEnv.gain.exponentialRampToValueAtTime(.0001,now+dur);
 
     bodyEnv.connect(comp);
@@ -177,7 +196,7 @@
 
     source.onended=()=>stop();
     source.start(now);
-    source.stop(now+dur+.03);
+    source.stop(now+dur+.04);
     return stop;
   }
 
