@@ -55,21 +55,25 @@
 
   function pulseShape(id){
     const p=progress(id);
-    // Early: long / short, faint, irregular. Late: ~0.9s pulse every ~2.7s at stable level.
+    // Early remains hesitant and irregular; late settles into a recognizable cadence.
+    // Raised overall level so the effect survives laptop/TV playback.
     const gap=(1-p)*rand(6.5,12.5)+p*rand(2.45,2.95);
     const dur=(1-p)*rand(.55,2.6)+p*rand(.78,1.05);
-    const amp=(1-p)*rand(.010,.024)+p*rand(.050,.062);
+    const amp=(1-p)*rand(.024,.042)+p*rand(.068,.084);
     return {p,gap,dur,amp};
   }
 
   function makePulse(id,answer=false,manual=false){
     const ctx=ensureAudio(),shape=pulseShape(id),start=now()+.03+(answer?rand(.65,1.8):0),nodes=[];
-    const group=ctx.createGain();group.gain.value=answer?.58:1;group.connect(S.master);
+    const group=ctx.createGain();
+    // Manual ore trigger is deliberately auditionable; ANSWERING PULSE keeps its softer relationship.
+    group.gain.value=answer?.58:(manual?1.35:1.12);
+    group.connect(S.master);
 
-    // Low broadband body. No pitched oscillator: filtered brown/white noise only.
+    // Low pressure body. Still broadband/non-pitched, but no longer confined almost entirely below 100 Hz.
     const low=ctx.createBufferSource();low.buffer=S.noise;
-    const lp=ctx.createBiquadFilter();lp.type='lowpass';lp.frequency.value=answer?105:92;lp.Q.value=.45;
-    const hp=ctx.createBiquadFilter();hp.type='highpass';hp.frequency.value=28;
+    const lp=ctx.createBiquadFilter();lp.type='lowpass';lp.frequency.value=answer?105:175;lp.Q.value=.45;
+    const hp=ctx.createBiquadFilter();hp.type='highpass';hp.frequency.value=answer?28:42;
     const lg=ctx.createGain();
     const peak=shape.amp*(answer?.72:1);
     lg.gain.setValueAtTime(.0001,start);
@@ -83,21 +87,23 @@
     }else lg.connect(group);
     low.start(start);low.stop(start+shape.dur+.03);nodes.push(low);
 
-    // A little dense mineral/body texture in the low-mid range, also noise based.
+    // Speaker-readable mineral/body texture. This carries perceived mass on small speakers
+    // without introducing a pitched oscillator or musical tone.
     const body=ctx.createBufferSource();body.buffer=S.noise;
-    const bp=ctx.createBiquadFilter();bp.type='bandpass';bp.frequency.value=answer?175:145;bp.Q.value=.55;
+    const bp=ctx.createBiquadFilter();bp.type='bandpass';bp.frequency.value=answer?175:245;bp.Q.value=answer?.55:.72;
     const bg=ctx.createGain();
     bg.gain.setValueAtTime(.0001,start);
-    bg.gain.exponentialRampToValueAtTime(peak*(answer?.24:.32),start+Math.min(.28,shape.dur*.22));
-    bg.gain.exponentialRampToValueAtTime(.0001,start+shape.dur*.92);
+    bg.gain.exponentialRampToValueAtTime(peak*(answer?.24:.72),start+Math.min(.28,shape.dur*.22));
+    bg.gain.setValueAtTime(peak*(answer?.18:.46),start+Math.max(.16,shape.dur*.56));
+    bg.gain.exponentialRampToValueAtTime(.0001,start+shape.dur*.94);
     body.connect(bp).connect(bg).connect(group);body.start(start);body.stop(start+shape.dur+.03);nodes.push(body);
 
-    // A very faint dry pressure edge so each pulse has a physical onset, not a tone.
+    // Dry pressure edge: audible enough to define the event, still noise-based rather than a beep.
     const edge=ctx.createBufferSource();edge.buffer=S.noise;
-    const ehp=ctx.createBiquadFilter();ehp.type='highpass';ehp.frequency.value=answer?520:420;
-    const elp=ctx.createBiquadFilter();elp.type='lowpass';elp.frequency.value=answer?1100:900;
-    const eg=ctx.createGain();eg.gain.setValueAtTime(peak*.12,start);eg.gain.exponentialRampToValueAtTime(.0001,start+Math.min(.16,shape.dur*.2));
-    edge.connect(ehp).connect(elp).connect(eg).connect(group);edge.start(start);edge.stop(start+.18);nodes.push(edge);
+    const ehp=ctx.createBiquadFilter();ehp.type='highpass';ehp.frequency.value=answer?520:380;
+    const elp=ctx.createBiquadFilter();elp.type='lowpass';elp.frequency.value=answer?1100:1250;
+    const eg=ctx.createGain();eg.gain.setValueAtTime(peak*(answer?.12:.26),start);eg.gain.exponentialRampToValueAtTime(.0001,start+Math.min(.18,shape.dur*.22));
+    edge.connect(ehp).connect(elp).connect(eg).connect(group);edge.start(start);edge.stop(start+.2);nodes.push(edge);
 
     const stop=()=>{nodes.forEach(n=>{try{n.stop()}catch(_){}});try{group.disconnect()}catch(_){}};
     setTimeout(()=>{try{stop()}catch(_){ }},(shape.dur+2.2)*1000);
@@ -132,7 +138,6 @@
 
   function trigger(id){
     if(!defs.some(d=>d.id===id))return;ensureAudio();
-    // Manual trigger uses the current progression if active; if inactive, use an early faint pulse.
     if(!S.started.has(id))S.started.set(id,performance.now());
     const r=makePulse(id,id==='answer',true);setTimeout(()=>{try{r.stop()}catch(_){ }},5000);
     const b=document.querySelector(`[data-signal-trigger="${id}"]`);if(b){b.classList.add('fired');setTimeout(()=>b.classList.remove('fired'),350)}
