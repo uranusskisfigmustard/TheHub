@@ -3,10 +3,9 @@
 
 const STORAGE_VOLUME='mothership_warden_audio_volume_v1';
 const ANSWER_SAMPLE='https://opengameart.org/sites/default/files/monster_roar.wav';
-const RATE=.72; // Match the working ANSWERING PULSE reference. Constant within every spatial path.
-const active=new Set();
-const rafs=new Set();
-const timers=new Set();
+const RATE=.72;
+let current=null;
+let rafId=0;
 
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const masterVolume=()=>{
@@ -15,7 +14,15 @@ const masterVolume=()=>{
   return clamp(Number.isFinite(v)?v:.48,0,1);
 };
 
-function makeAudio(mix=1){
+function stopAll(){
+  if(rafId){cancelAnimationFrame(rafId);rafId=0;}
+  if(current){
+    try{current.pause();}catch(_){}
+    current=null;
+  }
+}
+
+function makeAudio(mix){
   const a=new Audio(ANSWER_SAMPLE);
   a.preload='auto';
   a.playbackRate=RATE;
@@ -24,110 +31,46 @@ function makeAudio(mix=1){
   try{a.webkitPreservesPitch=false;}catch(_){}
   a.dataset.spatialMix=String(mix);
   a.volume=clamp(masterVolume()*mix,0,1);
-  active.add(a);
-  const cleanup=()=>active.delete(a);
-  a.addEventListener('ended',cleanup,{once:true});
-  a.addEventListener('error',cleanup,{once:true});
+  a.addEventListener('ended',()=>{if(current===a)current=null;},{once:true});
   return a;
 }
 
-function stopAudio(a){
-  if(!a)return;
-  try{a.pause();a.currentTime=0;}catch(_){}
-  active.delete(a);
-}
-
-function stopAll(){
-  [...active].forEach(stopAudio);
-  rafs.forEach(id=>cancelAnimationFrame(id));
-  rafs.clear();
-  timers.forEach(id=>clearTimeout(id));
-  timers.clear();
-}
-
-function playNow(a){
+function playStatic(mix){
+  stopAll();
+  const a=makeAudio(mix);
+  current=a;
   const p=a.play();
-  if(p&&typeof p.catch==='function')p.catch(()=>active.delete(a));
+  if(p&&typeof p.catch==='function')p.catch(()=>{if(current===a)current=null;});
 }
 
-function playDelayed(a,delayMs){
-  const t=setTimeout(()=>{timers.delete(t);playNow(a);},delayMs);
-  timers.add(t);
-}
+function playRamp(from,to,durationMs){
+  stopAll();
+  const a=makeAudio(from);
+  current=a;
+  const p=a.play();
+  if(p&&typeof p.catch==='function')p.catch(()=>{if(current===a)current=null;});
 
-function rampMix(a,from,to,durationMs,delayMs=0){
-  a.dataset.spatialMix=String(from);
-  a.volume=clamp(masterVolume()*from,0,1);
-  const start=performance.now()+delayMs;
+  const start=performance.now();
   const tick=now=>{
-    if(a.paused&&!a.ended&&now>start+150)return;
-    if(now<start){const id=requestAnimationFrame(tick);rafs.add(id);return;}
-    const p=clamp((now-start)/durationMs,0,1);
-    const mix=from+(to-from)*p;
+    if(current!==a||a.paused||a.ended){rafId=0;return;}
+    const t=clamp((now-start)/durationMs,0,1);
+    // Smoothstep avoids abrupt rate changes in the volume envelope.
+    const e=t*t*(3-2*t);
+    const mix=from+(to-from)*e;
     a.dataset.spatialMix=String(mix);
     a.volume=clamp(masterVolume()*mix,0,1);
-    if(p<1){const id=requestAnimationFrame(tick);rafs.add(id);}
+    if(t<1)rafId=requestAnimationFrame(tick);else rafId=0;
   };
-  const id=requestAnimationFrame(tick);rafs.add(id);
-}
-
-// A small cluster of delayed copies gives distance/reverberant smear without DSP or time-stretching.
-function makeFarCluster(baseMix=1){
-  return [
-    {a:makeAudio(.16*baseMix),delay:90,mix:.16*baseMix},
-    {a:makeAudio(.10*baseMix),delay:210,mix:.10*baseMix},
-    {a:makeAudio(.055*baseMix),delay:390,mix:.055*baseMix}
-  ];
-}
-
-function farToNear(){
-  stopAll();
-  const near=makeAudio(.10);
-  const far=makeFarCluster(1.0);
-  playNow(near);
-  far.forEach(x=>playDelayed(x.a,x.delay));
-  rampMix(near,.10,.82,6500,0);
-  far.forEach((x,i)=>rampMix(x.a,x.mix,x.mix*.16,6200,150+i*90));
-}
-
-function nearToFar(){
-  stopAll();
-  const near=makeAudio(.82);
-  const far=makeFarCluster(.22);
-  playNow(near);
-  far.forEach(x=>playDelayed(x.a,x.delay));
-  rampMix(near,.82,.11,6500,0);
-  far.forEach((x,i)=>rampMix(x.a,x.mix,x.mix*4.2,6200,150+i*90));
-}
-
-function doubleDistance(){
-  stopAll();
-  const near=makeAudio(.76);
-  playNow(near);
-
-  // The same event appears again from much farther away, not a new voice.
-  const delay=2350;
-  const farPrimary=makeAudio(.24);
-  playDelayed(farPrimary,delay);
-  const echoes=[
-    {a:makeAudio(.105),delay:delay+125},
-    {a:makeAudio(.060),delay:delay+285},
-    {a:makeAudio(.032),delay:delay+510}
-  ];
-  echoes.forEach(x=>playDelayed(x.a,x.delay));
-}
-
-function reference(){
-  stopAll();
-  const a=makeAudio(.78);
-  playNow(a);
+  rafId=requestAnimationFrame(tick);
 }
 
 function trigger(id){
-  if(id==='farNear')farToNear();
-  else if(id==='nearFar')nearToFar();
-  else if(id==='double')doubleDistance();
-  else if(id==='reference')reference();
+  if(id==='far')playStatic(.20);
+  else if(id==='near')playStatic(.78);
+  else if(id==='farNear')playRamp(.18,.78,7600);
+  else if(id==='nearFar')playRamp(.78,.18,7600);
+  else if(id==='reference')playStatic(.78);
+
   const b=document.querySelector(`[data-spatial-trigger="${id}"]`);
   if(b){b.classList.add('fired');setTimeout(()=>b.classList.remove('fired'),400);}
 }
@@ -136,18 +79,18 @@ function bindMaster(){
   const s=document.getElementById('waVolume');
   if(!s)return;
   s.addEventListener('input',()=>{
-    active.forEach(a=>{
-      const mix=Number(a.dataset.spatialMix||1);
-      try{a.volume=clamp(masterVolume()*mix,0,1);}catch(_){}
-    });
+    if(!current)return;
+    const mix=Number(current.dataset.spatialMix||1);
+    try{current.volume=clamp(masterVolume()*mix,0,1);}catch(_){}
   });
 }
 
 const defs=[
-  {id:'farNear',label:'FAR → NEAR',desc:'Same ANSWERING PULSE moves from distant/reverberant to close/dry over ~6.5 seconds.'},
-  {id:'nearFar',label:'NEAR → FAR',desc:'Same pulse begins close and heavy, then recedes into delayed distant copies.'},
-  {id:'double',label:'DOUBLE DISTANCE',desc:'One nearby pulse, then the exact same event appears again ~2.35 seconds later from much farther away.'},
-  {id:'reference',label:'ANSWERING PULSE REFERENCE',desc:'Working unprocessed spatial reference at the established 0.72x rate.'}
+  {id:'far',label:'FAR // STATIC',desc:'Single continuous ANSWERING PULSE at low level. No copies, delay, echo, filters, or crossfade.'},
+  {id:'near',label:'NEAR // STATIC',desc:'Single continuous ANSWERING PULSE at established close level. No processing beyond level.'},
+  {id:'farNear',label:'FAR → NEAR // SINGLE STREAM',desc:'One uninterrupted playback. Only level changes slowly over ~7.6 seconds.'},
+  {id:'nearFar',label:'NEAR → FAR // SINGLE STREAM',desc:'One uninterrupted playback. Only level changes slowly over ~7.6 seconds.'},
+  {id:'reference',label:'ANSWERING PULSE REFERENCE',desc:'Established working source at the same 0.72x playback rate.'}
 ];
 
 function build(){
@@ -157,8 +100,8 @@ function build(){
   const section=document.createElement('div');
   section.id='waSpatialStage';
   section.innerHTML=`
-    <div class="wa-live" style="margin-top:14px"><span>TEMP // SPATIAL AUDITION:</span> <b>ANSWERING PULSE</b></div>
-    <small style="display:block;margin:6px 0 10px;opacity:.75">No pitch transition or time-stretching. Distance is created only with level, delayed copies, and smooth crossfades.</small>
+    <div class="wa-live" style="margin-top:14px"><span>TEMP // SPATIAL AUDITION:</span> <b>SINGLE STREAM</b></div>
+    <small style="display:block;margin:6px 0 10px;opacity:.75">Compatibility pass: one audio element only. Echo, duplicate distance, filters, and multi-stream crossfades are removed until clean playback is confirmed.</small>
     <div class="wa-grid">
       ${defs.map(d=>`<div class="wa-layer"><div class="wa-layer-toggle" style="cursor:default"><span><b>${d.label}</b><small>${d.desc}</small></span><span class="wa-state">TEST</span></div><button class="wa-mini" type="button" data-spatial-trigger="${d.id}">TRIGGER</button></div>`).join('')}
     </div>
@@ -172,5 +115,5 @@ function build(){
 
 let tries=0;
 const wait=setInterval(()=>{tries++;if(build()||tries>100)clearInterval(wait);},100);
-window.WardenSpatialAudio={trigger,stopAll,farToNear,nearToFar,doubleDistance};
+window.WardenSpatialAudio={trigger,stopAll};
 })();
