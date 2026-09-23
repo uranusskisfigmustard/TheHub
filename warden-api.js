@@ -1,11 +1,11 @@
 (() => {
   'use strict';
 
-  const BUILD = '20260919-warden-api-1';
+  const BUILD = '20260923-warden-api-portrait-refresh-1';
   const API = 'https://script.google.com/macros/s/AKfycbzeW8vTooOCNEBia3_EMQ10r7BcbakXIwCD4ZaEOUEBOdCXl09tRHj76oxcUcsOKQK0/exec';
   const POST_MESSAGE_SOURCE = 'mothership-contract-service-post';
 
-  function request(action, params = {}, options = {}) {
+  function rawRequest(action, params = {}, options = {}) {
     const timeoutMs = Number(options.timeoutMs) > 0 ? Number(options.timeoutMs) : 30000;
     return new Promise((resolve, reject) => {
       const requestId = 'wardenReq_' + Date.now() + '_' + Math.random().toString(36).slice(2);
@@ -61,6 +61,22 @@
       document.body.appendChild(form);
       form.submit();
     });
+  }
+
+  async function request(action, params = {}, options = {}) {
+    let result = await rawRequest(action, params, options);
+
+    if (
+      action === 'wardennpcportrait' &&
+      result?.ok &&
+      !result?.found &&
+      String(params?.refresh || '') !== '1' &&
+      String(params?.refresh || '').toUpperCase() !== 'TRUE'
+    ) {
+      result = await rawRequest(action, { ...params, refresh: '1' }, options);
+    }
+
+    return result;
   }
 
   window.HubWardenApi = Object.freeze({ build: BUILD, endpoint: API, transport: 'POST COMPATIBILITY', request });
