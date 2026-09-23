@@ -6,7 +6,7 @@
   const STORAGE_VOLUME='mothership_warden_audio_volume_v1';
 
   const defs=[
-    {id:'orePulse',label:'ORE PULSE',desc:'Low irregular material pulse that gradually stabilizes in level and cadence'},
+    {id:'orePulse',label:'ORE PULSE',desc:'Irregular physical pressure pulse that gradually stabilizes in level and cadence'},
     {id:'answer',label:'ANSWERING PULSE',desc:'Softer delayed nonlocal response that gradually falls into the same cadence'}
   ];
 
@@ -28,7 +28,7 @@
     for(let i=0;i<len;i++){
       const w=Math.random()*2-1;
       brown=(brown+.016*w)/1.016;
-      d[i]=clamp(w*.48+brown*2.7,-1,1);
+      d[i]=clamp(w*.58+brown*2.35,-1,1);
     }
     return b;
   }
@@ -38,8 +38,13 @@
       S.ctx=new AudioCtx();
       S.master=S.ctx.createGain();
       S.compressor=S.ctx.createDynamicsCompressor();
-      S.compressor.threshold.value=-24;S.compressor.knee.value=18;S.compressor.ratio.value=3;S.compressor.attack.value=.018;S.compressor.release.value=.5;
-      S.volume=getVolume();S.master.gain.value=S.volume;
+      S.compressor.threshold.value=-18;
+      S.compressor.knee.value=16;
+      S.compressor.ratio.value=2.5;
+      S.compressor.attack.value=.012;
+      S.compressor.release.value=.42;
+      S.volume=getVolume();
+      S.master.gain.value=S.volume;
       S.master.connect(S.compressor).connect(S.ctx.destination);
       S.noise=makeNoise(10);
     }
@@ -50,63 +55,78 @@
 
   function progress(id){
     const started=S.started.get(id)||performance.now();
-    return clamp((performance.now()-started)/90000,0,1); // ~90 sec to settle
+    return clamp((performance.now()-started)/90000,0,1);
   }
 
   function pulseShape(id){
     const p=progress(id);
-    // Early remains hesitant and irregular; late settles into a recognizable cadence.
-    // Raised overall level so the effect survives laptop/TV playback.
     const gap=(1-p)*rand(6.5,12.5)+p*rand(2.45,2.95);
-    const dur=(1-p)*rand(.55,2.6)+p*rand(.78,1.05);
-    const amp=(1-p)*rand(.024,.042)+p*rand(.068,.084);
+    const dur=(1-p)*rand(.72,1.65)+p*rand(.78,1.05);
+    // Strong enough to survive laptop / television speakers; perceived weight is carried
+    // by broadband low-mid energy rather than inaudible sub-bass.
+    const amp=(1-p)*rand(.16,.22)+p*rand(.22,.28);
     return {p,gap,dur,amp};
   }
 
   function makePulse(id,answer=false,manual=false){
-    const ctx=ensureAudio(),shape=pulseShape(id),start=now()+.03+(answer?rand(.65,1.8):0),nodes=[];
+    const ctx=ensureAudio(),shape=pulseShape(id),start=now()+.03+(answer?rand(.55,1.15):0),nodes=[];
     const group=ctx.createGain();
-    // Manual ore trigger is deliberately auditionable; ANSWERING PULSE keeps its softer relationship.
-    group.gain.value=answer?.58:(manual?1.35:1.12);
+    // Manual triggers are audition controls: both should be unmistakably audible.
+    group.gain.value=answer?(manual?.86:.58):(manual?1.35:1.0);
     group.connect(S.master);
 
-    // Low pressure body. Still broadband/non-pitched, but no longer confined almost entirely below 100 Hz.
-    const low=ctx.createBufferSource();low.buffer=S.noise;
-    const lp=ctx.createBiquadFilter();lp.type='lowpass';lp.frequency.value=answer?105:175;lp.Q.value=.45;
-    const hp=ctx.createBiquadFilter();hp.type='highpass';hp.frequency.value=answer?28:42;
-    const lg=ctx.createGain();
-    const peak=shape.amp*(answer?.72:1);
-    lg.gain.setValueAtTime(.0001,start);
-    lg.gain.exponentialRampToValueAtTime(Math.max(.0002,peak),start+Math.min(.35,shape.dur*.28));
-    lg.gain.setValueAtTime(Math.max(.0002,peak*.82),start+Math.max(.2,shape.dur*.62));
-    lg.gain.exponentialRampToValueAtTime(.0001,start+shape.dur);
-    low.connect(hp).connect(lp).connect(lg);
+    const peak=shape.amp*(answer?.74:1);
 
-    if(ctx.createStereoPanner){
-      const pan=ctx.createStereoPanner();pan.pan.value=answer?(Math.random()<.5?rand(-.95,-.35):rand(.35,.95)):rand(-.12,.12);lg.connect(pan).connect(group);
-    }else lg.connect(group);
-    low.start(start);low.stop(start+shape.dur+.03);nodes.push(low);
-
-    // Speaker-readable mineral/body texture. This carries perceived mass on small speakers
-    // without introducing a pitched oscillator or musical tone.
+    // Main physical body: broad low-mid noise, not a pitched oscillator.
     const body=ctx.createBufferSource();body.buffer=S.noise;
-    const bp=ctx.createBiquadFilter();bp.type='bandpass';bp.frequency.value=answer?175:245;bp.Q.value=answer?.55:.72;
+    const bhp=ctx.createBiquadFilter();bhp.type='highpass';bhp.frequency.value=answer?210:170;bhp.Q.value=.3;
+    const blp=ctx.createBiquadFilter();blp.type='lowpass';blp.frequency.value=answer?720:860;blp.Q.value=.25;
     const bg=ctx.createGain();
     bg.gain.setValueAtTime(.0001,start);
-    bg.gain.exponentialRampToValueAtTime(peak*(answer?.24:.72),start+Math.min(.28,shape.dur*.22));
-    bg.gain.setValueAtTime(peak*(answer?.18:.46),start+Math.max(.16,shape.dur*.56));
-    bg.gain.exponentialRampToValueAtTime(.0001,start+shape.dur*.94);
-    body.connect(bp).connect(bg).connect(group);body.start(start);body.stop(start+shape.dur+.03);nodes.push(body);
+    bg.gain.exponentialRampToValueAtTime(peak,start+Math.min(.18,shape.dur*.2));
+    bg.gain.setValueAtTime(peak*.66,start+Math.max(.22,shape.dur*.62));
+    bg.gain.exponentialRampToValueAtTime(.0001,start+shape.dur);
+    body.connect(bhp).connect(blp).connect(bg);
+    if(ctx.createStereoPanner){
+      const pan=ctx.createStereoPanner();
+      pan.pan.value=answer?(Math.random()<.5?rand(-.85,-.28):rand(.28,.85)):rand(-.12,.12);
+      bg.connect(pan).connect(group);
+    }else bg.connect(group);
+    body.start(start);body.stop(start+shape.dur+.04);nodes.push(body);
 
-    // Dry pressure edge: audible enough to define the event, still noise-based rather than a beep.
+    // Low pressure reinforcement. Audible on decent speakers but not required for recognition.
+    const low=ctx.createBufferSource();low.buffer=S.noise;
+    const lhp=ctx.createBiquadFilter();lhp.type='highpass';lhp.frequency.value=45;
+    const llp=ctx.createBiquadFilter();llp.type='lowpass';llp.frequency.value=answer?190:230;
+    const lg=ctx.createGain();
+    lg.gain.setValueAtTime(.0001,start);
+    lg.gain.exponentialRampToValueAtTime(peak*.62,start+Math.min(.22,shape.dur*.24));
+    lg.gain.exponentialRampToValueAtTime(.0001,start+shape.dur*.96);
+    low.connect(lhp).connect(llp).connect(lg).connect(group);
+    low.start(start);low.stop(start+shape.dur+.04);nodes.push(low);
+
+    // Short rough onset gives the pulse a physical shove without becoming a click/beep.
     const edge=ctx.createBufferSource();edge.buffer=S.noise;
-    const ehp=ctx.createBiquadFilter();ehp.type='highpass';ehp.frequency.value=answer?520:380;
-    const elp=ctx.createBiquadFilter();elp.type='lowpass';elp.frequency.value=answer?1100:1250;
-    const eg=ctx.createGain();eg.gain.setValueAtTime(peak*(answer?.12:.26),start);eg.gain.exponentialRampToValueAtTime(.0001,start+Math.min(.18,shape.dur*.22));
-    edge.connect(ehp).connect(elp).connect(eg).connect(group);edge.start(start);edge.stop(start+.2);nodes.push(edge);
+    const ehp=ctx.createBiquadFilter();ehp.type='highpass';ehp.frequency.value=answer?520:430;
+    const elp=ctx.createBiquadFilter();elp.type='lowpass';elp.frequency.value=answer?1500:1750;
+    const eg=ctx.createGain();
+    eg.gain.setValueAtTime(peak*(answer?.42:.58),start);
+    eg.gain.exponentialRampToValueAtTime(.0001,start+Math.min(.22,shape.dur*.25));
+    edge.connect(ehp).connect(elp).connect(eg).connect(group);
+    edge.start(start);edge.stop(start+.24);nodes.push(edge);
+
+    // A second short irregular shove near the middle keeps this from reading as a single electronic envelope.
+    if(!answer || Math.random()<.65){
+      const shoveStart=start+Math.min(shape.dur*.48,rand(.28,.48));
+      const shove=ctx.createBufferSource();shove.buffer=S.noise;
+      const shp=ctx.createBiquadFilter();shp.type='highpass';shp.frequency.value=250;
+      const slp=ctx.createBiquadFilter();slp.type='lowpass';slp.frequency.value=980;
+      const sg=ctx.createGain();sg.gain.setValueAtTime(peak*(answer?.22:.34),shoveStart);sg.gain.exponentialRampToValueAtTime(.0001,shoveStart+.18);
+      shove.connect(shp).connect(slp).connect(sg).connect(group);shove.start(shoveStart);shove.stop(shoveStart+.2);nodes.push(shove);
+    }
 
     const stop=()=>{nodes.forEach(n=>{try{n.stop()}catch(_){}});try{group.disconnect()}catch(_){}};
-    setTimeout(()=>{try{stop()}catch(_){ }},(shape.dur+2.2)*1000);
+    setTimeout(()=>{try{stop()}catch(_){ }},(shape.dur+2.0)*1000);
     return {stop,nextGap:manual?0:shape.gap};
   }
 
@@ -127,7 +147,6 @@
     if(on){
       if(S.active.has(id))return;
       S.active.add(id);S.started.set(id,performance.now());
-      // Give the first event breathing room so activation doesn't feel like a button beep.
       const firstDelay=id==='answer'?rand(3.5,7.0):rand(1.8,4.0);
       S.timers.set(id,setTimeout(()=>schedule(id),firstDelay*1000));
     }else{
