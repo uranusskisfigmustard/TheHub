@@ -1,56 +1,30 @@
 (()=>{
   'use strict';
 
-  const AudioCtx=window.AudioContext||window.webkitAudioContext;
-  if(!AudioCtx) return;
   const STORAGE_VOLUME='mothership_warden_audio_volume_v1';
 
+  // ORE PULSE source:
+  // Freesound #148873 — "Voice elephant.mp3" by vataaa — CC0 1.0.
+  // Stable mirror retained in DaanVanYperen/odb-dynasty.
+  const ORE_SAMPLE='https://raw.githubusercontent.com/DaanVanYperen/odb-dynasty/731dcfaf25fe463a4fe84fb2511a72a2cbaca924/src/main/resources/assets/sound/elephant_scream.mp3';
+
+  // ANSWERING PULSE source:
+  // OpenGameArt — "CC0 Deep Monster Roar" by trazzz123 — CC0 1.0.
+  const ANSWER_SAMPLE='https://opengameart.org/sites/default/files/monster_roar.wav';
+
   const defs=[
-    {id:'orePulse',label:'ORE PULSE',desc:'Irregular physical pressure pulse that gradually stabilizes in level and cadence'},
-    {id:'answer',label:'ANSWERING PULSE',desc:'Softer delayed nonlocal response that gradually falls into the same cadence'}
+    {id:'orePulse',label:'ORE PULSE',desc:'Slowed recorded animal call — low, bodily, irregular beacon pulse'},
+    {id:'answer',label:'ANSWERING PULSE',desc:'Distant recorded deep-creature reply — slower, larger, and nonlocal'}
   ];
 
-  const S={ctx:null,master:null,compressor:null,noise:null,active:new Set(),timers:new Map(),stops:new Map(),started:new Map(),volume:.48};
+  const S={active:new Set(),timers:new Map(),playing:new Map(),started:new Map()};
   const rand=(a,b)=>a+Math.random()*(b-a);
   const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
-  const now=()=>S.ctx?S.ctx.currentTime:0;
 
-  function getVolume(){
+  function masterVolume(){
     const slider=document.getElementById('waVolume');
     const v=slider?Number(slider.value):Number(localStorage.getItem(STORAGE_VOLUME)||.48);
     return clamp(Number.isFinite(v)?v:.48,0,1);
-  }
-
-  function makeNoise(seconds=10){
-    const len=Math.max(1,Math.floor(S.ctx.sampleRate*seconds));
-    const b=S.ctx.createBuffer(1,len,S.ctx.sampleRate),d=b.getChannelData(0);
-    let brown=0;
-    for(let i=0;i<len;i++){
-      const w=Math.random()*2-1;
-      brown=(brown+.016*w)/1.016;
-      d[i]=clamp(w*.58+brown*2.35,-1,1);
-    }
-    return b;
-  }
-
-  function ensureAudio(){
-    if(!S.ctx){
-      S.ctx=new AudioCtx();
-      S.master=S.ctx.createGain();
-      S.compressor=S.ctx.createDynamicsCompressor();
-      S.compressor.threshold.value=-18;
-      S.compressor.knee.value=16;
-      S.compressor.ratio.value=2.5;
-      S.compressor.attack.value=.012;
-      S.compressor.release.value=.42;
-      S.volume=getVolume();
-      S.master.gain.value=S.volume;
-      S.master.connect(S.compressor).connect(S.ctx.destination);
-      S.noise=makeNoise(10);
-    }
-    if(S.ctx.state==='suspended')S.ctx.resume();
-    S.master.gain.setTargetAtTime(getVolume(),S.ctx.currentTime,.04);
-    return S.ctx;
   }
 
   function progress(id){
@@ -58,119 +32,163 @@
     return clamp((performance.now()-started)/90000,0,1);
   }
 
-  function pulseShape(id){
+  function gapFor(id){
     const p=progress(id);
-    const gap=(1-p)*rand(6.5,12.5)+p*rand(2.45,2.95);
-    const dur=(1-p)*rand(.72,1.65)+p*rand(.78,1.05);
-    // Strong enough to survive laptop / television speakers; perceived weight is carried
-    // by broadband low-mid energy rather than inaudible sub-bass.
-    const amp=(1-p)*rand(.16,.22)+p*rand(.22,.28);
-    return {p,gap,dur,amp};
+    if(id==='orePulse') return (1-p)*rand(7.0,12.5)+p*rand(3.4,5.1);
+    return (1-p)*rand(10.5,17.0)+p*rand(5.4,8.2);
   }
 
-  function makePulse(id,answer=false,manual=false){
-    const ctx=ensureAudio(),shape=pulseShape(id),start=now()+.03+(answer?rand(.55,1.15):0),nodes=[];
-    const group=ctx.createGain();
-    // Manual triggers are audition controls: both should be unmistakably audible.
-    group.gain.value=answer?(manual?.86:.58):(manual?1.35:1.0);
-    group.connect(S.master);
-
-    const peak=shape.amp*(answer?.74:1);
-
-    // Main physical body: broad low-mid noise, not a pitched oscillator.
-    const body=ctx.createBufferSource();body.buffer=S.noise;
-    const bhp=ctx.createBiquadFilter();bhp.type='highpass';bhp.frequency.value=answer?210:170;bhp.Q.value=.3;
-    const blp=ctx.createBiquadFilter();blp.type='lowpass';blp.frequency.value=answer?720:860;blp.Q.value=.25;
-    const bg=ctx.createGain();
-    bg.gain.setValueAtTime(.0001,start);
-    bg.gain.exponentialRampToValueAtTime(peak,start+Math.min(.18,shape.dur*.2));
-    bg.gain.setValueAtTime(peak*.66,start+Math.max(.22,shape.dur*.62));
-    bg.gain.exponentialRampToValueAtTime(.0001,start+shape.dur);
-    body.connect(bhp).connect(blp).connect(bg);
-    if(ctx.createStereoPanner){
-      const pan=ctx.createStereoPanner();
-      pan.pan.value=answer?(Math.random()<.5?rand(-.85,-.28):rand(.28,.85)):rand(-.12,.12);
-      bg.connect(pan).connect(group);
-    }else bg.connect(group);
-    body.start(start);body.stop(start+shape.dur+.04);nodes.push(body);
-
-    // Low pressure reinforcement. Audible on decent speakers but not required for recognition.
-    const low=ctx.createBufferSource();low.buffer=S.noise;
-    const lhp=ctx.createBiquadFilter();lhp.type='highpass';lhp.frequency.value=45;
-    const llp=ctx.createBiquadFilter();llp.type='lowpass';llp.frequency.value=answer?190:230;
-    const lg=ctx.createGain();
-    lg.gain.setValueAtTime(.0001,start);
-    lg.gain.exponentialRampToValueAtTime(peak*.62,start+Math.min(.22,shape.dur*.24));
-    lg.gain.exponentialRampToValueAtTime(.0001,start+shape.dur*.96);
-    low.connect(lhp).connect(llp).connect(lg).connect(group);
-    low.start(start);low.stop(start+shape.dur+.04);nodes.push(low);
-
-    // Short rough onset gives the pulse a physical shove without becoming a click/beep.
-    const edge=ctx.createBufferSource();edge.buffer=S.noise;
-    const ehp=ctx.createBiquadFilter();ehp.type='highpass';ehp.frequency.value=answer?520:430;
-    const elp=ctx.createBiquadFilter();elp.type='lowpass';elp.frequency.value=answer?1500:1750;
-    const eg=ctx.createGain();
-    eg.gain.setValueAtTime(peak*(answer?.42:.58),start);
-    eg.gain.exponentialRampToValueAtTime(.0001,start+Math.min(.22,shape.dur*.25));
-    edge.connect(ehp).connect(elp).connect(eg).connect(group);
-    edge.start(start);edge.stop(start+.24);nodes.push(edge);
-
-    // A second short irregular shove near the middle keeps this from reading as a single electronic envelope.
-    if(!answer || Math.random()<.65){
-      const shoveStart=start+Math.min(shape.dur*.48,rand(.28,.48));
-      const shove=ctx.createBufferSource();shove.buffer=S.noise;
-      const shp=ctx.createBiquadFilter();shp.type='highpass';shp.frequency.value=250;
-      const slp=ctx.createBiquadFilter();slp.type='lowpass';slp.frequency.value=980;
-      const sg=ctx.createGain();sg.gain.setValueAtTime(peak*(answer?.22:.34),shoveStart);sg.gain.exponentialRampToValueAtTime(.0001,shoveStart+.18);
-      shove.connect(shp).connect(slp).connect(sg).connect(group);shove.start(shoveStart);shove.stop(shoveStart+.2);nodes.push(shove);
-    }
-
-    const stop=()=>{nodes.forEach(n=>{try{n.stop()}catch(_){}});try{group.disconnect()}catch(_){}};
-    setTimeout(()=>{try{stop()}catch(_){ }},(shape.dur+2.0)*1000);
-    return {stop,nextGap:manual?0:shape.gap};
+  function setPitchMode(a,rate){
+    a.playbackRate=rate;
+    try{a.preservesPitch=false;}catch(_){ }
+    try{a.mozPreservesPitch=false;}catch(_){ }
+    try{a.webkitPreservesPitch=false;}catch(_){ }
   }
 
-  function clearTimer(id){const t=S.timers.get(id);if(t)clearTimeout(t);S.timers.delete(id)}
-  function clearStops(id){const set=S.stops.get(id);if(set){set.forEach(fn=>{try{fn()}catch(_){}});set.clear()}}
+  function applyVolume(a){
+    const mix=Number(a.dataset.waMix||1);
+    const fade=Number(a.dataset.waFade||1);
+    a.volume=clamp(masterVolume()*mix*fade,0,1);
+  }
 
-  function schedule(id){
-    clearTimer(id);if(!S.active.has(id))return;
-    const answer=id==='answer',r=makePulse(id,answer,false);
-    if(!S.stops.has(id))S.stops.set(id,new Set());S.stops.get(id).add(r.stop);
-    setTimeout(()=>S.stops.get(id)?.delete(r.stop),5000);
-    const timer=setTimeout(()=>schedule(id),r.nextGap*1000);
+  function retire(id,a){
+    const set=S.playing.get(id);
+    if(set)set.delete(a);
+  }
+
+  function stopTrack(id,a){
+    if(!a)return;
+    try{a.pause();a.currentTime=0;}catch(_){ }
+    retire(id,a);
+  }
+
+  function fadeTrack(id,a,holdMs,fadeMs){
+    const hold=setTimeout(()=>{
+      const start=performance.now();
+      const tick=()=>{
+        if(a.paused){retire(id,a);return;}
+        const p=clamp((performance.now()-start)/fadeMs,0,1);
+        a.dataset.waFade=String(1-p);
+        applyVolume(a);
+        if(p<1)requestAnimationFrame(tick);else stopTrack(id,a);
+      };
+      requestAnimationFrame(tick);
+    },holdMs);
+    a.dataset.waHoldTimer=String(hold);
+  }
+
+  function playRecorded(id,manual=false){
+    const isAnswer=id==='answer';
+    const a=new Audio(isAnswer?ANSWER_SAMPLE:ORE_SAMPLE);
+    a.preload='auto';
+    a.dataset.waFade='1';
+    a.dataset.waMix=String(isAnswer?(manual?.78:.54):(manual?1.0:.76));
+
+    // Elephant source is deliberately slowed hard to turn the call into a cassowary-like
+    // bodily boom. The reply remains longer and slower, but not so low that TV speakers lose it.
+    setPitchMode(a,isAnswer?.72:.54);
+    applyVolume(a);
+
+    if(!S.playing.has(id))S.playing.set(id,new Set());
+    S.playing.get(id).add(a);
+
+    const cleanup=()=>retire(id,a);
+    a.addEventListener('ended',cleanup,{once:true});
+    a.addEventListener('error',cleanup,{once:true});
+
+    // ORE is a short call; ANSWER is allowed to linger as a distant enormous response.
+    const begin=()=>{
+      const p=a.play();
+      if(p&&typeof p.catch==='function')p.catch(cleanup);
+      if(isAnswer)fadeTrack(id,a,manual?4700:5200,1900);
+      else fadeTrack(id,a,manual?1900:1650,650);
+    };
+
+    // Automatic answer is delayed so it reads as response, not simultaneous sound design.
+    const delay=(!manual&&isAnswer)?rand(650,1500):0;
+    const startTimer=setTimeout(begin,delay);
+
+    const stop=()=>{
+      clearTimeout(startTimer);
+      const hold=Number(a.dataset.waHoldTimer||0);
+      if(hold)clearTimeout(hold);
+      stopTrack(id,a);
+    };
+    return stop;
+  }
+
+  function clearTimer(id){
+    const t=S.timers.get(id);
+    if(t)clearTimeout(t);
+    S.timers.delete(id);
+  }
+
+  function stopPlaying(id){
+    const set=S.playing.get(id);
+    if(!set)return;
+    [...set].forEach(a=>stopTrack(id,a));
+    set.clear();
+  }
+
+  function schedule(id,first=false){
+    clearTimer(id);
+    if(!S.active.has(id))return;
+    const delay=first?(id==='answer'?rand(4.5,7.5):rand(2.0,4.2)):gapFor(id);
+    const timer=setTimeout(()=>{
+      if(!S.active.has(id))return;
+      playRecorded(id,false);
+      schedule(id,false);
+    },delay*1000);
     S.timers.set(id,timer);
   }
 
   function setLayer(id,on){
-    if(!defs.some(d=>d.id===id))return;ensureAudio();
+    if(!defs.some(d=>d.id===id))return;
+    on=!!on;
     if(on){
       if(S.active.has(id))return;
-      S.active.add(id);S.started.set(id,performance.now());
-      const firstDelay=id==='answer'?rand(3.5,7.0):rand(1.8,4.0);
-      S.timers.set(id,setTimeout(()=>schedule(id),firstDelay*1000));
+      S.active.add(id);
+      S.started.set(id,performance.now());
+      schedule(id,true);
     }else{
-      S.active.delete(id);clearTimer(id);clearStops(id);S.started.delete(id);
+      S.active.delete(id);
+      clearTimer(id);
+      stopPlaying(id);
+      S.started.delete(id);
     }
     render();
   }
 
   function trigger(id){
-    if(!defs.some(d=>d.id===id))return;ensureAudio();
-    if(!S.started.has(id))S.started.set(id,performance.now());
-    const r=makePulse(id,id==='answer',true);setTimeout(()=>{try{r.stop()}catch(_){ }},5000);
-    const b=document.querySelector(`[data-signal-trigger="${id}"]`);if(b){b.classList.add('fired');setTimeout(()=>b.classList.remove('fired'),350)}
+    if(!defs.some(d=>d.id===id))return;
+    playRecorded(id,true);
+    const b=document.querySelector(`[data-signal-trigger="${id}"]`);
+    if(b){b.classList.add('fired');setTimeout(()=>b.classList.remove('fired'),350);}
+    // Manual audition while enabled resets the automatic clock to avoid an immediate duplicate.
+    if(S.active.has(id))schedule(id,false);
   }
 
-  function startSignal(){setLayer('orePulse',true);setLayer('answer',true)}
-  function stopSignal(){defs.forEach(d=>setLayer(d.id,false))}
+  function startSignal(){setLayer('orePulse',true);setLayer('answer',true);}
+  function stopSignal(){defs.forEach(d=>setLayer(d.id,false));}
 
   function render(){
-    document.querySelectorAll('[data-signal-layer]').forEach(btn=>{const id=btn.dataset.signalLayer,on=S.active.has(id);btn.classList.toggle('active',on);btn.setAttribute('aria-pressed',String(on));const s=btn.querySelector('.wa-state');if(s)s.textContent=on?'ON':'OFF'});
-    const live=document.getElementById('waSignalLive');if(live){const names=defs.filter(d=>S.active.has(d.id)).map(d=>d.label);live.textContent=names.length?names.join(' + '):'OFF'}
+    document.querySelectorAll('[data-signal-layer]').forEach(btn=>{
+      const id=btn.dataset.signalLayer,on=S.active.has(id);
+      btn.classList.toggle('active',on);
+      btn.setAttribute('aria-pressed',String(on));
+      const s=btn.querySelector('.wa-state');if(s)s.textContent=on?'ON':'OFF';
+    });
+    const live=document.getElementById('waSignalLive');
+    if(live){const names=defs.filter(d=>S.active.has(d.id)).map(d=>d.label);live.textContent=names.length?names.join(' + '):'OFF';}
   }
 
-  function bindMaster(){const slider=document.getElementById('waVolume');if(!slider)return;slider.addEventListener('input',()=>{if(S.ctx&&S.master)S.master.gain.setTargetAtTime(getVolume(),S.ctx.currentTime,.03)})}
+  function bindMaster(){
+    const slider=document.getElementById('waVolume');
+    if(!slider)return;
+    slider.addEventListener('input',()=>{
+      S.playing.forEach(set=>set.forEach(a=>{try{applyVolume(a);}catch(_){ }}));
+    });
+  }
 
   function build(){
     if(document.getElementById('waSignalStage'))return true;
@@ -184,9 +202,12 @@
     body.appendChild(section);
     section.querySelectorAll('[data-signal-layer]').forEach(btn=>btn.addEventListener('click',()=>setLayer(btn.dataset.signalLayer,!S.active.has(btn.dataset.signalLayer))));
     section.querySelectorAll('[data-signal-trigger]').forEach(btn=>btn.addEventListener('click',()=>trigger(btn.dataset.signalTrigger)));
-    document.getElementById('waStartSignal').addEventListener('click',startSignal);document.getElementById('waStopSignal').addEventListener('click',stopSignal);bindMaster();render();return true;
+    document.getElementById('waStartSignal').addEventListener('click',startSignal);
+    document.getElementById('waStopSignal').addEventListener('click',stopSignal);
+    bindMaster();render();return true;
   }
 
-  let tries=0;const wait=setInterval(()=>{tries++;if(build()||tries>100)clearInterval(wait)},100);
+  let tries=0;
+  const wait=setInterval(()=>{tries++;if(build()||tries>100)clearInterval(wait);},100);
   window.WardenM17SignalAudio={setLayer,trigger,startSignal,stopSignal};
 })();
