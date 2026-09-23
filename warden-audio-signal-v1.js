@@ -14,7 +14,7 @@
   const ANSWER_SAMPLE='https://opengameart.org/sites/default/files/monster_roar.wav';
 
   const defs=[
-    {id:'orePulse',label:'ORE PULSE',desc:'Filtered real Southern Cassowary call — low, bodily beacon pulse'},
+    {id:'orePulse',label:'ORE PULSE',desc:'Cleaned real Southern Cassowary boom — low, bodily beacon pulse'},
     {id:'answer',label:'ANSWERING PULSE',desc:'Distant recorded deep-creature reply — slower, larger, and nonlocal'}
   ];
 
@@ -22,10 +22,11 @@
   const rand=(a,b)=>a+Math.random()*(b-a);
   const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 
-  // Cassowary cleanup. Two gentle low-passes strongly reduce birds/hiss above the useful
-  // boom while the high-pass removes subsonic handling/wind rumble. A small 90 Hz lift
-  // restores body on laptop/TV speakers. If CORS filtering fails, playback falls back to
-  // the original unfiltered recording rather than going silent.
+  // Cassowary cleanup v2. The first pass still exposed too much of the field recording.
+  // This version deliberately narrows the useful band to the cassowary's low boom:
+  // 32 Hz high-pass, harmonic support near 72/118 Hz, and two 190 Hz low-passes.
+  // A light compressor restores body after the steeper filtering. If cross-origin Web
+  // Audio filtering fails, playback falls back to the raw recording rather than silence.
   const F={ctx:null,nodes:new Map(),disabled:false};
 
   function masterVolume(){
@@ -76,19 +77,40 @@
     if(!ctx)return false;
     try{
       const src=ctx.createMediaElementSource(a);
-      const hp=ctx.createBiquadFilter();
-      hp.type='highpass';hp.frequency.value=28;hp.Q.value=.65;
 
-      const body=ctx.createBiquadFilter();
-      body.type='peaking';body.frequency.value=90;body.Q.value=.9;body.gain.value=4.0;
+      const hp=ctx.createBiquadFilter();
+      hp.type='highpass';hp.frequency.value=32;hp.Q.value=.72;
+
+      const boom1=ctx.createBiquadFilter();
+      boom1.type='peaking';boom1.frequency.value=72;boom1.Q.value=1.15;boom1.gain.value=4.2;
+
+      const boom2=ctx.createBiquadFilter();
+      boom2.type='peaking';boom2.frequency.value=118;boom2.Q.value=1.0;boom2.gain.value=2.8;
 
       const lp1=ctx.createBiquadFilter();
-      lp1.type='lowpass';lp1.frequency.value=285;lp1.Q.value=.7;
+      lp1.type='lowpass';lp1.frequency.value=190;lp1.Q.value=.72;
       const lp2=ctx.createBiquadFilter();
-      lp2.type='lowpass';lp2.frequency.value=285;lp2.Q.value=.7;
+      lp2.type='lowpass';lp2.frequency.value=190;lp2.Q.value=.72;
 
-      src.connect(hp);hp.connect(body);body.connect(lp1);lp1.connect(lp2);lp2.connect(ctx.destination);
-      F.nodes.set(a,[src,hp,body,lp1,lp2]);
+      const comp=ctx.createDynamicsCompressor();
+      comp.threshold.value=-27;
+      comp.knee.value=12;
+      comp.ratio.value=2.4;
+      comp.attack.value=.008;
+      comp.release.value=.18;
+
+      const makeup=ctx.createGain();
+      makeup.gain.value=1.25;
+
+      src.connect(hp);
+      hp.connect(boom1);
+      boom1.connect(boom2);
+      boom2.connect(lp1);
+      lp1.connect(lp2);
+      lp2.connect(comp);
+      comp.connect(makeup);
+      makeup.connect(ctx.destination);
+      F.nodes.set(a,[src,hp,boom1,boom2,lp1,lp2,comp,makeup]);
       return true;
     }catch(_){
       F.disabled=true;
@@ -142,7 +164,7 @@
     a.addEventListener('error',cleanup,{once:true});
     const p=a.play();
     if(p&&typeof p.catch==='function')p.catch(cleanup);
-    fadeTrack('orePulse',a,manual?4800:3200,800);
+    fadeTrack('orePulse',a,manual?3600:2500,650);
   }
 
   function playRecorded(id,manual=false){
@@ -182,7 +204,7 @@
         if(!isAnswer&&!fallbackUsed){fallbackUsed=true;F.disabled=true;playOreRawFallback(manual);}
       });
       if(isAnswer)fadeTrack(id,a,manual?4700:5200,1900);
-      else fadeTrack(id,a,manual?4800:3200,800);
+      else fadeTrack(id,a,manual?3600:2500,650);
     };
 
     // Automatic answer is delayed so it reads as response, not simultaneous sound design.
