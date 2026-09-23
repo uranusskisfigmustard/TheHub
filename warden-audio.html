@@ -8,7 +8,7 @@
 <meta http-equiv="Expires" content="0">
 <title>The Hub — Warden Audio</title>
 <script>
-  window.__WARDEN_AUDIO_BUILD='20260923-0015-N';
+  window.__WARDEN_AUDIO_BUILD='20260923-0033-O';
   window.__WARDEN_AUDIO_CACHE=Date.now().toString(36);
   ['warden-audio-v1.css','warden-audio-page.css'].forEach(href=>{
     const link=document.createElement('link');
@@ -24,7 +24,7 @@
     <div>
       <div class="audio-page-title">THE HUB // WARDEN AUDIO</div>
       <div class="audio-page-sub">Dedicated live-session soundboard — GitHub-only / browser-generated audio</div>
-      <div class="audio-page-sub" id="audioBuildStamp">BUILD 20260923-0015-N</div>
+      <div class="audio-page-sub" id="audioBuildStamp">BUILD 20260923-0033-O</div>
     </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end">
       <button class="audio-page-return" id="audioForceReload" type="button">FORCE FRESH LOAD</button>
@@ -63,6 +63,7 @@
     window.WardenAudioCore&&window.WardenAudioCore.bindScope('upper');
     await loadScript('warden-audio-v1.js');
     await loadScript('warden-audio-fluorescent-recording-v1.js');
+    await loadScript('warden-audio-rock-recording-v1.js');
     await loadScript('warden-audio-signal-v1.js');
 
     window.WardenAudioCore&&window.WardenAudioCore.bindScope('clean');
