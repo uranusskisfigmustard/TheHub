@@ -6,7 +6,7 @@
   // ORE PULSE source:
   // Freesound #148873 — "Voice elephant.mp3" by vataaa — CC0 1.0.
   // Stable mirror retained in DaanVanYperen/odb-dynasty.
-  const ORE_SAMPLE='https://raw.githubusercontent.com/DaanVanYperen/odb-dynasty/731dcfaf25fe463a4fe84fb2511a72a2cbaca924/src/main/resources/assets/sound/elephant_scream.mp3';
+  const ORE_SAMPLE='https://raw.githubusercontent.com/DaanVanYperen/odb-dynasty/731dcfaf25fe463a4fe84fb2511a72a2cbaca924/android/assets/sfx/elephant_scream.mp3';
 
   // ANSWERING PULSE source:
   // OpenGameArt — "CC0 Deep Monster Roar" by trazzz123 — CC0 1.0.
