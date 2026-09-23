@@ -1,14 +1,15 @@
 (()=>{
   'use strict';
 
-  // REAL RECORDED SOURCE SET — replaces the procedural METAL / CHUTE simulation.
-  // Source pack: Kenney Impact Sounds — heavy metal impacts.
-  // Author: Kenney.nl
-  // License: CC0 1.0 / public domain.
-  // License record / raw mirrors preserved in Tabletop Club:
-  // https://github.com/drwhut/tabletop-club/blob/a4fb379b0f4af1f066bf378bd652d8be90d64e32/game/LICENSES.tres
-  const ROOT='https://raw.githubusercontent.com/drwhut/tabletop-club/a4fb379b0f4af1f066bf378bd652d8be90d64e32/game/Sounds/MetalHeavy/';
-  const SAMPLES=[0,1,2,3,4].map(n=>ROOT+`impactMetal_heavy_00${n}.ogg`);
+  // REAL RECORDED SCRAP-METAL SOURCE — replaces the clean struck-metal set.
+  // Infra Arcana derivative: sfx_door_break_gate.ogg
+  // Primary source: Freesound #587443, "Scrap metal dropping / crashing"
+  // Creator: SamsterBirdies — CC0 1.0.
+  // Secondary source in the derivative: Freesound #449992, "whoosh_short_low.wav"
+  // Creator: DJT4NN3R — CC0 1.0.
+  // Infra Arcana changes: cut most sounds, mix, reverb.
+  // Attribution/license record: ports/infra_arcana/infra_arcana/LICENSE-AUDIO.txt
+  const SAMPLE_URL='https://raw.githubusercontent.com/PortsMaster/PortMaster-New/28383a4fca0553787c8a14c40af92425366136ca/ports/infra_arcana/infra_arcana/audio/sfx_door_break_gate.ogg';
   const LABEL='METAL / CHUTE';
   const FIRST_MIN=10000, FIRST_MAX=24000;
   const GAP_MIN=22000, GAP_MAX=52000;
@@ -17,13 +18,11 @@
   let timer=null;
   let installed=false;
   const playing=new Set();
-  const secondaryTimers=new Set();
   let baseSetLayer=null,baseTrigger=null,baseStartM17=null,baseStopAll=null;
   let statusObserver=null;
 
   const rand=(a,b)=>a+Math.random()*(b-a);
   const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
-  const pick=()=>SAMPLES[Math.floor(Math.random()*SAMPLES.length)];
 
   function masterVolume(){
     const slider=document.getElementById('waVolume');
@@ -36,10 +35,10 @@
     a.volume=clamp(masterVolume()*mix,0,1);
   }
 
-  function playOne(url,mix=1){
-    const a=new Audio(url);
+  function playChuteEvent(manual=false){
+    const a=new Audio(SAMPLE_URL);
     a.preload='auto';
-    a.dataset.waMix=String(mix);
+    a.dataset.waMix='1';
     setAudioVolume(a);
     playing.add(a);
     const retire=()=>playing.delete(a);
@@ -47,38 +46,16 @@
     a.addEventListener('error',retire,{once:true});
     const p=a.play();
     if(p&&typeof p.catch==='function')p.catch(retire);
-    return a;
+
+    const btn=document.querySelector('[data-audio-trigger="metal"]');
+    if(manual&&btn){btn.classList.add('fired');setTimeout(()=>btn.classList.remove('fired'),350);}
   }
 
   function stopPlaying(){
-    secondaryTimers.forEach(t=>clearTimeout(t));
-    secondaryTimers.clear();
     playing.forEach(a=>{
       try{a.pause();a.currentTime=0;}catch(_){ }
     });
     playing.clear();
-  }
-
-  function playChuteEvent(manual=false){
-    const first=pick();
-    playOne(first,.96);
-
-    // Most events are one substantial steel strike. Some get a quieter follow-up
-    // to suggest material bouncing/settling farther down the chute.
-    if(Math.random()<.58){
-      const delay=rand(130,360);
-      const t=setTimeout(()=>{
-        secondaryTimers.delete(t);
-        if(!active && !manual)return;
-        let second=pick();
-        if(second===first) second=SAMPLES[(SAMPLES.indexOf(first)+1+Math.floor(Math.random()*4))%SAMPLES.length];
-        playOne(second,rand(.32,.48));
-      },delay);
-      secondaryTimers.add(t);
-    }
-
-    const btn=document.querySelector('[data-audio-trigger="metal"]');
-    if(manual&&btn){btn.classList.add('fired');setTimeout(()=>btn.classList.remove('fired'),350);}
   }
 
   function clearSchedule(){
@@ -112,7 +89,7 @@
     active=on;
     clearSchedule();
     if(on){
-      // Preserve existing behavior: enabling arms the intermittent layer.
+      // Arming the layer does not fire immediately; manual TRIGGER remains available.
       scheduleNext(true);
     }else{
       stopPlaying();
@@ -145,10 +122,8 @@
     return fresh;
   }
 
-  // Earlier recorded-layer patches each watched the ACTIVE text independently.
-  // Replace that text node once here to detach those old observers, then use one
-  // authoritative status renderer driven by the actual toggle buttons. This
-  // prevents observer-order feedback loops when several recorded layers are ON.
+  // One authoritative renderer for ACTIVE status. Replacing #waLive detaches
+  // legacy per-layer observers and avoids observer feedback when layers stack.
   function installStatusAuthority(){
     const oldLive=document.getElementById('waLive');
     const dock=document.getElementById('wardenAudioDock');
@@ -190,7 +165,7 @@
     try{baseSetLayer('metal',false);}catch(_){ }
 
     const desc=metalToggle.querySelector('small');
-    if(desc)desc.textContent='Real heavy steel impacts with occasional secondary chute settling (CC0 recordings)';
+    if(desc)desc.textContent='Bulk scrap metal dropping and crashing — heavy impact, scrape, and rattle (CC0 recording)';
 
     replaceButton(metalToggle,()=>setMetal(!active));
     replaceButton(metalTrigger,triggerMetal);
