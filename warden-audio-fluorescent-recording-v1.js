@@ -57,12 +57,12 @@
   function scheduleNext(){
     clearSchedule();
     if(!active)return;
-    // Approved live-play cadence: occasional enough to remain environmental rather than intrusive.
+    // Approved live-play cadence: 5–10 minutes between automatic flicker events.
     timer=setTimeout(()=>{
       if(!active)return;
       playRecording(false);
       scheduleNext();
-    },rand(45000,120000));
+    },rand(300000,600000));
   }
 
   function syncButton(){
