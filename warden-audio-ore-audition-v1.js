@@ -1,252 +1,53 @@
 (()=>{
-  'use strict';
-
-  const STORAGE_VOLUME='mothership_warden_audio_volume_v1';
-  const ANSWER_SAMPLE='https://opengameart.org/sites/default/files/monster_roar.wav';
-
-  const activeMedia=new Set();
-  const synthStops=new Set();
-  let ctx=null;
-
-  const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
-  const rand=(a,b)=>a+Math.random()*(b-a);
-
-  function masterVolume(){
-    const slider=document.getElementById('waVolume');
-    const v=slider?Number(slider.value):Number(localStorage.getItem(STORAGE_VOLUME)||.48);
-    return clamp(Number.isFinite(v)?v:.48,0,1);
-  }
-
-  function audioContext(){
-    try{
-      if(!ctx){
-        const Ctx=window.AudioContext||window.webkitAudioContext;
-        if(!Ctx)return null;
-        ctx=new Ctx();
-      }
-      if(ctx.state==='suspended')ctx.resume().catch(()=>{});
-      return ctx;
-    }catch(_){return null;}
-  }
-
-  function stopMedia(a){
-    if(!a)return;
-    try{a.pause();a.currentTime=0;}catch(_){ }
-    activeMedia.delete(a);
-  }
-
-  function stopAll(){
-    [...activeMedia].forEach(stopMedia);
-    [...synthStops].forEach(stop=>{try{stop();}catch(_){ }});
-    synthStops.clear();
-  }
-
-  function setPitch(a,rate){
-    a.playbackRate=rate;
-    try{a.preservesPitch=false;}catch(_){ }
-    try{a.mozPreservesPitch=false;}catch(_){ }
-    try{a.webkitPreservesPitch=false;}catch(_){ }
-  }
-
-  function playAnswerBed(mix=.18,rate=.70,hold=5900,fade=2400){
-    const a=new Audio(ANSWER_SAMPLE);
-    a.preload='auto';
-    setPitch(a,rate);
-    a.volume=clamp(masterVolume()*mix,0,1);
-    activeMedia.add(a);
-
-    const cleanup=()=>activeMedia.delete(a);
-    a.addEventListener('ended',cleanup,{once:true});
-    a.addEventListener('error',cleanup,{once:true});
-
-    const p=a.play();
-    if(p&&typeof p.catch==='function')p.catch(cleanup);
-
-    const holdTimer=setTimeout(()=>{
-      const start=performance.now();
-      const startVol=a.volume;
-      const tick=()=>{
-        if(a.paused)return;
-        const t=clamp((performance.now()-start)/fade,0,1);
-        a.volume=startVol*(1-t);
-        if(t<1)requestAnimationFrame(tick);else stopMedia(a);
-      };
-      requestAnimationFrame(tick);
-    },hold);
-    a.dataset.oreHold=String(holdTimer);
-    return a;
-  }
-
-  function makeSoftNoiseBuffer(ac,duration){
-    const frames=Math.ceil(ac.sampleRate*duration);
-    const b=ac.createBuffer(1,frames,ac.sampleRate);
-    const d=b.getChannelData(0);
-    let slow=0,mid=0;
-    for(let i=0;i<frames;i++){
-      const w=Math.random()*2-1;
-      slow=.996*slow+.004*w;
-      mid=.965*mid+.035*w;
-      d[i]=w*.12+mid*.42+slow*.46;
-    }
-    let peak=0;
-    for(let i=0;i<frames;i++)peak=Math.max(peak,Math.abs(d[i]));
-    const scale=peak>0?.88/peak:1;
-    for(let i=0;i<frames;i++)d[i]*=scale;
-    return b;
-  }
-
-  function playSoftAquaphone(mode='soft'){
-    const ac=audioContext();
-    if(!ac)return ()=>{};
-
-    const now=ac.currentTime+.015;
-    const dur=mode==='deep'?10.4:9.2;
-    const source=ac.createBufferSource();
-    source.buffer=makeSoftNoiseBuffer(ac,dur+.4);
-
-    const hp=ac.createBiquadFilter();
-    hp.type='highpass';
-    hp.frequency.value=mode==='deep'?52:68;
-    hp.Q.value=.55;
-
-    const lp=ac.createBiquadFilter();
-    lp.type='lowpass';
-    lp.frequency.value=mode==='deep'?1650:2250;
-    lp.Q.value=.48;
-
-    const body=ac.createGain();
-    const wet=ac.createGain();
-    const output=ac.createGain();
-
-    source.connect(hp);hp.connect(lp);lp.connect(body);
-
-    // Slow, soft swell. No discrete hits, glints, or granular bursts.
-    output.gain.setValueAtTime(.0001,now);
-    output.gain.exponentialRampToValueAtTime(masterVolume()*(mode==='deep'?.64:.58),now+1.35);
-    output.gain.linearRampToValueAtTime(masterVolume()*(mode==='deep'?.70:.64),now+3.1);
-    output.gain.setValueAtTime(masterVolume()*(mode==='deep'?.66:.60),now+(dur-3.0));
-    output.gain.exponentialRampToValueAtTime(.0001,now+dur);
-
-    const nodes=[source,hp,lp,body,wet,output];
-    const baseBands=mode==='deep'
-      ? [
-          {f:112,q:3.0,g:.44},{f:177,q:3.5,g:.62},{f:281,q:4.0,g:.69},
-          {f:443,q:4.5,g:.55},{f:707,q:5.2,g:.34},{f:1117,q:5.8,g:.18}
-        ]
-      : [
-          {f:146,q:3.0,g:.36},{f:233,q:3.6,g:.56},{f:371,q:4.2,g:.66},
-          {f:593,q:4.8,g:.58},{f:941,q:5.4,g:.38},{f:1493,q:6.0,g:.20}
-        ];
-
-    baseBands.forEach((b,i)=>{
-      const filter=ac.createBiquadFilter();
-      filter.type='bandpass';
-      const f0=b.f*rand(.988,1.012);
-      filter.frequency.setValueAtTime(f0,now);
-      filter.frequency.linearRampToValueAtTime(f0*rand(.985,1.015),now+dur);
-      filter.Q.value=b.q;
-
-      const gain=ac.createGain();
-      gain.gain.value=b.g*rand(.92,1.08);
-
-      if(ac.createStereoPanner){
-        const pan=ac.createStereoPanner();
-        pan.pan.setValueAtTime(rand(-.28,.28),now);
-        pan.pan.linearRampToValueAtTime(rand(-.28,.28),now+dur);
-        body.connect(filter);filter.connect(gain);gain.connect(pan);pan.connect(wet);
-        nodes.push(filter,gain,pan);
-      }else{
-        body.connect(filter);filter.connect(gain);gain.connect(wet);
-        nodes.push(filter,gain);
-      }
-    });
-
-    // Broad, low mineral body so the sound does not collapse into a glass chime.
-    const broad=ac.createBiquadFilter();
-    broad.type='bandpass';
-    broad.frequency.value=mode==='deep'?190:255;
-    broad.Q.value=.72;
-    const broadGain=ac.createGain();
-    broadGain.gain.value=mode==='deep'?.34:.26;
-    body.connect(broad);broad.connect(broadGain);broadGain.connect(wet);
-    nodes.push(broad,broadGain);
-
-    // Soft diffusion: very short low-feedback delay, filtered so it reads as depth, not echo.
-    const delay=ac.createDelay(.5);
-    delay.delayTime.value=mode==='deep'?.165:.135;
-    const feedback=ac.createGain();
-    feedback.gain.value=.14;
-    const feedbackLP=ac.createBiquadFilter();
-    feedbackLP.type='lowpass';
-    feedbackLP.frequency.value=mode==='deep'?1100:1500;
-    wet.connect(output);
-    wet.connect(delay);delay.connect(feedbackLP);feedbackLP.connect(feedback);feedback.connect(delay);delay.connect(output);
-    nodes.push(delay,feedback,feedbackLP);
-
-    output.connect(ac.destination);
-
-    let stopped=false;
-    const stop=()=>{
-      if(stopped)return;
-      stopped=true;
-      try{source.stop();}catch(_){ }
-      nodes.forEach(n=>{try{n.disconnect();}catch(_){ }});
-      synthStops.delete(stop);
-    };
-    synthStops.add(stop);
-    source.onended=stop;
-    source.start(now);
-    source.stop(now+dur+.05);
-    return stop;
-  }
-
-  function trigger(id){
-    stopAll();
-
-    if(id==='soft'){
-      playSoftAquaphone('soft');
-    }else if(id==='deep'){
-      playSoftAquaphone('deep');
-    }else if(id==='body'){
-      playSoftAquaphone('soft');
-      playAnswerBed(.16,.70,6100,2500);
-    }else if(id==='answer'){
-      playAnswerBed(.78,.72,4700,1900);
-    }
-
-    const b=document.querySelector(`[data-ore-audition="${id}"]`);
-    if(b){b.classList.add('fired');setTimeout(()=>b.classList.remove('fired'),400);}
-  }
-
-  const candidates=[
-    {id:'soft',label:'A // SOFT AQUAPHONE',desc:'Primary test. Slow glass/mineral swell with softened edges, dark inharmonic resonance, and no discrete chimes.'},
-    {id:'deep',label:'B // DARK AQUAPHONE',desc:'Lower and darker version of A. More body, less upper glass, longer decay.'},
-    {id:'body',label:'C // AQUAPHONE + DISTANT BODY',desc:'A with the proven ANSWERING PULSE buried very quietly underneath for scale; continuous, not chopped.'},
-    {id:'answer',label:'D // ANSWERING PULSE REFERENCE',desc:'Unchanged recorded reply for direct comparison.'}
-  ];
-
-  function build(){
-    if(document.getElementById('waOreAudition'))return true;
-    const stage=document.getElementById('waSignalStage');
-    if(!stage)return false;
-
-    const section=document.createElement('div');
-    section.id='waOreAudition';
-    section.innerHTML=`
-      <div class="wa-live" style="margin-top:14px"><span>TEMP // ORE SOURCE AUDITION:</span> <b>SOFT CRYSTALLINE / MINERAL</b></div>
-      <small style="display:block;margin:6px 0 10px;opacity:.75">No embeds. All tests use the normal soundboard TRIGGER controls. B from the prior build is retired.</small>
-      <div class="wa-grid">
-        ${candidates.map(c=>`<div class="wa-layer"><div class="wa-layer-toggle" style="cursor:default"><span><b>${c.label}</b><small>${c.desc}</small></span><span class="wa-state">TEST</span></div><button class="wa-mini" type="button" data-ore-audition="${c.id}">TRIGGER</button></div>`).join('')}
-      </div>
-      <div class="wa-master-row" style="margin-top:8px"><button class="wa-btn wa-stop" id="waStopOreAudition" type="button">STOP AUDITION</button></div>`;
-
-    stage.insertAdjacentElement('afterend',section);
-    section.querySelectorAll('[data-ore-audition]').forEach(btn=>btn.addEventListener('click',()=>trigger(btn.dataset.oreAudition)));
-    document.getElementById('waStopOreAudition').addEventListener('click',stopAll);
-    return true;
-  }
-
-  let tries=0;
-  const wait=setInterval(()=>{tries++;if(build()||tries>100)clearInterval(wait);},100);
-  window.WardenOreAudition={trigger,stopAll};
+'use strict';
+const STORAGE_VOLUME='mothership_warden_audio_volume_v1';
+const SOFT_SAMPLE='data:audio/mpeg;base64,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[... ELLIPSIZATION ...]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50v6UxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVAUqOgkCogHxKRFz4pGicShYZQGjrUFAogeEgxiREq0QqQH4r//tSxOqDS5xHCCzgw8GHiSDBl5mQiwFCgFEYCCQZJAyRCYZCSAqSfinArTTAEEwE0fWRGEvW1/oYAiICa9g+74p1JFjTMBNApJVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVX/+1LE6QMHyCcURKTEoe4e3sD0malVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/7UsTOA8sIQuAkpMGAAAA0gAAABFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV';
+const ANSWER_SAMPLE='https://opengameart.org/sites/default/files/monster_roar.wav';
+const active=new Set();
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+function masterVolume(){
+  const s=document.getElementById('waVolume');
+  const v=s?Number(s.value):Number(localStorage.getItem(STORAGE_VOLUME)||.48);
+  return clamp(Number.isFinite(v)?v:.48,0,1);
+}
+function stopAudio(a){if(!a)return;try{a.pause();a.currentTime=0;}catch(_){}active.delete(a);}
+function stopAll(){[...active].forEach(stopAudio);}
+function play(src,mix=1,rate=1){
+  const a=new Audio(src);a.preload='auto';a.volume=clamp(masterVolume()*mix,0,1);a.playbackRate=rate;
+  try{a.preservesPitch=false;}catch(_){}
+  try{a.mozPreservesPitch=false;}catch(_){}
+  try{a.webkitPreservesPitch=false;}catch(_){}
+  a.dataset.oreMix=String(mix);active.add(a);
+  const cleanup=()=>active.delete(a);a.addEventListener('ended',cleanup,{once:true});a.addEventListener('error',cleanup,{once:true});
+  const p=a.play();if(p&&typeof p.catch==='function')p.catch(cleanup);return a;
+}
+function trigger(id){
+  stopAll();
+  if(id==='soft')play(SOFT_SAMPLE,.92,1.0);
+  else if(id==='answer')play(ANSWER_SAMPLE,.78,.72);
+  const b=document.querySelector(`[data-ore-audition="${id}"]`);
+  if(b){b.classList.add('fired');setTimeout(()=>b.classList.remove('fired'),400);}
+}
+const candidates=[
+  {id:'soft',label:'A // PRE-RENDERED SOFT CRYSTAL',desc:'Finished 9.4 s mineral/glass swell. Envelope, filtering, resonance and decay are baked into the file; browser playback is 1.0x with no stretching, pitch shift, delay or live synthesis.'},
+  {id:'answer',label:'B // ANSWERING PULSE REFERENCE',desc:'Existing recorded response at its established 0.72x treatment for direct comparison.'}
+];
+function bindMaster(){
+  const s=document.getElementById('waVolume');if(!s)return;
+  s.addEventListener('input',()=>active.forEach(a=>{const mix=Number(a.dataset.oreMix||1);a.volume=clamp(masterVolume()*mix,0,1);}));
+}
+function build(){
+  if(document.getElementById('waOreAudition'))return true;
+  const stage=document.getElementById('waSignalStage');if(!stage)return false;
+  const section=document.createElement('div');section.id='waOreAudition';
+  section.innerHTML=`<div class="wa-live" style="margin-top:14px"><span>TEMP // ORE SOURCE AUDITION:</span> <b>PRE-RENDERED MINERAL</b></div>
+  <small style="display:block;margin:6px 0 10px;opacity:.75">A is now a fixed audio asset, not a browser synth. No real-time lowering or stretching is applied.</small>
+  <div class="wa-grid">${candidates.map(c=>`<div class="wa-layer"><div class="wa-layer-toggle" style="cursor:default"><span><b>${c.label}</b><small>${c.desc}</small></span><span class="wa-state">TEST</span></div><button class="wa-mini" type="button" data-ore-audition="${c.id}">TRIGGER</button></div>`).join('')}</div>
+  <div class="wa-master-row" style="margin-top:8px"><button class="wa-btn wa-stop" id="waStopOreAudition" type="button">STOP AUDITION</button></div>`;
+  stage.insertAdjacentElement('afterend',section);
+  section.querySelectorAll('[data-ore-audition]').forEach(btn=>btn.addEventListener('click',()=>trigger(btn.dataset.oreAudition)));
+  document.getElementById('waStopOreAudition').addEventListener('click',stopAll);bindMaster();return true;
+}
+let tries=0;const wait=setInterval(()=>{tries++;if(build()||tries>100)clearInterval(wait);},100);
+window.WardenOreAudition={trigger,stopAll};
 })();
