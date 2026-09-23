@@ -6,17 +6,45 @@
   if(!AudioCtx) return;
 
   const layerDefs=[
-    {id:'room',label:'ROOM BED',mode:'continuous',desc:'Ventilation + low industrial room tone'},
-    {id:'machinery',label:'HEAVY MACHINERY',mode:'continuous',desc:'Loaded motors, torque strokes, bearings, and heavy mechanical cycling'},
+    {id:'room',label:'ROOM BED',mode:'continuous',desc:'Stacked factory ventilation + industrial room ambience'},
+    {id:'machinery',label:'HEAVY MACHINERY',mode:'continuous',desc:'Stacked factory machine tone + heavy mechanical cycle'},
     {id:'light',label:'FLUORESCENT FLICKER',mode:'intermittent',desc:'Failing tube restrikes, starter clicks, and short ballast buzzes',first:[3,9],gap:[14,32]},
     {id:'rocks',label:'ROCK / MATERIAL',mode:'intermittent',desc:'Audible granular scrape, tumble, and dense material settling',first:[7,16],gap:[22,48]},
     {id:'metal',label:'METAL / CHUTE',mode:'intermittent',desc:'Broadband chute clank, shell impact, and settling steel',first:[10,24],gap:[22,52]},
     {id:'relays',label:'CONTROL RELAYS',mode:'intermittent',desc:'Dry mechanical relay clicks and brief contact chatter',first:[7,15],gap:[14,35]}
   ];
 
-  const S={ctx:null,master:null,compressor:null,noise:null,active:new Set(),continuous:new Map(),timers:new Map(),eventStops:new Map(),volume:Math.max(0,Math.min(1,Number(localStorage.getItem(STORAGE_VOLUME)||0.48)))};
+  // Recorded CC0 environmental beds. Each continuous layer is a stack of distinct physical sources,
+  // rather than one synthesized texture trying to represent an entire industrial room.
+  const ROOM_LOOPS=[
+    {
+      url:'https://cdn.freesound.org/previews/272/272265_4965320-hq.mp3',
+      gain:.78,
+      source:'Freesound #272265 — Big Factory Fan Ambience — IanStarGem — CC0 1.0'
+    },
+    {
+      url:'https://cdn.freesound.org/previews/393/393398_5416641-hq.mp3',
+      gain:.42,
+      source:'Freesound #393398 — Industrial ambience — Lewente — CC0 1.0'
+    }
+  ];
+  const MACHINERY_LOOPS=[
+    {
+      url:'https://cdn.freesound.org/previews/434/434507_1134415-hq.mp3',
+      gain:1.0,
+      source:'Freesound #434507 — industrial_machine_tone — Kostrava — CC0 1.0'
+    },
+    {
+      url:'https://cdn.freesound.org/previews/580/580633_2282212-hq.mp3',
+      gain:.62,
+      source:'Freesound #580633 — Machine Steampunk Factory — szegvari — CC0 1.0'
+    }
+  ];
+
+  const S={ctx:null,master:null,compressor:null,noise:null,active:new Set(),continuous:new Map(),timers:new Map(),eventStops:new Map(),mediaLoops:new Set(),volume:Math.max(0,Math.min(1,Number(localStorage.getItem(STORAGE_VOLUME)||0.48)))};
   const rand=(a,b)=>a+Math.random()*(b-a);
   const now=()=>S.ctx?S.ctx.currentTime:0;
+  const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 
   function makeNoiseBuffer(seconds=12){
     const length=Math.max(1,Math.floor(S.ctx.sampleRate*seconds));
@@ -48,104 +76,38 @@
     node.connect(target);return null;
   }
 
-  function startRoom(){
-    const ctx=ensureAudio(),group=ctx.createGain();group.gain.value=.72;group.connect(S.master);
-    const src=ctx.createBufferSource();src.buffer=S.noise;src.loop=true;
-    const hp=ctx.createBiquadFilter();hp.type='highpass';hp.frequency.value=85;
-    const lp=ctx.createBiquadFilter();lp.type='lowpass';lp.frequency.value=1750;
-    const ng=ctx.createGain();ng.gain.value=.052;src.connect(hp).connect(lp).connect(ng).connect(group);src.start();
-    const oscs=[];
-    [[34.5,.022],[41.2,.014],[69,.006],[179,.0025],[241,.0017]].forEach(([f,v])=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type='sine';o.frequency.value=f;g.gain.value=v;o.connect(g).connect(group);o.start();oscs.push(o);});
-    const mains=ctx.createOscillator(),mg=ctx.createGain();mains.type='sine';mains.frequency.value=60;mg.gain.value=.0018;mains.connect(mg).connect(group);mains.start();oscs.push(mains);
-    return()=>{try{src.stop()}catch(_){ }oscs.forEach(o=>{try{o.stop()}catch(_){}});try{group.disconnect()}catch(_){}};
+  function setMediaVolume(track){
+    const mix=Number(track.dataset.waMix||1);
+    track.volume=clamp(S.volume*mix,0,1);
   }
 
-  function startMachinery(){
-    const ctx=ensureAudio(),group=ctx.createGain();group.gain.value=1.16;group.connect(S.master);
-    const continuous=[],pulseNodes=new Set();
-    let alive=true,pulseTimer=null;
-
-    const motor=ctx.createOscillator();motor.type='triangle';motor.frequency.value=46;
-    const motorDrive=ctx.createGain();motorDrive.gain.value=.34;
-    const saturator=ctx.createWaveShaper();
-    const curve=new Float32Array(1024);
-    for(let i=0;i<curve.length;i++){
-      const x=(i/(curve.length-1))*2-1;
-      curve[i]=Math.tanh(3.6*x);
-    }
-    saturator.curve=curve;saturator.oversample='2x';
-    const motorLP=ctx.createBiquadFilter();motorLP.type='lowpass';motorLP.frequency.value=520;motorLP.Q.value=.35;
-    const motorGain=ctx.createGain();motorGain.gain.value=.065;
-    motor.connect(motorDrive).connect(saturator).connect(motorLP).connect(motorGain).connect(group);motor.start();continuous.push(motor);
-
-    const shaft=ctx.createOscillator();shaft.type='triangle';shaft.frequency.value=91;
-    const shaftGain=ctx.createGain();shaftGain.gain.value=.018;
-    shaft.connect(shaftGain).connect(group);shaft.start();continuous.push(shaft);
-
-    const body=ctx.createBufferSource();body.buffer=S.noise;body.loop=true;
-    const bhp=ctx.createBiquadFilter();bhp.type='highpass';bhp.frequency.value=150;
-    const blp=ctx.createBiquadFilter();blp.type='lowpass';blp.frequency.value=980;
-    const bg=ctx.createGain();bg.gain.value=.018;
-    body.connect(bhp).connect(blp).connect(bg).connect(group);body.start();continuous.push(body);
-
-    const wobble=ctx.createOscillator();wobble.type='sine';wobble.frequency.value=.83;
-    const wobbleGain=ctx.createGain();wobbleGain.gain.value=.012;
-    wobble.connect(wobbleGain).connect(motorGain.gain);wobble.start();continuous.push(wobble);
-
-    function retire(node,delayMs){
-      pulseNodes.add(node);
-      setTimeout(()=>pulseNodes.delete(node),delayMs);
-    }
-
-    function torqueStroke(delay=0,secondary=false){
-      if(!alive)return;
-      const t=ctx.currentTime+.015+delay;
-      const dur=secondary?rand(.18,.28):rand(.28,.42);
-      const hit=ctx.createBufferSource();hit.buffer=S.noise;
-      const hp=ctx.createBiquadFilter();hp.type='highpass';hp.frequency.value=70;
-      const lp=ctx.createBiquadFilter();lp.type='lowpass';lp.frequency.value=390;
-      const hg=ctx.createGain();
-      const peak=secondary?rand(.055,.075):rand(.095,.135);
-      hg.gain.setValueAtTime(.0001,t);
-      hg.gain.exponentialRampToValueAtTime(peak,t+.025);
-      hg.gain.exponentialRampToValueAtTime(.0001,t+dur);
-      hit.connect(hp).connect(lp).connect(hg).connect(group);hit.start(t);hit.stop(t+dur+.03);retire(hit,(delay+dur+.2)*1000);
-
-      const frame=ctx.createBufferSource();frame.buffer=S.noise;
-      const bp=ctx.createBiquadFilter();bp.type='bandpass';bp.frequency.value=secondary?rand(185,260):rand(125,205);bp.Q.value=1.4;
-      const fg=ctx.createGain();
-      fg.gain.setValueAtTime(.0001,t);
-      fg.gain.exponentialRampToValueAtTime(secondary?.035:.060,t+.035);
-      fg.gain.exponentialRampToValueAtTime(.0001,t+dur*.92);
-      frame.connect(bp).connect(fg).connect(group);frame.start(t);frame.stop(t+dur+.03);retire(frame,(delay+dur+.2)*1000);
-
-      const base=Math.max(.0001,motorGain.gain.value);
-      motorGain.gain.cancelScheduledValues(t);
-      motorGain.gain.setValueAtTime(base,t);
-      motorGain.gain.linearRampToValueAtTime(secondary?.078:.095,t+.045);
-      motorGain.gain.exponentialRampToValueAtTime(.065,t+dur+.10);
-    }
-
-    function scheduleStroke(first=false){
-      if(!alive)return;
-      const wait=(first?rand(.35,.75):rand(.72,1.35))*1000;
-      pulseTimer=setTimeout(()=>{
-        if(!alive)return;
-        torqueStroke(0,false);
-        if(Math.random()<.38)torqueStroke(rand(.14,.24),true);
-        scheduleStroke(false);
-      },wait);
-    }
-    scheduleStroke(true);
-
+  function startRecordedStack(defs){
+    ensureAudio();
+    const tracks=[];
+    defs.forEach((def,index)=>{
+      const a=new Audio(def.url);
+      a.preload='auto';
+      a.loop=true;
+      a.dataset.waMix=String(def.gain);
+      a.dataset.waSource=def.source;
+      setMediaVolume(a);
+      S.mediaLoops.add(a);
+      tracks.push(a);
+      const p=a.play();
+      if(p&&typeof p.catch==='function')p.catch(()=>{S.mediaLoops.delete(a);});
+      // Deliberately leave the recordings unfiltered for the first audition pass.
+      // Their relative levels, rather than EQ, establish which physical source leads each bed.
+    });
     return()=>{
-      alive=false;
-      if(pulseTimer)clearTimeout(pulseTimer);
-      continuous.forEach(n=>{try{n.stop()}catch(_){}});
-      pulseNodes.forEach(n=>{try{n.stop()}catch(_){}});pulseNodes.clear();
-      try{group.disconnect()}catch(_){ }
+      tracks.forEach(a=>{
+        try{a.pause();a.currentTime=0;}catch(_){ }
+        S.mediaLoops.delete(a);
+      });
     };
   }
+
+  function startRoom(){return startRecordedStack(ROOM_LOOPS)}
+  function startMachinery(){return startRecordedStack(MACHINERY_LOOPS)}
 
   function fireFluorescentFlicker(){
     const ctx=ensureAudio(),nodes=[],group=ctx.createGain();group.gain.value=.95;group.connect(S.master);
@@ -200,7 +162,6 @@
       ballastBuzz(cursor+.02,hold,true);
     }
 
-    const total=Math.max(.8,cursor-base+1.2);
     return()=>{nodes.forEach(n=>{try{n.stop()}catch(_){}});try{group.disconnect()}catch(_){}};
   }
 
@@ -299,7 +260,12 @@
     dock.querySelectorAll('[data-audio-trigger]').forEach(btn=>btn.addEventListener('click',()=>trigger(btn.dataset.audioTrigger)));
     document.getElementById('waStartM17').addEventListener('click',startM17);document.getElementById('waStopAll').addEventListener('click',stopAll);
     document.getElementById('waCollapse').addEventListener('click',()=>dock.classList.toggle('collapsed'));
-    document.getElementById('waVolume').addEventListener('input',e=>{S.volume=Number(e.target.value);localStorage.setItem(STORAGE_VOLUME,String(S.volume));if(S.master)S.master.gain.setTargetAtTime(S.volume,S.ctx.currentTime,.03)});
+    document.getElementById('waVolume').addEventListener('input',e=>{
+      S.volume=Number(e.target.value);
+      localStorage.setItem(STORAGE_VOLUME,String(S.volume));
+      if(S.master)S.master.gain.setTargetAtTime(S.volume,S.ctx.currentTime,.03);
+      S.mediaLoops.forEach(setMediaVolume);
+    });
     renderState();
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',buildUI);else buildUI();
