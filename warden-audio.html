@@ -8,7 +8,7 @@
 <meta http-equiv="Expires" content="0">
 <title>The Hub — Warden Audio</title>
 <script>
-  window.__WARDEN_AUDIO_BUILD='20260923-1947-AJ';
+  window.__WARDEN_AUDIO_BUILD='20260923-1955-AK';
   window.__WARDEN_AUDIO_CACHE=Date.now().toString(36);
   ['warden-audio-v1.css','warden-audio-page.css'].forEach(href=>{
     const link=document.createElement('link');
@@ -24,7 +24,7 @@
     <div>
       <div class="audio-page-title">THE HUB // WARDEN AUDIO</div>
       <div class="audio-page-sub">Dedicated live-session soundboard — recorded + modeled browser audio</div>
-      <div class="audio-page-sub" id="audioBuildStamp">BUILD 20260923-1947-AJ</div>
+      <div class="audio-page-sub" id="audioBuildStamp">BUILD 20260923-1955-AK</div>
     </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end">
       <button class="audio-page-return" id="audioForceReload" type="button">FORCE FRESH LOAD</button>
@@ -60,19 +60,24 @@
 
   try{
     await loadScript('warden-audio-core-v1.js');
+    await loadScript('warden-audio-group-mixer-v1.js');
+
+    // GROUP 1 // familiar M-17 environmental/industrial audio.
     window.WardenAudioCore&&window.WardenAudioCore.bindScope('upper');
     await loadScript('warden-audio-v1.js');
     await loadScript('warden-audio-fluorescent-recording-v1.js');
     await loadScript('warden-audio-rock-recording-v1.js');
     await loadScript('warden-audio-metal-recording-v1.js');
+
+    // GROUP 2 // signal/anomaly audio and later nonlocal stages.
+    window.WardenAudioCore&&window.WardenAudioCore.bindScope('clean');
     await loadScript('warden-audio-signal-v1.js');
     await loadScript('warden-audio-ore-audition-v1.js');
     await loadScript('warden-audio-ore-delivery-fix-v1.js');
-    await loadScript('warden-audio-spatial-v1.js');
-
-    window.WardenAudioCore&&window.WardenAudioCore.bindScope('clean');
     await loadScript('warden-audio-dislocation-v1.js');
     await loadScript('warden-audio-late-v1.js');
+
+    window.WardenGroupMixer&&window.WardenGroupMixer.apply();
   }catch(err){
     const mount=document.getElementById('audioMount');
     mount.innerHTML='<div class="audio-page-intro"><strong>AUDIO LOAD ERROR</strong><p>'+String(err.message||err)+'</p></div>';
@@ -84,7 +89,7 @@
     tries++;
     const dock=document.getElementById('wardenAudioDock');
     const mount=document.getElementById('audioMount');
-    if(dock&&mount){mount.appendChild(dock);clearInterval(timer);}
+    if(dock&&mount){mount.appendChild(dock);window.WardenGroupMixer&&window.WardenGroupMixer.apply();clearInterval(timer);}
     else if(tries>100)clearInterval(timer);
   },50);
 })();
