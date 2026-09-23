@@ -57,13 +57,12 @@
   function scheduleNext(){
     clearSchedule();
     if(!active)return;
-    // The recording is ~9 sec. Leave enough dead air that the fixture reads as intermittent,
-    // not as a looping ambience bed.
+    // Approved live-play cadence: occasional enough to remain environmental rather than intrusive.
     timer=setTimeout(()=>{
       if(!active)return;
       playRecording(false);
       scheduleNext();
-    },rand(18000,36000));
+    },rand(45000,120000));
   }
 
   function syncButton(){
@@ -104,6 +103,8 @@
 
   function triggerLight(){
     playRecording(true);
+    // Manual use restarts the automatic clock so a second event cannot land immediately afterward.
+    if(active)scheduleNext();
   }
 
   function startM17(){
