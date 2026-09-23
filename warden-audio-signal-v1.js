@@ -4,16 +4,17 @@
   const STORAGE_VOLUME='mothership_warden_audio_volume_v1';
 
   // ORE PULSE source:
-  // Freesound #148873 — "Voice elephant.mp3" by vataaa — CC0 1.0.
-  // Stable mirror retained in DaanVanYperen/odb-dynasty.
-  const ORE_SAMPLE='https://raw.githubusercontent.com/DaanVanYperen/odb-dynasty/731dcfaf25fe463a4fe84fb2511a72a2cbaca924/android/assets/sfx/elephant_scream.mp3';
+  // Xeno-canto XC132934 — Southern Cassowary — recorded by Marc Anderson.
+  // Source page: https://xeno-canto.org/132934
+  // Audio is referenced from Xeno-canto rather than bundled into this repository.
+  const ORE_SAMPLE='https://www.xeno-canto.org/sounds/uploaded/EHGWCIGILC/XC132934-cassowary.mp3';
 
   // ANSWERING PULSE source:
   // OpenGameArt — "CC0 Deep Monster Roar" by trazzz123 — CC0 1.0.
   const ANSWER_SAMPLE='https://opengameart.org/sites/default/files/monster_roar.wav';
 
   const defs=[
-    {id:'orePulse',label:'ORE PULSE',desc:'Slowed recorded animal call — low, bodily, irregular beacon pulse'},
+    {id:'orePulse',label:'ORE PULSE',desc:'Real Southern Cassowary call — low, bodily beacon pulse'},
     {id:'answer',label:'ANSWERING PULSE',desc:'Distant recorded deep-creature reply — slower, larger, and nonlocal'}
   ];
 
@@ -84,9 +85,9 @@
     a.dataset.waFade='1';
     a.dataset.waMix=String(isAnswer?(manual?.78:.54):(manual?1.0:.76));
 
-    // Elephant source is deliberately slowed hard to turn the call into a cassowary-like
-    // bodily boom. The reply remains longer and slower, but not so low that TV speakers lose it.
-    setPitchMode(a,isAnswer?.72:.54);
+    // Keep the cassowary recording at its natural pitch for the first audition.
+    // The reply remains slowed so it reads as something much larger and farther away.
+    setPitchMode(a,isAnswer?.72:1.0);
     applyVolume(a);
 
     if(!S.playing.has(id))S.playing.set(id,new Set());
@@ -96,12 +97,12 @@
     a.addEventListener('ended',cleanup,{once:true});
     a.addEventListener('error',cleanup,{once:true});
 
-    // ORE is a short call; ANSWER is allowed to linger as a distant enormous response.
+    // Give the real cassowary call enough time to establish its characteristic boom.
     const begin=()=>{
       const p=a.play();
       if(p&&typeof p.catch==='function')p.catch(cleanup);
       if(isAnswer)fadeTrack(id,a,manual?4700:5200,1900);
-      else fadeTrack(id,a,manual?1900:1650,650);
+      else fadeTrack(id,a,manual?4800:3200,800);
     };
 
     // Automatic answer is delayed so it reads as response, not simultaneous sound design.
