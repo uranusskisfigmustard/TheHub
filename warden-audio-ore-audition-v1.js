@@ -3,6 +3,7 @@
 
   const STORAGE_VOLUME='mothership_warden_audio_volume_v1';
   const ANSWER_SAMPLE='https://opengameart.org/sites/default/files/monster_roar.wav';
+
   const activeMedia=new Set();
   const synthStops=new Set();
   let ctx=null;
@@ -47,15 +48,17 @@
     try{a.webkitPreservesPitch=false;}catch(_){ }
   }
 
-  function playAnswerBed(mix=.55,rate=.72,hold=5200,fade=1900){
+  function playAnswerBed(mix=.18,rate=.70,hold=5900,fade=2400){
     const a=new Audio(ANSWER_SAMPLE);
     a.preload='auto';
     setPitch(a,rate);
     a.volume=clamp(masterVolume()*mix,0,1);
     activeMedia.add(a);
+
     const cleanup=()=>activeMedia.delete(a);
     a.addEventListener('ended',cleanup,{once:true});
     a.addEventListener('error',cleanup,{once:true});
+
     const p=a.play();
     if(p&&typeof p.catch==='function')p.catch(cleanup);
 
@@ -74,75 +77,113 @@
     return a;
   }
 
-  function makeNoiseBuffer(ac,duration){
+  function makeSoftNoiseBuffer(ac,duration){
     const frames=Math.ceil(ac.sampleRate*duration);
     const b=ac.createBuffer(1,frames,ac.sampleRate);
     const d=b.getChannelData(0);
-    let brown=0;
+    let slow=0,mid=0;
     for(let i=0;i<frames;i++){
       const w=Math.random()*2-1;
-      brown=.985*brown+.015*w;
-      d[i]=(w*.34+brown*.66);
+      slow=.996*slow+.004*w;
+      mid=.965*mid+.035*w;
+      d[i]=w*.12+mid*.42+slow*.46;
     }
+    let peak=0;
+    for(let i=0;i<frames;i++)peak=Math.max(peak,Math.abs(d[i]));
+    const scale=peak>0?.88/peak:1;
+    for(let i=0;i<frames;i++)d[i]*=scale;
     return b;
   }
 
-  function playMineralLayer(strength='body'){
+  function playSoftAquaphone(mode='soft'){
     const ac=audioContext();
     if(!ac)return ()=>{};
+
     const now=ac.currentTime+.015;
-    const dur=6.4;
+    const dur=mode==='deep'?10.4:9.2;
     const source=ac.createBufferSource();
-    source.buffer=makeNoiseBuffer(ac,dur+.3);
+    source.buffer=makeSoftNoiseBuffer(ac,dur+.4);
 
+    const hp=ac.createBiquadFilter();
+    hp.type='highpass';
+    hp.frequency.value=mode==='deep'?52:68;
+    hp.Q.value=.55;
+
+    const lp=ac.createBiquadFilter();
+    lp.type='lowpass';
+    lp.frequency.value=mode==='deep'?1650:2250;
+    lp.Q.value=.48;
+
+    const body=ac.createGain();
+    const wet=ac.createGain();
     const output=ac.createGain();
-    output.gain.setValueAtTime(.0001,now);
-    output.gain.exponentialRampToValueAtTime(masterVolume()*(strength==='body'?.30:.40),now+.45);
-    output.gain.setValueAtTime(masterVolume()*(strength==='body'?.28:.36),now+4.7);
-    output.gain.exponentialRampToValueAtTime(.0001,now+dur);
-    output.connect(ac.destination);
 
-    const nodes=[source,output];
-    const bands=strength==='body'
+    source.connect(hp);hp.connect(lp);lp.connect(body);
+
+    // Slow, soft swell. No discrete hits, glints, or granular bursts.
+    output.gain.setValueAtTime(.0001,now);
+    output.gain.exponentialRampToValueAtTime(masterVolume()*(mode==='deep'?.64:.58),now+1.35);
+    output.gain.linearRampToValueAtTime(masterVolume()*(mode==='deep'?.70:.64),now+3.1);
+    output.gain.setValueAtTime(masterVolume()*(mode==='deep'?.66:.60),now+(dur-3.0));
+    output.gain.exponentialRampToValueAtTime(.0001,now+dur);
+
+    const nodes=[source,hp,lp,body,wet,output];
+    const baseBands=mode==='deep'
       ? [
-          {f:185,q:7,g:.50},{f:307,q:8,g:.58},{f:493,q:9,g:.46},
-          {f:823,q:10,g:.31},{f:1319,q:12,g:.18}
+          {f:112,q:3.0,g:.44},{f:177,q:3.5,g:.62},{f:281,q:4.0,g:.69},
+          {f:443,q:4.5,g:.55},{f:707,q:5.2,g:.34},{f:1117,q:5.8,g:.18}
         ]
       : [
-          {f:233,q:8,g:.30},{f:389,q:9,g:.42},{f:617,q:11,g:.58},
-          {f:997,q:13,g:.62},{f:1597,q:15,g:.46},{f:2477,q:17,g:.30}
+          {f:146,q:3.0,g:.36},{f:233,q:3.6,g:.56},{f:371,q:4.2,g:.66},
+          {f:593,q:4.8,g:.58},{f:941,q:5.4,g:.38},{f:1493,q:6.0,g:.20}
         ];
 
-    bands.forEach((b,i)=>{
+    baseBands.forEach((b,i)=>{
       const filter=ac.createBiquadFilter();
       filter.type='bandpass';
-      filter.frequency.value=b.f*rand(.975,1.025);
+      const f0=b.f*rand(.988,1.012);
+      filter.frequency.setValueAtTime(f0,now);
+      filter.frequency.linearRampToValueAtTime(f0*rand(.985,1.015),now+dur);
       filter.Q.value=b.q;
+
       const gain=ac.createGain();
-      gain.gain.value=b.g*rand(.85,1.12);
-      const pan=ac.createStereoPanner?ac.createStereoPanner():null;
-      if(pan)pan.pan.value=rand(-.52,.52);
-      source.connect(filter);
-      filter.connect(gain);
-      if(pan){gain.connect(pan);pan.connect(output);nodes.push(pan);}else gain.connect(output);
-      nodes.push(filter,gain);
+      gain.gain.value=b.g*rand(.92,1.08);
+
+      if(ac.createStereoPanner){
+        const pan=ac.createStereoPanner();
+        pan.pan.setValueAtTime(rand(-.28,.28),now);
+        pan.pan.linearRampToValueAtTime(rand(-.28,.28),now+dur);
+        body.connect(filter);filter.connect(gain);gain.connect(pan);pan.connect(wet);
+        nodes.push(filter,gain,pan);
+      }else{
+        body.connect(filter);filter.connect(gain);gain.connect(wet);
+        nodes.push(filter,gain);
+      }
     });
 
-    // Sparse irregular fracture glints: noise bursts, not pitched chimes.
-    const glints=strength==='body'?4:7;
-    for(let i=0;i<glints;i++){
-      const filter=ac.createBiquadFilter();
-      filter.type='bandpass';
-      filter.frequency.value=rand(strength==='body'?700:950,strength==='body'?1900:3300);
-      filter.Q.value=rand(10,22);
-      const gain=ac.createGain();
-      const t=now+rand(.35,5.1);
-      gain.gain.setValueAtTime(.0001,t);
-      gain.gain.exponentialRampToValueAtTime(rand(.035,.09),t+.02);
-      gain.gain.exponentialRampToValueAtTime(.0001,t+rand(.12,.38));
-      source.connect(filter);filter.connect(gain);gain.connect(output);
-      nodes.push(filter,gain);
-    }
+    // Broad, low mineral body so the sound does not collapse into a glass chime.
+    const broad=ac.createBiquadFilter();
+    broad.type='bandpass';
+    broad.frequency.value=mode==='deep'?190:255;
+    broad.Q.value=.72;
+    const broadGain=ac.createGain();
+    broadGain.gain.value=mode==='deep'?.34:.26;
+    body.connect(broad);broad.connect(broadGain);broadGain.connect(wet);
+    nodes.push(broad,broadGain);
+
+    // Soft diffusion: very short low-feedback delay, filtered so it reads as depth, not echo.
+    const delay=ac.createDelay(.5);
+    delay.delayTime.value=mode==='deep'?.165:.135;
+    const feedback=ac.createGain();
+    feedback.gain.value=.14;
+    const feedbackLP=ac.createBiquadFilter();
+    feedbackLP.type='lowpass';
+    feedbackLP.frequency.value=mode==='deep'?1100:1500;
+    wet.connect(output);
+    wet.connect(delay);delay.connect(feedbackLP);feedbackLP.connect(feedback);feedback.connect(delay);delay.connect(output);
+    nodes.push(delay,feedback,feedbackLP);
+
+    output.connect(ac.destination);
 
     let stopped=false;
     const stop=()=>{
@@ -159,30 +200,30 @@
     return stop;
   }
 
-  function triggerModel(type){
+  function trigger(id){
     stopAll();
-    if(type==='mineral'){
-      playAnswerBed(.58,.72,5000,1900);
-      playMineralLayer('body');
-    }else{
-      playAnswerBed(.40,.72,5000,1900);
-      playMineralLayer('crystal');
+
+    if(id==='soft'){
+      playSoftAquaphone('soft');
+    }else if(id==='deep'){
+      playSoftAquaphone('deep');
+    }else if(id==='body'){
+      playSoftAquaphone('soft');
+      playAnswerBed(.16,.70,6100,2500);
+    }else if(id==='answer'){
+      playAnswerBed(.78,.72,4700,1900);
     }
-    const btn=document.querySelector(`[data-crystal-model="${type}"]`);
-    if(btn){btn.classList.add('fired');setTimeout(()=>btn.classList.remove('fired'),400);}
+
+    const b=document.querySelector(`[data-ore-audition="${id}"]`);
+    if(b){b.classList.add('fired');setTimeout(()=>b.classList.remove('fired'),400);}
   }
 
-  function sourceCard(label,desc,id){
-    return `
-      <div class="wa-layer" style="display:block;padding:10px">
-        <div style="margin-bottom:8px"><b>${label}</b><small style="display:block;margin-top:3px">${desc}</small></div>
-        <iframe frameborder="0" scrolling="no" loading="lazy" src="https://freesound.org/embed/sound/iframe/${id}/simple/medium/" style="width:100%;max-width:481px;height:86px;border:0" title="${label}"></iframe>
-      </div>`;
-  }
-
-  function modelCard(label,desc,type){
-    return `<div class="wa-layer"><div class="wa-layer-toggle" style="cursor:default"><span><b>${label}</b><small>${desc}</small></span><span class="wa-state">MODEL</span></div><button class="wa-mini" type="button" data-crystal-model="${type}">TRIGGER</button></div>`;
-  }
+  const candidates=[
+    {id:'soft',label:'A // SOFT AQUAPHONE',desc:'Primary test. Slow glass/mineral swell with softened edges, dark inharmonic resonance, and no discrete chimes.'},
+    {id:'deep',label:'B // DARK AQUAPHONE',desc:'Lower and darker version of A. More body, less upper glass, longer decay.'},
+    {id:'body',label:'C // AQUAPHONE + DISTANT BODY',desc:'A with the proven ANSWERING PULSE buried very quietly underneath for scale; continuous, not chopped.'},
+    {id:'answer',label:'D // ANSWERING PULSE REFERENCE',desc:'Unchanged recorded reply for direct comparison.'}
+  ];
 
   function build(){
     if(document.getElementById('waOreAudition'))return true;
@@ -192,25 +233,20 @@
     const section=document.createElement('div');
     section.id='waOreAudition';
     section.innerHTML=`
-      <div class="wa-live" style="margin-top:14px"><span>TEMP // ORE SOURCE AUDITION:</span> <b>CRYSTALLINE / MINERAL</b></div>
-      <small style="display:block;margin:6px 0 10px;opacity:.75">New direction: preserve the proven ANSWERING PULSE scale/envelope, replace creature identity with glass/mineral resonance.</small>
+      <div class="wa-live" style="margin-top:14px"><span>TEMP // ORE SOURCE AUDITION:</span> <b>SOFT CRYSTALLINE / MINERAL</b></div>
+      <small style="display:block;margin:6px 0 10px;opacity:.75">No embeds. All tests use the normal soundboard TRIGGER controls. B from the prior build is retired.</small>
       <div class="wa-grid">
-        ${sourceCard('A // GLASS AQUAPHONE DRONE','CC0 bowed waterphone + resonant wine-glass source. Raw mineral/glass reference.',322990)}
-        ${modelCard('B // MINERAL VOICE MODEL','Same recorded ANSWERING PULSE at 0.72x, quieter, with low inharmonic glass/mineral resonances layered above it.','mineral')}
-        ${sourceCard('C // ATONAL CRYSTAL TEXTURE','CC0 granular crystal/glass texture. Raw upper-structure reference.',772279)}
-        ${modelCard('D // CRYSTAL STRUCTURE MODEL','Same recorded ANSWERING PULSE reduced further; stronger sparse inharmonic crystalline structure above it.','crystal')}
-        ${sourceCard('E // HAUNTING METALLIC DRONE','CC0 extreme-stretched bicycle-bell drone. Dark metallic/mineral reference.',854574)}
+        ${candidates.map(c=>`<div class="wa-layer"><div class="wa-layer-toggle" style="cursor:default"><span><b>${c.label}</b><small>${c.desc}</small></span><span class="wa-state">TEST</span></div><button class="wa-mini" type="button" data-ore-audition="${c.id}">TRIGGER</button></div>`).join('')}
       </div>
-      <div class="wa-master-row" style="margin-top:8px"><button class="wa-btn wa-stop" id="waStopOreAudition" type="button">STOP MODELS</button></div>
-      <small style="display:block;margin-top:6px;opacity:.7">Freesound players control their own playback. STOP MODELS stops B/D only.</small>`;
+      <div class="wa-master-row" style="margin-top:8px"><button class="wa-btn wa-stop" id="waStopOreAudition" type="button">STOP AUDITION</button></div>`;
 
     stage.insertAdjacentElement('afterend',section);
-    section.querySelectorAll('[data-crystal-model]').forEach(btn=>btn.addEventListener('click',()=>triggerModel(btn.dataset.crystalModel)));
+    section.querySelectorAll('[data-ore-audition]').forEach(btn=>btn.addEventListener('click',()=>trigger(btn.dataset.oreAudition)));
     document.getElementById('waStopOreAudition').addEventListener('click',stopAll);
     return true;
   }
 
   let tries=0;
   const wait=setInterval(()=>{tries++;if(build()||tries>100)clearInterval(wait);},100);
-  window.WardenOreAudition={triggerModel,stopAll};
+  window.WardenOreAudition={trigger,stopAll};
 })();
