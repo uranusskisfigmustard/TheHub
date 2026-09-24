@@ -24,24 +24,10 @@ function recompute(){
   state.g2=clamp(state.group2Min+(.95-state.group2Min)*x,0,.95);
 }
 
-function applyWebAudio(){
-  const core=window.WardenAudioCore;
-  if(!core)return;
-  try{
-    const upper=core.upperInput;
-    const t=upper.context.currentTime;
-    upper.gain.cancelScheduledValues(t);
-    upper.gain.setTargetAtTime(state.g1,t,.08);
-  }catch(_){ }
-  try{
-    const clean=core.cleanInput;
-    const t=clean.context.currentTime;
-    clean.gain.cancelScheduledValues(t);
-    clean.gain.setTargetAtTime(state.g2,t,.08);
-  }catch(_){ }
-}
-
-function refreshEngineMedia(){
+// Stability build: the mixer owns only state. It does not touch AudioContext,
+// media prototypes, constructors, or shared buses. Each engine applies its own
+// group multiplier through its existing refreshGroupVolume hook.
+function refreshEngines(){
   try{window.WardenM17Audio&&window.WardenM17Audio.refreshGroupVolume&&window.WardenM17Audio.refreshGroupVolume();}catch(_){ }
   try{window.WardenM17SignalAudio&&window.WardenM17SignalAudio.refreshGroupVolume&&window.WardenM17SignalAudio.refreshGroupVolume();}catch(_){ }
 }
@@ -57,8 +43,7 @@ function render(){
 
 function apply(){
   recompute();
-  applyWebAudio();
-  refreshEngineMedia();
+  refreshEngines();
   render();
 }
 
