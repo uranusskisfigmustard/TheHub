@@ -4,7 +4,7 @@
 const STORAGE_VOLUME='mothership_warden_audio_volume_v1';
 const ANSWER_SAMPLE='https://opengameart.org/sites/default/files/monster_roar.wav';
 const VALID_IDS=new Set(['orePulse','answer']);
-const S={active:new Set(),timers:new Map(),playing:new Map(),synthStops:new Map(),started:new Map(),ctx:null};
+const S={active:new Set(),timers:new Map(),playing:new Map(),synthStops:new Map(),started:new Map(),ctx:null,oreFileUrl:null,oreFileName:null};
 const rand=(a,b)=>a+Math.random()*(b-a);
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const lerp=(a,b,t)=>a+(b-a)*t;
@@ -56,8 +56,25 @@ function makeLowNoiseBuffer(ctx,duration){
 function registerSynthStop(id,stop){if(!S.synthStops.has(id))S.synthStops.set(id,new Set());S.synthStops.get(id).add(stop);}
 function unregisterSynthStop(id,stop){const set=S.synthStops.get(id);if(set)set.delete(stop);}
 
-// TEMPORARY existing ore sound. Retained until a deployable replacement source is available.
-function playOre(manual=false){
+function applyMediaVolume(a){const mix=Number(a.dataset.waMix||1),fade=Number(a.dataset.waFade||1);a.volume=clamp(masterVolume()*mix*fade*group2Gain(),0,1);}
+function refreshGroupVolume(){S.playing.forEach(set=>set.forEach(a=>{try{applyMediaVolume(a);}catch(_){ }}));}
+function retireMedia(id,a){const set=S.playing.get(id);if(set)set.delete(a);}
+function stopMedia(id,a){if(!a)return;try{a.pause();a.currentTime=0;}catch(_){ }retireMedia(id,a);}
+function fadeMedia(id,a,holdMs,fadeMs){const hold=setTimeout(()=>{const start=performance.now();const tick=()=>{if(a.paused){retireMedia(id,a);return;}const p=clamp((performance.now()-start)/fadeMs,0,1);a.dataset.waFade=String(1-p);applyMediaVolume(a);if(p<1)requestAnimationFrame(tick);else stopMedia(id,a);};requestAnimationFrame(tick);},holdMs);a.dataset.waHoldTimer=String(hold);}
+function trackMedia(id,a){
+  if(!S.playing.has(id))S.playing.set(id,new Set());S.playing.get(id).add(a);
+  const cleanup=()=>retireMedia(id,a);a.addEventListener('ended',cleanup,{once:true});a.addEventListener('error',cleanup,{once:true});
+  return cleanup;
+}
+
+function playLocalOre(manual=false){
+  const a=new Audio(S.oreFileUrl);a.preload='auto';a.dataset.waFade='1';a.dataset.waMix=String(manual?1:.82);applyMediaVolume(a);trackMedia('orePulse',a);
+  const p=a.play();if(p&&typeof p.catch==='function')p.catch(()=>retireMedia('orePulse',a));
+  return()=>stopMedia('orePulse',a);
+}
+
+// Temporary fallback only when no local licensed ore file has been selected.
+function playSynthOre(manual=false){
   const ctx=audioContext();if(!ctx)return()=>{};
   const now=ctx.currentTime+.01,dur=rand(2.4,3.0),source=ctx.createBufferSource();source.buffer=makeLowNoiseBuffer(ctx,dur+.25);
   const pre=ctx.createBiquadFilter();pre.type='lowpass';pre.frequency.value=185;pre.Q.value=.5;
@@ -75,18 +92,12 @@ function playOre(manual=false){
   let stopped=false;const stop=()=>{if(stopped)return;stopped=true;try{source.stop();}catch(_){ }nodes.forEach(n=>{try{n.disconnect();}catch(_){ }});unregisterSynthStop('orePulse',stop);};
   registerSynthStop('orePulse',stop);source.onended=()=>stop();source.start(now);source.stop(now+dur+.04);return stop;
 }
+function playOre(manual=false){return S.oreFileUrl?playLocalOre(manual):playSynthOre(manual);}
 
 function setPitchMode(a,rate){a.playbackRate=rate;try{a.preservesPitch=false;}catch(_){ }try{a.mozPreservesPitch=false;}catch(_){ }try{a.webkitPreservesPitch=false;}catch(_){ }}
-function applyMediaVolume(a){const mix=Number(a.dataset.waMix||1),fade=Number(a.dataset.waFade||1);a.volume=clamp(masterVolume()*mix*fade*group2Gain(),0,1);}
-function refreshGroupVolume(){S.playing.forEach(set=>set.forEach(a=>{try{applyMediaVolume(a);}catch(_){ }}));}
-function retireMedia(id,a){const set=S.playing.get(id);if(set)set.delete(a);}
-function stopMedia(id,a){if(!a)return;try{a.pause();a.currentTime=0;}catch(_){ }retireMedia(id,a);}
-function fadeMedia(id,a,holdMs,fadeMs){const hold=setTimeout(()=>{const start=performance.now();const tick=()=>{if(a.paused){retireMedia(id,a);return;}const p=clamp((performance.now()-start)/fadeMs,0,1);a.dataset.waFade=String(1-p);applyMediaVolume(a);if(p<1)requestAnimationFrame(tick);else stopMedia(id,a);};requestAnimationFrame(tick);},holdMs);a.dataset.waHoldTimer=String(hold);}
 function playAnswer(manual=false){
-  const a=new Audio(ANSWER_SAMPLE);a.preload='auto';a.dataset.waFade='1';a.dataset.waMix=String(manual?.78:.54);setPitchMode(a,.72);applyMediaVolume(a);
-  if(!S.playing.has('answer'))S.playing.set('answer',new Set());S.playing.get('answer').add(a);
-  const cleanup=()=>retireMedia('answer',a);a.addEventListener('ended',cleanup,{once:true});a.addEventListener('error',cleanup,{once:true});
-  const begin=()=>{const p=a.play();if(p&&typeof p.catch==='function')p.catch(cleanup);fadeMedia('answer',a,manual?4700:5200,1900);};
+  const a=new Audio(ANSWER_SAMPLE);a.preload='auto';a.dataset.waFade='1';a.dataset.waMix=String(manual?.78:.54);setPitchMode(a,.72);applyMediaVolume(a);trackMedia('answer',a);
+  const begin=()=>{const p=a.play();if(p&&typeof p.catch==='function')p.catch(()=>retireMedia('answer',a));fadeMedia('answer',a,manual?4700:5200,1900);};
   const delay=manual?0:rand(650,1500),startTimer=setTimeout(begin,delay);
   return()=>{clearTimeout(startTimer);const hold=Number(a.dataset.waHoldTimer||0);if(hold)clearTimeout(hold);stopMedia('answer',a);};
 }
@@ -97,33 +108,58 @@ function schedule(id,first=false){clearTimer(id);if(!S.active.has(id))return;con
 function onDepthChange(){refreshGroupVolume();if(S.active.has('answer'))schedule('answer',false);}
 function setLayer(id,on){
   if(!VALID_IDS.has(id))return;on=!!on;
-  if(on){if(S.active.has(id))return;if(id==='orePulse')audioContext();S.active.add(id);S.started.set(id,performance.now());schedule(id,true);}
+  if(on){if(S.active.has(id))return;if(id==='orePulse'&&!S.oreFileUrl)audioContext();S.active.add(id);S.started.set(id,performance.now());schedule(id,true);}
   else{S.active.delete(id);clearTimer(id);stopPlaying(id);S.started.delete(id);}
   render();
 }
 function trigger(id){
-  if(!VALID_IDS.has(id))return;if(id==='orePulse')audioContext();playSound(id,true);
+  if(!VALID_IDS.has(id))return;if(id==='orePulse'&&!S.oreFileUrl)audioContext();playSound(id,true);
   const b=document.querySelector(`[data-signal-trigger="${id}"]`);if(b){b.classList.add('fired');setTimeout(()=>b.classList.remove('fired'),350);}
   if(S.active.has(id))schedule(id,false);
 }
 function isActive(id){return S.active.has(id);}
 function startSignal(){setLayer('orePulse',true);setLayer('answer',true);}
 function stopSignal(){setLayer('orePulse',false);setLayer('answer',false);}
+
+function setLocalOreFile(file){
+  if(!file)return;
+  if(S.oreFileUrl){try{URL.revokeObjectURL(S.oreFileUrl);}catch(_){ }}
+  stopPlaying('orePulse');
+  S.oreFileUrl=URL.createObjectURL(file);S.oreFileName=file.name||'LOCAL AUDIO';
+  renderOreSource();
+  if(S.active.has('orePulse'))schedule('orePulse',true);
+}
+function clearLocalOreFile(){
+  stopPlaying('orePulse');
+  if(S.oreFileUrl){try{URL.revokeObjectURL(S.oreFileUrl);}catch(_){ }}
+  S.oreFileUrl=null;S.oreFileName=null;renderOreSource();
+  if(S.active.has('orePulse'))schedule('orePulse',true);
+}
+function renderOreSource(){
+  const status=document.getElementById('waOreSourceStatus');
+  if(status)status.textContent=S.oreFileUrl?`LOCAL: ${S.oreFileName}`:'FALLBACK: SYNTH ORE PULSE';
+  const desc=document.getElementById('waOreDesc');
+  if(desc)desc.textContent=S.oreFileUrl?'Using local licensed audio; file remains on this computer for this page session.':'Temporary synthesized fallback. Use LOAD LOCAL ORE FILE for the licensed SoundSnap download.';
+}
 function render(){
   document.querySelectorAll('[data-signal-layer]').forEach(btn=>{const id=btn.dataset.signalLayer,on=S.active.has(id);btn.classList.toggle('active',on);btn.setAttribute('aria-pressed',String(on));const s=btn.querySelector('.wa-state');if(s)s.textContent=on?'ON':'OFF';});
   const live=document.getElementById('waSignalLive');if(live){const names=[];if(S.active.has('orePulse'))names.push('ORE PULSE');if(S.active.has('answer'))names.push('ANSWERING PULSE');live.textContent=names.length?names.join(' + '):'OFF';}
+  renderOreSource();
 }
 function bindMaster(){const slider=document.getElementById('waVolume');if(slider)slider.addEventListener('input',refreshGroupVolume);}
 function build(){
   if(document.getElementById('waSignalStage'))return true;
   const dock=document.getElementById('wardenAudioDock');if(!dock)return false;const body=dock.querySelector('.wa-body');if(!body)return false;
-  const section=document.createElement('div');section.id='waSignalStage';section.innerHTML=`<div class="wa-live" style="margin-top:10px"><span>GROUP 2 // ORE SIGNAL + RESPONSE:</span> <b id="waSignalLive">OFF</b></div><div class="wa-master-row" style="margin-top:8px"><button class="wa-btn wa-primary" id="waStartSignal" type="button">START GROUP 2</button><button class="wa-btn wa-stop" id="waStopSignal" type="button">STOP GROUP 2</button></div><div class="wa-grid"><div class="wa-layer"><button class="wa-layer-toggle" type="button" data-signal-layer="orePulse" aria-pressed="false"><span><b>ORE PULSE</b><small>Temporary existing sound — pending deployable replacement for requested SoundSnap source</small></span><span class="wa-state">OFF</span></button><button class="wa-mini" type="button" data-signal-trigger="orePulse">TRIGGER</button></div><div class="wa-layer"><button class="wa-layer-toggle" type="button" data-signal-layer="answer" aria-pressed="false"><span><b>ANSWERING PULSE</b><small>Distant recorded response — Group 2 volume; cadence accelerates as CROSSFADE / DEPTH increases</small></span><span class="wa-state">OFF</span></button><button class="wa-mini" type="button" data-signal-trigger="answer">TRIGGER</button></div></div>`;
+  const section=document.createElement('div');section.id='waSignalStage';section.innerHTML=`<div class="wa-live" style="margin-top:10px"><span>GROUP 2 // ORE SIGNAL + RESPONSE:</span> <b id="waSignalLive">OFF</b></div><div class="wa-master-row" style="margin-top:8px"><button class="wa-btn wa-primary" id="waStartSignal" type="button">START GROUP 2</button><button class="wa-btn wa-stop" id="waStopSignal" type="button">STOP GROUP 2</button></div><div class="wa-master-row" style="margin-top:8px"><button class="wa-btn" id="waLoadOreFile" type="button">LOAD LOCAL ORE FILE</button><button class="wa-btn" id="waClearOreFile" type="button">CLEAR LOCAL FILE</button><input id="waOreFileInput" type="file" accept="audio/*" hidden><span id="waOreSourceStatus" style="font-size:12px;opacity:.75">FALLBACK: SYNTH ORE PULSE</span></div><div class="wa-grid"><div class="wa-layer"><button class="wa-layer-toggle" type="button" data-signal-layer="orePulse" aria-pressed="false"><span><b>ORE PULSE</b><small id="waOreDesc">Temporary synthesized fallback. Use LOAD LOCAL ORE FILE for the licensed SoundSnap download.</small></span><span class="wa-state">OFF</span></button><button class="wa-mini" type="button" data-signal-trigger="orePulse">TRIGGER</button></div><div class="wa-layer"><button class="wa-layer-toggle" type="button" data-signal-layer="answer" aria-pressed="false"><span><b>ANSWERING PULSE</b><small>Distant recorded response — Group 2 volume; cadence accelerates as CROSSFADE / DEPTH increases</small></span><span class="wa-state">OFF</span></button><button class="wa-mini" type="button" data-signal-trigger="answer">TRIGGER</button></div></div>`;
   body.appendChild(section);
   section.querySelectorAll('[data-signal-layer]').forEach(btn=>btn.addEventListener('click',()=>setLayer(btn.dataset.signalLayer,!S.active.has(btn.dataset.signalLayer))));
   section.querySelectorAll('[data-signal-trigger]').forEach(btn=>btn.addEventListener('click',()=>trigger(btn.dataset.signalTrigger)));
-  document.getElementById('waStartSignal').addEventListener('click',startSignal);document.getElementById('waStopSignal').addEventListener('click',stopSignal);bindMaster();render();return true;
+  document.getElementById('waStartSignal').addEventListener('click',startSignal);document.getElementById('waStopSignal').addEventListener('click',stopSignal);
+  const input=document.getElementById('waOreFileInput');document.getElementById('waLoadOreFile').addEventListener('click',()=>input.click());input.addEventListener('change',()=>{const file=input.files&&input.files[0];if(file)setLocalOreFile(file);input.value='';});document.getElementById('waClearOreFile').addEventListener('click',clearLocalOreFile);
+  bindMaster();render();return true;
 }
 
+window.addEventListener('beforeunload',()=>{if(S.oreFileUrl)try{URL.revokeObjectURL(S.oreFileUrl);}catch(_){ }});
 let tries=0;const wait=setInterval(()=>{tries++;if(build()||tries>100)clearInterval(wait);},100);
-window.WardenM17SignalAudio={setLayer,trigger,startSignal,stopSignal,refreshGroupVolume,onDepthChange,isActive,render};
+window.WardenM17SignalAudio={setLayer,trigger,startSignal,stopSignal,refreshGroupVolume,onDepthChange,isActive,render,setLocalOreFile,clearLocalOreFile};
 })();
