@@ -18,74 +18,10 @@ const state={
   g2:.18
 };
 
-// IMPORTANT: do not replace window.Audio and do not redefine media.volume.
-// START M-17 creates several HTMLAudioElement loops at once; constructor/property
-// interception caused the AK freeze. We leave browser media objects completely native.
-const media={g1:new Set(),g2:new Set()};
-const info=new WeakMap();
-const nativePlay=HTMLMediaElement.prototype.play;
-
-function classify(src){
-  src=String(src||'');
-  if(
-    src.includes('272265_4965320') ||
-    src.includes('393398_5416641') ||
-    src.includes('434507_1134415') ||
-    src.includes('580633_2282212') ||
-    src.includes('/liminal/main/client/public/audio/hum.mp3') ||
-    src.includes('567249__iwanplays__bricksstonesrocksgravel-falling')
-  ) return 'g1';
-  return 'g2';
-}
-
-function groupGain(group){return group==='g1'?state.g1:state.g2;}
-
-function registerMedia(a){
-  if(!a||info.has(a))return;
-  const group=classify(a.currentSrc||a.src);
-  const base=clamp(Number(a.volume)||0,0,1);
-  const rec={group,base,lastApplied:null};
-  info.set(a,rec);
-  media[group].add(a);
-  const forget=()=>media[group].delete(a);
-  a.addEventListener('ended',forget,{once:true});
-  a.addEventListener('error',forget,{once:true});
-  applyMediaOne(a,false);
-}
-
-// Register normal media when it actually begins playback. This observes native Audio;
-// it does not construct, clone, proxy, or restart anything.
-HTMLMediaElement.prototype.play=function(...args){
-  registerMedia(this);
-  return nativePlay.apply(this,args);
-};
-
 function recompute(){
   const x=clamp(state.crossfade,0,1);
   state.g1=clamp(state.group1Max*(1-x),0,1);
   state.g2=clamp(state.group2Min+(.95-state.group2Min)*x,0,.95);
-}
-
-function applyMediaOne(a,refreshBase=false){
-  const rec=info.get(a);
-  if(!rec)return;
-  try{
-    const current=clamp(Number(a.volume)||0,0,1);
-    // On MASTER changes, the owning engine writes a fresh ungrouped level first.
-    // Capture that as the new base, then reapply only the group multiplier.
-    if(refreshBase || (rec.lastApplied!==null && Math.abs(current-rec.lastApplied)>.025)){
-      rec.base=current;
-    }
-    const target=clamp(rec.base*groupGain(rec.group),0,1);
-    if(Math.abs(current-target)>.001)a.volume=target;
-    rec.lastApplied=target;
-  }catch(_){ }
-}
-
-function applyMedia(refreshBase=false){
-  ['g1','g2'].forEach(group=>{
-    media[group].forEach(a=>applyMediaOne(a,refreshBase));
-  });
 }
 
 function applyWebAudio(){
@@ -105,6 +41,11 @@ function applyWebAudio(){
   }catch(_){ }
 }
 
+function refreshEngineMedia(){
+  try{window.WardenM17Audio&&window.WardenM17Audio.refreshGroupVolume&&window.WardenM17Audio.refreshGroupVolume();}catch(_){ }
+  try{window.WardenM17SignalAudio&&window.WardenM17SignalAudio.refreshGroupVolume&&window.WardenM17SignalAudio.refreshGroupVolume();}catch(_){ }
+}
+
 function render(){
   const g1=document.getElementById('waGroup1Readout');
   const g2=document.getElementById('waGroup2Readout');
@@ -116,8 +57,8 @@ function render(){
 
 function apply(){
   recompute();
-  applyMedia(false);
   applyWebAudio();
+  refreshEngineMedia();
   render();
 }
 
@@ -135,17 +76,6 @@ function setCrossfade(v){
   state.crossfade=clamp(Number(v)||0,0,1);
   localStorage.setItem(K_X,String(state.crossfade));
   apply();
-}
-
-function bindMaster(){
-  const slider=document.getElementById('waVolume');
-  if(!slider||slider.dataset.groupMixerBound)return;
-  slider.dataset.groupMixerBound='1';
-  slider.addEventListener('input',()=>{
-    // Let Group 1/2 engines calculate their normal MASTER-relative volumes first.
-    // Then record those native values as the new source bases and reapply grouping.
-    setTimeout(()=>applyMedia(true),0);
-  });
 }
 
 function build(){
@@ -168,7 +98,6 @@ function build(){
   document.getElementById('waGroup1Max').addEventListener('input',e=>setGroup1Max(e.target.value));
   document.getElementById('waGroup2Min').addEventListener('input',e=>setGroup2Min(e.target.value));
   document.getElementById('waGroupCrossfade').addEventListener('input',e=>setCrossfade(e.target.value));
-  bindMaster();
   apply();
   return true;
 }
