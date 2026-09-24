@@ -14,8 +14,8 @@ function masterVolume(){
   const v=slider?Number(slider.value):Number(localStorage.getItem(STORAGE_VOLUME)||.48);
   return clamp(Number.isFinite(v)?v:.48,0,1);
 }
-function group1Gain(){
-  const m=window.WardenGroupMixer,v=m&&m.state?Number(m.state.g1):1;
+function group1Max(){
+  const m=window.WardenGroupMixer,v=m&&m.state?Number(m.state.group1Max):1;
   return clamp(Number.isFinite(v)?v:1,0,1);
 }
 function group2Gain(){
@@ -80,7 +80,7 @@ function playOre(manual=false){
 }
 
 function setPitchMode(a,rate){a.playbackRate=rate;try{a.preservesPitch=false;}catch(_){ }try{a.mozPreservesPitch=false;}catch(_){ }try{a.webkitPreservesPitch=false;}catch(_){ }}
-function mediaGroupGain(a){return a&&a.dataset&&a.dataset.waGroup==='g1'?group1Gain():group2Gain();}
+function mediaGroupGain(a){return a&&a.dataset&&a.dataset.waGroup==='g1'?group1Max():group2Gain();}
 function applyMediaVolume(a){const mix=Number(a.dataset.waMix||1),fade=Number(a.dataset.waFade||1);a.volume=clamp(masterVolume()*mix*fade*mediaGroupGain(a),0,1);}
 function refreshGroupVolume(){S.playing.forEach(set=>set.forEach(a=>{try{applyMediaVolume(a);}catch(_){ }}));}
 function retireMedia(id,a){const set=S.playing.get(id);if(set)set.delete(a);}
