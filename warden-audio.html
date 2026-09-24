@@ -8,7 +8,7 @@
 <meta http-equiv="Expires" content="0">
 <title>The Hub — Warden Audio</title>
 <script>
-  window.__WARDEN_AUDIO_BUILD='20260924-0825-AN';
+  window.__WARDEN_AUDIO_BUILD='20260924-1015-AO';
   window.__WARDEN_AUDIO_CACHE=Date.now().toString(36);
   ['warden-audio-v1.css','warden-audio-page.css'].forEach(href=>{
     const link=document.createElement('link');
@@ -23,8 +23,8 @@
   <div class="audio-page-header-inner">
     <div>
       <div class="audio-page-title">THE HUB // WARDEN AUDIO</div>
-      <div class="audio-page-sub">Dedicated live-session soundboard — stable native-audio test build</div>
-      <div class="audio-page-sub" id="audioBuildStamp">BUILD 20260924-0825-AN</div>
+      <div class="audio-page-sub">Dedicated live-session soundboard — unified Stage 1 stability build</div>
+      <div class="audio-page-sub" id="audioBuildStamp">BUILD 20260924-1015-AO</div>
     </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end">
       <button class="audio-page-return" id="audioForceReload" type="button">FORCE FRESH LOAD</button>
@@ -35,7 +35,7 @@
 <main class="audio-page-main">
   <section class="audio-page-intro">
     <strong>M-17 // LIVE TABLE AUDIO</strong>
-    <p>Stability build: Group 1 and Group 2 use their own native audio paths. Shared-core, stretch, spatial-audition, and late-stage experimental processing are not loaded in this build.</p>
+    <p>Unified Stage 1 build: one controller owns START M-17, STOP ALL, fluorescent, rocks, and the retired metal layer. No Stage 1 MutationObservers or chained start/stop wrappers are loaded.</p>
   </section>
   <div id="audioMount"></div>
 </main>
@@ -61,11 +61,9 @@
   try{
     await loadScript('warden-audio-group-mixer-v1.js');
 
-    // GROUP 1 // familiar M-17 environmental/industrial audio, native paths only.
+    // GROUP 1 // base engine + one unified replacement controller.
     await loadScript('warden-audio-v1.js');
-    await loadScript('warden-audio-fluorescent-recording-v1.js');
-    await loadScript('warden-audio-rock-recording-v1.js');
-    await loadScript('warden-audio-metal-recording-v1.js');
+    await loadScript('warden-audio-stage1-unified-v1.js');
 
     // GROUP 2 // current signal/anomaly layer, native paths only.
     await loadScript('warden-audio-signal-v1.js');
