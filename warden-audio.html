@@ -8,7 +8,7 @@
 <meta http-equiv="Expires" content="0">
 <title>The Hub — Warden Audio</title>
 <script>
-  window.__WARDEN_AUDIO_BUILD='20260923-2019-AM';
+  window.__WARDEN_AUDIO_BUILD='20260924-0825-AN';
   window.__WARDEN_AUDIO_CACHE=Date.now().toString(36);
   ['warden-audio-v1.css','warden-audio-page.css'].forEach(href=>{
     const link=document.createElement('link');
@@ -23,8 +23,8 @@
   <div class="audio-page-header-inner">
     <div>
       <div class="audio-page-title">THE HUB // WARDEN AUDIO</div>
-      <div class="audio-page-sub">Dedicated live-session soundboard — recorded + modeled browser audio</div>
-      <div class="audio-page-sub" id="audioBuildStamp">BUILD 20260923-2019-AM</div>
+      <div class="audio-page-sub">Dedicated live-session soundboard — stable native-audio test build</div>
+      <div class="audio-page-sub" id="audioBuildStamp">BUILD 20260924-0825-AN</div>
     </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end">
       <button class="audio-page-return" id="audioForceReload" type="button">FORCE FRESH LOAD</button>
@@ -35,7 +35,7 @@
 <main class="audio-page-main">
   <section class="audio-page-intro">
     <strong>M-17 // LIVE TABLE AUDIO</strong>
-    <p>Each layer is independent. Leave environmental beds running, toggle intermittent layers as needed, and use TRIGGER for a specific beat. Browser audio begins after your first click.</p>
+    <p>Stability build: Group 1 and Group 2 use their own native audio paths. Shared-core, stretch, spatial-audition, and late-stage experimental processing are not loaded in this build.</p>
   </section>
   <div id="audioMount"></div>
 </main>
@@ -59,23 +59,16 @@
   });
 
   try{
-    await loadScript('warden-audio-core-v1.js');
     await loadScript('warden-audio-group-mixer-v1.js');
 
-    // GROUP 1 // familiar M-17 environmental/industrial audio.
-    window.WardenAudioCore&&window.WardenAudioCore.bindScope('upper');
+    // GROUP 1 // familiar M-17 environmental/industrial audio, native paths only.
     await loadScript('warden-audio-v1.js');
     await loadScript('warden-audio-fluorescent-recording-v1.js');
     await loadScript('warden-audio-rock-recording-v1.js');
     await loadScript('warden-audio-metal-recording-v1.js');
 
-    // GROUP 2 // signal/anomaly audio and later nonlocal stages.
-    window.WardenAudioCore&&window.WardenAudioCore.bindScope('clean');
+    // GROUP 2 // current signal/anomaly layer, native paths only.
     await loadScript('warden-audio-signal-v1.js');
-    await loadScript('warden-audio-ore-audition-v1.js');
-    await loadScript('warden-audio-ore-delivery-fix-v1.js');
-    await loadScript('warden-audio-dislocation-v1.js');
-    await loadScript('warden-audio-late-v1.js');
 
     window.WardenGroupMixer&&window.WardenGroupMixer.apply();
   }catch(err){
@@ -89,8 +82,11 @@
     tries++;
     const dock=document.getElementById('wardenAudioDock');
     const mount=document.getElementById('audioMount');
-    if(dock&&mount){mount.appendChild(dock);window.WardenGroupMixer&&window.WardenGroupMixer.apply();clearInterval(timer);}
-    else if(tries>100)clearInterval(timer);
+    if(dock&&mount){
+      mount.appendChild(dock);
+      window.WardenGroupMixer&&window.WardenGroupMixer.apply();
+      clearInterval(timer);
+    }else if(tries>100)clearInterval(timer);
   },50);
 })();
 </script>
