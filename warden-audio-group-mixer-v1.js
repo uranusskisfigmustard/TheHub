@@ -24,9 +24,8 @@ function recompute(){
   state.g2=clamp(state.group2Min+(.95-state.group2Min)*x,0,.95);
 }
 
-// Stability build: the mixer owns only state. It does not touch AudioContext,
-// media prototypes, constructors, or shared buses. Each engine applies its own
-// group multiplier through its existing refreshGroupVolume hook.
+// Stability architecture: mixer owns state only. It never intercepts media,
+// constructors, browser prototypes, or AudioContext routing.
 function refreshEngines(){
   try{window.WardenM17Audio&&window.WardenM17Audio.refreshGroupVolume&&window.WardenM17Audio.refreshGroupVolume();}catch(_){ }
   try{window.WardenM17SignalAudio&&window.WardenM17SignalAudio.refreshGroupVolume&&window.WardenM17SignalAudio.refreshGroupVolume();}catch(_){ }
@@ -61,6 +60,7 @@ function setCrossfade(v){
   state.crossfade=clamp(Number(v)||0,0,1);
   localStorage.setItem(K_X,String(state.crossfade));
   apply();
+  try{window.WardenM17SignalAudio&&window.WardenM17SignalAudio.onDepthChange&&window.WardenM17SignalAudio.onDepthChange();}catch(_){ }
 }
 
 function build(){
@@ -76,9 +76,9 @@ function build(){
     <div class="wa-master-row" style="margin-top:8px;align-items:flex-end">
       <label class="wa-volume"><span>GROUP 1 MAX <b id="waGroup1Readout">${Math.round(state.g1*100)}%</b></span><input id="waGroup1Max" type="range" min="0" max="1" step="0.01" value="${state.group1Max}"></label>
       <label class="wa-volume"><span>GROUP 2 MIN <b id="waGroup2Readout">${Math.round(state.g2*100)}%</b></span><input id="waGroup2Min" type="range" min="0" max="0.95" step="0.01" value="${state.group2Min}"></label>
-      <label class="wa-volume"><span>CROSSFADE <b id="waCrossfadeReadout">${Math.round(state.crossfade*100)}%</b></span><input id="waGroupCrossfade" type="range" min="0" max="1" step="0.01" value="${state.crossfade}"></label>
+      <label class="wa-volume"><span>CROSSFADE / DEPTH <b id="waCrossfadeReadout">${Math.round(state.crossfade*100)}%</b></span><input id="waGroupCrossfade" type="range" min="0" max="1" step="0.01" value="${state.crossfade}"></label>
     </div>
-    <small style="display:block;margin-top:6px;opacity:.72">0% = Group 1 at its selected MAX and Group 2 at its selected MIN. 100% = Group 1 silent and Group 2 at 95%. MASTER remains the overall output control.</small>`;
+    <small style="display:block;margin-top:6px;opacity:.72">0% = Group 1 at its selected MAX and Group 2 at its selected MIN. 100% = Group 1 silent and Group 2 at 95%. ANSWERING PULSE cadence also tightens as DEPTH rises. MASTER remains overall output.</small>`;
   body.insertBefore(section,body.children[1]||null);
   document.getElementById('waGroup1Max').addEventListener('input',e=>setGroup1Max(e.target.value));
   document.getElementById('waGroup2Min').addEventListener('input',e=>setGroup2Min(e.target.value));
