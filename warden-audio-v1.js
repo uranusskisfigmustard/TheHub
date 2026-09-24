@@ -14,37 +14,24 @@
     {id:'relays',label:'CONTROL RELAYS',mode:'intermittent',desc:'Dry mechanical relay clicks and brief contact chatter',first:[7,15],gap:[14,35]}
   ];
 
-  // Recorded CC0 environmental beds. Each continuous layer is a stack of distinct physical sources,
-  // rather than one synthesized texture trying to represent an entire industrial room.
   const ROOM_LOOPS=[
-    {
-      url:'https://cdn.freesound.org/previews/272/272265_4965320-hq.mp3',
-      gain:.78,
-      source:'Freesound #272265 — Big Factory Fan Ambience — IanStarGem — CC0 1.0'
-    },
-    {
-      url:'https://cdn.freesound.org/previews/393/393398_5416641-hq.mp3',
-      gain:.42,
-      source:'Freesound #393398 — Industrial ambience — Lewente — CC0 1.0'
-    }
+    {url:'https://cdn.freesound.org/previews/272/272265_4965320-hq.mp3',gain:.78,source:'Freesound #272265 — Big Factory Fan Ambience — IanStarGem — CC0 1.0'},
+    {url:'https://cdn.freesound.org/previews/393/393398_5416641-hq.mp3',gain:.42,source:'Freesound #393398 — Industrial ambience — Lewente — CC0 1.0'}
   ];
   const MACHINERY_LOOPS=[
-    {
-      url:'https://cdn.freesound.org/previews/434/434507_1134415-hq.mp3',
-      gain:1.0,
-      source:'Freesound #434507 — industrial_machine_tone — Kostrava — CC0 1.0'
-    },
-    {
-      url:'https://cdn.freesound.org/previews/580/580633_2282212-hq.mp3',
-      gain:.62,
-      source:'Freesound #580633 — Machine Steampunk Factory — szegvari — CC0 1.0'
-    }
+    {url:'https://cdn.freesound.org/previews/434/434507_1134415-hq.mp3',gain:1.0,source:'Freesound #434507 — industrial_machine_tone — Kostrava — CC0 1.0'},
+    {url:'https://cdn.freesound.org/previews/580/580633_2282212-hq.mp3',gain:.62,source:'Freesound #580633 — Machine Steampunk Factory — szegvari — CC0 1.0'}
   ];
 
   const S={ctx:null,master:null,compressor:null,noise:null,active:new Set(),continuous:new Map(),timers:new Map(),eventStops:new Map(),mediaLoops:new Set(),volume:Math.max(0,Math.min(1,Number(localStorage.getItem(STORAGE_VOLUME)||0.48)))};
   const rand=(a,b)=>a+Math.random()*(b-a);
   const now=()=>S.ctx?S.ctx.currentTime:0;
   const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+  const group1Gain=()=>{
+    const m=window.WardenGroupMixer;
+    const v=m&&m.state?Number(m.state.g1):1;
+    return clamp(Number.isFinite(v)?v:1,0,1);
+  };
 
   function makeNoiseBuffer(seconds=12){
     const length=Math.max(1,Math.floor(S.ctx.sampleRate*seconds));
@@ -78,13 +65,14 @@
 
   function setMediaVolume(track){
     const mix=Number(track.dataset.waMix||1);
-    track.volume=clamp(S.volume*mix,0,1);
+    track.volume=clamp(S.volume*mix*group1Gain(),0,1);
   }
+  function refreshGroupVolume(){S.mediaLoops.forEach(setMediaVolume);}
 
   function startRecordedStack(defs){
     ensureAudio();
     const tracks=[];
-    defs.forEach((def,index)=>{
+    defs.forEach(def=>{
       const a=new Audio(def.url);
       a.preload='auto';
       a.loop=true;
@@ -95,8 +83,6 @@
       tracks.push(a);
       const p=a.play();
       if(p&&typeof p.catch==='function')p.catch(()=>{S.mediaLoops.delete(a);});
-      // Deliberately leave the recordings unfiltered for the first audition pass.
-      // Their relative levels, rather than EQ, establish which physical source leads each bed.
     });
     return()=>{
       tracks.forEach(a=>{
@@ -114,7 +100,6 @@
     const base=now()+.025;
     const flashes=2+Math.floor(Math.random()*5);
     let cursor=base;
-
     function click(t,strong=false){
       const src=ctx.createBufferSource();src.buffer=S.noise;
       const hp=ctx.createBiquadFilter();hp.type='highpass';hp.frequency.value=strong?1500:2200;
@@ -122,20 +107,15 @@
       const g=ctx.createGain();g.gain.setValueAtTime(strong?.080:.050,t);g.gain.exponentialRampToValueAtTime(.0001,t+(strong?.025:.018));
       src.connect(hp).connect(lp).connect(g).connect(group);src.start(t);src.stop(t+.04);nodes.push(src);
     }
-
     function sputter(t,dur,strong=false){
       const src=ctx.createBufferSource();src.buffer=S.noise;
       const hp=ctx.createBiquadFilter();hp.type='highpass';hp.frequency.value=420;
       const lp=ctx.createBiquadFilter();lp.type='lowpass';lp.frequency.value=3600;
       const bp=ctx.createBiquadFilter();bp.type='bandpass';bp.frequency.value=strong?1250:1750;bp.Q.value=.75;
       const g=ctx.createGain();
-      g.gain.setValueAtTime(.0001,t);
-      g.gain.exponentialRampToValueAtTime(strong?.042:.027,t+.012);
-      g.gain.setValueAtTime(strong?.032:.020,t+Math.max(.018,dur*.48));
-      g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+      g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(strong?.042:.027,t+.012);g.gain.setValueAtTime(strong?.032:.020,t+Math.max(.018,dur*.48));g.gain.exponentialRampToValueAtTime(.0001,t+dur);
       src.connect(hp).connect(lp).connect(bp).connect(g).connect(group);src.start(t);src.stop(t+dur+.03);nodes.push(src);
     }
-
     function ballastBuzz(t,dur,strong=false){
       const buzz=ctx.createOscillator();buzz.type='triangle';buzz.frequency.value=120+rand(-2.5,2.5);
       const harmonic=ctx.createOscillator();harmonic.type='sine';harmonic.frequency.value=240+rand(-4,4);
@@ -144,7 +124,6 @@
       hg.gain.setValueAtTime(.0001,t);hg.gain.exponentialRampToValueAtTime(strong?.010:.006,t+.018);hg.gain.exponentialRampToValueAtTime(.0001,t+dur*.9);
       buzz.connect(bg).connect(group);harmonic.connect(hg).connect(group);buzz.start(t);harmonic.start(t);buzz.stop(t+dur+.03);harmonic.stop(t+dur+.03);nodes.push(buzz,harmonic);
     }
-
     click(cursor,true);
     for(let i=0;i<flashes;i++){
       cursor+=rand(.055,.22);
@@ -153,15 +132,9 @@
       if(Math.random()<.82)ballastBuzz(cursor,dur+rand(.025,.11),strong);
       if(Math.random()<.65)click(cursor+dur+rand(.015,.07),false);
     }
-
     if(Math.random()<.62){
-      cursor+=rand(.18,.55);
-      click(cursor,true);
-      const hold=rand(.28,.8);
-      sputter(cursor+.02,hold,true);
-      ballastBuzz(cursor+.02,hold,true);
+      cursor+=rand(.18,.55);click(cursor,true);const hold=rand(.28,.8);sputter(cursor+.02,hold,true);ballastBuzz(cursor+.02,hold,true);
     }
-
     return()=>{nodes.forEach(n=>{try{n.stop()}catch(_){}});try{group.disconnect()}catch(_){}};
   }
 
@@ -236,9 +209,7 @@
     const def=layerDefs.find(x=>x.id===id);if(!def)return;ensureAudio();
     if(on){
       if(S.active.has(id))return;S.active.add(id);
-      if(def.mode==='continuous'){
-        const stop=id==='room'?startRoom():startMachinery();S.continuous.set(id,stop);
-      }else scheduleNext(def,true);
+      if(def.mode==='continuous'){const stop=id==='room'?startRoom():startMachinery();S.continuous.set(id,stop);}else scheduleNext(def,true);
     }else{
       S.active.delete(id);clearLayerTimer(id);clearEventStops(id);const stop=S.continuous.get(id);if(stop){try{stop()}catch(_){ }S.continuous.delete(id)}
     }
@@ -269,5 +240,5 @@
     renderState();
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',buildUI);else buildUI();
-  window.WardenM17Audio={setLayer,trigger,startM17,stopAll};
+  window.WardenM17Audio={setLayer,trigger,startM17,stopAll,refreshGroupVolume};
 })();
