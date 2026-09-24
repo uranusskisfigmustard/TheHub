@@ -8,7 +8,7 @@
 <meta http-equiv="Expires" content="0">
 <title>The Hub — Warden Audio</title>
 <script>
-  window.__WARDEN_AUDIO_BUILD='20260924-1045-AS';
+  window.__WARDEN_AUDIO_BUILD='20260924-1054-AT';
   window.__WARDEN_AUDIO_CACHE=Date.now().toString(36);
   ['warden-audio-v1.css','warden-audio-page.css'].forEach(href=>{
     const link=document.createElement('link');
@@ -23,8 +23,8 @@
   <div class="audio-page-header-inner">
     <div>
       <div class="audio-page-title">THE HUB // WARDEN AUDIO</div>
-      <div class="audio-page-sub">Dedicated live-session soundboard — Group 1 environment + response / Group 2 ore signal</div>
-      <div class="audio-page-sub" id="audioBuildStamp">BUILD 20260924-1045-AS</div>
+      <div class="audio-page-sub">Dedicated live-session soundboard — Group 1 M-17 environment / Group 2 ore signal + response</div>
+      <div class="audio-page-sub" id="audioBuildStamp">BUILD 20260924-1054-AT</div>
     </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end">
       <button class="audio-page-return" id="audioForceReload" type="button">FORCE FRESH LOAD</button>
@@ -35,7 +35,7 @@
 <main class="audio-page-main">
   <section class="audio-page-intro">
     <strong>M-17 // LIVE TABLE AUDIO</strong>
-    <p>ANSWERING PULSE starts and stops with Group 1 and uses GROUP 1 MAX as its volume ceiling, but it is no longer attenuated by the environment crossfade. CROSSFADE / DEPTH still tightens its cadence. Group 2 contains the ORE PULSE.</p>
+    <p>Group 1 is the M-17 environment. Group 2 contains ORE PULSE + ANSWERING PULSE; both rise with Group 2 as CROSSFADE / DEPTH increases, and ANSWERING PULSE cadence tightens with depth. The current ORE PULSE is a temporary placeholder pending a deployable replacement source.</p>
   </section>
   <div id="audioMount"></div>
 </main>
@@ -60,16 +60,9 @@
 
   try{
     await loadScript('warden-audio-group-mixer-v1.js');
-
-    // Base M-17 engine creates the soundboard and owns native room/machinery/relay audio.
     await loadScript('warden-audio-v1.js');
-
-    // Signal v2 owns Group 2 ORE PULSE plus the Group 1 ANSWERING PULSE engine/cadence.
-    await loadScript('warden-audio-signal-v2.js');
-
-    // Unified Stage 1 v2 owns Group 1 controls and places ANSWERING PULSE with the environment.
-    await loadScript('warden-audio-stage1-unified-v2.js');
-
+    await loadScript('warden-audio-signal-v3.js');
+    await loadScript('warden-audio-stage1-unified-v3.js');
     window.WardenGroupMixer&&window.WardenGroupMixer.apply();
   }catch(err){
     const mount=document.getElementById('audioMount');
