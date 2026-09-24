@@ -6,12 +6,13 @@
 
   const defs=[
     {id:'orePulse',label:'ORE PULSE',desc:'Cassowary-spectrum modeled boom — long, deep bodily pulse with no field-recording noise'},
-    {id:'answer',label:'ANSWERING PULSE',desc:'Distant recorded deep-creature reply — slower, larger, and nonlocal'}
+    {id:'answer',label:'ANSWERING PULSE',desc:'Distant recorded deep-creature reply — cadence tightens as the crossfade moves deeper'}
   ];
 
   const S={active:new Set(),timers:new Map(),playing:new Map(),synthStops:new Map(),started:new Map(),ctx:null};
   const rand=(a,b)=>a+Math.random()*(b-a);
   const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+  const lerp=(a,b,t)=>a+(b-a)*t;
 
   function masterVolume(){
     const slider=document.getElementById('waVolume');
@@ -23,8 +24,33 @@
     const v=m&&m.state?Number(m.state.g2):1;
     return clamp(Number.isFinite(v)?v:1,0,.95);
   }
-  function progress(id){const started=S.started.get(id)||performance.now();return clamp((performance.now()-started)/90000,0,1);}
-  function gapFor(id){const p=progress(id);if(id==='orePulse')return(1-p)*rand(7.0,12.5)+p*rand(3.4,5.1);return(1-p)*rand(10.5,17.0)+p*rand(5.4,8.2);}
+  function crossfadeDepth(){
+    const m=window.WardenGroupMixer;
+    const v=m&&m.state?Number(m.state.crossfade):0;
+    return clamp(Number.isFinite(v)?v:0,0,1);
+  }
+  function progress(id){
+    const started=S.started.get(id)||performance.now();
+    return clamp((performance.now()-started)/90000,0,1);
+  }
+  function answerEscalation(){
+    // Crossfade/depth is the primary driver. Elapsed Signal time contributes only a
+    // small amount so a shallow scene can still develop without overruling Warden control.
+    return clamp(crossfadeDepth()*.85+progress('answer')*.15,0,1);
+  }
+  function gapFor(id){
+    if(id==='orePulse'){
+      const p=progress(id);
+      return(1-p)*rand(7.0,12.5)+p*rand(3.4,5.1);
+    }
+    const d=answerEscalation();
+    return rand(lerp(9.5,4.8,d),lerp(14.0,7.2,d));
+  }
+  function firstDelay(id){
+    if(id==='orePulse')return rand(2.0,4.2);
+    const d=answerEscalation();
+    return rand(lerp(5.5,3.0,d),lerp(8.0,4.5,d));
+  }
 
   function audioContext(){
     try{
@@ -49,7 +75,7 @@
     const pre=ctx.createBiquadFilter();pre.type='lowpass';pre.frequency.value=185;pre.Q.value=.5;
     const bodyBus=ctx.createGain(),bodyEnv=ctx.createGain(),comp=ctx.createDynamicsCompressor();
     comp.threshold.value=-29;comp.knee.value=18;comp.ratio.value=2.4;comp.attack.value=.025;comp.release.value=.48;
-    const output=ctx.createGain(),p=progress('orePulse'),autoMix=.72+.18*p;output.gain.value=masterVolume()*(manual?1:autoMix);
+    const output=ctx.createGain(),p=progress('orePulse'),autoMix=.72+.18*p;output.gain.value=masterVolume()*(manual?1:autoMix)*group2Gain();
     source.connect(pre);pre.connect(bodyBus);
     const resonances=[{f:32,g:.12,q:2.4},{f:48,g:.62,q:4.4},{f:72,g:.92,q:4.1},{f:96,g:.70,q:3.7},{f:120,g:.28,q:2.7}],nodes=[source,pre,bodyBus,bodyEnv,comp,output];
     resonances.forEach(r=>{const filter=ctx.createBiquadFilter();filter.type='bandpass';filter.frequency.value=r.f*rand(.992,1.008);filter.Q.value=r.q;const gain=ctx.createGain();gain.gain.value=r.g*rand(.94,1.06);bodyBus.connect(filter);filter.connect(gain);gain.connect(bodyEnv);nodes.push(filter,gain);});
@@ -80,7 +106,18 @@
   function playSound(id,manual=false){return id==='orePulse'?playOre(manual):playAnswer(manual);}
   function clearTimer(id){const t=S.timers.get(id);if(t)clearTimeout(t);S.timers.delete(id);}
   function stopPlaying(id){const media=S.playing.get(id);if(media){[...media].forEach(a=>stopMedia(id,a));media.clear();}const synth=S.synthStops.get(id);if(synth){[...synth].forEach(stop=>stop());synth.clear();}}
-  function schedule(id,first=false){clearTimer(id);if(!S.active.has(id))return;const delay=first?(id==='answer'?rand(4.5,7.5):rand(2.0,4.2)):gapFor(id);const timer=setTimeout(()=>{if(!S.active.has(id))return;playSound(id,false);schedule(id,false);},delay*1000);S.timers.set(id,timer);}
+  function schedule(id,first=false){
+    clearTimer(id);if(!S.active.has(id))return;
+    const delay=first?firstDelay(id):gapFor(id);
+    const timer=setTimeout(()=>{if(!S.active.has(id))return;playSound(id,false);schedule(id,false);},delay*1000);
+    S.timers.set(id,timer);
+  }
+  function onDepthChange(){
+    refreshGroupVolume();
+    // Re-evaluate the next response when the Warden moves deeper/shallower. The
+    // currently playing response is never restarted or interrupted.
+    if(S.active.has('answer'))schedule('answer',false);
+  }
   function setLayer(id,on){if(!defs.some(d=>d.id===id))return;on=!!on;if(on){if(S.active.has(id))return;if(id==='orePulse')audioContext();S.active.add(id);S.started.set(id,performance.now());schedule(id,true);}else{S.active.delete(id);clearTimer(id);stopPlaying(id);S.started.delete(id);}render();}
   function trigger(id){if(!defs.some(d=>d.id===id))return;if(id==='orePulse')audioContext();playSound(id,true);const b=document.querySelector(`[data-signal-trigger="${id}"]`);if(b){b.classList.add('fired');setTimeout(()=>b.classList.remove('fired'),350);}if(S.active.has(id))schedule(id,false);}
   function startSignal(){setLayer('orePulse',true);setLayer('answer',true);}
@@ -96,5 +133,5 @@
   }
 
   let tries=0;const wait=setInterval(()=>{tries++;if(build()||tries>100)clearInterval(wait);},100);
-  window.WardenM17SignalAudio={setLayer,trigger,startSignal,stopSignal,refreshGroupVolume};
+  window.WardenM17SignalAudio={setLayer,trigger,startSignal,stopSignal,refreshGroupVolume,onDepthChange};
 })();
