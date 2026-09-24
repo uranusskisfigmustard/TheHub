@@ -6,7 +6,6 @@ const ROCK_URL='https://raw.githubusercontent.com/ShaleGame/ShaleGame/main/Asset
 const LIGHT_LABEL='FLUORESCENT FLICKER';
 const ROCK_LABEL='ROCK / MATERIAL';
 const BASE_IDS=['room','machinery','relays'];
-const ALL_BASE_IDS=['room','machinery','light','rocks','metal','relays'];
 
 let installed=false;
 let lightActive=false;
@@ -155,7 +154,7 @@ function startM17(){
   syncLive();
 }
 function stopAll(){
-  ALL_BASE_IDS.forEach(id=>{try{baseSetLayer&&baseSetLayer(id,false);}catch(_){ }});
+  BASE_IDS.forEach(id=>{try{baseSetLayer&&baseSetLayer(id,false);}catch(_){ }});
   setLight(false);
   setRocks(false);
   syncLive();
@@ -180,9 +179,7 @@ function install(){
   baseTrigger=api.trigger.bind(api);
   window.WardenM17AudioBaseRefresh=api.refreshGroupVolume?api.refreshGroupVolume.bind(api):null;
 
-  // Disable legacy procedural replacements before taking sole ownership.
-  ['light','rocks','metal'].forEach(id=>{try{baseSetLayer(id,false);}catch(_){ }});
-
+  // Legacy light/rocks/metal remain untouched and inactive; this controller simply never arms them.
   const metal=document.querySelector('[data-audio-layer="metal"]');
   if(metal){const row=metal.closest('.wa-layer');if(row)row.remove();}
 
@@ -203,9 +200,10 @@ function install(){
   replaceButton(document.querySelector('[data-audio-trigger="rocks"]'),triggerRocks);
 
   BASE_IDS.forEach(id=>{
-    const btn=document.querySelector(`[data-audio-layer="${id}"]`);
-    if(btn)replaceButton(btn,()=>{
-      const next=btn.getAttribute('aria-pressed')!=='true';
+    const oldBtn=document.querySelector(`[data-audio-layer="${id}"]`);
+    if(!oldBtn)return;
+    const fresh=replaceButton(oldBtn,()=>{
+      const next=fresh.getAttribute('aria-pressed')!=='true';
       baseSetLayer&&baseSetLayer(id,next);
       syncLive();
     });
