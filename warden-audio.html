@@ -8,12 +8,12 @@
 <meta http-equiv="Expires" content="0">
 <title>The Hub — Warden Audio</title>
 <script>
-  window.__WARDEN_AUDIO_BUILD='20260924-1113-AV';
-  window.__WARDEN_AUDIO_CACHE=Date.now().toString(36);
+  window.__WARDEN_AUDIO_BUILD='20260926-0756-AV';
+  window.__WARDEN_AUDIO_CACHE=window.__WARDEN_AUDIO_BUILD+'-'+Date.now().toString(36);
   ['warden-audio-v1.css','warden-audio-page.css'].forEach(href=>{
     const link=document.createElement('link');
     link.rel='stylesheet';
-    link.href=href+'?fresh='+window.__WARDEN_AUDIO_CACHE;
+    link.href=href+'?build='+encodeURIComponent(window.__WARDEN_AUDIO_BUILD)+'&fresh='+encodeURIComponent(window.__WARDEN_AUDIO_CACHE);
     document.head.appendChild(link);
   });
 </script>
@@ -24,7 +24,7 @@
     <div>
       <div class="audio-page-title">THE HUB // WARDEN AUDIO</div>
       <div class="audio-page-sub">Dedicated live-session soundboard — Group 1 M-17 environment / Group 2 ore signal + response</div>
-      <div class="audio-page-sub" id="audioBuildStamp">BUILD 20260924-1113-AV</div>
+      <div class="audio-page-sub" id="audioBuildStamp">BUILD 20260926-0756-AV</div>
     </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end">
       <button class="audio-page-return" id="audioForceReload" type="button">FORCE FRESH LOAD</button>
@@ -43,9 +43,10 @@
 <script>
 (async()=>{
   const token=window.__WARDEN_AUDIO_CACHE||Date.now().toString(36);
+  const build=window.__WARDEN_AUDIO_BUILD||'unknown';
   const loadScript=src=>new Promise((resolve,reject)=>{
     const s=document.createElement('script');
-    s.src=src+'?fresh='+token;
+    s.src=src+'?build='+encodeURIComponent(build)+'&fresh='+encodeURIComponent(token);
     s.async=false;
     s.onload=resolve;
     s.onerror=()=>reject(new Error('Failed to load '+src));
@@ -53,8 +54,10 @@
   });
 
   document.getElementById('audioForceReload').addEventListener('click',()=>{
+    try{window.WardenM17Audio&&window.WardenM17Audio.stopAll&&window.WardenM17Audio.stopAll();}catch(_){ }
     const u=new URL(window.location.href);
-    u.searchParams.set('fresh',Date.now().toString());
+    u.searchParams.set('build',build);
+    u.searchParams.set('fresh',Date.now().toString(36));
     window.location.replace(u.toString());
   });
 
