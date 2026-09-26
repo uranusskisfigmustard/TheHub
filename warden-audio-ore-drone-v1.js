@@ -1,9 +1,9 @@
 (()=>{
 'use strict';
 
-const SOURCE_URL='https://cdn.freesound.org/previews/580/580633_2282212-hq.mp3';
-const SOURCE_PAGE='https://freesound.org/s/580633/';
-const SOURCE_LABEL='Machine Steampunk Factory — szegvari — Freesound 580633 — CC0';
+const SOURCE_URL='https://cdn.freesound.org/previews/854/854269_17997500-lq.mp3';
+const SOURCE_PAGE='https://freesound.org/people/kkenny101/sounds/854269/';
+const SOURCE_LABEL='Industrial Machine Drone (Seamless Loop) — kkenny101 — Freesound 854269 — CC0';
 const STORAGE_VOLUME='mothership_warden_audio_volume_v1';
 
 const S={active:false,timer:null,playing:new Set(),bound:false};
@@ -126,8 +126,8 @@ function render(){
     setText(ore.querySelector('.wa-state'),S.active?'ON':'OFF');
     setText(ore.querySelector('b'),'ORE SIGNAL');
   }
-  setText(document.getElementById('waOreSourceStatus'),'REMOTE // CC0 // AUTO-LOADED');
-  setText(document.getElementById('waOreDesc'),'Mechanical drone sample — soft fade in/out; irregular 8–18 s recurrence.');
+  setText(document.getElementById('waOreSourceStatus'),'REMOTE // FREESOUND 854269 // CC0');
+  setText(document.getElementById('waOreDesc'),'Freesound #854269 machine drone — sampled with soft fade in/out; irregular 8–18 s recurrence.');
   const live=document.getElementById('waSignalLive');
   if(live){
     const api=window.WardenM17SignalAudio;
