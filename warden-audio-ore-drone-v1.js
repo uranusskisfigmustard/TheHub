@@ -17,7 +17,9 @@ function masterVolume(){
 }
 
 function applyVolume(a,fade){
-  try{a.volume=clamp(masterVolume()*fade*.86,0,1);}catch(_){ }
+  const f=clamp(Number.isFinite(Number(fade))?Number(fade):1,0,1);
+  a.dataset.oreFade=String(f);
+  try{a.volume=clamp(masterVolume()*f*.86,0,1);}catch(_){ }
 }
 
 function retire(a){S.playing.delete(a);}
@@ -39,7 +41,7 @@ function pulse(){
   const hold=rand(450,800);
   const fadeOut=rand(850,1200);
   const total=fadeIn+hold+fadeOut;
-  const started=performance.now();
+  let started=0;
 
   const cleanup=()=>{
     if(ended)return;
@@ -70,6 +72,7 @@ function pulse(){
       }
       a.playbackRate=rand(.97,1.03);
       applyVolume(a,0);
+      started=performance.now();
       const p=a.play();
       if(p&&typeof p.then==='function')p.then(()=>{raf=requestAnimationFrame(animate);}).catch(cleanup);
       else raf=requestAnimationFrame(animate);
@@ -79,7 +82,7 @@ function pulse(){
   if(a.readyState>=1)begin();
   else a.addEventListener('loadedmetadata',begin,{once:true});
   a.addEventListener('error',cleanup,{once:true});
-  setTimeout(cleanup,total+1800);
+  setTimeout(cleanup,total+2500);
   return cleanup;
 }
 
@@ -115,25 +118,24 @@ function trigger(){
   if(b){b.classList.add('fired');setTimeout(()=>b.classList.remove('fired'),350);}
 }
 
+function setText(el,text){if(el&&el.textContent!==text)el.textContent=text;}
 function render(){
   const ore=document.querySelector('[data-signal-layer="orePulse"]');
   if(ore){
     ore.classList.toggle('active',S.active);
     ore.setAttribute('aria-pressed',String(S.active));
-    const st=ore.querySelector('.wa-state');if(st)st.textContent=S.active?'ON':'OFF';
-    const title=ore.querySelector('b');if(title)title.textContent='ORE SIGNAL';
+    setText(ore.querySelector('.wa-state'),S.active?'ON':'OFF');
+    setText(ore.querySelector('b'),'ORE SIGNAL');
   }
-  const status=document.getElementById('waOreSourceStatus');
-  if(status)status.textContent='REMOTE // CC0 // AUTO-LOADED';
-  const desc=document.getElementById('waOreDesc');
-  if(desc)desc.textContent='Soft mechanical drone sample — fades in/out; irregular 8–18 s recurrence.';
+  setText(document.getElementById('waOreSourceStatus'),'REMOTE // CC0 // AUTO-LOADED');
+  setText(document.getElementById('waOreDesc'),'Soft mechanical drone sample — fades in/out; irregular 8–18 s recurrence.');
   const live=document.getElementById('waSignalLive');
   if(live){
     const api=window.WardenM17SignalAudio;
     const names=[];
     if(S.active)names.push('ORE SIGNAL');
     if(api&&api.isActive&&api.isActive('answer'))names.push('ANSWERING PULSE');
-    live.textContent=names.length?names.join(' + '):'OFF';
+    setText(live,names.length?names.join(' + '):'OFF');
   }
 }
 
@@ -149,20 +151,15 @@ function patch(){
   if(S.bound){render();return true;}
   S.bound=true;
 
-  // Retire the previous local-file ore path entirely.
   try{api.setLayer('orePulse',false);}catch(_){ }
 
-  const load=document.getElementById('waLoadOreFile');
-  const clear=document.getElementById('waClearOreFile');
-  const input=document.getElementById('waOreFileInput');
-  if(load)load.remove();
-  if(clear)clear.remove();
-  if(input)input.remove();
+  document.getElementById('waLoadOreFile')?.remove();
+  document.getElementById('waClearOreFile')?.remove();
+  document.getElementById('waOreFileInput')?.remove();
 
   const row=document.getElementById('waOreSourceStatus')?.parentElement;
-  let source=document.getElementById('waOreRemoteSource');
-  if(!source&&row){
-    source=document.createElement('button');
+  if(row&&!document.getElementById('waOreRemoteSource')){
+    const source=document.createElement('button');
     source.className='wa-btn';
     source.id='waOreRemoteSource';
     source.type='button';
@@ -187,9 +184,16 @@ function patch(){
   const slider=document.getElementById('waVolume');
   if(slider)slider.addEventListener('input',()=>S.playing.forEach(a=>applyVolume(a,Number(a.dataset.oreFade||1))));
 
-  const obs=new MutationObserver(()=>render());
   const live=document.getElementById('waSignalLive');
-  if(live)obs.observe(live,{childList:true,characterData:true,subtree:true});
+  if(live){
+    let pending=false;
+    const obs=new MutationObserver(()=>{
+      if(pending)return;
+      pending=true;
+      queueMicrotask(()=>{pending=false;render();});
+    });
+    obs.observe(live,{childList:true,characterData:true,subtree:true});
+  }
 
   stage.dataset.oreSource=SOURCE_LABEL;
   render();
