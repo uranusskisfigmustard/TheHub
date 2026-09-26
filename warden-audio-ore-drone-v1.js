@@ -1,9 +1,9 @@
 (()=>{
 'use strict';
 
-const SOURCE_URL='https://opengameart.org/sites/default/files/bilwe.mp3';
-const SOURCE_PAGE='https://opengameart.org/content/bilwe';
-const SOURCE_LABEL='Bilwe — cinameng / James Gargette — CC0';
+const SOURCE_URL='https://cdn.freesound.org/previews/580/580633_2282212-hq.mp3';
+const SOURCE_PAGE='https://freesound.org/s/580633/';
+const SOURCE_LABEL='Machine Steampunk Factory — szegvari — Freesound 580633 — CC0';
 const STORAGE_VOLUME='mothership_warden_audio_volume_v1';
 
 const S={active:false,timer:null,playing:new Set(),bound:false};
@@ -19,7 +19,7 @@ function masterVolume(){
 function applyVolume(a,fade){
   const f=clamp(Number.isFinite(Number(fade))?Number(fade):1,0,1);
   a.dataset.oreFade=String(f);
-  try{a.volume=clamp(masterVolume()*f*.86,0,1);}catch(_){ }
+  try{a.volume=clamp(masterVolume()*f*.92,0,1);}catch(_){ }
 }
 
 function retire(a){S.playing.delete(a);}
@@ -33,7 +33,6 @@ function pulse(){
   const a=new Audio(SOURCE_URL);
   a.preload='auto';
   a.loop=false;
-  a.crossOrigin='anonymous';
   S.playing.add(a);
 
   let raf=0,ended=false;
@@ -71,7 +70,7 @@ function pulse(){
         a.currentTime=rand(0,maxStart);
       }
       a.playbackRate=rand(.97,1.03);
-      applyVolume(a,0);
+      applyVolume(a,.02);
       started=performance.now();
       const p=a.play();
       if(p&&typeof p.then==='function')p.then(()=>{raf=requestAnimationFrame(animate);}).catch(cleanup);
@@ -82,7 +81,7 @@ function pulse(){
   if(a.readyState>=1)begin();
   else a.addEventListener('loadedmetadata',begin,{once:true});
   a.addEventListener('error',cleanup,{once:true});
-  setTimeout(cleanup,total+2500);
+  setTimeout(cleanup,total+3500);
   return cleanup;
 }
 
@@ -128,7 +127,7 @@ function render(){
     setText(ore.querySelector('b'),'ORE SIGNAL');
   }
   setText(document.getElementById('waOreSourceStatus'),'REMOTE // CC0 // AUTO-LOADED');
-  setText(document.getElementById('waOreDesc'),'Soft mechanical drone sample — fades in/out; irregular 8–18 s recurrence.');
+  setText(document.getElementById('waOreDesc'),'Mechanical drone sample — soft fade in/out; irregular 8–18 s recurrence.');
   const live=document.getElementById('waSignalLive');
   if(live){
     const api=window.WardenM17SignalAudio;
