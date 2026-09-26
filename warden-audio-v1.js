@@ -6,7 +6,7 @@
   if(!AudioCtx) return;
 
   const layerDefs=[
-    {id:'room',label:'ROOM BED',mode:'continuous',desc:'Stacked factory ventilation + industrial room ambience'},
+    {id:'room',label:'ROOM BED',mode:'continuous',desc:'Industrial ventilation / large fan only'},
     {id:'machinery',label:'HEAVY MACHINERY',mode:'continuous',desc:'Stacked factory machine tone + heavy mechanical cycle'},
     {id:'light',label:'FLUORESCENT FLICKER',mode:'intermittent',desc:'Failing tube restrikes, starter clicks, and short ballast buzzes',first:[3,9],gap:[14,32]},
     {id:'rocks',label:'ROCK / MATERIAL',mode:'intermittent',desc:'Audible granular scrape, tumble, and dense material settling',first:[7,16],gap:[22,48]},
@@ -15,8 +15,7 @@
   ];
 
   const ROOM_LOOPS=[
-    {url:'https://cdn.freesound.org/previews/272/272265_4965320-hq.mp3',gain:.78,source:'Freesound #272265 — Big Factory Fan Ambience — IanStarGem — CC0 1.0'},
-    {url:'https://cdn.freesound.org/previews/393/393398_5416641-hq.mp3',gain:.42,source:'Freesound #393398 — Industrial ambience — Lewente — CC0 1.0'}
+    {url:'https://cdn.freesound.org/previews/272/272265_4965320-hq.mp3',gain:.78,source:'Freesound #272265 — Big Factory Fan Ambience — IanStarGem — CC0 1.0'}
   ];
   const MACHINERY_LOOPS=[
     {url:'https://cdn.freesound.org/previews/434/434507_1134415-hq.mp3',gain:1.0,source:'Freesound #434507 — industrial_machine_tone — Kostrava — CC0 1.0'},
