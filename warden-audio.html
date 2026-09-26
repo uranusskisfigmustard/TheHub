@@ -8,7 +8,7 @@
 <meta http-equiv="Expires" content="0">
 <title>The Hub — Warden Audio</title>
 <script>
-  window.__WARDEN_AUDIO_BUILD='20260926-0756-AW';
+  window.__WARDEN_AUDIO_BUILD='20260926-0756-AX';
   window.__WARDEN_AUDIO_CACHE=window.__WARDEN_AUDIO_BUILD+'-'+Date.now().toString(36);
   ['warden-audio-v1.css','warden-audio-page.css'].forEach(href=>{
     const link=document.createElement('link');
@@ -24,7 +24,7 @@
     <div>
       <div class="audio-page-title">THE HUB // WARDEN AUDIO</div>
       <div class="audio-page-sub">Dedicated live-session soundboard — Group 1 M-17 environment / Group 2 ore signal + response</div>
-      <div class="audio-page-sub" id="audioBuildStamp">BUILD 20260926-0756-AW</div>
+      <div class="audio-page-sub" id="audioBuildStamp">BUILD 20260926-0756-AX</div>
     </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end">
       <button class="audio-page-return" id="audioForceReload" type="button">FORCE FRESH LOAD</button>
@@ -35,7 +35,7 @@
 <main class="audio-page-main">
   <section class="audio-page-intro">
     <strong>M-17 // LIVE TABLE AUDIO</strong>
-    <p>Group 1 is the M-17 environment. Group 2 contains ORE SIGNAL + ANSWERING PULSE. ORE SIGNAL is LilMati’s “Futuristic Inspect Sound, UI, or In-Game Notification.wav” (Freesound 702805, CC0). ANSWERING PULSE cadence tightens with CROSSFADE / DEPTH. Because Freesound requires login for the WAV download, load the downloaded ore WAV from this computer once per page session; it is not uploaded to the public repo.</p>
+    <p>Group 1 is the M-17 environment. Group 2 contains ORE SIGNAL + ANSWERING PULSE. ORE SIGNAL now uses a remotely loaded CC0 mechanical-industrial drone sample that fades in and out at irregular intervals rather than running continuously. ANSWERING PULSE remains separate and its cadence tightens with CROSSFADE / DEPTH.</p>
   </section>
   <div id="audioMount"></div>
 </main>
@@ -65,7 +65,7 @@
     await loadScript('warden-audio-group-mixer-v1.js');
     await loadScript('warden-audio-v1.js');
     await loadScript('warden-audio-signal-v3.js');
-    await loadScript('warden-audio-ore-freesound-v1.js');
+    await loadScript('warden-audio-ore-drone-v1.js');
     await loadScript('warden-audio-stage1-unified-v3.js');
     window.WardenGroupMixer&&window.WardenGroupMixer.apply();
   }catch(err){
