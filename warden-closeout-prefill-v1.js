@@ -2,9 +2,10 @@
   'use strict';
 
   const API = 'https://script.google.com/macros/s/AKfycbzeW8vTooOCNEBia3_EMQ10r7BcbakXIwCD4ZaEOUEBOdCXl09tRHj76oxcUcsOKQK0/exec';
-  const STATE = { feed:null, current:null, mode:'close', applying:false };
+  const SK = 'mothership_hub_warden_session_v1';
+  const STATE = { feed:null, current:null, mode:'close', applying:false, feedPromise:null };
   const $ = id => document.getElementById(id);
-  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c]));
 
   function normalizeStatus(value) {
     return String(value || '').trim().toUpperCase();
@@ -81,7 +82,7 @@
 
   function setAutofillSummary(c) {
     const summary = $('summary');
-    const status = $('status');
+    const status = $('cstatus');
     if (!summary || !status || STATE.mode !== 'close') return;
     const next = draftSummary(c, status.value);
     const last = String(summary.dataset.wardenAutoSummary || '');
@@ -123,7 +124,7 @@
 
   function applyPayoutDefaults(c) {
     if (!c || STATE.mode !== 'close') return;
-    const status = $('status')?.value || 'Completed';
+    const status = $('cstatus')?.value || 'Completed';
     const components = Array.isArray(c.payoutComponents) ? c.payoutComponents : [];
     const byId = Object.fromEntries(components.map(x => [String(x?.id || '').toUpperCase(), x]));
     STATE.applying = true;
@@ -144,7 +145,7 @@
   }
 
   function bindModalControls() {
-    const status = $('status');
+    const status = $('cstatus');
     if (status && !status.dataset.wardenPrefillBound) {
       status.dataset.wardenPrefillBound = '1';
       status.addEventListener('change', () => {
@@ -209,26 +210,47 @@
     Node.prototype.appendChild = patched;
   }
 
+  async function ensureFeed() {
+    if (STATE.feed?.ok) return STATE.feed;
+    if (STATE.feedPromise) return STATE.feedPromise;
+    const session = localStorage.getItem(SK) || '';
+    if (!session || !window.HubWardenApi?.request) return null;
+    STATE.feedPromise = window.HubWardenApi.request('wardenfeed', { session })
+      .then(payload => {
+        if (payload?.ok) STATE.feed = payload;
+        return payload?.ok ? payload : null;
+      })
+      .catch(() => null)
+      .finally(() => { STATE.feedPromise = null; });
+    return STATE.feedPromise;
+  }
+
+  async function applyFromFeedIndex(kind, idx) {
+    const feed = await ensureFeed();
+    const c = kind === 'history' ? feed?.history?.[idx] : feed?.active?.[idx];
+    if (!c) return;
+    setTimeout(() => applyModal(c, kind === 'history' ? 'amend' : 'close'), 20);
+  }
+
   function watchClicks() {
     document.addEventListener('click', e => {
       const resolve = e.target.closest('[data-r]');
       if (resolve) {
         const idx = Number(resolve.dataset.r);
-        const c = STATE.feed?.active?.[idx] || null;
-        setTimeout(() => applyModal(c, 'close'), 20);
+        void applyFromFeedIndex('active', idx);
         return;
       }
       const amend = e.target.closest('[data-amend]');
       if (amend) {
         const idx = Number(amend.dataset.amend);
-        const c = STATE.feed?.history?.[idx] || null;
-        setTimeout(() => applyModal(c, 'amend'), 20);
+        void applyFromFeedIndex('history', idx);
         return;
       }
       if (e.target.closest('#x,#cancel,#lock,#playerPage')) {
         STATE.current = null;
         STATE.mode = 'close';
       }
+      if (e.target.closest('#refresh')) STATE.feed = null;
     }, true);
   }
 
