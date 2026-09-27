@@ -1,14 +1,77 @@
 (() => {
   'use strict';
 
-  const BUILD = '20260927-warden-npcs-faction-directory-1';
+  const BUILD = '20260927-warden-npcs-major-groups-2';
   const FALLBACK_FACTION = 'Unaffiliated / not recorded';
+  const DIRECTORY_GROUPS = [
+    'BREAKWATER / RECOVERY',
+    'BREATHWORKS / UTILITIES',
+    'CLAIMS / RECORDS',
+    'PORT / FREIGHT / TRADE',
+    'DEEPWELL / INDUSTRIAL REACH',
+    'COMMUNITY / CARE'
+  ];
   const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
   const normalize = value => String(value ?? '').toLowerCase().replace(/\s+/g, ' ').trim();
-  const view = { faction: '', npc: '' };
+  const view = { group: '', npc: '' };
 
   function factionOf(npc) {
     return String(npc?.faction || '').trim() || FALLBACK_FACTION;
+  }
+
+  function directoryGroupOf(npc) {
+    const faction = normalize(factionOf(npc));
+    const role = normalize(npc?.role);
+    const location = normalize(npc?.location);
+    const combined = `${faction} ${role} ${location}`;
+
+    if (
+      faction.includes('breakwater recovery cooperative') ||
+      faction.includes('breakwater-sponsored') ||
+      faction.includes('leased breakwater') ||
+      faction.includes('breakwater floor-work')
+    ) return 'BREAKWATER / RECOVERY';
+
+    if (faction.includes('breathworks compact')) return 'BREATHWORKS / UTILITIES';
+
+    if (
+      faction.includes('hub claims registry') ||
+      faction.includes('ledger quay consortium') ||
+      faction.includes('central records')
+    ) return 'CLAIMS / RECORDS';
+
+    if (
+      faction.includes('deepwell extractive league') ||
+      faction.includes('industrial reach') ||
+      combined.includes('industrial reach') ||
+      combined.includes('deepwell') ||
+      combined.includes('mine threshold')
+    ) return 'DEEPWELL / INDUSTRIAL REACH';
+
+    if (
+      faction.includes('cistern') ||
+      faction.includes('saint orra') ||
+      combined.includes('resident community') ||
+      combined.includes('neighborhood') ||
+      combined.includes('hospital') ||
+      combined.includes('clinic')
+    ) return 'COMMUNITY / CARE';
+
+    if (
+      faction.includes('dock labor') ||
+      faction.includes('bonded freight') ||
+      faction.includes('blackline') ||
+      faction.includes('freight concourse') ||
+      faction.includes('primary docks') ||
+      combined.includes('freight') ||
+      combined.includes('dock') ||
+      combined.includes('berth') ||
+      combined.includes('cargo') ||
+      combined.includes('secondary market') ||
+      combined.includes('receiving')
+    ) return 'PORT / FREIGHT / TRADE';
+
+    return 'PORT / FREIGHT / TRADE';
   }
 
   function installStyles() {
@@ -56,21 +119,21 @@
     document.head.appendChild(style);
   }
 
-  function factionsFor(npcs) {
-    const counts = new Map();
+  function groupsFor(npcs) {
+    const counts = new Map(DIRECTORY_GROUPS.map(group => [group, 0]));
     npcs.forEach(npc => {
-      const faction = factionOf(npc);
-      counts.set(faction, (counts.get(faction) || 0) + 1);
+      const group = directoryGroupOf(npc);
+      counts.set(group, (counts.get(group) || 0) + 1);
     });
-    return [...counts.entries()].sort((a, b) => a[0].localeCompare(b[0]));
+    return DIRECTORY_GROUPS.map(group => [group, counts.get(group) || 0]).filter(([, count]) => count > 0);
   }
 
   function reconcileView(npcs) {
-    const factionNames = new Set(npcs.map(factionOf));
-    if (view.faction && !factionNames.has(view.faction)) view.faction = '';
+    const groupNames = new Set(npcs.map(directoryGroupOf));
+    if (view.group && !groupNames.has(view.group)) view.group = '';
     const selected = npcs.find(npc => String(npc.name || '') === view.npc);
     if (!selected) view.npc = '';
-    if (selected) view.faction = factionOf(selected);
+    if (selected) view.group = directoryGroupOf(selected);
   }
 
   async function loadPortrait(button, state, npcName) {
@@ -134,9 +197,7 @@
       form.dataset.stateToken = result.stateToken;
       resultHost.innerHTML = previewHtml(result, Boolean(state.mutationsEnabled));
       const commit = resultHost.querySelector('.warden-npc-commit');
-      if (commit && state.mutationsEnabled) {
-        commit.addEventListener('click', () => commitChange(form, state, npcName));
-      }
+      if (commit && state.mutationsEnabled) commit.addEventListener('click', () => commitChange(form, state, npcName));
     } catch (error) {
       form.dataset.stateToken = '';
       resultHost.innerHTML = `<div class="warden-notice bad">${esc(error?.message || error)}</div>`;
@@ -204,26 +265,26 @@
     `;
   }
 
-  function renderFactionGrid(npcs) {
-    const factions = factionsFor(npcs);
-    if (!factions.length) return '<div class="warden-empty">No CANON NPCs returned.</div>';
+  function renderGroupGrid(npcs) {
+    const groups = groupsFor(npcs);
+    if (!groups.length) return '<div class="warden-empty">No CANON NPCs returned.</div>';
     return `
       <section class="warden-section">
-        <h2>Select Faction</h2>
+        <h2>Select Major Group</h2>
         <div class="warden-npc-faction-grid">
-          ${factions.map(([faction, count]) => `<button type="button" class="warden-npc-faction-btn" data-npc-faction="${esc(faction)}"><span class="warden-npc-faction-name">${esc(faction)}</span><span class="warden-npc-faction-count">${count} NPC${count === 1 ? '' : 's'}</span></button>`).join('')}
+          ${groups.map(([group, count]) => `<button type="button" class="warden-npc-faction-btn" data-npc-group="${esc(group)}"><span class="warden-npc-faction-name">${esc(group)}</span><span class="warden-npc-faction-count">${count} NPC${count === 1 ? '' : 's'}</span></button>`).join('')}
         </div>
-        <div class="warden-npc-directory-hint">Choose a faction to narrow the directory. Name search can jump directly to an NPC in any faction.</div>
+        <div class="warden-npc-directory-hint">Major groups are directory navigation only. Each NPC retains the exact canonical Faction / Institution shown in their record. Name search can jump directly to an NPC in any group.</div>
       </section>
     `;
   }
 
   function renderNpcIndex(npcs) {
-    const factionNpcs = npcs.filter(npc => factionOf(npc) === view.faction).sort((a, b) => String(a.name || '').localeCompare(String(b.name || '')));
+    const groupNpcs = npcs.filter(npc => directoryGroupOf(npc) === view.group).sort((a, b) => String(a.name || '').localeCompare(String(b.name || '')));
     return `
-      <div class="warden-npc-index" aria-label="${esc(view.faction)} NPCs">
-        <div class="warden-npc-index-heading">${esc(view.faction)} // ${factionNpcs.length} NPC${factionNpcs.length === 1 ? '' : 's'}</div>
-        ${factionNpcs.map(npc => `<button type="button" class="warden-npc-index-btn${view.npc === String(npc.name || '') ? ' active' : ''}" data-npc-name="${esc(npc.name || '')}"><strong>${esc(npc.name || 'Unnamed NPC')}</strong><span>${esc(npc.role || 'Role not recorded')} · ${esc(npc.availability || 'UNKNOWN')}</span></button>`).join('') || '<div class="warden-empty">No NPCs are assigned to this faction.</div>'}
+      <div class="warden-npc-index" aria-label="${esc(view.group)} NPCs">
+        <div class="warden-npc-index-heading">${esc(view.group)} // ${groupNpcs.length} NPC${groupNpcs.length === 1 ? '' : 's'}</div>
+        ${groupNpcs.map(npc => `<button type="button" class="warden-npc-index-btn${view.npc === String(npc.name || '') ? ' active' : ''}" data-npc-name="${esc(npc.name || '')}"><strong>${esc(npc.name || 'Unnamed NPC')}</strong><span>${esc(factionOf(npc))} · ${esc(npc.availability || 'UNKNOWN')}</span></button>`).join('') || '<div class="warden-empty">No NPCs are assigned to this directory group.</div>'}
       </div>
     `;
   }
@@ -232,7 +293,9 @@
     if (!npc) return '<div class="warden-empty">SELECT AN NPC</div>';
     return `<article class="warden-card" data-npc-index="${index}">
       <div class="warden-card-title">${esc(npc.name)}</div>
-      <div class="warden-card-meta">${esc(npc.role || 'Role not recorded')} · ${esc(factionOf(npc))}</div>
+      <div class="warden-card-meta">${esc(npc.role || 'Role not recorded')}</div>
+      <div class="warden-card-meta">FACTION / INSTITUTION: ${esc(factionOf(npc))}</div>
+      <div class="warden-card-meta">DIRECTORY GROUP: ${esc(directoryGroupOf(npc))}</div>
       <div class="warden-card-meta">PRIMARY LOCATION: ${esc(npc.location || '—')} · KNOWLEDGE: ${esc(npc.knowledge || '—')}</div>
       <div class="warden-badges"><span class="warden-badge">${esc(npc.authorityStatus || 'CANON')}</span><span class="warden-badge warn">${esc(npc.availability || 'UNKNOWN')}</span></div>
       <div class="warden-list-row"><strong>CURRENT STATE</strong><span>${esc(npc.currentState || '—')}</span></div>
@@ -270,14 +333,14 @@
     const context = root.querySelector('#wardenNpcDirectoryContext');
     if (!body || !context) return;
 
-    if (!view.faction) {
-      context.innerHTML = '<span class="warden-status-chip">SELECT A FACTION OR SEARCH BY NAME</span>';
-      body.innerHTML = renderFactionGrid(npcs);
+    if (!view.group) {
+      context.innerHTML = '<span class="warden-status-chip">SELECT A MAJOR GROUP OR SEARCH BY NAME</span>';
+      body.innerHTML = renderGroupGrid(npcs);
     } else {
-      context.innerHTML = `<span class="warden-status-chip">FACTION // ${esc(view.faction)}</span><button type="button" class="warden-button" id="wardenNpcAllFactions">CHANGE FACTION</button>`;
+      context.innerHTML = `<span class="warden-status-chip">GROUP // ${esc(view.group)}</span><button type="button" class="warden-button" id="wardenNpcAllGroups">CHANGE GROUP</button>`;
       body.innerHTML = `<section class="warden-section"><div class="warden-npc-directory-layout">${renderNpcIndex(npcs)}<div class="warden-npc-detail-host">${renderNpcDetail(selectedNpc, state, selectedNpc ? npcs.indexOf(selectedNpc) : -1)}</div></div></section>`;
-      root.querySelector('#wardenNpcAllFactions')?.addEventListener('click', () => {
-        view.faction = '';
+      root.querySelector('#wardenNpcAllGroups')?.addEventListener('click', () => {
+        view.group = '';
         view.npc = '';
         renderDirectoryBody(root, state, npcs);
       });
@@ -285,16 +348,14 @@
         button.addEventListener('click', () => {
           view.npc = String(button.dataset.npcName || '');
           renderDirectoryBody(root, state, npcs);
-          if (window.matchMedia?.('(max-width:760px)').matches) {
-            root.querySelector('.warden-npc-detail-host')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }
+          if (window.matchMedia?.('(max-width:760px)').matches) root.querySelector('.warden-npc-detail-host')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
         });
       });
     }
 
-    root.querySelectorAll('[data-npc-faction]').forEach(button => {
+    root.querySelectorAll('[data-npc-group]').forEach(button => {
       button.addEventListener('click', () => {
-        view.faction = String(button.dataset.npcFaction || '');
+        view.group = String(button.dataset.npcGroup || '');
         view.npc = '';
         renderDirectoryBody(root, state, npcs);
       });
@@ -322,13 +383,13 @@
         return ae - be || an.localeCompare(bn);
       })
       .slice(0, 10);
-    host.innerHTML = matches.length ? matches.map(npc => `<button type="button" class="warden-npc-search-result" data-npc-search-name="${esc(npc.name || '')}"><strong>${esc(npc.name || 'Unnamed NPC')}</strong><span>${esc(npc.role || 'Role not recorded')} · ${esc(factionOf(npc))}</span></button>`).join('') : '<div class="warden-empty">No NPC names match that search.</div>';
+    host.innerHTML = matches.length ? matches.map(npc => `<button type="button" class="warden-npc-search-result" data-npc-search-name="${esc(npc.name || '')}"><strong>${esc(npc.name || 'Unnamed NPC')}</strong><span>${esc(directoryGroupOf(npc))} · ${esc(factionOf(npc))}</span></button>`).join('') : '<div class="warden-empty">No NPC names match that search.</div>';
     host.hidden = false;
     host.querySelectorAll('[data-npc-search-name]').forEach(button => {
       button.addEventListener('click', () => {
         const npc = npcs.find(item => String(item.name || '') === String(button.dataset.npcSearchName || ''));
         if (!npc) return;
-        view.faction = factionOf(npc);
+        view.group = directoryGroupOf(npc);
         view.npc = String(npc.name || '');
         input.value = '';
         host.hidden = true;
@@ -379,7 +440,7 @@
     const mutationsEnabled = Boolean(state.mutationsEnabled);
     reconcileView(npcs);
     root.innerHTML = `
-      <div class="warden-page-heading"><div><h1>NPCs</h1><p>CANON NPC continuity records. Filter by faction or search by NPC name. Preview operational-state changes before Commit.</p></div><div class="warden-status-chip">${mutationsEnabled ? 'LIVE MUTATIONS ENABLED' : 'PREVIEW ONLY // WRITES DISABLED'}</div></div>
+      <div class="warden-page-heading"><div><h1>NPCs</h1><p>CANON NPC continuity records. Browse by major directory group or search by NPC name. Exact Faction / Institution remains visible on every NPC record. Preview operational-state changes before Commit.</p></div><div class="warden-status-chip">${mutationsEnabled ? 'LIVE MUTATIONS ENABLED' : 'PREVIEW ONLY // WRITES DISABLED'}</div></div>
       <div class="warden-npc-directory-tools">
         <div class="warden-npc-search-wrap">
           <label class="warden-field-label" for="wardenNpcSearch">SEARCH NPC NAME</label>
