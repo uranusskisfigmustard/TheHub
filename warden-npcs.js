@@ -1,8 +1,77 @@
 (() => {
   'use strict';
 
-  const BUILD = '20260919-warden-npcs-actions-1';
+  const BUILD = '20260927-warden-npcs-faction-directory-1';
+  const FALLBACK_FACTION = 'Unaffiliated / not recorded';
   const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+  const normalize = value => String(value ?? '').toLowerCase().replace(/\s+/g, ' ').trim();
+  const view = { faction: '', npc: '' };
+
+  function factionOf(npc) {
+    return String(npc?.faction || '').trim() || FALLBACK_FACTION;
+  }
+
+  function installStyles() {
+    if (document.getElementById('wardenNpcDirectoryStyles')) return;
+    const style = document.createElement('style');
+    style.id = 'wardenNpcDirectoryStyles';
+    style.textContent = `
+      .warden-npc-directory-tools{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:start;margin-bottom:14px}
+      .warden-npc-search-wrap{position:relative;min-width:0}
+      .warden-npc-search{min-height:44px}
+      .warden-npc-search-results{position:absolute;z-index:30;left:0;right:0;top:calc(100% + 4px);max-height:360px;overflow:auto;border:1px solid var(--warden-line);background:#111518;box-shadow:0 10px 28px rgba(0,0,0,.48)}
+      .warden-npc-search-results[hidden]{display:none!important}
+      .warden-npc-search-result{display:block;width:100%;min-height:48px;padding:9px 10px;border:0;border-top:1px solid #303538;background:transparent;color:var(--warden-text);text-align:left;cursor:pointer}
+      .warden-npc-search-result:first-child{border-top:0}
+      .warden-npc-search-result:hover,.warden-npc-search-result:focus-visible{background:#20262a;outline:1px solid var(--accent);outline-offset:-1px}
+      .warden-npc-search-result strong{display:block}
+      .warden-npc-search-result span{display:block;margin-top:2px;color:var(--warden-muted);font-size:.7rem}
+      .warden-npc-directory-context{min-height:44px;display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+      .warden-npc-directory-context .warden-status-chip{white-space:normal}
+      .warden-npc-faction-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
+      .warden-npc-faction-btn{min-height:58px;border:1px solid var(--warden-line);background:var(--warden-panel2);color:var(--warden-text);padding:10px 11px;text-align:left;cursor:pointer}
+      .warden-npc-faction-btn:hover,.warden-npc-faction-btn:focus-visible{border-color:var(--accent);outline:none}
+      .warden-npc-faction-name{display:block;font-weight:900;line-height:1.2}
+      .warden-npc-faction-count{display:block;margin-top:5px;color:var(--warden-muted);font-size:.68rem;letter-spacing:.04em}
+      .warden-npc-directory-layout{display:grid;grid-template-columns:minmax(230px,320px) minmax(0,1fr);gap:12px;align-items:start}
+      .warden-npc-index{border:1px solid var(--warden-line);background:#15181a}
+      .warden-npc-index-heading{padding:9px 10px;border-bottom:1px solid var(--warden-line);color:var(--warden-muted);font-size:.68rem;letter-spacing:.06em;text-transform:uppercase}
+      .warden-npc-index-btn{display:block;width:100%;min-height:50px;border:0;border-top:1px solid #303538;background:transparent;color:var(--warden-text);padding:9px 10px;text-align:left;cursor:pointer}
+      .warden-npc-index-btn:first-of-type{border-top:0}
+      .warden-npc-index-btn:hover,.warden-npc-index-btn:focus-visible{background:#20262a;outline:none}
+      .warden-npc-index-btn.active{background:rgba(212,168,75,.10);box-shadow:inset 3px 0 0 var(--accent)}
+      .warden-npc-index-btn strong{display:block}
+      .warden-npc-index-btn span{display:block;margin-top:2px;color:var(--warden-muted);font-size:.69rem}
+      .warden-npc-detail-host>.warden-card{margin:0}
+      .warden-npc-directory-hint{margin-top:10px;color:var(--warden-muted);font-size:.72rem}
+      @media(max-width:760px){
+        .warden-npc-directory-tools{grid-template-columns:1fr}
+        .warden-npc-directory-context{justify-content:flex-start}
+        .warden-npc-directory-layout{grid-template-columns:1fr}
+        .warden-npc-faction-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+        .warden-npc-search-results{position:static;margin-top:4px;max-height:none;box-shadow:none}
+      }
+      @media(max-width:360px){.warden-npc-faction-grid{grid-template-columns:1fr}}
+    `;
+    document.head.appendChild(style);
+  }
+
+  function factionsFor(npcs) {
+    const counts = new Map();
+    npcs.forEach(npc => {
+      const faction = factionOf(npc);
+      counts.set(faction, (counts.get(faction) || 0) + 1);
+    });
+    return [...counts.entries()].sort((a, b) => a[0].localeCompare(b[0]));
+  }
+
+  function reconcileView(npcs) {
+    const factionNames = new Set(npcs.map(factionOf));
+    if (view.faction && !factionNames.has(view.faction)) view.faction = '';
+    const selected = npcs.find(npc => String(npc.name || '') === view.npc);
+    if (!selected) view.npc = '';
+    if (selected) view.faction = factionOf(selected);
+  }
 
   async function loadPortrait(button, state, npcName) {
     if (button.disabled) return;
@@ -135,7 +204,172 @@
     `;
   }
 
+  function renderFactionGrid(npcs) {
+    const factions = factionsFor(npcs);
+    if (!factions.length) return '<div class="warden-empty">No CANON NPCs returned.</div>';
+    return `
+      <section class="warden-section">
+        <h2>Select Faction</h2>
+        <div class="warden-npc-faction-grid">
+          ${factions.map(([faction, count]) => `<button type="button" class="warden-npc-faction-btn" data-npc-faction="${esc(faction)}"><span class="warden-npc-faction-name">${esc(faction)}</span><span class="warden-npc-faction-count">${count} NPC${count === 1 ? '' : 's'}</span></button>`).join('')}
+        </div>
+        <div class="warden-npc-directory-hint">Choose a faction to narrow the directory. Name search can jump directly to an NPC in any faction.</div>
+      </section>
+    `;
+  }
+
+  function renderNpcIndex(npcs) {
+    const factionNpcs = npcs.filter(npc => factionOf(npc) === view.faction).sort((a, b) => String(a.name || '').localeCompare(String(b.name || '')));
+    return `
+      <div class="warden-npc-index" aria-label="${esc(view.faction)} NPCs">
+        <div class="warden-npc-index-heading">${esc(view.faction)} // ${factionNpcs.length} NPC${factionNpcs.length === 1 ? '' : 's'}</div>
+        ${factionNpcs.map(npc => `<button type="button" class="warden-npc-index-btn${view.npc === String(npc.name || '') ? ' active' : ''}" data-npc-name="${esc(npc.name || '')}"><strong>${esc(npc.name || 'Unnamed NPC')}</strong><span>${esc(npc.role || 'Role not recorded')} · ${esc(npc.availability || 'UNKNOWN')}</span></button>`).join('') || '<div class="warden-empty">No NPCs are assigned to this faction.</div>'}
+      </div>
+    `;
+  }
+
+  function renderNpcDetail(npc, state, index) {
+    if (!npc) return '<div class="warden-empty">SELECT AN NPC</div>';
+    return `<article class="warden-card" data-npc-index="${index}">
+      <div class="warden-card-title">${esc(npc.name)}</div>
+      <div class="warden-card-meta">${esc(npc.role || 'Role not recorded')} · ${esc(factionOf(npc))}</div>
+      <div class="warden-card-meta">PRIMARY LOCATION: ${esc(npc.location || '—')} · KNOWLEDGE: ${esc(npc.knowledge || '—')}</div>
+      <div class="warden-badges"><span class="warden-badge">${esc(npc.authorityStatus || 'CANON')}</span><span class="warden-badge warn">${esc(npc.availability || 'UNKNOWN')}</span></div>
+      <div class="warden-list-row"><strong>CURRENT STATE</strong><span>${esc(npc.currentState || '—')}</span></div>
+      <div class="warden-list-row"><strong>LAST CAMPAIGN BEAT</strong><span>${esc(npc.lastCampaignBeat || '—')}</span></div>
+      <div class="warden-list-row"><strong>OPEN OBLIGATION / PRESSURE</strong><span>${esc(npc.openObligation || '—')}</span></div>
+      <details class="warden-details"><summary>WARDEN DETAILS</summary>
+        <div class="warden-list-row"><strong>MOTIVATION</strong><span>${esc(npc.motivation || '—')}</span></div>
+        <div class="warden-list-row"><strong>PRESSURE / FEAR</strong><span>${esc(npc.pressureFear || '—')}</span></div>
+        <div class="warden-list-row"><strong>LEVERAGE</strong><span>${esc(npc.leverage || '—')}</span></div>
+        <div class="warden-list-row"><strong>IMMEDIATE NEED</strong><span>${esc(npc.immediateNeed || '—')}</span></div>
+        <div class="warden-list-row"><strong>WARDEN-ONLY NOTE</strong><span>${esc(npc.wardenOnlyNote || '—')}</span></div>
+        <div class="warden-list-row"><strong>OPERATIONAL NOTES</strong><span>${esc(npc.operationalNotes || '—')}</span></div>
+      </details>
+      <details class="warden-details warden-npc-update"><summary>UPDATE OPERATIONAL STATE</summary>
+        <form class="warden-npc-form">
+          <label class="warden-field-label">CURRENT STATE<textarea class="warden-field" name="currentState" rows="3" maxlength="800">${esc(npc.currentState || '')}</textarea></label>
+          <label class="warden-field-label">AVAILABILITY<select class="warden-field" name="availability">${['UNKNOWN','AVAILABLE','LIMITED','UNAVAILABLE'].map(value => `<option value="${value}" ${String(npc.availability || 'UNKNOWN').toUpperCase() === value ? 'selected' : ''}>${value}</option>`).join('')}</select></label>
+          <label class="warden-field-label">LAST CAMPAIGN BEAT<textarea class="warden-field" name="lastCampaignBeat" rows="3" maxlength="1400">${esc(npc.lastCampaignBeat || '')}</textarea></label>
+          <label class="warden-field-label">OPEN OBLIGATION / PRESSURE<textarea class="warden-field" name="openObligation" rows="3" maxlength="1600">${esc(npc.openObligation || '')}</textarea></label>
+          <label class="warden-field-label">OPERATIONAL NOTES<textarea class="warden-field" name="operationalNotes" rows="4" maxlength="2000">${esc(npc.operationalNotes || '')}</textarea></label>
+          <label class="warden-field-label">REASON FOR UPDATE<textarea class="warden-field" name="reason" rows="3" maxlength="1600" required></textarea></label>
+          <div class="warden-button-stack"><button class="warden-button primary warden-npc-preview" type="submit">PREVIEW CHANGE</button></div>
+          <div class="warden-npc-action-result"></div>
+        </form>
+      </details>
+      <div class="warden-npc-portrait"></div>
+      <button class="warden-button warden-load-portrait" type="button">LOAD PORTRAIT</button>
+    </article>`;
+  }
+
+  function renderDirectoryBody(root, state, npcs) {
+    reconcileView(npcs);
+    const selectedNpc = npcs.find(npc => String(npc.name || '') === view.npc) || null;
+    const body = root.querySelector('#wardenNpcDirectoryBody');
+    const context = root.querySelector('#wardenNpcDirectoryContext');
+    if (!body || !context) return;
+
+    if (!view.faction) {
+      context.innerHTML = '<span class="warden-status-chip">SELECT A FACTION OR SEARCH BY NAME</span>';
+      body.innerHTML = renderFactionGrid(npcs);
+    } else {
+      context.innerHTML = `<span class="warden-status-chip">FACTION // ${esc(view.faction)}</span><button type="button" class="warden-button" id="wardenNpcAllFactions">CHANGE FACTION</button>`;
+      body.innerHTML = `<section class="warden-section"><div class="warden-npc-directory-layout">${renderNpcIndex(npcs)}<div class="warden-npc-detail-host">${renderNpcDetail(selectedNpc, state, selectedNpc ? npcs.indexOf(selectedNpc) : -1)}</div></div></section>`;
+      root.querySelector('#wardenNpcAllFactions')?.addEventListener('click', () => {
+        view.faction = '';
+        view.npc = '';
+        renderDirectoryBody(root, state, npcs);
+      });
+      root.querySelectorAll('[data-npc-name]').forEach(button => {
+        button.addEventListener('click', () => {
+          view.npc = String(button.dataset.npcName || '');
+          renderDirectoryBody(root, state, npcs);
+          if (window.matchMedia?.('(max-width:760px)').matches) {
+            root.querySelector('.warden-npc-detail-host')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        });
+      });
+    }
+
+    root.querySelectorAll('[data-npc-faction]').forEach(button => {
+      button.addEventListener('click', () => {
+        view.faction = String(button.dataset.npcFaction || '');
+        view.npc = '';
+        renderDirectoryBody(root, state, npcs);
+      });
+    });
+
+    bindNpcDetail(root, state, npcs);
+  }
+
+  function renderSearchResults(root, state, npcs) {
+    const input = root.querySelector('#wardenNpcSearch');
+    const host = root.querySelector('#wardenNpcSearchResults');
+    if (!input || !host) return;
+    const query = normalize(input.value);
+    if (!query) {
+      host.hidden = true;
+      host.innerHTML = '';
+      return;
+    }
+    const matches = npcs
+      .filter(npc => normalize(npc.name).includes(query))
+      .sort((a, b) => {
+        const an = normalize(a.name), bn = normalize(b.name);
+        const ae = an === query ? 0 : an.startsWith(query) ? 1 : 2;
+        const be = bn === query ? 0 : bn.startsWith(query) ? 1 : 2;
+        return ae - be || an.localeCompare(bn);
+      })
+      .slice(0, 10);
+    host.innerHTML = matches.length ? matches.map(npc => `<button type="button" class="warden-npc-search-result" data-npc-search-name="${esc(npc.name || '')}"><strong>${esc(npc.name || 'Unnamed NPC')}</strong><span>${esc(npc.role || 'Role not recorded')} · ${esc(factionOf(npc))}</span></button>`).join('') : '<div class="warden-empty">No NPC names match that search.</div>';
+    host.hidden = false;
+    host.querySelectorAll('[data-npc-search-name]').forEach(button => {
+      button.addEventListener('click', () => {
+        const npc = npcs.find(item => String(item.name || '') === String(button.dataset.npcSearchName || ''));
+        if (!npc) return;
+        view.faction = factionOf(npc);
+        view.npc = String(npc.name || '');
+        input.value = '';
+        host.hidden = true;
+        host.innerHTML = '';
+        renderDirectoryBody(root, state, npcs);
+        root.querySelector('.warden-npc-detail-host')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
+  }
+
+  function bindNpcDetail(root, state, npcs) {
+    const button = root.querySelector('.warden-load-portrait');
+    if (button) {
+      const card = button.closest('[data-npc-index]');
+      const npc = npcs[Number(card?.dataset.npcIndex)];
+      if (npc) button.addEventListener('click', () => loadPortrait(button, state, npc.name));
+    }
+
+    const form = root.querySelector('.warden-npc-form');
+    if (form) {
+      const card = form.closest('[data-npc-index]');
+      const npc = npcs[Number(card?.dataset.npcIndex)];
+      if (npc) {
+        form.addEventListener('submit', event => {
+          event.preventDefault();
+          previewChange(form, state, npc.name);
+        });
+        form.addEventListener('input', () => {
+          form.dataset.stateToken = '';
+          form.querySelector('.warden-npc-action-result').innerHTML = '';
+        });
+        form.addEventListener('change', () => {
+          form.dataset.stateToken = '';
+          form.querySelector('.warden-npc-action-result').innerHTML = '';
+        });
+      }
+    }
+  }
+
   function render(root, state) {
+    installStyles();
     const feed = state.npcs;
     if (!feed?.ok) {
       root.innerHTML = '<div class="warden-empty">NPC FEED UNAVAILABLE</div>';
@@ -143,68 +377,34 @@
     }
     const npcs = Array.isArray(feed.npcs) ? feed.npcs : [];
     const mutationsEnabled = Boolean(state.mutationsEnabled);
+    reconcileView(npcs);
     root.innerHTML = `
-      <div class="warden-page-heading"><div><h1>NPCs</h1><p>CANON NPC continuity records. Preview operational-state changes before Commit.</p></div><div class="warden-status-chip">${mutationsEnabled ? 'LIVE MUTATIONS ENABLED' : 'PREVIEW ONLY // WRITES DISABLED'}</div></div>
-      <div class="warden-card-grid">
-        ${npcs.map((npc, index) => `<article class="warden-card" data-npc-index="${index}">
-          <div class="warden-card-title">${esc(npc.name)}</div>
-          <div class="warden-card-meta">${esc(npc.role || 'Role not recorded')} · ${esc(npc.faction || 'Unaffiliated / not recorded')}</div>
-          <div class="warden-card-meta">PRIMARY LOCATION: ${esc(npc.location || '—')} · KNOWLEDGE: ${esc(npc.knowledge || '—')}</div>
-          <div class="warden-badges"><span class="warden-badge">${esc(npc.authorityStatus || 'CANON')}</span><span class="warden-badge warn">${esc(npc.availability || 'UNKNOWN')}</span></div>
-          <div class="warden-list-row"><strong>CURRENT STATE</strong><span>${esc(npc.currentState || '—')}</span></div>
-          <div class="warden-list-row"><strong>LAST CAMPAIGN BEAT</strong><span>${esc(npc.lastCampaignBeat || '—')}</span></div>
-          <div class="warden-list-row"><strong>OPEN OBLIGATION / PRESSURE</strong><span>${esc(npc.openObligation || '—')}</span></div>
-          <details class="warden-details"><summary>WARDEN DETAILS</summary>
-            <div class="warden-list-row"><strong>MOTIVATION</strong><span>${esc(npc.motivation || '—')}</span></div>
-            <div class="warden-list-row"><strong>PRESSURE / FEAR</strong><span>${esc(npc.pressureFear || '—')}</span></div>
-            <div class="warden-list-row"><strong>LEVERAGE</strong><span>${esc(npc.leverage || '—')}</span></div>
-            <div class="warden-list-row"><strong>IMMEDIATE NEED</strong><span>${esc(npc.immediateNeed || '—')}</span></div>
-            <div class="warden-list-row"><strong>WARDEN-ONLY NOTE</strong><span>${esc(npc.wardenOnlyNote || '—')}</span></div>
-            <div class="warden-list-row"><strong>OPERATIONAL NOTES</strong><span>${esc(npc.operationalNotes || '—')}</span></div>
-          </details>
-          <details class="warden-details warden-npc-update"><summary>UPDATE OPERATIONAL STATE</summary>
-            <form class="warden-npc-form">
-              <label class="warden-field-label">CURRENT STATE<textarea class="warden-field" name="currentState" rows="3" maxlength="800">${esc(npc.currentState || '')}</textarea></label>
-              <label class="warden-field-label">AVAILABILITY<select class="warden-field" name="availability">${['UNKNOWN','AVAILABLE','LIMITED','UNAVAILABLE'].map(value => `<option value="${value}" ${String(npc.availability || 'UNKNOWN').toUpperCase() === value ? 'selected' : ''}>${value}</option>`).join('')}</select></label>
-              <label class="warden-field-label">LAST CAMPAIGN BEAT<textarea class="warden-field" name="lastCampaignBeat" rows="3" maxlength="1400">${esc(npc.lastCampaignBeat || '')}</textarea></label>
-              <label class="warden-field-label">OPEN OBLIGATION / PRESSURE<textarea class="warden-field" name="openObligation" rows="3" maxlength="1600">${esc(npc.openObligation || '')}</textarea></label>
-              <label class="warden-field-label">OPERATIONAL NOTES<textarea class="warden-field" name="operationalNotes" rows="4" maxlength="2000">${esc(npc.operationalNotes || '')}</textarea></label>
-              <label class="warden-field-label">REASON FOR UPDATE<textarea class="warden-field" name="reason" rows="3" maxlength="1600" required></textarea></label>
-              <div class="warden-button-stack"><button class="warden-button primary warden-npc-preview" type="submit">PREVIEW CHANGE</button></div>
-              <div class="warden-npc-action-result"></div>
-            </form>
-          </details>
-          <div class="warden-npc-portrait"></div>
-          <button class="warden-button warden-load-portrait" type="button">LOAD PORTRAIT</button>
-        </article>`).join('') || '<div class="warden-empty">No CANON NPCs returned.</div>'}
+      <div class="warden-page-heading"><div><h1>NPCs</h1><p>CANON NPC continuity records. Filter by faction or search by NPC name. Preview operational-state changes before Commit.</p></div><div class="warden-status-chip">${mutationsEnabled ? 'LIVE MUTATIONS ENABLED' : 'PREVIEW ONLY // WRITES DISABLED'}</div></div>
+      <div class="warden-npc-directory-tools">
+        <div class="warden-npc-search-wrap">
+          <label class="warden-field-label" for="wardenNpcSearch">SEARCH NPC NAME</label>
+          <input id="wardenNpcSearch" class="warden-field warden-npc-search" type="search" autocomplete="off" spellcheck="false" placeholder="TYPE A NAME…">
+          <div id="wardenNpcSearchResults" class="warden-npc-search-results" hidden></div>
+        </div>
+        <div id="wardenNpcDirectoryContext" class="warden-npc-directory-context"></div>
       </div>
+      <div id="wardenNpcDirectoryBody"></div>
       <section class="warden-section"><h2>Audited NPC Updates</h2>${renderHistory(feed, state)}</section>
       ${Array.isArray(feed.excluded) && feed.excluded.length ? `<section class="warden-section"><h2>Excluded Non-CANON Roster Rows</h2><div class="warden-small">${feed.excluded.map(x => `${esc(x.name)} — ${esc(x.reason)}`).join('<br>')}</div></section>` : ''}
     `;
 
-    root.querySelectorAll('.warden-load-portrait').forEach(button => {
-      const card = button.closest('[data-npc-index]');
-      const npc = npcs[Number(card?.dataset.npcIndex)];
-      if (npc) button.addEventListener('click', () => loadPortrait(button, state, npc.name));
+    const search = root.querySelector('#wardenNpcSearch');
+    search?.addEventListener('input', () => renderSearchResults(root, state, npcs));
+    search?.addEventListener('focus', () => renderSearchResults(root, state, npcs));
+    search?.addEventListener('keydown', event => {
+      if (event.key === 'Escape') {
+        search.value = '';
+        renderSearchResults(root, state, npcs);
+        search.blur();
+      }
     });
 
-    root.querySelectorAll('.warden-npc-form').forEach(form => {
-      const card = form.closest('[data-npc-index]');
-      const npc = npcs[Number(card?.dataset.npcIndex)];
-      if (!npc) return;
-      form.addEventListener('submit', event => {
-        event.preventDefault();
-        previewChange(form, state, npc.name);
-      });
-      form.addEventListener('input', () => {
-        form.dataset.stateToken = '';
-        form.querySelector('.warden-npc-action-result').innerHTML = '';
-      });
-      form.addEventListener('change', () => {
-        form.dataset.stateToken = '';
-        form.querySelector('.warden-npc-action-result').innerHTML = '';
-      });
-    });
+    renderDirectoryBody(root, state, npcs);
 
     root.querySelectorAll('.warden-npc-undo').forEach(button => {
       if (!mutationsEnabled || button.disabled) return;
