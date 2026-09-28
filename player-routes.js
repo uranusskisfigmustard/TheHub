@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const BUILD = '20260919-boardprod1';
+  const BUILD = '20260928-playerresources1';
   const groups = [
     {
       id: 'board', label: 'BOARD', defaultPage: 'contracts', pages: [
@@ -23,7 +23,8 @@
     },
     {
       id: 'reference', label: 'REFERENCE', defaultPage: 'reference', pages: [
-        { id: 'reference', label: 'PLAYER REFERENCE', href: 'player-reference.html', summary: 'Player-known rules and immediately relevant campaign reference material.' }
+        { id: 'reference', label: 'PLAYER REFERENCE', href: 'player-reference.html', summary: 'Player-known rules and immediately relevant campaign reference material.' },
+        { id: 'player-resources', label: 'PLAYER RESOURCES', href: 'https://drive.google.com/drive/folders/1JfcgouH1xCKI3P1bcKYztc2NzmeI--vs', summary: 'Player books and other shared campaign resources.' }
       ]
     }
   ];
