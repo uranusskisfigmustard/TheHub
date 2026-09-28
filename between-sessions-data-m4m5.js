@@ -36,6 +36,17 @@ window.BETWEEN_SESSION_PERIODS["m4-m5"] = {
             "The meal ends up quieter than either of you probably expected. Not uncomfortable…",
             "… just tired."
           ]
+        },
+        {
+          title: "The Muster",
+          paragraphs: [
+            "A message comes through for John late in the day. It’s from The Muster, an independent range used by security crews from across the Hub.",
+            "Your file managed to reach my desk. Clear enough you carried before, but these desk jockeys won’t recognize it. I can fix that.",
+            "It’ll cost ya, but I ain’t here to bleed you dry. Help around the range, do the grunt work, and we can bring the price down. Inventory, cleaning, maintenance. You know the drill.",
+            "Usually it won’t touch your regular work. About once a month, expect a long weekend. Once every three months, a long week.",
+            "If you want the slot, tell me.",
+            "— Márk Varga"
+          ]
         }
       ]
     }
