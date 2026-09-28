@@ -19,7 +19,6 @@
     const modalCard = modal?.querySelector('.purchase-modal-card');
     const modalTitle = root.querySelector('[data-purchase-modal-title]');
     const modalBody = root.querySelector('[data-purchase-modal-body]');
-    const cancelButton = root.querySelector('[data-purchase-cancel]');
     const confirmButton = root.querySelector('[data-purchase-confirm]');
 
     if (!pageStatus || !heading || !modal || !modalBody || !confirmButton) return;
@@ -71,8 +70,7 @@
         item: values.Item || '',
         price: values.Price || '',
         financed: values.Financed || '',
-        principalAfter: values['Principal After Purchase'] || '',
-        payment: values.Payment || (values.Financed ? 'Personal Balance + financing' : '')
+        principalAfter: values['Principal After Purchase'] || ''
       };
     }
 
@@ -161,7 +159,7 @@
       showResult(
         'financing',
         'FINANCING CONFIRMATION REQUIRED',
-        `The purchase has not been completed yet. Confirm the financing terms to continue.`,
+        'The purchase has not been completed yet. Confirm the financing terms to continue.',
         [
           ['ITEM', tx.item],
           ['BUYER / RECIPIENT', tx.buyer],
@@ -206,7 +204,8 @@
       if (confirm && !confirm.disabled) {
         pending = transactionSnapshot();
         attemptInFlight = true;
-        lastModalError = '';
+        const existingErrors = Array.from(modalBody.querySelectorAll('.purchase-modal-error'));
+        lastModalError = String(existingErrors.at(-1)?.textContent || '').trim();
         clearModalResultState();
         showResult(
           'processing',
