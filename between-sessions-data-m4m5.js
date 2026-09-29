@@ -19,6 +19,15 @@ window.BETWEEN_SESSION_PERIODS["m4-m5"] = {
             "The meal ends up quieter than either of you probably expected. Not uncomfortable…",
             "… just tired."
           ]
+        },
+        {
+          title: "C-18 Supplies and Computers Training",
+          paragraphs: [
+            "It takes longer than you expect to move everything. Not because of the weight, but because carrying the whole lot at once would be obvious. You break it up: a bag here, a box there, batteries tucked in with groceries, medical supplies under clothes, food split into smaller loads.",
+            "At some point, someone sees you coming back with another bag and gives you a look. “Jesus, Prue. Get an apartment and suddenly you’re stocking up?” You hesitate a little too long before answering, but they don't press the matter.",
+            "With each trip comes some training, all of it hands-on. Old systems. Improvised systems. Damaged systems. Half-working equipment that needs to be understood before it can be fixed. Before long, you stop expecting there to be a clean answer.",
+            "By the end of it, your head hurts more than your arm. But you're well on your way with training."
+          ]
         }
       ]
     },
