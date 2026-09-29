@@ -28,6 +28,17 @@ window.BETWEEN_SESSION_PERIODS["m4-m5"] = {
             "With each trip comes some training, all of it hands-on. Old systems. Improvised systems. Damaged systems. Half-working equipment that needs to be understood before it can be fixed. Before long, you stop expecting there to be a clean answer.",
             "By the end of it, your head hurts more than your arm. But you're well on your way with training."
           ]
+        },
+        {
+          title: "Dr. Pella Sorn",
+          paragraphs: [
+            "Asking Pella out goes better than you expected. She looks surprised for half a second, then says yes.",
+            "The actual date goes worse.",
+            "You make it there first and wait. Ten minutes becomes twenty. Twenty becomes forty. As you get up to leave, your tablet buzzes with a video call. It’s Dr. Pella.",
+            "“I’m sorry. I should have messaged you sooner. I got stuck here.” There is enough noise behind her that she probably means it literally. She explains that a patient’s records were challenged late in the shift and treatment was about to get held up while somebody figured out who was willing to authorize it. She stayed to make sure the patient actually got treated.",
+            "She pauses for a second.",
+            "“If you’re still willing, Thursday. I’m off at 6p. Somewhere nearby, but not so close that they can drag me back inside.”"
+          ]
         }
       ]
     },
