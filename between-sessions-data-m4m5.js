@@ -67,6 +67,16 @@ window.BETWEEN_SESSION_PERIODS["m4-m5"] = {
             "If you want the slot, tell me.",
             "— Márk Varga"
           ]
+        },
+        {
+          title: "Zero-G Training — Second Session",
+          paragraphs: [
+            "Nizar doesn't spend much time going back over what Prue already taught you. Once you're secured and everything has been checked twice, he takes you into a zero-G simulated environment and has you start moving.",
+            "The first few exercises are simple enough. Push off, cross the space, stop yourself without hitting anything. Turn around. Use the handholds. Keep your tether out of the way. Then he starts changing instructions halfway through and making you correct yourself while you're already moving.",
+            "At one point you try to stop a bad rotation and only make it worse. Nizar waits until you've got yourself under control before saying, “Stop fighting it. See where you're moving first.”",
+            "By the end of the session, you're tired and sore from catching yourself over and over, but you're not making the same mistakes as often.",
+            "Nizar nods toward the exit. “Next time you do it while you're working.”"
+          ]
         }
       ]
     }
