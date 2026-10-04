@@ -77,6 +77,15 @@ window.BETWEEN_SESSION_PERIODS["m4-m5"] = {
             "By the end of the two weeks, you're tired and sore from catching yourself over and over, but you're not making the same mistakes as often.",
             "Nizar nods toward the exit. “Next time you do it while you're working.”"
           ]
+        },
+        {
+          title: "Looking for a Crew",
+          paragraphs: [
+            "Between Zero-G training and helping at The Muster, you spend the little free time you have trying to meet more people around the Hub who have experience with ships, security, cargo work, or anything else that might be useful down the road.",
+            "You check in on Prue's \"Vent People\" when you can. Mostly making sure everyone is alright, talking to people, and learning a little more about who they are and what they did before ending up there.",
+            "You also keep working with Opal and the loading crews. The leadership discussions continue, and you start offering some basic hand-to-hand training to anyone interested. Nothing formal. Mostly practical stuff: staying on your feet, protecting yourself, and controlling somebody without immediately reaching for a weapon.",
+            "Between them, Nizar, and security people you meet at The Muster, you also start asking around about pilots, captains, experienced ship crews, and people who know that side of life on the Hub. For now, you're mostly making contacts and figuring out who is worth talking to again."
+          ]
         }
       ]
     }
