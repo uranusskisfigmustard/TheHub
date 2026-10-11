@@ -1,13 +1,12 @@
 (() => {
   'use strict';
 
-  const BUILD = '20261011-violet2';
+  const BUILD = '20261011-violet3';
   const POST_SOURCE = 'mothership-contract-service-post';
   const DEFAULT_SESSION_KEY = 'mothership_hub_board_session_v1';
   const DEFAULT_EXPIRY_KEY = 'mothership_hub_board_session_expiry_v1';
   const BUNDLE_CACHE_KEY = 'mothership_hub_purchase_bundle_v1';
   const STATIC_CHARACTERS = Object.freeze(['Prudence Greymore', 'John Sobieski', 'Violet Herpadermaferb']);
-  const PENDING_FINANCE_CHARACTERS = new Set(['Violet Herpadermaferb']);
 
   const esc = value => String(value ?? '')
     .replaceAll('&', '&amp;')
@@ -724,12 +723,6 @@
       if (!selectedCharacter) {
         authPanel.hidden = true;
         setStatus(sessionToken ? 'SELECT A PC // CATALOGS PRELOADING IN BACKGROUND' : 'SELECT A PC');
-        return;
-      }
-      if (PENDING_FINANCE_CHARACTERS.has(selectedCharacter)) {
-        authPanel.hidden = true;
-        market.hidden = true;
-        setStatus(`${selectedCharacter.toUpperCase()} // FINANCES TBD // PURCHASE ACCESS PENDING`, 'warn');
         return;
       }
       if (loadSession()) {
