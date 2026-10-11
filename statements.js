@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const BUILD = '20261011-violet1';
+  const BUILD = '20261011-violet2';
 
   const esc = value => String(value ?? '')
     .replaceAll('&', '&amp;')
@@ -85,7 +85,9 @@
       const data = {};
 
       (Array.isArray(payload.statements) ? payload.statements : []).forEach(item => {
-        const key = String(item?.key || '').trim().toLowerCase();
+        const rawKey = String(item?.key || '').trim().toLowerCase();
+        // Older statement-generator exports may still use the full-name slug.
+        const key = rawKey === 'violet-herpadermaferb' ? 'violet' : rawKey;
         if (key !== 'john' && key !== 'prue' && key !== 'violet') return;
 
         data[key] = {
@@ -104,8 +106,8 @@
         data.violet = {
           key: 'violet',
           character: 'VIOLET HERPADERMAFERB',
-          asOf: 'TBD',
-          statementText: '== HUB CLAIMS REGISTRY / RECOVERY DEBT ==\n\nSUBJECT: VIOLET HERPADERMAFERB\nACCOUNT STATUS: NOT YET ESTABLISHED\nFINANCES: TBD\n\nNo principal, accrued interest, Personal Balance, withholding tier, or recurring financial obligations have been established.'
+          asOf: '2237-283',
+          statementText: '== HUB CLAIMS REGISTRY / RECOVERY DEBT ==\n\nSUBJECT: VIOLET HERPADERMAFERB\nACCOUNT STATUS: STATEMENT REFRESH PENDING\n\nA provisional opening principal of 0cr and an M5 local settlement have been recorded. Violet’s separate financial agreement remains undecided. The detailed live statement will appear after the private statement service is updated and regenerated.'
         };
       }
 
