@@ -6,7 +6,7 @@
   const DEFAULT_SESSION_KEY = 'mothership_hub_board_session_v1';
   const DEFAULT_EXPIRY_KEY = 'mothership_hub_board_session_expiry_v1';
   const BUNDLE_CACHE_KEY = 'mothership_hub_purchase_bundle_v1';
-  const STATIC_CHARACTERS = Object.freeze(['Prudence Greymore', 'John Sobieski']);
+  const STATIC_CHARACTERS = Object.freeze(['Prudence Greymore', 'John Sobieski', 'Violet Herpadermaferb']);
 
   const esc = value => String(value ?? '')
     .replaceAll('&', '&amp;')
