@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const BUILD = '20260920-statements-fast1';
+  const BUILD = '20261011-violet1';
 
   const esc = value => String(value ?? '')
     .replaceAll('&', '&amp;')
@@ -26,10 +26,11 @@
     const who = root.querySelector('[data-statement-who]');
     const john = root.querySelector('[data-statement-character="john"]');
     const prue = root.querySelector('[data-statement-character="prue"]');
+    const violet = root.querySelector('[data-statement-character="violet"]');
     const printButton = root.querySelector('[data-statement-print]');
     const refresh = root.querySelector('[data-statement-refresh]');
 
-    if (!view || !status || !who || !john || !prue || !printButton || !refresh) {
+    if (!view || !status || !who || !john || !prue || !violet || !printButton || !refresh) {
       throw new Error('Statements page controls are incomplete.');
     }
 
@@ -50,8 +51,10 @@
 
       john.classList.toggle('active', selected === 'john');
       prue.classList.toggle('active', selected === 'prue');
+      violet.classList.toggle('active', selected === 'violet');
       john.setAttribute('aria-pressed', selected === 'john' ? 'true' : 'false');
       prue.setAttribute('aria-pressed', selected === 'prue' ? 'true' : 'false');
+      violet.setAttribute('aria-pressed', selected === 'violet' ? 'true' : 'false');
 
       if (!row) {
         view.innerHTML = '<div class="statement-error">Statement information unavailable.</div>';
@@ -83,7 +86,7 @@
 
       (Array.isArray(payload.statements) ? payload.statements : []).forEach(item => {
         const key = String(item?.key || '').trim().toLowerCase();
-        if (key !== 'john' && key !== 'prue') return;
+        if (key !== 'john' && key !== 'prue' && key !== 'violet') return;
 
         data[key] = {
           key,
@@ -93,8 +96,17 @@
         };
       });
 
-      if (!data.john && !data.prue) {
+      if (!data.john && !data.prue && !data.violet) {
         throw new Error('Statement feed returned no player rows.');
+      }
+
+      if (!data.violet) {
+        data.violet = {
+          key: 'violet',
+          character: 'VIOLET HERPADERMAFERB',
+          asOf: 'TBD',
+          statementText: '== HUB CLAIMS REGISTRY / RECOVERY DEBT ==\n\nSUBJECT: VIOLET HERPADERMAFERB\nACCOUNT STATUS: NOT YET ESTABLISHED\nFINANCES: TBD\n\nNo principal, accrued interest, Personal Balance, withholding tier, or recurring financial obligations have been established.'
+        };
       }
 
       return data;
@@ -252,6 +264,11 @@
 
     prue.addEventListener('click', () => {
       selected = 'prue';
+      renderView();
+    });
+
+    violet.addEventListener('click', () => {
+      selected = 'violet';
       renderView();
     });
 
