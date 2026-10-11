@@ -22,8 +22,9 @@
     const who = root.querySelector('[data-between-who]');
     const prue = root.querySelector('[data-between-character="prue"]');
     const john = root.querySelector('[data-between-character="john"]');
+    const violet = root.querySelector('[data-between-character="violet"]');
 
-    if (!selector || !view || !who || !prue || !john) {
+    if (!selector || !view || !who || !prue || !john || !violet) {
       throw new Error('Between Sessions page controls are incomplete.');
     }
 
@@ -45,11 +46,13 @@
 
       prue.classList.toggle('active', selectedCharacter === 'prue');
       john.classList.toggle('active', selectedCharacter === 'john');
+      violet.classList.toggle('active', selectedCharacter === 'violet');
       prue.setAttribute('aria-pressed', selectedCharacter === 'prue' ? 'true' : 'false');
       john.setAttribute('aria-pressed', selectedCharacter === 'john' ? 'true' : 'false');
+      violet.setAttribute('aria-pressed', selectedCharacter === 'violet' ? 'true' : 'false');
 
       if (!record) {
-        who.textContent = '';
+        who.textContent = selectedCharacter === 'violet' ? 'VIOLET HERPADERMAFERB' : '';
         view.innerHTML = '<div class="empty">NO INTERSESSION RECORD FOR THIS CHARACTER.</div>';
         return;
       }
@@ -86,6 +89,11 @@
 
     john.addEventListener('click', () => {
       selectedCharacter = 'john';
+      renderView();
+    });
+
+    violet.addEventListener('click', () => {
+      selectedCharacter = 'violet';
       renderView();
     });
 
