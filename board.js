@@ -346,7 +346,7 @@
         <div class="board-personal-info">
           <div class="board-personal-label">PERSONAL REQUEST</div>
           ${recipient ? `<div class="board-personal-recipient">For ${esc(recipient)}</div>` : ''}
-          <div class="board-personal-crew"><span aria-hidden="true">♧</span> CREW PARTICIPATION PERMITTED</div>
+          <div class="board-personal-crew">CREW PARTICIPATION PERMITTED</div>
         </div>
       </div>`;
     }
