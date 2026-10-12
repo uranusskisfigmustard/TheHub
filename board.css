@@ -8,3 +8,9 @@
 .board-personal-crew{font-size:.67rem;font-weight:900;letter-spacing:.035em;color:#d5d0c4}
 
 .board-personal-preview{border-style:dashed;border-color:#6e6d60}.board-preview-notice{margin-bottom:12px;color:#a9a28d;font-size:.67rem;font-weight:900;letter-spacing:.07em}
+
+/* Compact personal-request marker and distinct informational accents. */
+.board-personal-request{gap:8px;align-items:flex-start}
+.board-personal-star{flex:0 0 20px;width:20px;height:20px;border:0;background:none;border-radius:0;font-size:1.15rem;color:#e3b861;line-height:20px}
+.board-personal-label{color:#e3b861}
+.board-personal-crew{color:#8bd5d1;font-weight:900;letter-spacing:.05em}
