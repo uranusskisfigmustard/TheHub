@@ -336,6 +336,21 @@
       return `<div class="board-between simple"><strong>BETWEEN-SESSION</strong><details><summary>SIMPLE BETWEEN-SESSION WORK</summary><p>This is a short between-session job. Each participating character gains <strong>+1 Stress</strong> when the work is completed. The reward is split between participating characters.</p></details></div>`;
     }
 
+    function personalRequestBlock(job) {
+      const workType = String(job['Work Type'] || '').trim();
+      const match = workType.match(/^Personal Request(?:\s*[:—–-]\s*(?:For\s+)?(.+))?$/i);
+      if (!match) return '';
+      const recipient = String(match[1] || job['Requested PC'] || job['For PC'] || '').trim();
+      return `<div class="board-personal-request">
+        <span class="board-personal-star" aria-hidden="true">☆</span>
+        <div class="board-personal-info">
+          <div class="board-personal-label">PERSONAL REQUEST</div>
+          ${recipient ? `<div class="board-personal-recipient">For ${esc(recipient)}</div>` : ''}
+          <div class="board-personal-crew"><span aria-hidden="true">♧</span> CREW PARTICIPATION PERMITTED</div>
+        </div>
+      </div>`;
+    }
+
     function renderJobs() {
       const q = search.value.trim().toLowerCase();
       const workType = primary.value;
@@ -366,6 +381,7 @@
             : '<button class="board-action" type="button" disabled>REFRESHING…</button>'
           : '';
         return `<article class="board-card contract-card">
+          ${personalRequestBlock(job)}
           <div class="board-title">${esc(job.Title)}</div>
           <div class="board-pay">${esc(job.Pay)}</div>
           <div class="board-meta">${esc(job.Employer)}${job['Work Type'] ? ` · ${esc(job['Work Type'])}` : ''}</div>
