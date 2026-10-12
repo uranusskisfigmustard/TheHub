@@ -351,6 +351,16 @@
       </div>`;
     }
 
+    function personalRequestPreview() {
+      return `<article class="board-card contract-card board-personal-preview">
+        <div class="board-preview-notice">LAYOUT PREVIEW — NOT AN ACTIVE POSTING</div>
+        ${personalRequestBlock({ 'Work Type': 'Personal Request: John Sobieski' })}
+        <div class="board-title">THE MISSING SIX HOURS</div>
+        <div class="board-meta">Personal request · The Hub</div>
+        <div class="board-summary">A workplace acquaintance has asked John for help with a disputed access incident before a disciplinary review.</div>
+      </article>`;
+    }
+
     function renderJobs() {
       const q = search.value.trim().toLowerCase();
       const workType = primary.value;
@@ -369,10 +379,10 @@
       });
       count.textContent = `${filtered.length} of ${state.jobs.length} contract${state.jobs.length === 1 ? '' : 's'}`;
       if (!filtered.length) {
-        cards.innerHTML = `<div class="board-empty">${state.jobs.length ? 'No contracts match the current filters.' : 'No contracts are currently posted.'}</div>`;
+        cards.innerHTML = personalRequestPreview() + `<div class="board-empty">${state.jobs.length ? 'No contracts match the current filters.' : 'No contracts are currently posted.'}</div>`;
         return;
       }
-      cards.innerHTML = filtered.map(job => {
+      cards.innerHTML = personalRequestPreview() + filtered.map(job => {
         const jobId = String(job['Job ID'] || '').trim();
         const details = String(job.Details || '').trim();
         const action = jobId
