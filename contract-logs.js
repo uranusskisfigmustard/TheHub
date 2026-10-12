@@ -1,10 +1,18 @@
 (() => {
   'use strict';
 
-  const BUILD = '20260920-contract-logs-fast1';
+  const BUILD = '20261012-between-session-written1';
   const POST_SOURCE = 'mothership-contract-service-post';
   const MAX_SUBMISSION_CHARS = 2000;
   const JOBS_CACHE_KEY = 'mothership_hub_jobs_v5';
+  const WRITTEN_RESPONSE_PROMPTS = Object.freeze({
+    '5FY-N2K8-L6S3': 'Harvesting is behind schedule as maintenance arrives for the changeover. Describe your plan, what you prioritize, how you divide the work, and how you handle the competing demands.',
+    '2JG-R7M4-H9C1': 'Two community groups have overlapping bookings. The movable partitions are in poor condition and the existing layout interferes with both groups. Describe your proposed arrangement, how you speak with the groups, and how you handle the defective fixtures.'
+  });
+
+  function writtenResponsePrompt(record) {
+    return WRITTEN_RESPONSE_PROMPTS[String(record?.jobId || '').trim().toUpperCase()] || '';
+  }
 
   const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
@@ -84,13 +92,14 @@
   }
 
   function betweenSessionMarkup(record) {
-    const kind = betweenSessionKind(record);
+    const prompt = writtenResponsePrompt(record);
+    const kind = prompt ? 'medium' : betweenSessionKind(record);
     if (!kind) return '';
     const label = kind === 'medium'
       ? 'AWAITING SUMMARY'
       : kind === 'simple' ? 'BETWEEN-SESSION // SIMPLE' : 'BETWEEN-SESSION';
     const copy = kind === 'medium'
-      ? '<strong>Brief completion summary required.</strong><br>Send the Warden a short description of the difficulty you encountered and how your crew handled it. A few sentences is enough. Mention the approach, division of work, equipment, precautions, or other decisions that mattered.<br><br>A reasonable approach may resolve the contract without further action. Risky or incomplete approaches may have additional consequences. Each participating character gains <strong>+1 Stress</strong> when the work is completed. The reward is split between participating characters.'
+      ? '<strong>Written response required before closeout.</strong><br>Describe your approach, the decisions you make, the work you perform, and any precautions or negotiation. A few sentences are sufficient for ordinary short contracts; jobs with a specified writing prompt ask for approximately 2–4 paragraphs, within the submission field limit.<br><br>A reasonable approach may resolve the contract without further action. Risky or incomplete approaches may have additional consequences. Each participating character gains <strong>+1 Stress</strong> when the work is completed. The reward is split between participating characters.'
       : 'This is a short between-session job. Each participating character gains <strong>+1 Stress</strong> when the work is completed. The reward is split between participating characters.';
     return `
       <span class="between-session-state ${kind === 'simple' ? 'simple' : ''}">${esc(label)}</span>
@@ -253,11 +262,18 @@
 
     function submissionMarkup(record) {
       const key = String(record.contractId || record.jobId || '').trim();
+      const prompt = writtenResponsePrompt(record);
+      const required = Boolean(prompt) || betweenSessionKind(record) === 'medium';
+      const label = required ? 'WRITTEN RESPONSE REQUIRED' : 'WHAT DO YOU DO?';
+      const instructions = required
+        ? 'Enter your response here and submit it to the Warden. The work will not be closed or paid automatically. For this assignment, describe your decisions in approximately 2–4 paragraphs (maximum 2,000 characters).'
+        : 'Optional. Send a declared action to the Warden for review. Submitting does not resolve the contract.';
       return `
         <section class="contract-submission" data-contract-submission="${esc(key)}">
-          <div class="contract-submission-label">WHAT DO YOU DO?</div>
-          <p>Optional. Send a declared action to the Warden for review. Submitting does not resolve the contract.</p>
-          <textarea maxlength="${MAX_SUBMISSION_CHARS}" placeholder="Describe what you do…" aria-label="Describe what you do"></textarea>
+          <div class="contract-submission-label">${esc(label)}</div>
+          <p>${esc(instructions)}</p>
+          ${prompt ? `<p><strong>YOUR ASSIGNMENT:</strong> ${esc(prompt)}</p>` : ''}
+          <textarea maxlength="${MAX_SUBMISSION_CHARS}" placeholder="${required ? 'Describe your plan and decisions…' : 'Describe what you do…'}" aria-label="${required ? 'Required written response' : 'Describe what you do'}"></textarea>
           <div class="contract-submission-row">
             <div><span data-count>0 / ${MAX_SUBMISSION_CHARS}</span><span data-result aria-live="polite"></span></div>
             <button type="button">SUBMIT TO WARDEN</button>
