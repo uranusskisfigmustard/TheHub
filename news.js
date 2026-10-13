@@ -19,7 +19,13 @@
     if (value !== undefined && value !== null) el.textContent = String(value);
     return el;
   };
-  const validStamp = value => /^2237-\d{3}$/.test(String(value || ''));
+  const validStamp = value => /^\d{4}-\d{3}$/.test(String(value || ''));
+  // Defense in depth: malformed comments or accidental private editorial copy must never render.
+  const privateAnnotation = /in[- ]character|warden[- ]only|internal warden|no new event established|consistent with existing|unverified hearsay|no public incident confirmed/i;
+  const publicComment = c => c && typeof c.by === 'string' && c.by.trim()
+    && typeof c.text === 'string' && c.text.trim() && validStamp(c.date)
+    && !privateAnnotation.test(c.text) && !privateAnnotation.test(c.by)
+    && Object.keys(c).every(key => ['by','date','text'].includes(key));
   const makeMeta = (post) => {
     const lines = ['POSTED ' + post.date];
     if (post.originDate) lines.push('ORIGINAL ' + post.originDate);
@@ -97,7 +103,7 @@
           && typeof post.typeLabel === 'string' && Array.isArray(post.body)
           && post.body.every(p => typeof p === 'string')
           && (post.comments === undefined || (Array.isArray(post.comments)
-            && post.comments.every(c => c && typeof c.by === 'string' && typeof c.text === 'string')));
+            && post.comments.every(publicComment)));
         if (okay) ids.add(post.id);
         return okay;
       });
