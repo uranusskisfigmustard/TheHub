@@ -6,10 +6,10 @@
   const explainer = document.getElementById('newsExplainer');
   if (!feed || !filters || !status || !explainer) return;
   const descriptions = {
-    latest: 'The Hub has no single news authority. Sources may be incomplete, mistaken, or disputed.',
-    local: 'District notices, public statements, worksite reports, and station news.',
-    outside: 'Interstellar reports are physically delivered aboard ships. Their original dates may be far earlier than receipt.',
-    discussion: 'Recorded public conversations and eyewitness accounts. These are not verified official findings.'
+    latest: 'Things people are saying around the Hub. Not an official record, and not all of it is true.',
+    local: 'Local complaints, questions, warnings and whatever else people feel like posting.',
+    outside: 'Stuff from outside the system travels on ships. Check when it was written AND when it got here.',
+    discussion: 'General chat, rumors, arguments and questions. Take it all with a grain of salt.'
   };
   let records = [];
   let currentView = 'latest';
@@ -29,30 +29,32 @@
   function makePost(post) {
     const card = node('article', 'news-card');
     card.id = 'post-' + post.id;
-    const header = node('header');
-    header.append(node('span', 'news-type', post.typeLabel), node('span', 'news-meta', makeMeta(post)));
-    card.append(header, node('h2', '', post.title));
-    card.append(node('p', 'news-source', 'SOURCE: ' + post.source));
-    card.append(node('p', 'news-summary', post.summary));
-    const details = node('details');
-    const commentCount = Array.isArray(post.comments) ? post.comments.length : 0;
-    details.append(node('summary', '', 'READ REPORT' + (commentCount ? '  /  ' + commentCount + ' COMMENT' + (commentCount === 1 ? '' : 'S') : '')));
-    const body = node('div', 'news-body');
+    const header = node('header', 'news-thread-header');
+    const author = post.source.includes(' ') ? post.source : '@' + post.source;
+    header.append(node('span', 'news-author', author), node('span', 'news-meta', makeMeta(post)));
+    card.append(header, node('span', 'news-type', post.typeLabel), node('h2', '', post.title));
+    const body = node('div', 'news-body news-thread-body');
+    body.append(node('p', 'news-summary', post.summary));
     post.body.forEach(p => body.append(node('p', '', p)));
-    details.append(body);
+    card.append(body);
+    const commentCount = Array.isArray(post.comments) ? post.comments.length : 0;
     if (commentCount) {
+      const details = node('details', 'news-replies');
+      details.append(node('summary', '', 'SHOW ' + commentCount + ' REPL' + (commentCount === 1 ? 'Y' : 'IES')));
       const section = node('section', 'news-comments');
-      section.append(node('h3', '', 'PUBLIC DISCUSSION  /  READ ONLY'));
+      section.append(node('h3', '', 'REPLIES  /  READ ONLY'));
       for (const comment of post.comments) {
         const item = node('div', 'news-comment');
-        const who = node('strong', '', comment.by);
+        const who = node('strong', '', comment.by.includes(' ') ? comment.by : '@' + comment.by);
         const when = node('span', '', comment.date || post.date);
         item.append(who, when, node('p', '', comment.text));
         section.append(item);
       }
       details.append(section);
+      card.append(details);
+    } else {
+      card.append(node('p', 'news-no-replies', 'NO REPLIES YET  /  READ ONLY'));
     }
-    card.append(details);
     return card;
   }
   function render() {
@@ -63,12 +65,12 @@
     const chosen = records.filter(p => currentView === 'latest' ||
       (currentView === 'local' && p.category === 'local') ||
       (currentView === 'outside' && p.category === 'outside') ||
-      (currentView === 'discussion' && (p.category === 'discussion' || (p.comments || []).length > 0)));
+      (currentView === 'discussion' && p.category === 'discussion'));
     feed.replaceChildren();
     if (!chosen.length) {
       feed.append(node('p', 'news-empty', currentView === 'outside'
-        ? 'No outside dispatches have been selected for this public feed. This does not mean no off-Hub reports exist.'
-        : 'No published entries in this section.'));
+        ? "No off-Hub posts have reached this board yet. That does not mean there is no off-Hub news."
+        : 'Nothing posted here yet.'));
     } else chosen.forEach(p => feed.append(makePost(p)));
     feed.setAttribute('aria-busy', 'false');
   }
@@ -100,7 +102,7 @@
         return okay;
       });
       records.sort((a,b) => b.date.localeCompare(a.date) || a.id.localeCompare(b.id));
-      status.textContent = 'LOCAL ARCHIVE // THROUGH ' + payload.asOf;
+      status.textContent = 'LAST PUBLIC COPY  /  ' + payload.asOf;
       render();
       const hash = location.hash.slice(1);
       if (/^post-[a-z0-9-]+$/.test(hash)) {
