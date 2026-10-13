@@ -9,6 +9,14 @@ STAMP = re.compile(r"^\d{4}-\d{3}$")
 IDENT = re.compile(r"^[a-z0-9-]{2,80}$")
 CATEGORIES = {"local", "outside", "discussion"}
 
+# Approved editorial rule for player-facing News only; does not rename setting canon.
+BANNED_PUBLIC_WORD = re.compile(r"\bspine\b", re.IGNORECASE)
+
+def check_public_wording(value, field):
+    if BANNED_PUBLIC_WORD.search(value):
+        raise ValueError(f"{field}: prohibited News wording detected (Spine)")
+    return value
+
 def rows(path):
     with open(path, "r", newline="", encoding="utf-8-sig") as stream:
         return list(csv.DictReader(stream))
@@ -70,6 +78,13 @@ def build(posts_file, comments_file, as_of):
         by_id[ident]["comments"].append((int(order), dict(by=name,date=date,text=message)))
     for post in posts:
         post["comments"] = [comment for _,comment in sorted(post["comments"])]
+        for key in ("typeLabel", "title", "source", "summary"):
+            check_public_wording(post[key], f"{post['id']} {key}")
+        for i, paragraph in enumerate(post["body"], 1):
+            check_public_wording(paragraph, f"{post['id']} body {i}")
+        for i, comment in enumerate(post["comments"], 1):
+            check_public_wording(comment["by"], f"{post['id']} comment {i} author")
+            check_public_wording(comment["text"], f"{post['id']} comment {i} text")
     posts.sort(key=lambda p:(p["date"],p["id"]),reverse=True)
     return dict(schemaVersion=1,asOf=as_of,publicationMode="warden-curated",posts=posts)
 
