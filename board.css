@@ -7,7 +7,6 @@
 .board-personal-recipient{font-size:.83rem;font-weight:900}
 .board-personal-crew{font-size:.67rem;font-weight:900;letter-spacing:.035em;color:#d5d0c4}
 
-.board-personal-preview{border-style:dashed;border-color:#6e6d60}.board-preview-notice{margin-bottom:12px;color:#a9a28d;font-size:.67rem;font-weight:900;letter-spacing:.07em}
 
 /* Compact personal-request marker and distinct informational accents. */
 .board-personal-request{gap:8px;align-items:flex-start}
