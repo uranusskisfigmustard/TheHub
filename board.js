@@ -375,6 +375,14 @@
         : title;
     }
 
+    function displayJobWorkType(job) {
+      const value = String(job['Work Type'] || '').trim();
+      if (!isPersonalRequest(job)) return value;
+      if (/^Personal Request\s*\//i.test(value)) return value.replace(/^Personal Request\s*\/\s*/i, '');
+      if (/^Personal Request\s*[:—–-]/i.test(value)) return '';
+      return value;
+    }
+
     function renderJobs() {
       const q = search.value.trim().toLowerCase();
       const workType = primary.value;
@@ -408,7 +416,7 @@
           ${personalRequestBlock(job)}
           <div class="board-title">${esc(displayJobTitle(job))}</div>
           <div class="board-pay">${esc(job.Pay)}</div>
-          <div class="board-meta">${esc(job.Employer)}${job['Work Type'] ? ` · ${esc(job['Work Type'])}` : ''}</div>
+          <div class="board-meta">${esc(job.Employer)}${displayJobWorkType(job) ? ` · ${esc(displayJobWorkType(job))}` : ''}</div>
           ${qualificationBox(job)}
           <div class="board-summary">${esc(job.Summary)}</div>
           ${details ? `<details class="board-details"><summary>View Details</summary><div>${esc(details)}</div></details>` : ''}
