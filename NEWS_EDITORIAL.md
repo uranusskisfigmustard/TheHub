@@ -15,6 +15,15 @@ Status: CANON design approved 13 October 2026; deployment and public feed public
 - M5 had no public broadcast or organized recognition. Preserve its ordinary gratitude and gradual word of mouth.
 - Player-facing News terminology: do not use the word **Spine** (case-insensitive) in articles, source labels, or NPC comments. Prefer **Public Transit** when referring to ordinary passenger transportation. This does not rename established setting canon. The exporter enforces the restriction.
 
+## Chronology and independent world progression
+- The published feed is a history of in-game posts, not a feed freshly created on the current date. Retain original post dates, allow older threads to revive, show both post and latest-reply dates, and order by latest activity. Reply dates cannot precede their post or exceed the recorded campaign endpoint.
+- Update posts in response to actual in-game time advances and meaningful events, not real-world elapsed time. There is no fixed posts-per-session quota; some threads end quietly.
+- NPCs, factions, employers and other contractors act while the PCs are absent. At session close, downtime advancement, or another meaningful time skip, check existing Campaign Thread Ledger / Continuity Tracker owners and Mission Board lifecycle. Adjudicate independent choices and consequences using established interests, resources, pressure and opportunity; record the outcome in the narrow owning state before publishing reactions.
+- An ignored situation may be solved, negotiated, worsened, transferred, abandoned or closed by other people. Do not prewrite inevitable disasters or force one ending; declining work does not itself punish the PCs. PC actions can modify the outcome, timing and costs but are not a prerequisite for movement.
+- Posts and replies report only what their fictional authors could know. Distinguish established outcomes from bias, misunderstanding and rumor; never let a public rumor itself establish a hidden event. Ongoing labor/union talk does not establish a union, a strike, or a new management concession without independent recorded advancement.
+- Initial 2237-283 mix approved: 11 posts (6 ordinary Hub life, 3 M2 worker-safety/representation/privacy discussions, 1 public Working the Old Ground listing, 1 public Recirculation Contamination Trace listing). Keep M5 word of mouth gradual; do not reveal confidential SUSTAIN-9, corporate chains, the carrier's status or future mission outcomes.
+- This is an editorial and session-review rule, not an autonomous real-time service. Each recorded campaign-time advance must be adjudicated, then selectively reflected here. The board never decides mission outcomes by itself.
+
 ## Private editorial source
 WARDEN-ONLY Google Sheet:
 https://docs.google.com/spreadsheets/d/1dulNV520TgHCJVYHe2rg8Xl9vBwdk-Fm1vzOqrA_7Mo/edit
