@@ -12,21 +12,21 @@
 .news-explainer{margin:0 0 17px;line-height:1.6}
 .news-feed{display:grid;gap:16px}
 .news-card{padding:19px 22px;border:1px solid var(--line);background:var(--panel);border-radius:4px}
-.news-card header{display:flex;justify-content:space-between;gap:8px 18px;flex-wrap:wrap;margin-bottom:9px}
-.news-type{color:var(--accent);font-weight:800}.news-meta{color:var(--muted)}
-.news-card h2{font-size:1.2rem;line-height:1.35;margin:0 0 9px}
-.news-source{font-size:.74rem;color:var(--muted);margin:0 0 13px}
-.news-summary{color:var(--text);margin:0;line-height:1.58;font-size:.9rem}
+.news-card header{display:flex;justify-content:space-between;align-items:center;gap:8px 18px;flex-wrap:wrap;border-bottom:1px solid #34393c;padding-bottom:10px;margin-bottom:13px}
+.news-type{color:var(--accent);font-weight:800;display:inline-block;margin-bottom:5px}.news-author{color:var(--text);font-weight:900;font-size:.9rem}.news-meta{color:var(--muted)}
+.news-card h2{font-size:1.2rem;line-height:1.35;margin:0 0 12px}
+.news-no-replies{border-top:1px solid var(--line);padding-top:13px;margin:14px 0 0;font-size:.72rem;color:var(--muted)}
+.news-summary{color:var(--text);font-size:.96rem}
 .news-card details{border-top:1px solid var(--line);margin-top:15px;padding-top:13px}
 .news-card summary{cursor:pointer;list-style:none;font-size:.78rem;letter-spacing:.06em;color:var(--accent);font-weight:800;display:flex;gap:8px;align-items:center}
 .news-card summary::-webkit-details-marker{display:none}
 .news-card summary::before{content:'+';font-size:1.15rem}
 .news-card details[open]>summary::before{content:'−'}
-.news-body{padding:7px 0 0}
-.news-body p{font-size:.87rem;line-height:1.65;margin:11px 0;color:var(--text)}
-.news-comments{border-top:1px solid var(--line);margin-top:15px;padding-top:14px}
+.news-body{padding:0}
+.news-body p{font-size:.93rem;line-height:1.6;margin:0 0 10px;color:var(--text)}
+.news-comments{padding-top:12px}
 .news-comments h3{font-size:.77rem;text-transform:uppercase;letter-spacing:.06em;margin:0 0 12px;color:var(--muted)}
-.news-comment{border-left:2px solid #555b5e;padding:2px 0 5px 12px;margin:0 0 15px}
+.news-comment{border-left:2px solid #555b5e;padding:6px 0 6px 12px;margin:0 0 12px;background:rgba(255,255,255,.015)}
 .news-comment strong{font-size:.82rem}.news-comment span{font-size:.7rem;color:var(--muted);margin-left:10px}
 .news-comment p{margin:6px 0 0;font-size:.86rem;line-height:1.56}
 .news-empty{padding:26px;border:1px dashed var(--line);color:var(--muted);background:var(--panel)}
