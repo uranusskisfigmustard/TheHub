@@ -1,0 +1,73 @@
+{
+  "schemaVersion": 1,
+  "asOf": "2237-283",
+  "publicationMode": "warden-curated",
+  "posts": [
+    {
+      "id": "hub-info-001",
+      "visibility": "PUBLIC",
+      "date": "2237-283",
+      "category": "local",
+      "typeLabel": "HUB NOTICE / PUBLIC INFORMATION",
+      "title": "Passenger Spine: Travel Between Districts",
+      "source": "Public Transit / Passenger Spine",
+      "summary": "Passenger trams, lifts, and pedestrian connectors serve the Hub's main districts. Ordinary passenger service is free.",
+      "body": [
+        "Freight traffic uses separate industrial routes. Public passenger access does not authorize entry into controlled work areas.",
+        "A work credential may establish eligibility for specific duties or facilities, but it is not a universal access pass."
+      ],
+      "comments": []
+    },
+    {
+      "id": "hub-info-002",
+      "visibility": "PUBLIC",
+      "date": "2237-283",
+      "category": "local",
+      "typeLabel": "PORT PROCEDURE / PUBLIC INFORMATION",
+      "title": "Who Handles a Held Cargo Release?",
+      "source": "Freight Concourse public procedure",
+      "summary": "An active cargo hold may require separate handling, commercial, guarantee, and claims decisions. One desk cannot clear every restriction.",
+      "body": [
+        "Dock Labor Assembly handles work-floor safety and labor access. Ledger Quay handles commercial manifests, release recognition, and bonded procedure.",
+        "Bonded Freight Brokers may handle guarantees. The Hub Claims Registry handles relevant disputes over title, custody, liens, and identity. The responsible office depends on the specific issue."
+      ],
+      "comments": [
+        {
+          "by": "shiftline",
+          "date": "2237-283",
+          "text": "Ask which hold is actually in force before getting bounced between counters."
+        },
+        {
+          "by": "quayrunner",
+          "date": "2237-283",
+          "text": "An authorized release on paper still isn't permission to work the floor."
+        }
+      ]
+    },
+    {
+      "id": "hub-info-003",
+      "visibility": "PUBLIC",
+      "date": "2237-283",
+      "category": "discussion",
+      "typeLabel": "PUBLIC DISCUSSION / STATION LIFE",
+      "title": "Where Do You Hear News Before It Reaches a Terminal?",
+      "source": "General / Unaffiliated public discussion",
+      "summary": "Residents discuss the mix of district notices, workplace briefings, visiting crews, and word of mouth.",
+      "body": [
+        "Local information moves through many channels. A claim can circulate widely without being corroborated. A public terminal entry is not proof that everyone on the Hub has seen it."
+      ],
+      "comments": [
+        {
+          "by": "thirdwatch",
+          "date": "2237-283",
+          "text": "Work briefings are good for what's happening on your own shift. Not much else."
+        },
+        {
+          "by": "canteenqueue",
+          "date": "2237-283",
+          "text": "Word of mouth gets there first. Getting the details right is another matter."
+        }
+      ]
+    }
+  ]
+}
