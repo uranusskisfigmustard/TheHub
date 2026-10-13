@@ -78,6 +78,8 @@ def build(posts_file, comments_file, as_of):
         if not name or not message:
             raise ValueError(f"{ident}: empty public comment")
         date = date_check(cell(r,"Posted Date"), ident + " comment", as_of)
+        if date < by_id[ident]["date"]:
+            raise ValueError(f"{ident}: comment dated before original post")
         by_id[ident]["comments"].append((int(order), dict(by=name,date=date,text=message)))
     for post in posts:
         post["comments"] = [comment for _,comment in sorted(post["comments"])]
@@ -88,7 +90,10 @@ def build(posts_file, comments_file, as_of):
         for i, comment in enumerate(post["comments"], 1):
             check_public_wording(comment["by"], f"{post['id']} comment {i} author")
             check_public_wording(comment["text"], f"{post['id']} comment {i} text")
-    posts.sort(key=lambda p:(p["date"],p["id"]),reverse=True)
+    posts.sort(key=lambda p:(
+        max([p["date"]] + [c["date"] for c in p["comments"]]),
+        p["date"], p["id"]
+    ), reverse=True)
     return dict(schemaVersion=1,asOf=as_of,publicationMode="warden-curated",posts=posts)
 
 def main():
