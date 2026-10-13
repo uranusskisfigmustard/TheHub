@@ -3,35 +3,35 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="description" content="The Hub public information feed, outside dispatches, and local discussions.">
+  <meta name="description" content="Hub message board: local news, rumors, discussions, and off-Hub dispatches.">
   <title>The Hub — News</title>
   <link rel="stylesheet" href="player-shell.css?v=20261013-news1">
-  <link rel="stylesheet" href="news.css?v=20261013-news1">
+  <link rel="stylesheet" href="news.css?v=20261013-forum1">
 </head>
 <body data-page="news">
   <div id="playerShell"></div>
   <main class="player-main">
     <section class="news-page" aria-label="Public news feed">
       <header class="news-heading">
-        <div><div class="news-kicker">PUBLIC INFORMATION / READ-ONLY ARCHIVE</div>
+        <div><div class="news-kicker">HUB MESSAGE BOARD  /  READ ONLY</div>
           <h1>NEWS &amp; DISCUSSIONS</h1>
-          <p>Local reporting, public notices, outside dispatches, and conversations circulating on the Hub.</p>
+          <p>Questions, rumors, arguments and the occasional real notice. Nobody agrees on anything.</p>
         </div>
-        <div class="news-reception" id="newsReception" aria-live="polite">LOADING PUBLIC RECORDS</div>
+        <div class="news-reception" id="newsReception" aria-live="polite">LOADING POSTS</div>
       </header>
       <nav class="news-filters" aria-label="News categories" id="newsFilters">
-        <button type="button" data-view="latest" aria-pressed="true">LATEST</button>
-        <button type="button" data-view="local" aria-pressed="false">HUB NEWS</button>
-        <button type="button" data-view="outside" aria-pressed="false">OUTSIDE DISPATCHES</button>
-        <button type="button" data-view="discussion" aria-pressed="false">DISCUSSIONS</button>
+        <button type="button" data-view="latest" aria-pressed="true">ALL POSTS</button>
+        <button type="button" data-view="local" aria-pressed="false">HUB POSTS</button>
+        <button type="button" data-view="outside" aria-pressed="false">OFF-HUB</button>
+        <button type="button" data-view="discussion" aria-pressed="false">GENERAL CHAT</button>
       </nav>
-      <p class="news-explainer" id="newsExplainer">The Hub has no single news authority. Sources may be incomplete, mistaken, or disputed.</p>
+      <p class="news-explainer" id="newsExplainer">Things people are saying around the Hub. Not an official record, and not all of it is true.</p>
       <div id="newsFeed" class="news-feed" aria-live="polite" aria-busy="true"></div>
     </section>
   </main>
   <noscript><div class="hub-shell-fatal">JavaScript is required for the public news archive.</div></noscript>
   <script src="player-routes.js?v=20261013-news1"></script>
   <script src="player-shell.js?v=20260919-news1"></script>
-  <script src="news.js?v=20261013-news1"></script>
+  <script src="news.js?v=20261013-forum1"></script>
 </body>
 </html>
