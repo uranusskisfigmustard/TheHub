@@ -3,7 +3,7 @@
 Status: CANON design approved 13 October 2026; deployment and public feed publication must be verified separately.
 
 ## Purpose
-- NEWS is a distinct player console section, not a Mission Board contract category.
+- NEWS & DISCUSSIONS is a subpage of the BOARD navigation, alongside CONTRACTS and CLASSIFIEDS; it is not a Mission Board contract category. The NEWS & DISCUSSIONS page, read-only permissions, editorial records and sanitized feed remain independent of Contracts and Classifieds.
 - Players cannot post, reply, vote, or edit. The page has no submission endpoint.
 - All news and replies are Warden-authored as in-fiction public material. Sources are limited, biased, and sometimes wrong.
 - Everyday entries should read like messages from residents, not formal summaries: distinct handles, varied contractions, shorthand, occasional typos, inconsistent punctuation, disagreement and incomplete understanding. Do not force errors into every sentence; preserve legibility and each poster's individual voice. Verified public notices and authentic outside dispatches can be more formally written and clearly labeled.
