@@ -11,10 +11,13 @@ CATEGORIES = {"local", "outside", "discussion"}
 
 # Approved editorial rule for player-facing News only; does not rename setting canon.
 BANNED_PUBLIC_WORD = re.compile(r"\bspine\b", re.IGNORECASE)
+PRIVATE_EDITORIAL_COPY = re.compile(r"in[- ]character|warden[- ]only|internal warden|no new event established|consistent with existing|unverified hearsay|no public incident confirmed", re.IGNORECASE)
 
 def check_public_wording(value, field):
     if BANNED_PUBLIC_WORD.search(value):
         raise ValueError(f"{field}: prohibited News wording detected (Spine)")
+    if PRIVATE_EDITORIAL_COPY.search(value):
+        raise ValueError(f"{field}: probable private Warden editorial note in public field")
     return value
 
 def rows(path):
