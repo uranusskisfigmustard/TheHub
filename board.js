@@ -336,11 +336,24 @@
       return `<div class="board-between simple"><strong>BETWEEN-SESSION</strong><details><summary>SIMPLE BETWEEN-SESSION WORK</summary><p>This is a short between-session job. Each participating character gains <strong>+1 Stress</strong> when the work is completed. The reward is split between participating characters.</p></details></div>`;
     }
 
-    function personalRequestBlock(job) {
+    function personalRequestRecipient(job) {
       const workType = String(job['Work Type'] || '').trim();
-      const match = workType.match(/^Personal Request(?:\s*[:—–-]\s*(?:For\s+)?(.+))?$/i);
-      if (!match) return '';
-      const recipient = String(match[1] || job['Requested PC'] || job['For PC'] || '').trim();
+      const direct = workType.match(/^Personal Request\s*[:—–-]\s*(?:For\s+)?(.+)$/i);
+      if (direct) return direct[1].trim();
+      const explicit = String(job['Requested PC'] || job['For PC'] || '').trim();
+      if (explicit) return explicit;
+      const detailHeader = String(job.Details || '').match(/^PERSONAL REQUEST\s*[—–:-]\s*(.+)$/im);
+      return detailHeader ? detailHeader[1].trim() : '';
+    }
+
+    function isPersonalRequest(job) {
+      return /^Personal Request\b/i.test(String(job['Work Type'] || '').trim()) ||
+        /^Personal Request\s*[—–:-]/i.test(String(job.Title || '').trim());
+    }
+
+    function personalRequestBlock(job) {
+      if (!isPersonalRequest(job)) return '';
+      const recipient = personalRequestRecipient(job);
       return `<div class="board-personal-request">
         <span class="board-personal-star" aria-hidden="true">☆</span>
         <div class="board-personal-info">
@@ -349,6 +362,13 @@
           <div class="board-personal-crew">CREW PARTICIPATION PERMITTED</div>
         </div>
       </div>`;
+    }
+
+    function displayJobTitle(job) {
+      const title = String(job.Title || '');
+      return isPersonalRequest(job)
+        ? title.replace(/^\s*PERSONAL REQUEST\s*[—–:-]\s*/i, '')
+        : title;
     }
 
     function renderJobs() {
@@ -382,7 +402,7 @@
           : '';
         return `<article class="board-card contract-card">
           ${personalRequestBlock(job)}
-          <div class="board-title">${esc(job.Title)}</div>
+          <div class="board-title">${esc(displayJobTitle(job))}</div>
           <div class="board-pay">${esc(job.Pay)}</div>
           <div class="board-meta">${esc(job.Employer)}${job['Work Type'] ? ` · ${esc(job['Work Type'])}` : ''}</div>
           ${qualificationBox(job)}
