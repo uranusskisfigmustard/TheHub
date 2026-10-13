@@ -26,8 +26,10 @@
     && typeof c.text === 'string' && c.text.trim() && validStamp(c.date)
     && !privateAnnotation.test(c.text) && !privateAnnotation.test(c.by)
     && Object.keys(c).every(key => ['by','date','text'].includes(key));
+  const lastActivity = post => (post.comments || []).reduce((latest, item) => item.date > latest ? item.date : latest, post.date);
   const makeMeta = (post) => {
     const lines = ['POSTED ' + post.date];
+    if (lastActivity(post) !== post.date) lines.push('LATEST REPLY ' + lastActivity(post));
     if (post.originDate) lines.push('ORIGINAL ' + post.originDate);
     if (post.receivedDate) lines.push('RECEIVED ' + post.receivedDate);
     return lines.join('  /  ');
@@ -107,7 +109,7 @@
         if (okay) ids.add(post.id);
         return okay;
       });
-      records.sort((a,b) => b.date.localeCompare(a.date) || a.id.localeCompare(b.id));
+      records.sort((a,b) => lastActivity(b).localeCompare(lastActivity(a)) || b.date.localeCompare(a.date) || a.id.localeCompare(b.id));
       status.textContent = 'LAST PUBLIC COPY  /  ' + payload.asOf;
       render();
       const hash = location.hash.slice(1);
