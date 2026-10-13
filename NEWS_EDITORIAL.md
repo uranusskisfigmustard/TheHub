@@ -10,6 +10,7 @@ Status: CANON design approved 13 October 2026; deployment and public feed public
 - Outside reports arrive aboard ships, not by FTL communications. Keep original and received dates.
 - No essential clue, plot viability, or formal contract automatically hinges on reading the feed.
 - M5 had no public broadcast or organized recognition. Preserve its ordinary gratitude and gradual word of mouth.
+- Player-facing News terminology: do not use the word **Spine** (case-insensitive) in articles, source labels, or NPC comments. Prefer **Public Transit** when referring to ordinary passenger transportation. This does not rename established setting canon. The exporter enforces the restriction.
 
 ## Private editorial source
 WARDEN-ONLY Google Sheet:
