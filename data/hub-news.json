@@ -8,39 +8,60 @@
       "visibility": "PUBLIC",
       "date": "2237-283",
       "category": "local",
-      "typeLabel": "HUB NOTICE / PUBLIC INFORMATION",
-      "title": "Public Transit: Travel Between Districts",
-      "source": "Public Transit",
-      "summary": "Passenger trams, lifts, and pedestrian connectors serve the Hub's main districts. Ordinary passenger service is free.",
+      "typeLabel": "GETTING AROUND",
+      "title": "tram or just walk lol",
+      "source": "tram_or_walk",
+      "summary": "ok dumb question. are the trams actually free or is that only certain stops??",
       "body": [
-        "Freight traffic uses separate industrial routes. Public passenger access does not authorize entry into controlled work areas.",
-        "A work credential may establish eligibility for specific duties or facilities, but it is not a universal access pass."
+        "been walking bc the lifts confuse the hell outta me. dont wanna end up on a freight deck by accident",
+        "also my work badge doesnt mean i can use the freight routes right? guy on shift swears it does but i dont trust him"
       ],
-      "comments": []
+      "comments": [
+        {
+          "by": "bootsonthedeck",
+          "date": "trams are free. freight routes are a diffrent thing, dont go wandering into a work area bc some guy said its fine",
+          "text": "In-character reply; consistent with existing transit/access setting."
+        },
+        {
+          "by": "tram_sleeper",
+          "date": "depends what ur badge is actually for. its not a pass to every door lol",
+          "text": "In-character reply; consistent with existing access limits."
+        },
+        {
+          "by": "tram_or_walk",
+          "date": "ok so i CAN stop walking everywhere. thx",
+          "text": "In-character acknowledgment; not a new world event."
+        }
+      ]
     },
     {
       "id": "hub-info-002",
       "visibility": "PUBLIC",
       "date": "2237-283",
       "category": "local",
-      "typeLabel": "PORT PROCEDURE / PUBLIC INFORMATION",
-      "title": "Who Handles a Held Cargo Release?",
-      "source": "Freight Concourse public procedure",
-      "summary": "An active cargo hold may require separate handling, commercial, guarantee, and claims decisions. One desk cannot clear every restriction.",
+      "typeLabel": "FREIGHT / HELP",
+      "title": "who the hell clears a cargo hold",
+      "source": "manifest_mess",
+      "summary": "been told to ask 3 different desks n every desk says 'not us'. is there ONE person that actually signs this stuff off??",
       "body": [
-        "Dock Labor Assembly handles work-floor safety and labor access. Ledger Quay handles commercial manifests, release recognition, and bonded procedure.",
-        "Bonded Freight Brokers may handle guarantees. The Hub Claims Registry handles relevant disputes over title, custody, liens, and identity. The responsible office depends on the specific issue."
+        "labor talks about floor access, quay wants the manifest, somebody else says call a broker. i'm just trying to figure out which bit belongs to who",
+        "edit: its a QUESTION. stop msging me your rates lol"
       ],
       "comments": [
         {
           "by": "shiftline",
           "date": "2237-283",
-          "text": "Ask which hold is actually in force before getting bounced between counters."
+          "text": "what KIND of hold?? safety, paperwork, title... u cant just say 'a hold'"
         },
         {
           "by": "quayrunner",
-          "date": "2237-283",
-          "text": "An authorized release on paper still isn't permission to work the floor."
+          "date": "paper release is not floor access. ppl mix that up constantly",
+          "text": "In-character opinion; no new event established."
+        },
+        {
+          "by": "manifest_mess",
+          "date": "so 'cargo hold' isnt even one thing. cool. fantastic. love it here",
+          "text": "In-character response; no public incident confirmed."
         }
       ]
     },
@@ -49,23 +70,34 @@
       "visibility": "PUBLIC",
       "date": "2237-283",
       "category": "discussion",
-      "typeLabel": "PUBLIC DISCUSSION / STATION LIFE",
-      "title": "Where Do You Hear News Before It Reaches a Terminal?",
-      "source": "General / Unaffiliated public discussion",
-      "summary": "Residents discuss the mix of district notices, workplace briefings, visiting crews, and word of mouth.",
+      "typeLabel": "GENERAL / CHAT",
+      "title": "how old is \"breaking news\" by the time we get it",
+      "source": "coldcoffee77",
+      "summary": "someone told me an off-hub story was \"just in\" and then said it was 6 weeks old. lol what",
       "body": [
-        "Local information moves through many channels. A claim can circulate widely without being corroborated. A public terminal entry is not proof that everyone on the Hub has seen it."
+        "i know it gets brought in by ships. im saying maybe stop calling it NEW if its been floating around that long",
+        "local stuff aint much better. hear it over food then see it on a terminal later like they discovered it themselves"
       ],
       "comments": [
         {
           "by": "thirdwatch",
-          "date": "2237-283",
-          "text": "Work briefings are good for what's happening on your own shift. Not much else."
+          "date": "work briefings tell u whats happening on YOUR shift. anything else is gossip",
+          "text": "In-character opinion; no new event established."
         },
         {
           "by": "canteenqueue",
-          "date": "2237-283",
-          "text": "Word of mouth gets there first. Getting the details right is another matter."
+          "date": "my cousins cousin heard a thing. must be official then 🙄",
+          "text": "In-character joke; no new event established."
+        },
+        {
+          "by": "packetreader",
+          "date": "did you check the date on the actual packet or just listen to somebody",
+          "text": "In-character skepticism; outside-news lag is established."
+        },
+        {
+          "by": "coldcoffee77",
+          "date": "ok fair. didnt see the packet myself. still funny tho",
+          "text": "Clarifies original story is unverified hearsay."
         }
       ]
     }
