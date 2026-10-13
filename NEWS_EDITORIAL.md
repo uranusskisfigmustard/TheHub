@@ -22,13 +22,14 @@ https://docs.google.com/spreadsheets/d/1dulNV520TgHCJVYHe2rg8Xl9vBwdk-Fm1vzOqrA_
 Tabs: Posts, Comments, Publish Guide.
 Posts and Comments have independent PUBLIC/DRAFT/HOLD gates.
 Internal Warden Notes and Canon Source stay private. Never upload private CSV files to the public GitHub repository.
+Use Internal Warden Notes only for a concrete canon dependency, deliberate misinformation, an evolving thread, or a consequential future follow-up. Leave routine comments' notes blank. Never include these notes in public JSON, public replies, dates, source labels, or the player board itself.
 
 ## Publication procedure
 1. Resolve facts using Master Index → Canon Register → narrowest current setting/mission/live authority.
 2. Add/edit private Posts and Comments. Assign distinct IDs, dates, source and publication state. Start new rows in DRAFT.
 3. Only after editorial approval, mark PUBLIC. Export Posts and Comments as separate UTF-8 CSV files outside the public repo.
 4. Run locally: python tools/build-hub-news.py --posts posts.csv --comments comments.csv --as-of 2237-283 --output data/hub-news.json
-5. Inspect the allowlisted player-visible JSON, check spoilers/chronology/source credibility, test on preview and mobile, then commit sanitized JSON.
+5. Inspect the allowlisted player-visible JSON: each reply has a real YYYY-DDD campaign date and the actual NPC text, never an editorial note. Check spoilers/chronology/source credibility, test on preview and mobile, then commit sanitized JSON.
 6. Preserve older reports as history. Update or add a new report when the world genuinely responds.
 
 The exporter reads fixed public columns only and never publishes Internal Warden Notes, Canon Source, DRAFT, or HOLD rows. Publishing is deliberate; the calendar never auto-invents news.
