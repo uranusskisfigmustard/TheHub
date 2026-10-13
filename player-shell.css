@@ -59,7 +59,7 @@ a { color: inherit; }
 }
 .hub-primary-nav {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 8px;
   margin-top: 13px;
 }
@@ -100,7 +100,7 @@ a { color: inherit; }
 }
 .hub-secondary-nav {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
 }
 .hub-secondary-link {
@@ -159,6 +159,7 @@ a { color: inherit; }
     font-size: .78rem;
   }
   .hub-primary-nav > :last-child:nth-child(odd) { grid-column: span 2; }
+  .hub-secondary-nav > :last-child:nth-child(odd) { grid-column: span 2; }
   .player-main {
     width: min(100% - 20px, 1180px);
     margin-top: 14px;
