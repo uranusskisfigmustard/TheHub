@@ -4,40 +4,81 @@
   "publicationMode": "warden-curated",
   "posts": [
     {
-      "id": "hub-info-001",
+      "id": "hub-seed-002",
       "visibility": "PUBLIC",
-      "date": "2237-283",
+      "date": "2237-281",
       "category": "local",
-      "typeLabel": "GETTING AROUND",
-      "title": "tram or just walk lol",
-      "source": "tram_or_walk",
-      "summary": "ok dumb question. are the trams actually free or is that only certain stops??",
+      "typeLabel": "JOBS / CHAT",
+      "title": "what do u MEAN growth in the pipes",
+      "source": "ventcrawler",
+      "summary": "saw that recirculation contamination job. they want an Ecology lead for stuff growing in service loops?",
       "body": [
-        "been walking bc the lifts confuse the hell outta me. dont wanna end up on a freight deck by accident",
-        "also my work badge doesnt mean i can use the freight routes right? guy on shift swears it does but i dont trust him"
+        "5500 for tracing where it spread. fair enough i guess but no way im first in line",
+        "i can barely keep a plant alive. not adopting whatever's in the pipes"
       ],
       "comments": [
         {
-          "by": "bootsonthedeck",
-          "date": "2237-283",
-          "text": "trams are free. freight routes are a diffrent thing, dont go wandering into a work area bc some guy said its fine"
+          "by": "filterhead",
+          "date": "2237-281",
+          "text": "it says assess and contain. hasn't said what it is. that's why they're hiring"
         },
         {
-          "by": "tram_sleeper",
-          "date": "2237-283",
-          "text": "depends what ur badge is actually for. its not a pass to every door lol"
+          "by": "ventcrawler",
+          "date": "2237-282",
+          "text": "exactly what someone would say before handing me a sample jar"
         },
         {
-          "by": "tram_or_walk",
+          "by": "thirdwatch",
           "date": "2237-283",
-          "text": "ok so i CAN stop walking everywhere. thx"
+          "text": "its a survey posting, not a ghost story. read the actual details"
+        }
+      ]
+    },
+    {
+      "id": "hub-m2-003",
+      "visibility": "PUBLIC",
+      "date": "2237-274",
+      "category": "discussion",
+      "typeLabel": "WORK / PRIVACY",
+      "title": "stop putting coworkers info in threads",
+      "source": "quietbadge",
+      "summary": "every time safety comes up somebody wants names, schedules, who was on what shift. STOP",
+      "body": [
+        "talk about the rule. talk about the equipment. don't make someones recovery or their job everyone's entertainment",
+        "you wanna make an actual complaint there are proper channels. this aint one"
+      ],
+      "comments": [
+        {
+          "by": "dockrat",
+          "date": "2237-274",
+          "text": "agree on the names thing. doesn't mean we can't talk about what went wrong"
+        },
+        {
+          "by": "quietbadge",
+          "date": "2237-275",
+          "text": "didn't say don't talk. said quit posting personal details"
+        },
+        {
+          "by": "papertrail",
+          "date": "2237-276",
+          "text": "and dont mistake a board comment for evidence. keep the real records where they belong"
+        },
+        {
+          "by": "hall_shift",
+          "date": "2237-282",
+          "text": "ppl see a rumor here and repeat it like a signed report. drives me nuts"
+        },
+        {
+          "by": "shiftline",
+          "date": "2237-283",
+          "text": "safety rules can be public. somebody's medical situation isn't. shouldn't be hard"
         }
       ]
     },
     {
       "id": "hub-info-002",
       "visibility": "PUBLIC",
-      "date": "2237-283",
+      "date": "2237-267",
       "category": "local",
       "typeLabel": "FREIGHT / HELP",
       "title": "who the hell clears a cargo hold",
@@ -50,25 +91,102 @@
       "comments": [
         {
           "by": "shiftline",
-          "date": "2237-283",
+          "date": "2237-267",
           "text": "what KIND of hold?? safety, paperwork, title... u cant just say 'a hold'"
         },
         {
           "by": "quayrunner",
-          "date": "2237-283",
+          "date": "2237-268",
           "text": "paper release is not floor access. ppl mix that up constantly"
         },
         {
           "by": "manifest_mess",
-          "date": "2237-283",
+          "date": "2237-269",
           "text": "so 'cargo hold' isnt even one thing. cool. fantastic. love it here"
+        },
+        {
+          "by": "desk_three",
+          "date": "2237-282",
+          "text": "still getting asked this on shift. tell the desk what the actual problem is, not 'the cargo'"
+        }
+      ]
+    },
+    {
+      "id": "hub-seed-001",
+      "visibility": "PUBLIC",
+      "date": "2237-279",
+      "category": "local",
+      "typeLabel": "JOBS / CHAT",
+      "title": "5k to look round a closed working??",
+      "source": "depth_nope",
+      "summary": "Deepwell's got a listing up for a closed site with fresh digging nobody can account for. 5k. no thanks",
+      "body": [
+        "says inspection and records and all that. sounds like the kind of job where you find a broken ladder and five more forms",
+        "if someone takes it tell me if the pay was worth the paperwork"
+      ],
+      "comments": [
+        {
+          "by": "rockdust",
+          "date": "2237-279",
+          "text": "it says inspect, not solve the entire mystery of the universe lol"
+        },
+        {
+          "by": "depth_nope",
+          "date": "2237-280",
+          "text": "u go down there then. i'll stay where the walls have been inspected recently"
+        },
+        {
+          "by": "quayrunner",
+          "date": "2237-281",
+          "text": "i'd want to see the access terms before saying yes to that"
+        }
+      ]
+    },
+    {
+      "id": "hub-m2-002",
+      "visibility": "PUBLIC",
+      "date": "2237-259",
+      "category": "discussion",
+      "typeLabel": "WORKERS / CHAT",
+      "title": "union or just meetings about meetings",
+      "source": "dockrat",
+      "summary": "at what point do we get proper representation instead of the same safety argument every couple weeks",
+      "body": [
+        "not saying everyone needs to walk off the job tomorrow. i want some way to make the promises stick",
+        "and no im not putting names or where we meet on a PUBLIC BOARD before someone asks"
+      ],
+      "comments": [
+        {
+          "by": "shiftline",
+          "date": "2237-260",
+          "text": "Dock Labor people are already pushing for protections. showing up and listening might help more than yelling on here"
+        },
+        {
+          "by": "thirdwatch",
+          "date": "2237-261",
+          "text": "can we NOT put names and shift details in these threads?? some of us still gotta work with people"
+        },
+        {
+          "by": "dockrat",
+          "date": "2237-262",
+          "text": "didn't name anybody. asking if the rest of us get a say"
+        },
+        {
+          "by": "measuretwice",
+          "date": "2237-278",
+          "text": "a union doesn't magically fix busted equipment. you'd still need people who follow the rules"
+        },
+        {
+          "by": "bootsonthedeck",
+          "date": "2237-281",
+          "text": "maybe. but people who can say no without losing work sounds pretty useful"
         }
       ]
     },
     {
       "id": "hub-info-003",
       "visibility": "PUBLIC",
-      "date": "2237-283",
+      "date": "2237-253",
       "category": "discussion",
       "typeLabel": "GENERAL / CHAT",
       "title": "how old is \"breaking news\" by the time we get it",
@@ -81,23 +199,198 @@
       "comments": [
         {
           "by": "thirdwatch",
-          "date": "2237-283",
+          "date": "2237-254",
           "text": "work briefings tell u whats happening on YOUR shift. anything else is gossip"
         },
         {
           "by": "canteenqueue",
-          "date": "2237-283",
+          "date": "2237-255",
           "text": "my cousins cousin heard a thing. must be official then 🙄"
         },
         {
           "by": "packetreader",
-          "date": "2237-283",
+          "date": "2237-280",
           "text": "did you check the date on the actual packet or just listen to somebody"
         },
         {
           "by": "coldcoffee77",
-          "date": "2237-283",
+          "date": "2237-281",
           "text": "ok fair. didnt see the packet myself. still funny tho"
+        }
+      ]
+    },
+    {
+      "id": "hub-info-006",
+      "visibility": "PUBLIC",
+      "date": "2237-272",
+      "category": "local",
+      "typeLabel": "COMMUNITY / CHAT",
+      "title": "whoever keeps changing the rec hall tables",
+      "source": "hall_shift",
+      "summary": "pls put the tables BACK when ur done. not sideways across the entrance",
+      "body": [
+        "not saying who. if you used em you know what i mean",
+        "there's plenty of room when things are where they belong"
+      ],
+      "comments": [
+        {
+          "by": "foldingchair",
+          "date": "2237-272",
+          "text": "you sure its not a booking thing? different groups use different layouts"
+        },
+        {
+          "by": "hall_shift",
+          "date": "2237-273",
+          "text": "then they can change em back when their booking is done"
+        },
+        {
+          "by": "tiredofstairs",
+          "date": "2237-274",
+          "text": "i thought this was about the chairs. nevermind"
+        },
+        {
+          "by": "foldingchair",
+          "date": "2237-279",
+          "text": "ask the hall staff which layout they want left up. arguing here wont move a table"
+        }
+      ]
+    },
+    {
+      "id": "hub-info-001",
+      "visibility": "PUBLIC",
+      "date": "2237-244",
+      "category": "local",
+      "typeLabel": "GETTING AROUND",
+      "title": "tram or just walk lol",
+      "source": "tram_or_walk",
+      "summary": "ok dumb question. are the trams actually free or is that only certain stops??",
+      "body": [
+        "been walking bc the lifts confuse the hell outta me. dont wanna end up on a freight deck by accident",
+        "also my work badge doesnt mean i can use the freight routes right? guy on shift swears it does but i dont trust him"
+      ],
+      "comments": [
+        {
+          "by": "bootsonthedeck",
+          "date": "2237-244",
+          "text": "trams are free. freight routes are a diffrent thing, dont go wandering into a work area bc some guy said its fine"
+        },
+        {
+          "by": "tram_sleeper",
+          "date": "2237-245",
+          "text": "depends what ur badge is actually for. its not a pass to every door lol"
+        },
+        {
+          "by": "tram_or_walk",
+          "date": "2237-246",
+          "text": "ok so i CAN stop walking everywhere. thx"
+        },
+        {
+          "by": "newshift84",
+          "date": "2237-275",
+          "text": "found this searching for the same thing. my legs thank u"
+        }
+      ]
+    },
+    {
+      "id": "hub-m2-001",
+      "visibility": "PUBLIC",
+      "date": "2237-247",
+      "category": "local",
+      "typeLabel": "WORK / SAFETY",
+      "title": "stop work means STOP right??",
+      "source": "redlamp",
+      "summary": "if the safety interlock trips the load STOPS. yes? bc apparently thats still a debate",
+      "body": [
+        "the whole point of having a stop is you dont get to wave it away bc ur behind",
+        "not posting a bay number. dont ask."
+      ],
+      "comments": [
+        {
+          "by": "shiftline",
+          "date": "2237-247",
+          "text": "new rules say stop and check. dont just clear it and hope. thats the point"
+        },
+        {
+          "by": "dockrat",
+          "date": "2237-248",
+          "text": "the written rule and a supervisor yelling about the schedule are two diffrent things"
+        },
+        {
+          "by": "oldhands42",
+          "date": "2237-250",
+          "text": "keep an actual record if you're being pressured. don't put shift names here"
+        },
+        {
+          "by": "redlamp",
+          "date": "2237-251",
+          "text": "i did NOT name anybody. just want a straight answer"
+        },
+        {
+          "by": "floorledger",
+          "date": "2237-274",
+          "text": "still worth asking who's doing the followup on the overdue kit. 'we'll check' isn't a date"
+        }
+      ]
+    },
+    {
+      "id": "hub-info-005",
+      "visibility": "PUBLIC",
+      "date": "2237-249",
+      "category": "discussion",
+      "typeLabel": "GENERAL / CHAT",
+      "title": "boots: repair or chuck em",
+      "source": "sole_less",
+      "summary": "sole came halfway off AGAIN. does fixing these ever last",
+      "body": [
+        "they're not fancy. they're boots. all i want is both soles staying on while i walk",
+        "before somebody says buy new ones... u buying?"
+      ],
+      "comments": [
+        {
+          "by": "quayrunner",
+          "date": "2237-249",
+          "text": "depends what failed. take a look at the stitching before u throw money at glue"
+        },
+        {
+          "by": "sole_less",
+          "date": "2237-250",
+          "text": "it's mostly glue and spite at this point"
+        },
+        {
+          "by": "bootsonthedeck",
+          "date": "2237-252",
+          "text": "keep em for light use if you can fix em. don't trust a loose sole on a work floor"
+        }
+      ]
+    },
+    {
+      "id": "hub-info-004",
+      "visibility": "PUBLIC",
+      "date": "2237-234",
+      "category": "discussion",
+      "typeLabel": "GENERAL / CHAT",
+      "title": "why is the coffee like that",
+      "source": "filterburn",
+      "summary": "is it supposed to smell like hot wiring or did i just get the bottom of a pot again",
+      "body": [
+        "not asking where to get good coffee. asking whether there's a kind that doesn't make me regret being awake",
+        "dont tell me to drink water. i do. its worse somehow"
+      ],
+      "comments": [
+        {
+          "by": "canteenqueue",
+          "date": "2237-234",
+          "text": "its coffee. you're expecting way too much from coffee"
+        },
+        {
+          "by": "thirdwatch",
+          "date": "2237-235",
+          "text": "try not leaving it sitting there for your whole shift"
+        },
+        {
+          "by": "filterburn",
+          "date": "2237-237",
+          "text": "bold of u to assume i have a whole shift to drink it"
         }
       ]
     }
