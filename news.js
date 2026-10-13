@@ -69,7 +69,7 @@
     feed.replaceChildren();
     if (!chosen.length) {
       feed.append(node('p', 'news-empty', currentView === 'outside'
-        ? 'Nobody's posted an off-Hub update here yet. Doesn't mean there's no news out there.'
+        ? "No off-Hub posts have reached this board yet. That does not mean there is no off-Hub news."
         : 'Nothing posted here yet.'));
     } else chosen.forEach(p => feed.append(makePost(p)));
     feed.setAttribute('aria-busy', 'false');
