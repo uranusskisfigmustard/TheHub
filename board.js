@@ -343,7 +343,11 @@
       const explicit = String(job['Requested PC'] || job['For PC'] || '').trim();
       if (explicit) return explicit;
       const detailHeader = String(job.Details || '').match(/^PERSONAL REQUEST\s*[—–:-]\s*(.+)$/im);
-      return detailHeader ? detailHeader[1].trim() : '';
+      if (!detailHeader) return '';
+      const name = detailHeader[1].trim();
+      return name === name.toUpperCase()
+        ? name.toLowerCase().replace(/\b[a-z]/g, letter => letter.toUpperCase())
+        : name;
     }
 
     function isPersonalRequest(job) {
