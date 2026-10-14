@@ -1,0 +1,12 @@
+# Never commit private Warden editorial rows or publishing credentials.
+posts.csv
+comments.csv
+**/private-posts.csv
+**/private-comments.csv
+.private-news/
+.env
+.env.*
+*service-account*.json
+*service_account*.json
+*credentials*.json
+# This repository publishes only data/hub-news.json (allowlisted player-safe output).
