@@ -1,0 +1,32 @@
+name: Validate player page navigation
+
+on:
+  push:
+    paths:
+      - '*.html'
+      - 'player-shell.js'
+      - 'player-shell.css'
+      - 'player-routes.js'
+      - 'tools/check-player-pages.py'
+      - '.github/workflows/check-player-pages.yml'
+  pull_request:
+    paths:
+      - '*.html'
+      - 'player-shell.js'
+      - 'player-shell.css'
+      - 'player-routes.js'
+      - 'tools/check-player-pages.py'
+      - '.github/workflows/check-player-pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  player-page-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out TheHub
+        uses: actions/checkout@v4
+      - name: Confirm all player pages have the Warden shortcut
+        run: python3 tools/check-player-pages.py
