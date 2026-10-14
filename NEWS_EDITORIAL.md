@@ -33,6 +33,24 @@ Posts and Comments have independent PUBLIC/SCHEDULED/DRAFT/HOLD gates. SCHEDULED
 Internal Warden Notes and Canon Source stay private. Never upload private CSV files to the public GitHub repository.
 Use Internal Warden Notes only for a concrete canon dependency, deliberate misinformation, an evolving thread, or a consequential future follow-up. Leave routine comments' notes blank. Never include these notes in public JSON, public replies, dates, source labels, or the player board itself.
 
+## One-step campaign-date publication (preferred)
+
+At a confirmed in-game advance (session close, downtime, or explicit Warden time skip):
+
+1. Resolve what actually happened using the owning records. A future-dated clue is not proof that an NPC event occurred. Keep unknown/unplayed events in DRAFT/HOLD.
+2. In the Warden-only editorial Sheet, mark player-safe entries PUBLIC or SCHEDULED only after their underlying situation is established and the posting date approved. SCHEDULED releases when its date arrives; comments have their own dates.
+3. In GitHub, open **Actions → Publish Hub News (Campaign Date) → Run workflow**. Enter the newly confirmed in-game date as YYYY-DDD (e.g. 2237-283). The same workflow can be triggered by an authenticated `repository_dispatch` event of type `hub-campaign-date-advanced` with `client_payload.as_of`; no real-world cron is installed.
+4. The workflow fetches the private sheet through a restricted Google service account, runs publication tests, checks the old public feed for rollbacks or missing history, builds the sanitized `data/hub-news.json`, and commits **only that file** if changed. Failed checks stop publication without a partial update.
+5. Check that the News page shows the right posts after GitHub Pages deploys. It reads only the sanitized JSON, never the private editorial Sheet.
+
+**One-time operator setup (not yet configured by this repository):**
+- Enable the Google Sheets API in a Google Cloud project and create a service account with no broad Drive roles.
+- Share only the private News & Discussion Editorial Source Sheet with that service account's email as **Viewer**.
+- Generate its JSON credential. In TheHub GitHub repository → Settings → Secrets and variables → Actions → New repository secret, store it under the exact name `HUB_NEWS_GOOGLE_SERVICE_ACCOUNT_JSON`. Never commit or paste the credential into a file, comment, or message.
+- The workflow intentionally fails closed if the secret is absent, invalid or not authorized to view the private sheet. The public JSON remains unchanged. GitHub Actions credentials for this repository must have permission to commit the sanitized output; repository rules may require adjustment if automated pushes are blocked.
+
+This publication process is triggered by a **Warden-confirmed campaign-date advance**, not by real-world elapsed time. It does not independently read the campaign timeline to decide whether NPCs have acted; the Warden or the established continuity workflow must resolve the event and approve publication first. This avoids prewriting outcomes.
+
 ## Publication procedure
 1. Resolve facts using Master Index → Canon Register → narrowest current setting/mission/live authority.
 2. Add/edit private Posts and Comments. Assign distinct IDs, dates, source and publication state. Start new rows in DRAFT.
@@ -42,7 +60,7 @@ Use Internal Warden Notes only for a concrete canon dependency, deliberate misin
 6. Inspect the allowlisted player-visible JSON: each reply has a real YYYY-DDD campaign date and the actual NPC text, never an editorial note. Check spoilers/chronology/source credibility, test on preview and mobile, then commit sanitized JSON.
 7. Preserve older reports as history. Update or add a new report when the world genuinely responds.
 
-**GitHub Actions scheduling:** ordinary GitHub cron runs on real-world time and must not publish by itself. The existing build is an explicit publication step, not an autonomous in-game clock or live Sheet sync. A future GitHub workflow can run on a verified campaign-date update only if given secure private-sheet access and a Warden-controlled trigger. Never commit future posts, private CSVs, the private-sheet credentials, or Warden notes into this public repository, including branches; browser-side hiding is not secure.
+**GitHub Actions scheduling:** real-world cron is intentionally unused. The preferred GitHub workflow now exists but cannot access the private sheet until the one-time service-account secret/share are configured. A manual Warden-confirmed campaign-date workflow dispatch or authenticated repository dispatch triggers it. Never commit future posts, private CSVs, service-account credentials, or Warden notes into the public repository (including branches); browser-side hiding is not secure.
 
 The exporter reads fixed public columns only and never publishes Internal Warden Notes, Canon Source, DRAFT, HOLD, or not-yet-due SCHEDULED rows. Publication remains deliberate and never auto-creates story events.
 
