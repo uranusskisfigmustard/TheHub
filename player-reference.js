@@ -73,30 +73,7 @@
             BL(B('Assignment authorization'), ' — Temporary permission for a specific site/system/vessel/custody role/action.')
           ]
         },
-        { title: 'Downtime', blocks: [P('Downtime: work, train, recover, investigate, serve factions, maintain equipment, or pursue projects. Projects unpaid unless stated. ', B('Hub employment:'), ' 50% of normal Skill-derived monthly salary. Mission pay separate; living costs weekly.')] },
-        {
-          title: 'Overtime & Weekend Work',
-          blocks: [
-            T(['Work', 'Time', 'Pay', 'Load'], [
-              ['Weekday OT', '≤4h', '4h = 1 daily wage', '+1'],
-              ['Weekend shift', '8h', '2 daily wages', '+2'],
-              ['Extension', '≤4h', '4× hourly wage', '+1']
-            ]),
-            BL(B('12-hour weekend day: 4 daily wages total.'))
-          ]
-        },
-        {
-          title: 'Extra-Work Load',
-          blocks: [
-            T(['Load', 'Consequence'], [
-              ['0–1', 'None'],
-              ['2–3', '+1 Stress'],
-              ['4–5', C('+1 Stress and Rest Save ', B('[-]'))],
-              ['6+', C('+2 Stress and Rest Save ', B('[-]'))]
-            ]),
-            BL('One full ', B('nonworking day'), ' before the next mission removes Rest Save ', B('[-]'), '; Stress remains.')
-          ]
-        }
+        { title: 'Downtime', blocks: [P('Between missions you can work, train, recover, maintain equipment, investigate, or pursue personal projects. Paid work follows an accepted contract or other agreed terms. No automatic pay or work is assigned for downtime.')] }
       ]
     },
     {
