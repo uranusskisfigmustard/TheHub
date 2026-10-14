@@ -9,4 +9,4 @@ comments.csv
 *service-account*.json
 *service_account*.json
 *credentials*.json
-# This repository publishes only data/hub-news.json (allowlisted player-safe output).
+# The News workflow publishes only the allowlisted data/hub-news.json feed.
