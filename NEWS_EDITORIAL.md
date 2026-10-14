@@ -29,19 +29,22 @@ WARDEN-ONLY Google Sheet:
 https://docs.google.com/spreadsheets/d/1dulNV520TgHCJVYHe2rg8Xl9vBwdk-Fm1vzOqrA_7Mo/edit
 
 Tabs: Posts, Comments, Publish Guide.
-Posts and Comments have independent PUBLIC/DRAFT/HOLD gates.
+Posts and Comments have independent PUBLIC/SCHEDULED/DRAFT/HOLD gates. SCHEDULED requires Warden approval of the fictional trigger and a known in-game date; it is not suitable for an event that has not yet happened. Future SCHEDULED content remains private until the campaign date reaches its Posted Date and the feed is rebuilt. DRAFT/HOLD never export.
 Internal Warden Notes and Canon Source stay private. Never upload private CSV files to the public GitHub repository.
 Use Internal Warden Notes only for a concrete canon dependency, deliberate misinformation, an evolving thread, or a consequential future follow-up. Leave routine comments' notes blank. Never include these notes in public JSON, public replies, dates, source labels, or the player board itself.
 
 ## Publication procedure
 1. Resolve facts using Master Index → Canon Register → narrowest current setting/mission/live authority.
 2. Add/edit private Posts and Comments. Assign distinct IDs, dates, source and publication state. Start new rows in DRAFT.
-3. Only after editorial approval, mark PUBLIC. Export Posts and Comments as separate UTF-8 CSV files outside the public repo.
-4. Run locally: python tools/build-hub-news.py --posts posts.csv --comments comments.csv --as-of 2237-283 --output data/hub-news.json
-5. Inspect the allowlisted player-visible JSON: each reply has a real YYYY-DDD campaign date and the actual NPC text, never an editorial note. Check spoilers/chronology/source credibility, test on preview and mobile, then commit sanitized JSON.
-6. Preserve older reports as history. Update or add a new report when the world genuinely responds.
+3. After verifying what has actually occurred, choose a publish state: PUBLIC for immediate inclusion, SCHEDULED for approved material with a known future in-game Posted Date, or DRAFT/HOLD for unresolved fictional events. A SCHEDULED row must not assume a visit, breach, confrontation, or other event has happened merely because a date is approaching. Give Comments their own dates and states.
+4. Export Posts and Comments as separate UTF-8 CSV files **outside** the public repo. Run when the campaign's in-game clock advances: python tools/build-hub-news.py --posts posts.csv --comments comments.csv --as-of 2237-283 --output data/hub-news.json (replace 2237-283 with the newly confirmed in-game date).
+5. The exporter includes PUBLIC rows, and SCHEDULED rows only when Posted Date <= --as-of. Future scheduled posts and comments never enter the generated JSON. It refuses a PUBLIC row dated in the future; DRAFT/HOLD never export.
+6. Inspect the allowlisted player-visible JSON: each reply has a real YYYY-DDD campaign date and the actual NPC text, never an editorial note. Check spoilers/chronology/source credibility, test on preview and mobile, then commit sanitized JSON.
+7. Preserve older reports as history. Update or add a new report when the world genuinely responds.
 
-The exporter reads fixed public columns only and never publishes Internal Warden Notes, Canon Source, DRAFT, or HOLD rows. Publishing is deliberate; the calendar never auto-invents news.
+**GitHub Actions scheduling:** ordinary GitHub cron runs on real-world time and must not publish by itself. The existing build is an explicit publication step, not an autonomous in-game clock or live Sheet sync. A future GitHub workflow can run on a verified campaign-date update only if given secure private-sheet access and a Warden-controlled trigger. Never commit future posts, private CSVs, the private-sheet credentials, or Warden notes into this public repository, including branches; browser-side hiding is not secure.
+
+The exporter reads fixed public columns only and never publishes Internal Warden Notes, Canon Source, DRAFT, HOLD, or not-yet-due SCHEDULED rows. Publication remains deliberate and never auto-creates story events.
 
 ## Public JSON
 data/hub-news.json contains schemaVersion, asOf, publicationMode and posts.
