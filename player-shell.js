@@ -118,11 +118,27 @@
     shellRoot.replaceChildren(header);
   }
 
+  function installWardenShortcut() {
+    // The Board pages already include the original shortcut in their HTML.
+    // Install only when missing so every player page has exactly one.
+    let shortcut = document.querySelector('a.warden-shortcut');
+    if (!shortcut) {
+      shortcut = document.createElement('a');
+      shortcut.className = 'warden-shortcut';
+      shortcut.href = 'warden.html';
+      shortcut.textContent = '//';
+      document.body.appendChild(shortcut);
+    }
+    shortcut.setAttribute('aria-label', 'Warden console');
+    shortcut.title = 'Warden console';
+  }
+
   function refreshBadges() {
     for (const link of shellRoot.querySelectorAll('[data-page-id]')) renderBadge(link, link.dataset.pageId);
   }
 
   renderShell();
+  installWardenShortcut();
   document.documentElement.dataset.playerShellBoot = 'ok';
 
   window.HubPlayerShell = Object.freeze({
