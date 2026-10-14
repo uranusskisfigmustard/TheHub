@@ -62,6 +62,12 @@
     return 'between';
   }
 
+  function requiresCrewInvitation(job) {
+    if (!betweenSessionKind(job?.Pay)) return false;
+    const match = String(job.Pay || '').match(/([\d,]+(?:\.\d+)?)\s*cr/i);
+    return Boolean(match && Number(match[1].replace(/,/g, '')) >= 1000);
+  }
+
   function postRequest(action, params = {}, timeoutMs = 30000) {
     return new Promise((resolve, reject) => {
       const requestId = `board-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
@@ -590,6 +596,11 @@
           <div class="board-modal-section">
             <div class="board-modal-label">PARTICIPATING CHARACTERS</div>
             <div data-accept-characters class="board-character-list"></div>
+            <div data-crew-invitation class="board-modal-muted hidden" style="margin-top:12px;padding:10px;border:1px solid #66879a;border-radius:3px">
+              <strong>CREW PARTICIPATION</strong>
+              <p style="margin:7px 0">This job pays 1,000 credits or more. Include all available PCs, or confirm that you invited the others and they declined.</p>
+              <label style="display:flex;align-items:flex-start;gap:8px;cursor:pointer"><input type="checkbox" data-crew-declined> <span>I asked the other players. They declined to participate.</span></label>
+            </div>
           </div>
           <div class="board-modal-section" data-accept-pin-wrap>
             <label class="board-modal-label" for="boardAcceptPin">BOARD ACCESS CODE</label>
@@ -620,6 +631,12 @@
           </div>
         </div>`;
       document.body.appendChild(modal);
+      modal.addEventListener('change', event => {
+        if (event.target.matches('[data-accept-character]')) {
+          modal.querySelector('[data-crew-declined]').checked = false;
+          updateCrewInvitation(modal);
+        }
+      });
       modal.addEventListener('click', event => {
         if (event.target === modal || event.target.closest('[data-accept-close], [data-accept-cancel]')) closeAcceptanceModal();
         if (event.target.closest('[data-accept-validate]')) validateAcceptance(false, null);
@@ -639,6 +656,21 @@
 
     function acceptanceParticipants(modal) {
       return [...modal.querySelectorAll('[data-accept-character]:checked')].map(input => input.value).filter(Boolean);
+    }
+
+    function updateCrewInvitation(modal) {
+      const inputs = [...modal.querySelectorAll('[data-accept-character]')];
+      const required = Boolean(state.acceptance && requiresCrewInvitation(state.acceptance.job));
+      const missing = inputs.length > 0 && inputs.some(input => !input.checked);
+      modal.querySelector('[data-crew-invitation]').classList.toggle('hidden', !required || !missing);
+      if (!required || !missing) modal.querySelector('[data-crew-declined]').checked = false;
+    }
+
+    function crewInvitationConfirmed(modal) {
+      if (!state.acceptance || !requiresCrewInvitation(state.acceptance.job)) return true;
+      const inputs = [...modal.querySelectorAll('[data-accept-character]')];
+      return inputs.length > 0 &&
+        (inputs.every(input => input.checked) || modal.querySelector('[data-crew-declined]').checked);
     }
 
     function acceptanceResult(message, kind = '') {
@@ -673,6 +705,8 @@
       state.acceptance = { jobId, job, contractorConfirmed: false, contractorRecord: null, authorization: false, session: '' };
       modal.dataset.busy = '0';
       modal.querySelector('[data-accept-title]').textContent = String(job.Title || 'Contract Acceptance');
+      modal.querySelector('[data-crew-declined]').checked = false;
+      modal.querySelector('[data-crew-invitation]').classList.add('hidden');
       modal.querySelector('[data-accept-result]').className = 'board-result hidden';
       modal.querySelector('[data-contractor-action]').classList.add('hidden');
       modal.querySelector('[data-authorization-action]').classList.add('hidden');
@@ -696,6 +730,7 @@
         modal.querySelector('[data-accept-title]').textContent = setup.title || job.Title || 'Contract Acceptance';
         modal.querySelector('[data-accept-characters]').innerHTML = setup.characters.map(character => `
           <label class="board-character-option"><input type="checkbox" data-accept-character value="${esc(character)}" checked> <span>${esc(character)}</span></label>`).join('');
+        updateCrewInvitation(modal);
       } catch (error) {
         acceptanceResult(String(error?.message || error), 'bad');
       } finally {
@@ -709,6 +744,10 @@
       const participants = acceptanceParticipants(modal);
       if (!participants.length) {
         acceptanceResult('Select at least one participating character.', 'bad');
+        return;
+      }
+      if (!crewInvitationConfirmed(modal)) {
+        acceptanceResult('Select all PCs, or confirm that you asked the other players and they declined.', 'bad');
         return;
       }
       setAcceptanceBusy(true);
