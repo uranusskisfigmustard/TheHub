@@ -1,0 +1,22 @@
+name: Verify Hub News Publication
+on:
+  push:
+    paths:
+      - 'tools/build-hub-news.py'
+      - 'tools/test_build_hub_news.py'
+      - '.github/workflows/verify-hub-news.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify in-game release gate
+        run: python3 tools/test_build_hub_news.py
