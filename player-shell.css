@@ -184,3 +184,21 @@ a { color: inherit; }
     letter-spacing: .04em;
   }
 }
+
+/* Shared player-side shortcut to the existing Warden console. */
+.warden-shortcut {
+  position: fixed;
+  right: 10px;
+  bottom: 8px;
+  z-index: 1500;
+  color: #8d8a82;
+  opacity: .35;
+  text-decoration: none;
+  font-size: .68rem;
+  line-height: 1;
+  padding: 5px 4px;
+  font-weight: 700;
+}
+.warden-shortcut:hover,
+.warden-shortcut:focus-visible { opacity: .72; }
+.warden-shortcut:focus-visible { outline: 1px solid var(--accent); outline-offset: 3px; }
