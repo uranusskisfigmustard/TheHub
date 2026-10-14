@@ -5,6 +5,41 @@ window.BETWEEN_SESSION_PERIODS["m5-m6"] = {
   "dates": "2237-283 to 2237-297",
   "dateLabel": "2237-283 → 2237-297",
   "characters": {
+    "prue": {
+      "name": "Prudence Greymore",
+      "scenes": [
+        {
+          "title": "Computers Training",
+          "paragraphs": [
+            "You bring the field router you recently purchased to Luca for your next Computers session. The seller didn't know much about its history, and it came without network credentials. Luca gives it a quick inspection before having you connect it to a small isolated network.",
+            "Three devices are connected. One works, another won't connect at all, and the third keeps dropping out. Luca leaves you to figure out what's wrong.",
+            "You spend the next few hours working through the configuration, checking connections, and trying to get everything communicating properly. Eventually you get it working. Luca looks over what you've done, changes a few settings, and tells you to fix it again.",
+            "Once you're finished, he takes another look at the router.",
+            "“Not bad. But remember, just because you can get something talking doesn't mean it'll do what you need it to.”",
+            "He hands it back.",
+            "“You mentioned wanting a jammer during that freight job. Well, you've got a router. Not a jammer. At least not yet.”",
+            "He points out that reprogramming it might not be enough. You'll need to figure out what signals you want to interfere with, whether the router has the hardware to do it, and what you'll need to change.",
+            "“That's your final exam. Between your next two jobs, you're going to upgrade this thing, reprogram it, and make it do what you wanted it to do back at that freight annex. Then we're going to test it and see if it actually works.”"
+          ]
+        },
+        {
+          "title": "The Fallen",
+          "paragraphs": [
+            "You contact Dr. Pella and explain that you're trying to reach Levent. She understands why you've come to her, but makes it clear that your relationship doesn't give you access to confidential information. She won't confirm whether Levent or any of his people have been treated there, but agrees to pass along a message if she can.",
+            "You give her the following:",
+            "“I can only assume why you wanted it. I should have paid more attention. I will sit watch for the fallen.”",
+            "When you ask about keeping watch for the dead, Pella directs you to the Order of the Last Watch. After the necessary permissions are obtained, you're allowed to join their rotation.",
+            "The five bodies lie covered in a small holding room. When your turn comes, the previous watcher gets up and gives you their seat. You sit beside the dead for your assigned shift. Nobody speaks during your shift. When the next person arrives, you hand over the watch.",
+            "Nine days pass without a response from Levent. You have no way of knowing whether he even received your message. Then Pella forwards a short reply.",
+            "Greymore,",
+            "Got your message. I don't suppose you'd also consider returning my SMG and revolver? And whatever else your crew took from my people, while you're at it.",
+            "— Levent",
+            "That's all he sends. No address, no meeting arrangements, and no indication of whether he's willing to discuss what happened. He hasn't agreed to meet, but he hasn't refused, either.",
+            "If you want to continue the conversation, you can send another message through Pella."
+          ]
+        }
+      ]
+    },
     "john": {
       "name": "John Sobieski",
       "scenes": [
