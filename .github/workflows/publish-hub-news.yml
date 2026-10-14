@@ -1,12 +1,10 @@
 name: Publish Hub News (Campaign Date)
 
 on:
+  push:
+    paths:
+      - 'data/campaign-date.json'
   workflow_dispatch:
-    inputs:
-      as_of:
-        description: 'Confirmed campaign date (YYYY-DDD), e.g. 2237-283'
-        required: true
-        type: string
   repository_dispatch:
     types: [hub-campaign-date-advanced]
 
@@ -21,7 +19,6 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     env:
-      CAMPAIGN_DATE: ${{ github.event.inputs.as_of || github.event.client_payload.as_of }}
       HUB_NEWS_GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.HUB_NEWS_GOOGLE_SERVICE_ACCOUNT_JSON }}
     steps:
       - name: Check out Hub player site
@@ -42,12 +39,24 @@ jobs:
           python tools/test_build_hub_news.py
           python tools/test_publish_hub_news.py
 
-      - name: Verify confirmed date and private credentials
+      - name: Read campaign date mirrored from Warden-approved live state
         run: |
-          if ! [[ "$CAMPAIGN_DATE" =~ ^[0-9]{4}-[0-9]{3}$ ]]; then
-            echo 'A confirmed campaign date in YYYY-DDD format is required.' >&2
-            exit 1
-          fi
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          from tools import publish_hub_news
+          clock = json.loads(Path('data/campaign-date.json').read_text(encoding='utf-8'))
+          if clock.get('schemaVersion') != 1:
+              raise ValueError('Unrecognized campaign clock mirror')
+          stamp = publish_hub_news.validate_stamp(clock.get('asOf', ''))
+          with open(os.environ['GITHUB_ENV'], 'a', encoding='utf-8') as stream:
+              stream.write('CAMPAIGN_DATE=' + stamp + '\n')
+          print('Confirmed mirrored campaign day:', stamp)
+          PY
+
+      - name: Verify private sheet credential exists
+        run: |
           if [ -z "$HUB_NEWS_GOOGLE_SERVICE_ACCOUNT_JSON" ]; then
             echo 'Private Google Sheets credential not configured. No feed published.' >&2
             exit 1
