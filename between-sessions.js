@@ -28,8 +28,9 @@
       throw new Error('Between Sessions page controls are incomplete.');
     }
 
+    const firstAvailableCharacter = period => ['prue', 'john', 'violet'].find(id => period?.characters?.[id]) || 'prue';
     let selectedPeriod = orderedPeriods[0]?.[0] || null;
-    let selectedCharacter = 'prue';
+    let selectedCharacter = firstAvailableCharacter(orderedPeriods[0]?.[1]);
 
     function renderSelector() {
       selector.innerHTML = '<div class="selector-label">INTERSESSION PERIODS</div>' + orderedPeriods.map(([id, period]) => `
@@ -78,6 +79,9 @@
       const button = event.target.closest('[data-period]');
       if (!button || !periods[button.dataset.period]) return;
       selectedPeriod = button.dataset.period;
+      if (!periods[selectedPeriod]?.characters?.[selectedCharacter]) {
+        selectedCharacter = firstAvailableCharacter(periods[selectedPeriod]);
+      }
       renderSelector();
       renderView();
     });
