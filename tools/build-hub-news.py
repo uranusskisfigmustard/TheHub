@@ -8,6 +8,7 @@ from pathlib import Path
 STAMP = re.compile(r"^\d{4}-\d{3}$")
 IDENT = re.compile(r"^[a-z0-9-]{2,80}$")
 CATEGORIES = {"local", "outside", "discussion"}
+PUBLISHABLE_STATES = {"PUBLIC", "SCHEDULED"}
 
 # Approved editorial rule for player-facing News only; does not rename setting canon.
 BANNED_PUBLIC_WORD = re.compile(r"\bspine\b", re.IGNORECASE)
@@ -35,13 +36,23 @@ def date_check(value, field, as_of):
 def build(posts_file, comments_file, as_of):
     if not STAMP.fullmatch(as_of):
         raise ValueError("as-of must be YYYY-DDD")
-    posts, by_id = [], {}
+    posts, by_id, future_post_ids, seen_post_ids = [], {}, set(), set()
     for r in rows(posts_file):
-        if cell(r, "Publish") != "PUBLIC":
+        state = cell(r, "Publish")
+        if state not in PUBLISHABLE_STATES:
             continue
         ident, category = cell(r, "ID"), cell(r, "Category")
-        if not IDENT.fullmatch(ident) or ident in by_id:
+        if not IDENT.fullmatch(ident) or ident in seen_post_ids:
             raise ValueError("Invalid or duplicate post ID: " + ident)
+        seen_post_ids.add(ident)
+        # A scheduled row is private until its campaign date arrives.
+        # The withheld row does not enter the public JSON at all.
+        posted = cell(r, "Posted Date")
+        if not STAMP.fullmatch(posted):
+            raise ValueError(f"{ident}: invalid campaign date: {posted!r}")
+        if state == "SCHEDULED" and posted > as_of:
+            future_post_ids.add(ident)
+            continue
         if category not in CATEGORIES:
             raise ValueError(f"{ident}: invalid category")
         body = [cell(r, "Body Paragraph 1"), cell(r, "Body Paragraph 2")]
@@ -66,11 +77,19 @@ def build(posts_file, comments_file, as_of):
         posts.append(post)
     orders = set()
     for r in rows(comments_file):
-        if cell(r, "Publish") != "PUBLIC":
+        state = cell(r, "Publish")
+        if state not in PUBLISHABLE_STATES:
             continue
         ident, order = cell(r, "Post ID"), cell(r, "Order")
+        posted = cell(r, "Posted Date")
+        if not STAMP.fullmatch(posted):
+            raise ValueError(f"{ident}: invalid comment campaign date: {posted!r}")
+        if state == "SCHEDULED" and posted > as_of:
+            continue
         if ident not in by_id:
-            raise ValueError("PUBLIC comment has unpublished/missing post " + ident)
+            if state == "SCHEDULED" and ident in future_post_ids:
+                continue
+            raise ValueError("Published or due comment has unpublished/missing post " + ident)
         if not order.isdigit() or int(order) < 1 or (ident, int(order)) in orders:
             raise ValueError("Duplicate/invalid comment order: " + ident + "/" + order)
         orders.add((ident, int(order)))
@@ -106,6 +125,6 @@ def main():
     result=build(a.posts,a.comments,a.as_of)
     a.output.parent.mkdir(parents=True,exist_ok=True)
     a.output.write_text(json.dumps(result,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
-    print(f"Exported {len(result['posts'])} PUBLIC posts")
+    print(f"Exported {len(result['posts'])} due PUBLIC/SCHEDULED posts; future and DRAFT/HOLD content withheld")
 if __name__=="__main__":
     main()
