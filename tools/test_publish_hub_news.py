@@ -101,6 +101,15 @@ class CampaignPublisherTests(unittest.TestCase):
                     module.validate_stamp(bad)
         self.assertEqual(module.validate_stamp("2236-366"), "2236-366")
 
+    def test_campaign_date_mirror_matches_existing_public_feed(self):
+        root = Path(__file__).resolve().parents[1]
+        clock = json.loads((root / "data/campaign-date.json").read_text(encoding="utf-8"))
+        public = json.loads((root / "data/hub-news.json").read_text(encoding="utf-8"))
+        self.assertEqual(clock["schemaVersion"], 1)
+        self.assertEqual(module.validate_stamp(clock["asOf"]), clock["asOf"])
+        # Publishing may lag until the configured private-sheet Action runs.
+        self.assertGreaterEqual(clock["asOf"], public["asOf"])
+
     def test_private_sheet_header_mismatch_fails_closed(self):
         posts, comments, previous = self.baseline()
         posts[0][0] = "not-an-id-header"
