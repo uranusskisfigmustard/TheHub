@@ -74,6 +74,14 @@ window.BETWEEN_SESSION_PERIODS["m5-m6"] = {
             "Tovan Rusk",
             "Examiner, Hub Claims Registry"
           ]
+        },
+        {
+          "title": "Making Inquiries",
+          "paragraphs": [
+            "During downtime, you start asking around the docks about privateers and pirates. You try to keep things discreet, but after asking several crews about their connections to piracy, word starts getting around. One dockworker laughs. \"You looking to join them or arrest them?\" You don't get any names, but you do learn that most captains find new crew through people they've worked with before. Nobody's particularly interested in introducing a stranger.",
+            "You also spend some time looking for an office. You find a former service office near a Cistern-side tram connection that's available for lease. It's small, with enough room for a desk and a few chairs, working communications, and a lockable door. The owner is willing to arrange an inspection, but you'll need to discuss the price.",
+            "While talking with people in the neighborhood, you hear about three men who've been stopping workers coming home from late shifts and demanding credits for \"safe passage.\" They've been threatening those who refuse and following people traveling alone. One worker had their bag stolen, and another ended up with a broken nose. They generally disappear when larger groups come through."
+          ]
         }
       ]
     }
