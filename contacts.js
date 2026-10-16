@@ -5,6 +5,7 @@
   const detail = document.getElementById('contactsDetail');
   const directory = document.getElementById('contactsDirectory');
   let selectedId = '';
+  const sectionOpen = { person: true, group: true };
   let visibleEntries = [];
   const status = document.getElementById('contactsStatus');
   const search = document.getElementById('contactsSearch');
@@ -143,6 +144,9 @@
 
   function render() {
     if (!loaded) return;
+    for (const section of results.querySelectorAll('details[data-directory-type]')) {
+      sectionOpen[section.dataset.directoryType] = section.open;
+    }
     const words = normalize(search.value).trim().split(/\s+/).filter(Boolean);
     const visible = entries.map(entry => ({ entry, notes: notesFor(entry) })).filter(({ entry, notes }) => {
       if (!notes.length || (activeType !== 'all' && entry.type !== activeType)) return false;
@@ -155,8 +159,10 @@
     for (const [type, label] of [['person', 'People'], ['group', 'Organizations & groups']]) {
       const members = visible.filter(item => item.entry.type === type);
       if (!members.length) continue;
-      const section = element('section', 'contact-index-section');
-      const heading = element('h2', 'contact-index-heading', label + ' (' + members.length + ')');
+      const section = element('details', 'contact-index-section');
+      section.dataset.directoryType = type;
+      section.open = sectionOpen[type];
+      const heading = element('summary', 'contact-index-heading', label + ' (' + members.length + ')');
       heading.id = 'directory-' + type;
       section.setAttribute('aria-labelledby', heading.id);
       section.appendChild(heading);
@@ -203,6 +209,8 @@
     if (!entryMap.has(id)) return;
     if (!visibleEntries.some(item => item.entry.id === id)) clearFilters();
     select(id);
+    const section = results.querySelector('[data-profile="' + id + '"]')?.closest('details');
+    if (section) section.open = true;
   }
 
   async function load() {
@@ -212,7 +220,7 @@
     status.textContent = 'Loading crew notes…';
     try {
       // This is a deliberately curated public file. Never fall back to Warden NPC/faction APIs.
-      const response = await fetch('data/player-contacts.json?v=20261016-contacts3', { cache: 'no-cache' });
+      const response = await fetch('data/player-contacts.json?v=20261016-contacts4', { cache: 'no-cache' });
       if (!response.ok) throw new Error('Unavailable');
       entries = validate(await response.json());
       entryMap = new Map(entries.map(entry => [entry.id, entry]));
