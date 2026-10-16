@@ -29,7 +29,8 @@
           ],
           "source": "Between sessions · M2 → M3"
         }
-      ]
+      ],
+      "portrait": "assets/portraits/asha-raman.webp"
     },
     {
       "id": "hiroshi-tanaka",
@@ -49,7 +50,8 @@
           ],
           "source": "M1 · Dead Air closeout"
         }
-      ]
+      ],
+      "portrait": "assets/portraits/hiroshi-tanaka.webp"
     },
     {
       "id": "kezi-moran",
@@ -74,7 +76,8 @@
           ],
           "source": "Kezi's account · Between sessions · M2 → M3"
         }
-      ]
+      ],
+      "portrait": "assets/portraits/kezi-moran.webp"
     },
     {
       "id": "vera",
@@ -212,7 +215,8 @@
           ],
           "source": "Between sessions · M3 → M4"
         }
-      ]
+      ],
+      "portrait": "assets/portraits/opal-coil.webp"
     },
     {
       "id": "tovan-rusk",
@@ -248,7 +252,8 @@
           ],
           "source": "Published determination · M5 → M6"
         }
-      ]
+      ],
+      "portrait": "assets/portraits/tovan-rusk.webp"
     },
     {
       "id": "blythe-vale",
@@ -345,7 +350,8 @@
           ],
           "source": "Between sessions · M4 → M6"
         }
-      ]
+      ],
+      "portrait": "assets/portraits/captain-nizar-ilman.webp"
     },
     {
       "id": "luca",

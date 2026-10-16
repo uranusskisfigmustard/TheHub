@@ -23,9 +23,12 @@ def validate(data):
     ids = set()
     groups = set()
     for entry in data['entries']:
-        require(set(entry) == {'id', 'type', 'name', 'role', 'affiliations', 'notes'}, 'Unexpected entry fields: no private record exports')
+        require(set(entry) - {'portrait'} == {'id', 'type', 'name', 'role', 'affiliations', 'notes'}, 'Unexpected entry fields: no private record exports')
         require(isinstance(entry['id'], str) and re.fullmatch(r'[a-z0-9-]+', entry['id']), 'Invalid anchor')
         require(entry['id'] not in ids, 'Duplicate anchor: ' + entry['id'])
+        if 'portrait' in entry:
+            require(isinstance(entry['portrait'], str) and re.fullmatch(r'assets/portraits/[a-z0-9-]+\.(png|jpg|jpeg|webp)', entry['portrait']), 'Unsafe portrait path')
+            require((ROOT / entry['portrait']).is_file(), 'Missing portrait asset')
         ids.add(entry['id'])
         require(entry['type'] in ('person', 'group'), 'Invalid entry type')
         if entry['type'] == 'group':

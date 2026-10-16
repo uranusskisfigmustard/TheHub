@@ -59,3 +59,9 @@ Keep the page responsive, keyboard accessible, and test search, character/note
 filters, group links, empty results and unavailable/malformed data. Shared shell
 navigation supplies the Warden shortcut here too.
 
+Portraits are optional `portrait` paths in the public JSON, restricted to local
+`assets/portraits/` images. Use an established matching NPC portrait; review the
+image itself for unrevealed information. Keep original artwork and attribution
+intact. Missing portraits use initials, and failed images fall back gracefully.
+The directory opens one profile at a time; anchors still link directly to people
+and groups. Check profile selection and browser history when changing its layout.

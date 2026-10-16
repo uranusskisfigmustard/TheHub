@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <title>The Hub — NPCs &amp; Factions</title>
   <link rel="stylesheet" href="player-shell.css?v=20261014-warden-shortcut1">
-  <link rel="stylesheet" href="contacts.css?v=20261016-contacts1">
+  <link rel="stylesheet" href="contacts.css?v=20261016-contacts2">
 </head>
 <body data-page="contacts">
   <div id="playerShell"></div>
@@ -45,22 +45,28 @@
           </select>
         </label>
       </div>
-      <div class="contacts-legend" aria-label="How to read the notes">
+      <details class="contacts-help"><summary>How to read the notes</summary><div class="contacts-legend">
         <span><b>Known</b> — encountered or established</span>
         <span><b>Reported</b> — an attributed account</span>
         <span><b>Crew theory</b> — a recorded belief</span>
         <span><b>Unconfirmed</b> — still unresolved</span>
-      </div>
+      </div></details>
       <div class="contacts-results-bar">
         <p id="contactsStatus" role="status" aria-live="polite" aria-atomic="true">Loading crew notes…</p>
         <button id="contactsReset" type="button">Clear filters</button>
       </div>
     </section>
-    <div id="contactsResults" class="contacts-grid" aria-label="People and factions"></div>
+    <div class="contacts-workspace">
+      <details class="contacts-directory" id="contactsDirectory" open>
+        <summary>Browse directory <span id="contactsCount"></span></summary>
+        <nav id="contactsResults" aria-label="People and factions"></nav>
+      </details>
+      <section id="contactsDetail" class="contacts-detail" aria-label="Selected profile"></section>
+    </div>
     <noscript><p class="contacts-empty">JavaScript is required to load the crew notebook and its filters.</p></noscript>
   </main>
-  <script src="player-routes.js?v=20261016-contacts1"></script>
+  <script src="player-routes.js?v=20261016-contacts2"></script>
   <script src="player-shell.js?v=20261014-warden-shortcut1"></script>
-  <script src="contacts.js?v=20261016-contacts1"></script>
+  <script src="contacts.js?v=20261016-contacts2"></script>
 </body>
 </html>
