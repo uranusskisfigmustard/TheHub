@@ -25,3 +25,37 @@ Only the listed legacy Warden, template, and test HTML files are exempt.
 
 GitHub Actions detects problems but does not, by itself, prevent direct pushes
 or deployment unless repository protections require its check to pass.
+
+## NPCs & Factions notebook
+
+`contacts.html` is the player directory under Reference. Its only content source
+is the curated `data/player-contacts.json`; it must never fetch or fall back to
+Warden NPC/faction endpoints or export private records and hide them in the UI.
+The entire JSON file, all rendered text, and all source code are public.
+
+Add someone after an actual encounter or established player-facing introduction,
+not when a future mission is generated. Use completed play and already-published
+between-session scenes. Keep unplayed mission casts and unrevealed affiliations,
+motives, statistics and future plans out of this file.
+
+For every note, record the characters who know it and a short public source
+label. Use `known` for established experience, `reported` for an attributed claim,
+`suspected` only for an actual recorded player theory, and `unconfirmed` for an
+unresolved question. Never invent a theory or turn an NPC's claim into truth.
+Personal notes remain attributed; the default view collects published notes and
+does not claim that every character knows everything. Connections include care,
+work and contact; they are not an assertion of employment or secret membership.
+
+Do not link Warden-only source documents from this page or its public data.
+Review both names and prose for spoilers before publishing. Then run:
+
+```
+python3 tools/check-player-pages.py
+python3 tools/check-player-contacts.py
+node --check contacts.js
+```
+
+Keep the page responsive, keyboard accessible, and test search, character/note
+filters, group links, empty results and unavailable/malformed data. Shared shell
+navigation supplies the Warden shortcut here too.
+

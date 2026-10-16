@@ -7,6 +7,10 @@ on:
       - 'player-shell.js'
       - 'player-shell.css'
       - 'player-routes.js'
+      - 'contacts.js'
+      - 'contacts.css'
+      - 'data/player-contacts.json'
+      - 'tools/check-player-contacts.py'
       - 'tools/check-player-pages.py'
       - '.github/workflows/check-player-pages.yml'
   pull_request:
@@ -15,6 +19,10 @@ on:
       - 'player-shell.js'
       - 'player-shell.css'
       - 'player-routes.js'
+      - 'contacts.js'
+      - 'contacts.css'
+      - 'data/player-contacts.json'
+      - 'tools/check-player-contacts.py'
       - 'tools/check-player-pages.py'
       - '.github/workflows/check-player-pages.yml'
   workflow_dispatch:
@@ -30,3 +38,8 @@ jobs:
         uses: actions/checkout@v4
       - name: Confirm all player pages have the Warden shortcut
         run: python3 tools/check-player-pages.py
+      - name: Validate public notebook data and script
+        run: |
+          python3 tools/check-player-contacts.py
+          node --check contacts.js
+

@@ -1,0 +1,833 @@
+{
+  "schemaVersion": 1,
+  "updated": "2026-10-16",
+  "scope": "Completed missions M0–M5 and published between-session scenes.",
+  "entries": [
+    {
+      "id": "asha-raman",
+      "type": "person",
+      "name": "Asha Raman",
+      "role": "Breakwater sponsor contact",
+      "affiliations": [
+        "breakwater"
+      ],
+      "notes": [
+        {
+          "kind": "known",
+          "text": "Helped John and Prue through sponsored work and later professional recognition.",
+          "by": [
+            "john",
+            "prue"
+          ],
+          "source": "Completed sponsor work; published M3 → M4 scenes"
+        },
+        {
+          "kind": "known",
+          "text": "Introduced John to Captain Nizar Ilman and put her own recommendation behind him.",
+          "by": [
+            "john"
+          ],
+          "source": "Between sessions · M2 → M3"
+        }
+      ]
+    },
+    {
+      "id": "hiroshi-tanaka",
+      "type": "person",
+      "name": "Hiroshi Tanaka",
+      "role": "Dead Air closeout signatory",
+      "affiliations": [
+        "breakwater"
+      ],
+      "notes": [
+        {
+          "kind": "known",
+          "text": "Co-signed the accepted Dead Air closeout with Asha Raman.",
+          "by": [
+            "john",
+            "prue"
+          ],
+          "source": "M1 · Dead Air closeout"
+        }
+      ]
+    },
+    {
+      "id": "kezi-moran",
+      "type": "person",
+      "name": "Kezi Moran",
+      "role": "Field technician",
+      "affiliations": [],
+      "notes": [
+        {
+          "kind": "known",
+          "text": "Was taken to medical after Dead Air. Prue later met her back on field work, repairing a diagnostic unit while waiting for parts.",
+          "by": [
+            "prue"
+          ],
+          "source": "M1 aftermath; Between sessions · M2 → M3"
+        },
+        {
+          "kind": "reported",
+          "text": "Says the emergency requisitions and field modifications from Dead Air still need explaining afterward.",
+          "by": [
+            "prue"
+          ],
+          "source": "Kezi's account · Between sessions · M2 → M3"
+        }
+      ]
+    },
+    {
+      "id": "vera",
+      "type": "person",
+      "name": "Vera",
+      "role": "Injured loading-bay worker",
+      "affiliations": [
+        "breakwater"
+      ],
+      "notes": [
+        {
+          "kind": "known",
+          "text": "Was injured in the loading-bay accident investigated during Witness Window.",
+          "by": [
+            "john",
+            "prue"
+          ],
+          "source": "M2 · Witness Window"
+        },
+        {
+          "kind": "known",
+          "text": "Prue visited her at Saint Orra. Vera wanted the final account to describe the equipment, load data and working conditions—not blame one worker for everything.",
+          "by": [
+            "prue"
+          ],
+          "source": "Between sessions · M2 → M3"
+        }
+      ]
+    },
+    {
+      "id": "quinn",
+      "type": "person",
+      "name": "Quinn",
+      "role": "Loading-bay shift lead",
+      "affiliations": [
+        "breakwater"
+      ],
+      "notes": [
+        {
+          "kind": "known",
+          "text": "Was injured in the Witness Window accident and later admitted involvement in the decision to continue working.",
+          "by": [
+            "john",
+            "prue"
+          ],
+          "source": "M2 · Witness Window"
+        },
+        {
+          "kind": "known",
+          "text": "Prue visited Quinn during a medically supervised period of confused wakefulness. Pella would not treat their uncertainty then as consent to an irreversible procedure.",
+          "by": [
+            "prue"
+          ],
+          "source": "Between sessions · M2 → M3"
+        }
+      ]
+    },
+    {
+      "id": "jett",
+      "type": "person",
+      "name": "Jett",
+      "role": "Breakwater floor worker",
+      "affiliations": [
+        "breakwater"
+      ],
+      "notes": [
+        {
+          "kind": "known",
+          "text": "Was a worker and witness in the loading-bay accident investigation.",
+          "by": [
+            "john",
+            "prue"
+          ],
+          "source": "M2 · Witness Window"
+        }
+      ]
+    },
+    {
+      "id": "mr-orr",
+      "type": "person",
+      "name": "Mr. Orr",
+      "role": "Shift operations supervisor",
+      "affiliations": [
+        "breakwater"
+      ],
+      "notes": [
+        {
+          "kind": "known",
+          "text": "Was the shift operations supervisor encountered during the Witness Window investigation.",
+          "by": [
+            "john",
+            "prue"
+          ],
+          "source": "M2 · Witness Window"
+        }
+      ]
+    },
+    {
+      "id": "opal-coil",
+      "type": "person",
+      "name": "Opal Coil",
+      "role": "Loading-crew contact and worker advocate",
+      "affiliations": [],
+      "notes": [
+        {
+          "kind": "known",
+          "text": "Requested the crew's involvement in Witness Window and supported the final assessment.",
+          "by": [
+            "john",
+            "prue"
+          ],
+          "source": "M2 · Witness Window"
+        },
+        {
+          "kind": "reported",
+          "text": "Describes improved stop-work protection and scrutiny of unsafe equipment, while staffing and expensive problems remain unresolved.",
+          "by": [
+            "john"
+          ],
+          "source": "Opal's account · Between sessions · M2 → M3"
+        },
+        {
+          "kind": "known",
+          "text": "Has helped John bring loading workers together for informal discussions about leading a crew.",
+          "by": [
+            "john"
+          ],
+          "source": "Between sessions · M3 → M4"
+        },
+        {
+          "kind": "known",
+          "text": "Talked with Prue about balancing debt repayment against making everyday life bearable.",
+          "by": [
+            "prue"
+          ],
+          "source": "Between sessions · M3 → M4"
+        }
+      ]
+    },
+    {
+      "id": "tovan-rusk",
+      "type": "person",
+      "name": "Tovan Rusk",
+      "role": "Examiner, Hub Claims Registry",
+      "affiliations": [
+        "hub-claims"
+      ],
+      "notes": [
+        {
+          "kind": "known",
+          "text": "Accepted the Witness Window evidence package but questioned the crew's impartiality in future Claims investigations.",
+          "by": [
+            "john",
+            "prue"
+          ],
+          "source": "M2 · Witness Window"
+        },
+        {
+          "kind": "reported",
+          "text": "Told John that Claims cannot order a general search for the surviving M5 attackers and invited further relevant evidence.",
+          "by": [
+            "john"
+          ],
+          "source": "Published correspondence · M5 → M6"
+        },
+        {
+          "kind": "known",
+          "text": "Rejected John's ownership claim to the Marrowell shuttle. His notice permits resubmission with new evidence or a separate legal basis.",
+          "by": [
+            "john"
+          ],
+          "source": "Published determination · M5 → M6"
+        }
+      ]
+    },
+    {
+      "id": "blythe-vale",
+      "type": "person",
+      "name": "Blythe Vale",
+      "role": "Recovered resident",
+      "affiliations": [
+        "saint-orra"
+      ],
+      "notes": [
+        {
+          "kind": "known",
+          "text": "Survived the Saint Orra surgery emergency after John and Prue stopped the dangerous recovery behavior.",
+          "by": [
+            "john",
+            "prue"
+          ],
+          "source": "M3 · The Patient in Reserve"
+        },
+        {
+          "kind": "reported",
+          "text": "Says her records-correction packet has been sent for external review. A reply has not been established.",
+          "by": [
+            "john",
+            "prue"
+          ],
+          "source": "M3 aftermath"
+        },
+        {
+          "kind": "known",
+          "text": "Met John in a Breakwater administrative queue and later invited him to spend time in a hydroponic bay.",
+          "by": [
+            "john"
+          ],
+          "source": "Between sessions · M2 → M4"
+        }
+      ]
+    },
+    {
+      "id": "pella-sorn",
+      "type": "person",
+      "name": "Dr. Pella Sorn",
+      "role": "Saint Orra doctor",
+      "affiliations": [
+        "saint-orra"
+      ],
+      "notes": [
+        {
+          "kind": "known",
+          "text": "Prue spoke with her during visits to Vera and Quinn. She protects patients' confidentiality and medical consent.",
+          "by": [
+            "prue"
+          ],
+          "source": "Between sessions · M2 → M3"
+        },
+        {
+          "kind": "known",
+          "text": "Agreed to pass Prue's message to Levent and directed her to the Order of the Last Watch.",
+          "by": [
+            "prue"
+          ],
+          "source": "Between sessions · M5 → M6"
+        },
+        {
+          "kind": "known",
+          "text": "Forwarded Levent's reply nine days later. She has not offered Prue access to his confidential treatment information.",
+          "by": [
+            "prue"
+          ],
+          "source": "Between sessions · M5 → M6"
+        }
+      ]
+    },
+    {
+      "id": "nizar-ilman",
+      "type": "person",
+      "name": "Captain Nizar Ilman",
+      "role": "Captain and Zero-G instructor",
+      "affiliations": [],
+      "notes": [
+        {
+          "kind": "known",
+          "text": "Met John through Asha during an equipment handoff for his salvage tender.",
+          "by": [
+            "john"
+          ],
+          "source": "Between sessions · M2 → M3"
+        },
+        {
+          "kind": "known",
+          "text": "Taught John's Zero-G practical sessions, including the final untethered exercise outside the Hub.",
+          "by": [
+            "john"
+          ],
+          "source": "Between sessions · M4 → M6"
+        }
+      ]
+    },
+    {
+      "id": "luca",
+      "type": "person",
+      "name": "Luca",
+      "role": "Computers trainer and C-18 contact",
+      "affiliations": [
+        "c18-community"
+      ],
+      "notes": [
+        {
+          "kind": "known",
+          "text": "Trains Prue in Computers in exchange for community-selected supplies. The supplies were delivered over several trips.",
+          "by": [
+            "prue"
+          ],
+          "source": "Between sessions · M3 → M5"
+        },
+        {
+          "kind": "known",
+          "text": "Worked with the crew during Bonded Freight Security.",
+          "by": [
+            "john",
+            "prue",
+            "violet"
+          ],
+          "source": "M5 · Bonded Freight Security"
+        },
+        {
+          "kind": "known",
+          "text": "Assigned Prue a later practical exam: work out whether her field router can be upgraded and reprogrammed into a jammer, then test it.",
+          "by": [
+            "prue"
+          ],
+          "source": "Between sessions · M5 → M6"
+        }
+      ]
+    },
+    {
+      "id": "mark-varga",
+      "type": "person",
+      "name": "Márk Varga",
+      "role": "The Muster contact",
+      "affiliations": [
+        "the-muster"
+      ],
+      "notes": [
+        {
+          "kind": "reported",
+          "text": "Offered John firearms training with range work reducing the price, including occasional longer commitments.",
+          "by": [
+            "john"
+          ],
+          "source": "Published offer · M4 → M5"
+        }
+      ]
+    },
+    {
+      "id": "paul-hollywood",
+      "type": "person",
+      "name": "Paul Hollywood",
+      "role": "Material Recovery Cell M-17 contact",
+      "affiliations": [],
+      "notes": [
+        {
+          "kind": "known",
+          "text": "Worked with the crew on the M-17 processor incident and awarded a discretionary bonus after the mission.",
+          "by": [
+            "john",
+            "prue"
+          ],
+          "source": "M4 · The Ore That Waits for Jump"
+        }
+      ]
+    },
+    {
+      "id": "mireya-solano",
+      "type": "person",
+      "name": "Mireya Solano",
+      "role": "Hiring representative for the M5 pharmaceutical job",
+      "affiliations": [
+        "intellirx"
+      ],
+      "notes": [
+        {
+          "kind": "known",
+          "text": "Hired the crew for Bonded Freight Security and received the hardened archive module at closeout.",
+          "by": [
+            "john",
+            "prue",
+            "violet"
+          ],
+          "source": "M5 · Bonded Freight Security"
+        },
+        {
+          "kind": "reported",
+          "text": "The archive's signed root index described concealed trials, suppressed adverse events and falsified records. Prue read the index; the detailed bundles remained encrypted.",
+          "by": [
+            "prue"
+          ],
+          "source": "SUSTAIN-9 index read during M5"
+        }
+      ]
+    },
+    {
+      "id": "levent-arslan",
+      "type": "person",
+      "name": "Levent Arslan",
+      "role": "Leader of the M5 attacking group",
+      "affiliations": [],
+      "notes": [
+        {
+          "kind": "known",
+          "text": "Led the opposing group during Bonded Freight Security and survived the confrontation.",
+          "by": [
+            "john",
+            "prue",
+            "violet"
+          ],
+          "source": "M5 · Bonded Freight Security"
+        },
+        {
+          "kind": "reported",
+          "text": "Replied to Prue through Pella asking for his SMG, revolver and the equipment taken from his people.",
+          "by": [
+            "prue"
+          ],
+          "source": "Published reply · M5 → M6"
+        },
+        {
+          "kind": "unconfirmed",
+          "text": "His reply included no address or meeting arrangement. Whether he is willing to meet remains unresolved.",
+          "by": [
+            "prue"
+          ],
+          "source": "Published reply · M5 → M6"
+        }
+      ]
+    },
+    {
+      "id": "rhea-calder",
+      "type": "person",
+      "name": "Rhea Calder",
+      "role": "Caligo survivor evacuated aboard Hecate",
+      "affiliations": [],
+      "notes": [
+        {
+          "kind": "known",
+          "text": "Was evacuated from Caligo to Hecate and placed in cryosleep after decontamination.",
+          "by": [
+            "john",
+            "prue"
+          ],
+          "source": "M0 · CERA-6 / Caligo"
+        },
+        {
+          "kind": "unconfirmed",
+          "text": "Her present whereabouts after John and Prue's seven-year gap are unknown.",
+          "by": [
+            "john",
+            "prue"
+          ],
+          "source": "Last established encounter · M0"
+        }
+      ]
+    },
+    {
+      "id": "juno-kade",
+      "type": "person",
+      "name": "Juno Kade",
+      "role": "Caligo survivor",
+      "affiliations": [],
+      "notes": [
+        {
+          "kind": "known",
+          "text": "Voluntarily remained at Caligo with the other survivors when the crew left supplies and a stabilized station.",
+          "by": [
+            "john",
+            "prue"
+          ],
+          "source": "M0 · CERA-6 / Caligo"
+        },
+        {
+          "kind": "reported",
+          "text": "Corporate representatives said a quarantine-capable rescue would arrive, estimated at about two months.",
+          "by": [
+            "john",
+            "prue"
+          ],
+          "source": "Corporate statement · M0"
+        },
+        {
+          "kind": "unconfirmed",
+          "text": "What happened after the crew left Caligo is not established.",
+          "by": [
+            "john",
+            "prue"
+          ],
+          "source": "Last established encounter · M0"
+        }
+      ]
+    },
+    {
+      "id": "kavya-voss",
+      "type": "person",
+      "name": "Dr. Kavya Voss",
+      "role": "Caligo survivor",
+      "affiliations": [],
+      "notes": [
+        {
+          "kind": "known",
+          "text": "Voluntarily remained at Caligo with Juno and the other survivors.",
+          "by": [
+            "john",
+            "prue"
+          ],
+          "source": "M0 · CERA-6 / Caligo"
+        },
+        {
+          "kind": "reported",
+          "text": "The crew's submitted report commended her and Juno.",
+          "by": [
+            "john",
+            "prue"
+          ],
+          "source": "Crew's official report · M0"
+        },
+        {
+          "kind": "unconfirmed",
+          "text": "Her present whereabouts after the seven-year gap are unknown.",
+          "by": [
+            "john",
+            "prue"
+          ],
+          "source": "Last established encounter · M0"
+        }
+      ]
+    },
+    {
+      "id": "breakwater",
+      "type": "group",
+      "name": "Breakwater Recovery Cooperative",
+      "role": "Recovery, sponsorship and work",
+      "affiliations": [],
+      "notes": [
+        {
+          "kind": "known",
+          "text": "Recovered John and Prue's pods, provided their initial housing and sponsorship, and arranged their early Hub work.",
+          "by": [
+            "john",
+            "prue"
+          ],
+          "source": "Recovery and completed sponsor work"
+        },
+        {
+          "kind": "known",
+          "text": "Operates the bonded freight annex involved in M5.",
+          "by": [
+            "john",
+            "prue",
+            "violet"
+          ],
+          "source": "M5 · Bonded Freight Security"
+        }
+      ]
+    },
+    {
+      "id": "saint-orra",
+      "type": "group",
+      "name": "Saint Orra",
+      "role": "Medical care",
+      "affiliations": [],
+      "notes": [
+        {
+          "kind": "known",
+          "text": "Treated injured workers and was the site of Blythe's surgery emergency.",
+          "by": [
+            "john",
+            "prue"
+          ],
+          "source": "M2 aftermath; M3 · The Patient in Reserve"
+        },
+        {
+          "kind": "known",
+          "text": "Pella works here. Prue has visited Vera and Quinn here.",
+          "by": [
+            "prue"
+          ],
+          "source": "Published between-session scenes"
+        }
+      ]
+    },
+    {
+      "id": "hub-claims",
+      "type": "group",
+      "name": "Hub Claims Registry",
+      "role": "Claims and evidence",
+      "affiliations": [],
+      "notes": [
+        {
+          "kind": "known",
+          "text": "Received the Witness Window evidence through Tovan Rusk.",
+          "by": [
+            "john",
+            "prue"
+          ],
+          "source": "M2 · Witness Window"
+        },
+        {
+          "kind": "reported",
+          "text": "Its written determination rejects John's present shuttle ownership claim while permitting a revised submission.",
+          "by": [
+            "john"
+          ],
+          "source": "Published determination · M5 → M6"
+        }
+      ]
+    },
+    {
+      "id": "deepwell",
+      "type": "group",
+      "name": "Deepwell Extractive League",
+      "role": "Industrial contracting",
+      "affiliations": [],
+      "notes": [
+        {
+          "kind": "known",
+          "text": "Paid John and Prue contractor compensation following their M4 work.",
+          "by": [
+            "john",
+            "prue"
+          ],
+          "source": "M4 closeout"
+        }
+      ]
+    },
+    {
+      "id": "intellirx",
+      "type": "group",
+      "name": "IntelliRX",
+      "role": "M5 pharmaceutical employer",
+      "affiliations": [],
+      "notes": [
+        {
+          "kind": "known",
+          "text": "The employer represented by Mireya Solano for Bonded Freight Security.",
+          "by": [
+            "john",
+            "prue",
+            "violet"
+          ],
+          "source": "M5 · Bonded Freight Security"
+        }
+      ]
+    },
+    {
+      "id": "marrowell",
+      "type": "group",
+      "name": "Marrowell",
+      "role": "Name associated with the M5 shuttle",
+      "affiliations": [],
+      "notes": [
+        {
+          "kind": "reported",
+          "text": "John's Claims correspondence identifies the contested craft as the Marrowell shuttle and states that an identifiable owner exists.",
+          "by": [
+            "john"
+          ],
+          "source": "Published shuttle determination · M5 → M6"
+        },
+        {
+          "kind": "known",
+          "text": "John has not been awarded ownership of the shuttle.",
+          "by": [
+            "john"
+          ],
+          "source": "Published shuttle determination · M5 → M6"
+        }
+      ]
+    },
+    {
+      "id": "order-last-watch",
+      "type": "group",
+      "name": "Order of the Last Watch",
+      "role": "Vigil for the dead",
+      "affiliations": [],
+      "notes": [
+        {
+          "kind": "known",
+          "text": "Permitted Prue to join a watch rotation beside the five deceased M5 attackers after Pella directed her there.",
+          "by": [
+            "prue"
+          ],
+          "source": "Between sessions · M5 → M6"
+        }
+      ]
+    },
+    {
+      "id": "c18-community",
+      "type": "group",
+      "name": "C-18 community",
+      "role": "The crew's “Vent People” contacts",
+      "affiliations": [],
+      "notes": [
+        {
+          "kind": "known",
+          "text": "Luca provided a list of practical supplies for the community, and Prue delivered them over several trips.",
+          "by": [
+            "prue"
+          ],
+          "source": "Between sessions · M3 → M5"
+        },
+        {
+          "kind": "known",
+          "text": "John has checked in, spoken with residents and learned about their previous work.",
+          "by": [
+            "john"
+          ],
+          "source": "Between sessions · M4 → M5"
+        }
+      ]
+    },
+    {
+      "id": "the-muster",
+      "type": "group",
+      "name": "The Muster",
+      "role": "Independent range",
+      "affiliations": [],
+      "notes": [
+        {
+          "kind": "reported",
+          "text": "An independent range used by security crews from across the Hub. Márk Varga sent John a training offer from here.",
+          "by": [
+            "john"
+          ],
+          "source": "Published offer · M4 → M5"
+        }
+      ]
+    },
+    {
+      "id": "breathworks",
+      "type": "group",
+      "name": "Breathworks Compact",
+      "role": "Known through Dead Air medical support",
+      "affiliations": [],
+      "notes": [
+        {
+          "kind": "known",
+          "text": "Covered the 500cr sponsor-grade fracture-care charge for John's Dead Air injury.",
+          "by": [
+            "john"
+          ],
+          "source": "Dead Air recovery terms"
+        }
+      ]
+    },
+    {
+      "id": "helix-meridian",
+      "type": "group",
+      "name": "Helix Meridian",
+      "role": "John and Prue's former employer",
+      "affiliations": [],
+      "notes": [
+        {
+          "kind": "known",
+          "text": "John and Prue served as Helix Meridian specialists aboard CSV Hecate during the Caligo response.",
+          "by": [
+            "john",
+            "prue"
+          ],
+          "source": "M0 · CERA-6 / Caligo"
+        },
+        {
+          "kind": "known",
+          "text": "Their old employment records were later received and reviewed for professional recognition on the Hub.",
+          "by": [
+            "john",
+            "prue"
+          ],
+          "source": "Between sessions · M3 → M4"
+        }
+      ]
+    }
+  ]
+}
