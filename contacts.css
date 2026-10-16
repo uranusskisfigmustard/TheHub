@@ -111,3 +111,7 @@
 
 .contact-index-heading { position: sticky; top: 0; z-index: 1; margin: 0; padding: 12px 15px; background: var(--bg); color: var(--accent); border-bottom: 1px solid var(--line); font-size: .7rem; font-weight: 600; letter-spacing: .06em; }
 .contact-index-section + .contact-index-section { border-top: 1px solid var(--line); }
+
+summary.contact-index-heading { cursor: pointer; min-height: 44px; box-sizing: border-box; }
+summary.contact-index-heading:hover { color: var(--text); }
+summary.contact-index-heading:focus-visible { outline: 2px solid var(--accent); outline-offset: -3px; }
