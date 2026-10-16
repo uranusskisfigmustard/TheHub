@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const BUILD = '20261014-player-nav1';
+  const BUILD = '20261016-contacts1';
   const groups = [
     {
       id: 'board', label: 'BOARD', defaultPage: 'contracts', pages: [
@@ -24,10 +24,12 @@
     },
     {
       id: 'reference', label: 'REFERENCE', defaultPage: 'reference', pages: [
-        { id: 'reference', label: 'PLAYER REFERENCE', href: 'player-reference.html', summary: 'Player-known rules and immediately relevant campaign reference material.' }
+        { id: 'reference', label: 'PLAYER REFERENCE', href: 'player-reference.html', summary: 'Player-known rules and immediately relevant campaign reference material.' },
+        { id: 'contacts', label: 'NPCS & FACTIONS', href: 'contacts.html', summary: 'People and groups encountered by the crew, with attributed knowledge and unresolved questions.' }
       ]
     }
   ];
 
   window.HubPlayerRoutes = Object.freeze({ build: BUILD, groups: Object.freeze(groups) });
 })();
+
