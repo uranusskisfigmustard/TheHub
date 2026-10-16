@@ -151,17 +151,29 @@
       return words.every(word => haystack.includes(word));
     }).sort((a, b) => a.entry.name.localeCompare(b.entry.name, 'en', { sensitivity: 'base' }));
     visibleEntries = visible;
-    const links = visible.map(({ entry, notes }) => {
-      const link = element('a', 'contact-index-row');
-      link.href = '#' + entry.id;
-      link.dataset.profile = entry.id;
-      const copy = element('span', 'contact-index-copy');
-      copy.append(element('strong', '', entry.name), element('span', '', entry.role),
-        element('small', '', (entry.type === 'person' ? 'Person' : 'Group') + ' · ' + notes.length + ' notes'));
-      link.append(portrait(entry, true), copy);
-      return link;
-    });
-    results.replaceChildren(...links);
+    const sections = [];
+    for (const [type, label] of [['person', 'People'], ['group', 'Organizations & groups']]) {
+      const members = visible.filter(item => item.entry.type === type);
+      if (!members.length) continue;
+      const section = element('section', 'contact-index-section');
+      const heading = element('h2', 'contact-index-heading', label + ' (' + members.length + ')');
+      heading.id = 'directory-' + type;
+      section.setAttribute('aria-labelledby', heading.id);
+      section.appendChild(heading);
+      const links = members.map(({ entry, notes }) => {
+        const link = element('a', 'contact-index-row');
+        link.href = '#' + entry.id;
+        link.dataset.profile = entry.id;
+        const copy = element('span', 'contact-index-copy');
+        copy.append(element('strong', '', entry.name), element('span', '', entry.role),
+          element('small', '', (entry.type === 'person' ? 'Person' : 'Group') + ' · ' + notes.length + ' notes'));
+        link.append(portrait(entry, true), copy);
+        return link;
+      });
+      section.append(...links);
+      sections.push(section);
+    }
+    results.replaceChildren(...sections);
     document.getElementById('contactsCount').textContent = '(' + visible.length + ')';
     if (visible.length) select(visible.some(item => item.entry.id === selectedId) ? selectedId : visible[0].entry.id);
     else { detail.replaceChildren(); directory.open = true; }
@@ -200,7 +212,7 @@
     status.textContent = 'Loading crew notes…';
     try {
       // This is a deliberately curated public file. Never fall back to Warden NPC/faction APIs.
-      const response = await fetch('data/player-contacts.json?v=20261016-contacts2', { cache: 'no-cache' });
+      const response = await fetch('data/player-contacts.json?v=20261016-contacts3', { cache: 'no-cache' });
       if (!response.ok) throw new Error('Unavailable');
       entries = validate(await response.json());
       entryMap = new Map(entries.map(entry => [entry.id, entry]));

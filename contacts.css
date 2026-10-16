@@ -108,3 +108,6 @@
   .contacts-filters { grid-template-columns: minmax(0, 1fr); }
   .contacts-types button { font-size: .76rem; padding-inline: 9px; }
 }
+
+.contact-index-heading { position: sticky; top: 0; z-index: 1; margin: 0; padding: 12px 15px; background: var(--bg); color: var(--accent); border-bottom: 1px solid var(--line); font-size: .7rem; font-weight: 600; letter-spacing: .06em; }
+.contact-index-section + .contact-index-section { border-top: 1px solid var(--line); }
