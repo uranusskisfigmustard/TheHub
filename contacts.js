@@ -2,6 +2,10 @@
   'use strict';
 
   const results = document.getElementById('contactsResults');
+  const detail = document.getElementById('contactsDetail');
+  const directory = document.getElementById('contactsDirectory');
+  let selectedId = '';
+  let visibleEntries = [];
   const status = document.getElementById('contactsStatus');
   const search = document.getElementById('contactsSearch');
   const perspective = document.getElementById('contactsPerspective');
@@ -33,6 +37,7 @@
           !['person', 'group'].includes(entry.type) || typeof entry.name !== 'string' || !entry.name ||
           typeof entry.role !== 'string' || !Array.isArray(entry.affiliations) ||
           !Array.isArray(entry.notes) || !entry.notes.length) throw new Error('Invalid entry');
+      if (entry.portrait && !/^assets\/portraits\/[a-z0-9-]+\.(png|jpg|jpeg|webp)$/.test(entry.portrait)) throw new Error('Invalid portrait');
       ids.add(entry.id);
       for (const note of entry.notes) {
         if (!note || !Object.hasOwn(labels, note.kind) || typeof note.text !== 'string' || !note.text ||
@@ -65,13 +70,19 @@
     article.id = entry.id;
     article.dataset.entryType = entry.type;
     article.setAttribute('aria-labelledby', entry.id + '-title');
-    article.appendChild(element('div', 'contact-kind', entry.type === 'person' ? 'Person' : 'Faction / group'));
+    const header = element('div', 'contact-profile-heading');
+    if (entry.portrait) header.appendChild(portrait(entry, false));
+    const identity = element('div', 'contact-identity');
+    header.appendChild(identity);
+    article.appendChild(header);
+    identity.appendChild(element('div', 'contact-kind', entry.type === 'person' ? 'Person' : 'Faction / group'));
     const heading = element('h2');
     heading.id = entry.id + '-title';
     const permalink = element('a', '', entry.name);
     permalink.href = '#' + entry.id;
     heading.appendChild(permalink);
-    article.append(heading, element('p', 'contact-role', entry.role));
+    heading.tabIndex = -1;
+    identity.append(heading, element('p', 'contact-role', entry.role));
     if (entry.affiliations.length) {
       const connections = element('div', 'contact-connections');
       connections.setAttribute('aria-label', 'Connections');
@@ -81,7 +92,7 @@
         link.dataset.contactLink = id;
         connections.appendChild(link);
       }
-      article.appendChild(connections);
+      identity.appendChild(connections);
     }
     const list = element('ul', 'contact-notes');
     for (const note of notes) {
@@ -95,6 +106,41 @@
     return article;
   }
 
+  function portrait(entry, compact) {
+    const frame = element('span', compact ? 'contact-avatar' : 'contact-portrait');
+    frame.setAttribute('aria-hidden', 'true');
+    const initials = element('span', 'contact-initials', entry.name.split(/\s+/).slice(0, 2).map(word => word[0]).join(''));
+    initials.setAttribute('aria-hidden', 'true');
+    frame.appendChild(initials);
+    if (entry.portrait) {
+      const img = element('img');
+      img.alt = compact ? '' : 'Portrait of ' + entry.name;
+      if (!compact) frame.removeAttribute('aria-hidden');
+      img.loading = 'lazy';
+      img.decoding = 'async';
+      img.src = entry.portrait;
+      img.addEventListener('error', () => img.remove(), { once: true });
+      frame.appendChild(img);
+    }
+    return frame;
+  }
+
+  function select(id, focus = false) {
+    const item = visibleEntries.find(item => item.entry.id === id);
+    if (!item) return;
+    selectedId = id;
+    detail.replaceChildren(card(item.entry, item.notes));
+    for (const link of results.querySelectorAll('[data-profile]')) {
+      if (link.dataset.profile === id) link.setAttribute('aria-current', 'true');
+      else link.removeAttribute('aria-current');
+    }
+    if (focus) {
+      if (window.matchMedia?.('(max-width: 760px)').matches) directory.open = false;
+      detail.querySelector('h2').focus({ preventScroll: true });
+      detail.scrollIntoView({ block: 'nearest' });
+    }
+  }
+
   function render() {
     if (!loaded) return;
     const words = normalize(search.value).trim().split(/\s+/).filter(Boolean);
@@ -104,7 +150,21 @@
         ...notes.flatMap(note => [note.text, note.source, ...note.by.map(id => names[id])])].join(' '));
       return words.every(word => haystack.includes(word));
     }).sort((a, b) => a.entry.name.localeCompare(b.entry.name, 'en', { sensitivity: 'base' }));
-    results.replaceChildren(...visible.map(({ entry, notes }) => card(entry, notes)));
+    visibleEntries = visible;
+    const links = visible.map(({ entry, notes }) => {
+      const link = element('a', 'contact-index-row');
+      link.href = '#' + entry.id;
+      link.dataset.profile = entry.id;
+      const copy = element('span', 'contact-index-copy');
+      copy.append(element('strong', '', entry.name), element('span', '', entry.role),
+        element('small', '', (entry.type === 'person' ? 'Person' : 'Group') + ' · ' + notes.length + ' notes'));
+      link.append(portrait(entry, true), copy);
+      return link;
+    });
+    results.replaceChildren(...links);
+    document.getElementById('contactsCount').textContent = '(' + visible.length + ')';
+    if (visible.length) select(visible.some(item => item.entry.id === selectedId) ? selectedId : visible[0].entry.id);
+    else { detail.replaceChildren(); directory.open = true; }
     const people = visible.filter(item => item.entry.type === 'person').length;
     const groups = visible.length - people;
     status.textContent = `${visible.length} entries · ${people} ${people === 1 ? 'person' : 'people'} · ${groups} ${groups === 1 ? 'group' : 'groups'}`;
@@ -124,21 +184,23 @@
   }
 
   function showHash() {
-    if (!loaded || !location.hash) return;
+    if (!loaded) return;
+    if (!location.hash) { if (visibleEntries.length) select(visibleEntries[0].entry.id); return; }
     let id;
     try { id = decodeURIComponent(location.hash.slice(1)); } catch { return; }
     if (!entryMap.has(id)) return;
-    if (!document.getElementById(id)) clearFilters();
-    requestAnimationFrame(() => document.getElementById(id)?.scrollIntoView({ block: 'start' }));
+    if (!visibleEntries.some(item => item.entry.id === id)) clearFilters();
+    select(id);
   }
 
   async function load() {
     loaded = false;
     results.replaceChildren();
+    detail.replaceChildren();
     status.textContent = 'Loading crew notes…';
     try {
       // This is a deliberately curated public file. Never fall back to Warden NPC/faction APIs.
-      const response = await fetch('data/player-contacts.json?v=20261016-contacts1', { cache: 'no-cache' });
+      const response = await fetch('data/player-contacts.json?v=20261016-contacts2', { cache: 'no-cache' });
       if (!response.ok) throw new Error('Unavailable');
       entries = validate(await response.json());
       entryMap = new Map(entries.map(entry => [entry.id, entry]));
@@ -162,7 +224,14 @@
   perspective.addEventListener('change', render);
   certainty.addEventListener('change', render);
   reset.addEventListener('click', clearFilters);
-  results.addEventListener('click', event => {
+  document.querySelector('.contacts-workspace').addEventListener('click', event => {
+    const profile = event.target.closest('a[data-profile]');
+    if (profile) {
+      event.preventDefault();
+      history.pushState(null, '', profile.getAttribute('href'));
+      select(profile.dataset.profile, true);
+      return;
+    }
     const link = event.target.closest('a[data-contact-link]');
     if (!link) return;
     clearFilters();
