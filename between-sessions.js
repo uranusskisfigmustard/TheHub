@@ -68,7 +68,12 @@
           ${record.scenes.map(scene => `
             <article class="scene">
               <h2>${esc(scene.title)}</h2>
-              ${scene.paragraphs.map(text => `<p>${esc(text)}</p>`).join('')}
+              ${scene.paragraphs.map((text, index) => {
+                const style = scene.paragraphStyles?.[index];
+                if (style === 'letter-heading') return `<p style="font-size:1.1em;font-weight:700">${esc(text)}</p>`;
+                if (style === 'letter-determination') return `<p><strong>${esc(text)}</strong></p>`;
+                return `<p>${esc(text)}</p>`;
+              }).join('')}
             </article>
           `).join('')}
         </section>
