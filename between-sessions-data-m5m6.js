@@ -57,11 +57,8 @@ window.BETWEEN_SESSION_PERIODS["m5-m6"] = {
         {
           "title": "Tovan Rusk",
           "paragraphs": [
-            "You follow up with Tovan Rusk about the surviving mercenaries. His initial response is brief:",
+            "Tovan Rusk's response to your report about the surviving mercenaries is brief:",
             "“I've noted your report about the surviving mercenaries, Sobieski. Their whereabouts are another matter. Claims doesn't have the authority to order a general search of the Hub. If you obtain information about where they've gone or what they're doing, bring it to me.”",
-            "You explain that you weren't asking for a general search. You wanted him to know there were surviving members of the team somewhere in the Hub. You also raise the shuttle. If it's their transport, they might try to recover it as a way out. You ask whether Breakwater intends to auction it to cover the damages, and whether whoever is holding it has considered the possibility of someone coming back for it. You'd still like to acquire it yourself.",
-            "“It's registered to Marrowell Protective Logistics,” Tovan replies. “Breakwater has a damages claim. That doesn't give them ownership, and no sale has been authorized. The shuttle is in secured storage under Ledger Quay's control.”",
-            "You ask him to pass along your concern about an attempt to take it. “I'll add your warning to the file for Ledger Quay,” he says. “If you learn anything specific about plans to recover it, bring that to me.”",
             "Your claim to the shuttle receives a separate response later, in writing.",
             "HUB CLAIMS REGISTRY",
             "NOTICE OF DETERMINATION",
@@ -75,8 +72,7 @@ window.BETWEEN_SESSION_PERIODS["m5-m6"] = {
             "This determination does not bar resubmission. The Registry will consider a revised claim supported by additional evidence or a separate legal basis.",
             "Breakwater Recovery Cooperative's damages claim remains unresolved. This determination does not authorize release of the vessel or transfer of ownership.",
             "Tovan Rusk",
-            "Examiner, Hub Claims Registry",
-            "(edited)"
+            "Examiner, Hub Claims Registry"
           ]
         },
         {
