@@ -76,6 +76,18 @@ window.BETWEEN_SESSION_PERIODS["m5-m6"] = {
           ]
         },
         {
+          "title": "Blythe Vale",
+          "paragraphs": [
+            "You message Blythe to schedule another visit and to see how she’s been getting on. She tells you she’s doing well and has been spending more time in the hydroponic bay. You tell her about moving out of the dorms and spend some time catching up. Her legal status hasn't changed since she sent the records out. While she understands the delay, it doesn't make her any less eager to hear back.",
+            "When you explain the shuttle situation, she asks for its identifying details, your claim reference and whatever Claims has sent you. She also wants a copy of the contract you mentioned. “Send those over and I’ll have a look. I got pretty good at getting project decisions reconsidered. Had to, if we wanted anything planted.” For now, she turns back to the plants and shows you what she’s been working on.",
+            "Later, Blythe sends you what she’s found. The shuttle is registered to Marrowell Protective Logistics, the company employing the mercenaries. Breakwater hasn’t been given permission to sell it.",
+            "“They’re asking for 375,000cr,” she tells you. “215,000 for the electrical-room repairs, 25,000 for the damaged freight containers, repairs and inspections, and 135,000 in lost income. They’re still working on the facility, so that last figure could change. They won’t know for certain until it’s running normally again.”",
+            "Since your conversation with Tovan, Levent Arslan has filed a notice contesting the assessment on Marrowell’s behalf. “They haven’t abandoned it. They’re trying to get it released. And declaring the crew dead wouldn’t help you claim something owned by their employer.”",
+            "She expects the dispute to take months. Breakwater needs to support its figures, Marrowell is challenging them, and messages to the company’s off-Hub offices have to travel by ship.",
+            "There is one other thing. Marrowell personnel have permission to inspect and maintain the shuttle under supervision. Ledger Quay still holds it, and they aren’t permitted to move or launch it. Blythe includes the relevant records with the registration details."
+          ]
+        },
+        {
           "title": "Making Inquiries",
           "paragraphs": [
             "During downtime, you start asking around the docks about privateers and pirates. You try to keep things discreet, but after asking several crews about their connections to piracy, word starts getting around. One dockworker laughs. \"You looking to join them or arrest them?\" You don't get any names, but you do learn that most captains find new crew through people they've worked with before. Nobody's particularly interested in introducing a stranger.",
