@@ -239,13 +239,18 @@
   function watchClicks() {
     document.addEventListener('click',e=>{
       const resolve=e.target.closest('[data-r]');
-      if(resolve){const idx=Number(resolve.dataset.r);STATE.current=STATE.feed?.active?.[idx]||null;STATE.mode='close';setTimeout(()=>renderPayout(STATE.current,'close'),0);return}
+      if(resolve)return;
       const amend=e.target.closest('[data-amend]');
-      if(amend){const idx=Number(amend.dataset.amend);STATE.current=STATE.feed?.history?.[idx]||null;STATE.mode='amend';setTimeout(()=>renderPayout(STATE.current,'amend'),0);return}
+      if(amend)return;
       if(e.target.closest('#x,#cancel,#lock,#playerPage')){STATE.current=null;STATE.mode='close'}
       if(e.target.closest('#refresh')) setTimeout(refreshOwnFeed,300);
     },true);
   }
+
+  document.addEventListener('warden:contract-open', ({detail}) => {
+    STATE.backendReady=versionAtLeast(detail.serviceVersion,'6.7');
+    renderPayout(detail.contract,detail.mode);
+  });
 
   installStyles();
   installDom();

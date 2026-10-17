@@ -5,7 +5,7 @@ const API='https://script.google.com/macros/s/AKfycbzeW8vTooOCNEBia3_EMQ10r7Bcba
 const SESSION_KEY='mothership_hub_warden_session_v1';
 const STATE_KEY='mothership_hub_warden_between_session_v1';
 const JOBS_CACHE='mothership_hub_jobs_v5';
-const FLOW={feed:null,active:false,compact:false,applyStress:false,contract:null,row:null,key:'',amount:0,stressPreviews:[],stressCommits:[],preparing:false};
+const FLOW={generation:0,feed:null,active:false,compact:false,applyStress:false,contract:null,row:null,key:'',amount:0,stressPreviews:[],stressCommits:[],preparing:false};
 let scheduled=false,feedLoading=false;
 const normalize=v=>String(v??'').toLowerCase().replace(/\s+/g,' ').trim();
 const upper=v=>String(v??'').trim().toUpperCase();
@@ -29,7 +29,8 @@ function rowForCard(card){
 }
 function rowForContract(c){
   const id=normalize(c?.jobId||''),t=normalize(c?.title||'');
-  return jobs().find(r=>id&&normalize(r?.['Job ID']||r?.jobId||r?.id)===id)||jobs().find(r=>t&&normalize(r?.Title||r?.title)===t)||null;
+  const cached=jobs().find(r=>id&&normalize(r?.['Job ID']||r?.jobId||r?.id)===id)||jobs().find(r=>t&&normalize(r?.Title||r?.title)===t)||{};
+  return {...cached,Pay:c?.basePay||rowValue(cached,'Pay','pay')};
 }
 function kindForRow(row){
   if(!row)return'';
@@ -101,7 +102,7 @@ function compactTargets(){
 }
 function setCompact(on){FLOW.compact=Boolean(on);compactTargets().forEach(x=>x.classList.toggle('bsw-auto-hidden',FLOW.compact));$('preview')?.classList.toggle('bsw-auto-hidden',FLOW.compact);$('bswEditFull')?.classList.toggle('hidden',!FLOW.compact)}
 function showFullCloseout(){if(!FLOW.active)return;setCompact(false);$('bswGenerated')?.classList.remove('hidden');$('bswEditFull')?.classList.add('hidden');if($('commit'))$('commit').textContent='COMMIT CLOSEOUT';const note=$('result');if(note){note.textContent='Generated values remain populated. Edit anything needed, then Preview Changes again. A Completed closeout will still apply the posted +1 Stress.';note.className='notice warn'}}
-function resetFlow(){FLOW.active=false;FLOW.compact=false;FLOW.applyStress=false;FLOW.contract=null;FLOW.row=null;FLOW.key='';FLOW.amount=0;FLOW.stressPreviews=[];FLOW.stressCommits=[];FLOW.preparing=false;setCompact(false);$('bswGenerated')?.classList.add('hidden');$('bswEditFull')?.classList.add('hidden')}
+function resetFlow(){FLOW.generation++;FLOW.active=false;FLOW.compact=false;FLOW.applyStress=false;FLOW.contract=null;FLOW.row=null;FLOW.key='';FLOW.amount=0;FLOW.stressPreviews=[];FLOW.stressCommits=[];FLOW.preparing=false;setCompact(false);$('bswGenerated')?.classList.add('hidden');$('bswEditFull')?.classList.add('hidden')}
 function dispatchInput(el){if(el)el.dispatchEvent(new Event('input',{bubbles:true}))}
 function dispatchChange(el){if(el)el.dispatchEvent(new Event('change',{bubbles:true}))}
 function waitFor(test,attempts=50,delay=30){return new Promise((resolve,reject)=>{let n=0;const tick=()=>{let value=null;try{value=test()}catch(_){}if(value)return resolve(value);if(++n>=attempts)return reject(new Error('The closeout form did not finish loading.'));setTimeout(tick,delay)};tick()})}
@@ -147,12 +148,13 @@ function renderGenerated(){
 }
 
 async function prepareSimpleFlow(btn,c,row){
-  if(FLOW.preparing)return;FLOW.preparing=true;
+  if(FLOW.preparing)return;FLOW.preparing=true;const generation=FLOW.generation;
   try{
     installGeneratedPanel();
-    await waitFor(()=>$('modal')&&!$('modal').classList.contains('hidden')&&$('manualPayoutReason'));
+    await waitFor(()=>$('modal')&&!$('modal').classList.contains('hidden')&&$('gross'));
+    if(generation!==FLOW.generation)return;
     FLOW.active=true;FLOW.contract=c;FLOW.row=row;FLOW.key=contractKey(c);FLOW.amount=creditAmount(rowValue(row,'Pay','pay'));FLOW.applyStress=true;
-    if(Array.isArray(c?.payoutComponents)&&c.payoutComponents.length)throw new Error('This accepted contract has payout components that require Warden judgment.');
+    if(document.querySelector('.payoutDecision') && [...document.querySelectorAll('.payoutDecision')].some(x=>x.value==='UNREVIEWED'))throw new Error('This accepted contract has payout components that require Warden judgment.');
     if(c?.qualifiedContractorConfirmed||String(c?.contractorName||'').trim()||Number(c?.contractorCompensation||0)>0)throw new Error('This accepted contract has a contractor or specialist obligation that requires Warden review.');
     $('mkicker').textContent='SIMPLE BETWEEN-SESSION CLOSEOUT';
     $('cstatus').value='Completed';dispatchChange($('cstatus'));
@@ -162,15 +164,18 @@ async function prepareSimpleFlow(btn,c,row){
     $('summary').value=summaryFor(c);dispatchInput($('summary'));
     $('outcome').value=outcomeFor(row);dispatchInput($('outcome'));
     const reason=$('manualPayoutReason');if(reason){reason.value=payoutReasonFor(c,FLOW.amount);dispatchInput(reason)}
-    FLOW.stressPreviews=await stressPreviewsFor(c);
+    const stressPreviews=await stressPreviewsFor(c);
+    if(generation!==FLOW.generation)return;
+    FLOW.stressPreviews=stressPreviews;
     renderGenerated();setCompact(true);
     if($('commit')){$('commit').textContent='APPROVE & COMMIT';$('commit').disabled=true}
     if($('preview')){$('preview').disabled=false;$('preview').click()}
   }catch(e){
+    if(generation!==FLOW.generation)return;
     setCompact(false);FLOW.applyStress=false;
     const box=$('bswGenerated');if(box){box.innerHTML='<div class="label">AUTOMATIC CLOSEOUT NEEDS REVIEW</div><div class="small">'+esc(String(e.message||e))+'</div>';box.classList.remove('hidden')}
     const result=$('result');if(result){result.textContent='The routine closeout fields were populated where possible, but automatic resolution stopped before commit. Review the full closeout and current-state change manually.';result.className='notice warn'}
-  }finally{FLOW.preparing=false}
+  }finally{if(generation===FLOW.generation)FLOW.preparing=false}
 }
 
 async function commitStressPreviews(){
@@ -260,13 +265,6 @@ async function undoSimpleCloseout(c,b){
 }
 
 function onClickCapture(e){
-  const resolve=e.target.closest('[data-r]');
-  if(resolve){
-    const card=resolve.closest('article.card'),row=rowForCard(card);if(kindForRow(row)!=='simple'){resetFlow();return}
-    let c=activeContractForButton(resolve);
-    if(!c){loadFeed().then(()=>{c=activeContractForButton(resolve);if(c)setTimeout(()=>prepareSimpleFlow(resolve,c,row),90)});return}
-    setTimeout(()=>prepareSimpleFlow(resolve,c,row),90);return;
-  }
   const undo=e.target.closest('[data-undo]');
   if(undo){
     const idx=Number(undo.dataset.undo),c=FLOW.feed?.history?.[idx]||null,row=rowForContract(c);if(c&&kindForRow(row)==='simple'){
@@ -283,6 +281,13 @@ function installStatusWatch(){
     if(!FLOW.applyStress){setCompact(false);if($('commit'))$('commit').textContent='COMMIT CLOSEOUT';const box=$('bswGenerated');if(box){box.insertAdjacentHTML('beforeend','<div class="notice warn" style="margin-top:10px">Automatic +1 Stress is linked only to the generated Completed closeout. Review this non-standard result in the full closeout form.</div>')}}
   });
 }
+
+document.addEventListener('warden:contract-open', ({detail})=>{
+  resetFlow();
+  if(detail.mode!=='close')return;
+  const c=detail.contract,row=rowForContract(c);
+  if(kindForRow(row)==='simple')void prepareSimpleFlow(null,c,row);
+});
 
 installStyles();installGeneratedPanel();installCloseoutInterceptor();installStatusWatch();run();loadFeed();
 const cards=$('cards');if(cards)new MutationObserver(schedule).observe(cards,{childList:true,subtree:true});
