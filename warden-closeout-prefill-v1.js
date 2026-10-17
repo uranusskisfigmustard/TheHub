@@ -1,11 +1,9 @@
 (() => {
   'use strict';
 
-  const API = 'https://script.google.com/macros/s/AKfycbzeW8vTooOCNEBia3_EMQ10r7BcbakXIwCD4ZaEOUEBOdCXl09tRHj76oxcUcsOKQK0/exec';
-  const SK = 'mothership_hub_warden_session_v1';
-  const STATE = { feed:null, current:null, mode:'close', applying:false, feedPromise:null };
+  const STATE = { current:null, mode:'close', applying:false, campaignDate:'' };
   const $ = id => document.getElementById(id);
-  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c]));
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
   function normalizeStatus(value) {
     return String(value || '').trim().toUpperCase();
@@ -98,7 +96,7 @@
     if (!c || STATE.mode !== 'close') return;
     const defaults = c.closeoutDefaults || {};
     const closed = $('closed');
-    if (closed && defaults.closedDate) closed.value = String(defaults.closedDate);
+    if (closed) closed.value = String(STATE.campaignDate || defaults.closedDate || closed.value);
 
     const contractor = $('contractor');
     const contractorName = $('contractorName');
@@ -111,6 +109,19 @@
       contractorName.value = name;
     }
 
+    // Only an unambiguous fixed amount can be inferred from prose terms.
+    const gross = $('gross');
+    const fixed = String(c.basePay ?? '').trim().match(/^([\d,]+(?:\.\d+)?)\s*cr(?:\s*[,;·+—-]?\s*\+?\s*1\s+Stress)?[.]?$/i);
+    if (gross && !gross.readOnly && fixed) {
+      gross.dataset.wardenAutoGross = '';
+      gross.value = normalizeStatus($('cstatus')?.value) === 'COMPLETED'
+        ? String(Number(fixed[1].replace(/,/g, ''))) : '0';
+      gross.dataset.wardenAutoGross = gross.value;
+      const reason = $('manualPayoutReason');
+      if (reason) reason.value = 'Fixed pay from accepted contract: ' + c.basePay + '. Status: ' + $('cstatus').value + '.';
+      gross.dispatchEvent(new Event('input', {bubbles:true}));
+    }
+    contractor?.dispatchEvent(new Event('input', {bubbles:true}));
     setAutofillSummary(c);
   }
 
@@ -151,6 +162,15 @@
       status.addEventListener('change', () => {
         if (!STATE.current || STATE.mode !== 'close') return;
         setAutofillSummary(STATE.current);
+        const gross = $('gross');
+        if (gross && !gross.readOnly && gross.value === gross.dataset.wardenAutoGross) {
+          const fixed = String(STATE.current.basePay ?? '').trim().match(/^([\d,]+(?:\.\d+)?)\s*cr(?:\s*[,;·+—-]?\s*\+?\s*1\s+Stress)?[.]?$/i);
+          if (fixed) {
+            gross.value = normalizeStatus(status.value) === 'COMPLETED' ? String(Number(fixed[1].replace(/,/g, ''))) : '0';
+            gross.dataset.wardenAutoGross = gross.value;
+            gross.dispatchEvent(new Event('input', {bubbles:true}));
+          }
+        }
         applyPayoutDefaults(STATE.current);
       });
     }
@@ -184,78 +204,18 @@
     }
   }
 
-  function patchScript(script) {
-    if (!(script instanceof HTMLScriptElement) || !script.src) return;
-    let url, api;
-    try { url = new URL(script.src, location.href); api = new URL(API); } catch (_) { return; }
-    if (url.origin !== api.origin || url.pathname !== api.pathname) return;
-    const action = String(url.searchParams.get('action') || '').toLowerCase();
-    const callbackName = url.searchParams.get('callback');
-    if (!callbackName) return;
-    const original = window[callbackName];
-    if (typeof original !== 'function' || original.__wardenCloseoutPrefillWrapped) return;
-    const wrapped = payload => {
-      if (action === 'wardenfeed' && payload?.ok) STATE.feed = payload;
-      original(payload);
-    };
-    wrapped.__wardenCloseoutPrefillWrapped = true;
-    window[callbackName] = wrapped;
-  }
-
-  function installInterceptor() {
-    const prev = Node.prototype.appendChild;
-    if (prev.__wardenCloseoutPrefillPatched) return;
-    function patched(node) { patchScript(node); return prev.call(this, node); }
-    patched.__wardenCloseoutPrefillPatched = true;
-    Node.prototype.appendChild = patched;
-  }
-
-  async function ensureFeed() {
-    if (STATE.feed?.ok) return STATE.feed;
-    if (STATE.feedPromise) return STATE.feedPromise;
-    const session = localStorage.getItem(SK) || '';
-    if (!session || !window.HubWardenApi?.request) return null;
-    STATE.feedPromise = window.HubWardenApi.request('wardenfeed', { session })
-      .then(payload => {
-        if (payload?.ok) STATE.feed = payload;
-        return payload?.ok ? payload : null;
-      })
-      .catch(() => null)
-      .finally(() => { STATE.feedPromise = null; });
-    return STATE.feedPromise;
-  }
-
-  async function applyFromFeedIndex(kind, idx) {
-    const feed = await ensureFeed();
-    const c = kind === 'history' ? feed?.history?.[idx] : feed?.active?.[idx];
-    if (!c) return;
-    setTimeout(() => applyModal(c, kind === 'history' ? 'amend' : 'close'), 20);
-  }
-
-  function watchClicks() {
-    document.addEventListener('click', e => {
-      const resolve = e.target.closest('[data-r]');
-      if (resolve) {
-        const idx = Number(resolve.dataset.r);
-        void applyFromFeedIndex('active', idx);
-        return;
-      }
-      const amend = e.target.closest('[data-amend]');
-      if (amend) {
-        const idx = Number(amend.dataset.amend);
-        void applyFromFeedIndex('history', idx);
-        return;
-      }
-      if (e.target.closest('#x,#cancel,#lock,#playerPage')) {
-        STATE.current = null;
-        STATE.mode = 'close';
-      }
-      if (e.target.closest('#refresh')) STATE.feed = null;
-    }, true);
-  }
+  document.addEventListener('warden:contract-open', ({detail}) => {
+    STATE.campaignDate = detail.campaignDate;
+    const summary = $('summary');
+    if (summary) delete summary.dataset.wardenAutoSummary;
+    const gross = $('gross');
+    if (gross) delete gross.dataset.wardenAutoGross;
+    document.querySelectorAll('.payoutDecision').forEach(select => {
+      delete select.dataset.wardenManual;
+    });
+    applyModal(detail.contract, detail.mode);
+  });
 
   installStyles();
   installReferenceBox();
-  installInterceptor();
-  watchClicks();
 })();
