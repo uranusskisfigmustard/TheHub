@@ -55,10 +55,12 @@ window.BETWEEN_SESSION_PERIODS["m5-m6"] = {
           ]
         },
         {
-          "title": "Tovan Rusk",
+          "title": "The Shuttle Claim",
           "paragraphs": [
             "Tovan Rusk's response to your report about the surviving mercenaries is brief:",
             "“I've noted your report about the surviving mercenaries, Sobieski. Their whereabouts are another matter. Claims doesn't have the authority to order a general search of the Hub. If you obtain information about where they've gone or what they're doing, bring it to me.”",
+            "You clarify that you weren’t asking for a manhunt. “I’m just pwoviding pewtinent infowmation fow the safety and wewwbeing of this community.” If the shuttle belongs to the mercenaries, you explain, recovering it is probably their best chance of leaving. You ask him to pass along your warning and recommend moving it. “Went a cops awen’t going to be abwe to stand up to a pwatoon of twained mewcs. Even if said mewcs don’t have buwwets.”",
+            "“The shuttle is in secured storage under Ledger Quay’s control,” Tovan replies. “I’ll pass along your warning and recommendation.”",
             "Your claim to the shuttle receives a separate response later, in writing.",
             "HUB CLAIMS REGISTRY",
             "NOTICE OF DETERMINATION",
@@ -72,27 +74,54 @@ window.BETWEEN_SESSION_PERIODS["m5-m6"] = {
             "This determination does not bar resubmission. The Registry will consider a revised claim supported by additional evidence or a separate legal basis.",
             "Breakwater Recovery Cooperative's damages claim remains unresolved. This determination does not authorize release of the vessel or transfer of ownership.",
             "Tovan Rusk",
-            "Examiner, Hub Claims Registry"
-          ]
+            "Examiner, Hub Claims Registry",
+            "(edited)"
+          ],
+          "paragraphStyles": {
+            "5": "letter-heading",
+            "6": "letter-heading",
+            "9": "letter-determination"
+          }
         },
         {
-          "title": "Blythe Vale",
+          "title": "Checking the Records",
           "paragraphs": [
             "You message Blythe to schedule another visit and to see how she’s been getting on. She tells you she’s doing well and has been spending more time in the hydroponic bay. You tell her about moving out of the dorms and spend some time catching up. Her legal status hasn't changed since she sent the records out. While she understands the delay, it doesn't make her any less eager to hear back.",
             "When you explain the shuttle situation, she asks for its identifying details, your claim reference and whatever Claims has sent you. “Send those over and I’ll have a look. I got pretty good at getting project decisions reconsidered. Had to, if we wanted anything planted.” For now, she turns back to the plants and shows you what she’s been working on.",
             "Later, Blythe sends you what she’s found. The shuttle is registered to Marrowell Protective Logistics, the company employing the mercenaries. Breakwater hasn’t been given permission to sell it.",
-            "“They’re asking for 375,000cr,” she tells you. “215,000 for the electrical-room repairs, 25,000 for the damaged freight containers, repairs and inspections, and 135,000 in lost income. They’re still working on the facility, so that last figure could change. They won’t know for certain until it’s running normally again.”",
+            "“They’re asking for 375,000cr,” she tells you. “215,000 for the electrical-room repairs, 25,000 for repairs and inspections of the damaged freight containers, and 135,000 in lost income. They’re still working on the facility, so that last figure could change. They won’t know for certain until it’s running normally again.”",
             "Since your conversation with Tovan, Levent Arslan has filed a notice contesting the assessment on Marrowell’s behalf. “They haven’t abandoned it. They’re trying to get it released. And declaring the crew dead wouldn’t help you claim something owned by their employer.”",
             "She expects the dispute to take months. Breakwater needs to support its figures, Marrowell is challenging them, and messages to the company’s off-Hub offices have to travel by ship.",
-            "There is one other thing. Marrowell personnel have permission to inspect and maintain the shuttle under supervision. Ledger Quay still holds it, and they aren’t permitted to move or launch it. Blythe includes the relevant records with the registration details."
+            "There is one other thing. Marrowell personnel have permission to inspect and maintain the shuttle under supervision. Ledger Quay still holds it, and they aren’t permitted to move or launch it. Blythe includes the relevant records with the registration details.",
+            "(edited)"
           ]
         },
         {
-          "title": "Making Inquiries",
+          "title": "Looking for a Crew (Cont.)",
           "paragraphs": [
-            "During downtime, you start asking around the docks about privateers and pirates. You try to keep things discreet, but after asking several crews about their connections to piracy, word starts getting around. One dockworker laughs. \"You looking to join them or arrest them?\" You don't get any names, but you do learn that most captains find new crew through people they've worked with before. Nobody's particularly interested in introducing a stranger.",
-            "You also spend some time looking for an office. You find a former service office near a Cistern-side tram connection that's available for lease. It's small, with enough room for a desk and a few chairs, working communications, and a lockable door. The owner is willing to arrange an inspection, but you'll need to discuss the price.",
-            "While talking with people in the neighborhood, you hear about three men who've been stopping workers coming home from late shifts and demanding credits for \"safe passage.\" They've been threatening those who refuse and following people traveling alone. One worker had their bag stolen, and another ended up with a broken nose. They generally disappear when larger groups come through."
+            "During downtime, you start asking around the docks about privateers and pirates. You try to keep things discreet, but after asking several crews about their connections to piracy, word starts getting around. One dockworker laughs. “You looking to join them or arrest them?”",
+            "You explain how you feel about law enforcement. “A powice officew is not concewned with justice. A powice officew does not cawe about the community.” You describe your interest in helping people and protecting the community, rather than enforcing a system that keeps them under somebody else’s boot.",
+            "“I am the guawd at the doow, the watchman in the night.”",
+            "“Fair enough,” the dockworker says. A couple of the others nod. You learn that most captains find new crew through people they’ve worked with before, but nobody offers to introduce you.",
+            "(edited)"
+          ]
+        },
+        {
+          "title": "Around the Neighborhood",
+          "paragraphs": [
+            "You spend some time looking for an office. You find a former service office near a Cistern-side tram connection that's available for lease. It's small, with enough room for a desk and a few chairs, and a lockable door.",
+            "The asking rent is 1,000cr a week, including basic power and communications. You’d need to furnish it yourself. The owner offers to show you around before you decide.",
+            "While talking with people in the neighborhood, you hear about three men who've been stopping workers coming home from late shifts and demanding credits for \"safe passage.\" They've been threatening those who refuse and following people traveling alone. One worker had their bag stolen, and another ended up with a broken nose. They generally disappear when larger groups come through.",
+            "You ask about the muggings and offer help to anyone who was hurt. One worker shows you where they were stopped but asks you not to mention speaking with them. Another says they don’t want to get involved. Questions about names and descriptions don’t get you much further. Nobody you speak with will identify the men or tell you where to find them.",
+            "(edited)"
+          ]
+        },
+        {
+          "title": "The Loading Crews",
+          "paragraphs": [
+            "During one of your ongoing gatherings with the loading crews, you raise the muggings and suggest helping the people who were hurt, finding work for anyone willing to leave the group, and protecting one another. Several agree it’s worth doing, but they have little time or energy left after their shifts.",
+            "One worker points out that the men aren’t picking fights with whole loading crews. “They wait until you’re alone, or there’s only a couple of you, and you’re fucked after a long shift. You can’t have everyone walking around together all the time.”",
+            "Walking home together and checking on injured workers get more interest than approaching the men. They discuss who finishes when and which routes people take, but don’t settle on any arrangements."
           ]
         }
       ]
