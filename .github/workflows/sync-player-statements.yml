@@ -56,6 +56,32 @@ jobs:
               raise RuntimeError(payload.get('error') or 'Statement feed returned ok=false.')
 
           allowed = {'john', 'prue'}
+
+          def normalize_threshold(statement_text):
+              principal_match = re.search(
+                  r'^PRINCIPAL:\s*([\d,]+(?:\.\d+)?)\s+CR$',
+                  statement_text,
+                  re.M
+              )
+              next_match = re.search(
+                  r'^NEXT:\s+(12,000\.0|6,000\.0) CR / [\d,]+(?:\.\d+)? CR TO THRESHOLD$',
+                  statement_text,
+                  re.M
+              )
+              if not principal_match or not next_match:
+                  return statement_text
+
+              principal = float(principal_match.group(1).replace(',', ''))
+              threshold = 12000.0 if principal > 12000.0 else 6000.0
+              if principal <= 6000.0:
+                  return statement_text
+
+              corrected = (
+                  f'NEXT:      {threshold:,.1f} CR / '
+                  f'{principal - threshold:,.2f} CR TO THRESHOLD'
+              )
+              return re.sub(r'^NEXT:.*$', corrected, statement_text, count=1, flags=re.M)
+
           statements = []
           for item in payload.get('statements') or []:
               key = str(item.get('key') or '').strip().lower()
@@ -65,7 +91,7 @@ jobs:
                   'key': key,
                   'character': str(item.get('character') or ''),
                   'asOf': str(item.get('asOf') or ''),
-                  'statementText': str(item.get('statementText') or '')
+                  'statementText': normalize_threshold(str(item.get('statementText') or ''))
               })
 
           statements.sort(key=lambda item: item['key'])
