@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const BUILD = '20261011-violet2';
+  const BUILD = '20261018-threshold1';
 
   const esc = value => String(value ?? '')
     .replaceAll('&', '&amp;')
@@ -77,6 +77,26 @@
       try { localStorage.setItem(cacheKey, JSON.stringify(data)); } catch (_) {}
     }
 
+    function normalizeThreshold(statementText) {
+      const text = String(statementText || '');
+      const principalMatch = text.match(/^PRINCIPAL:\s*([\d,]+(?:\.\d+)?)\s+CR$/m);
+      const nextMatch = text.match(/^NEXT:\s+(12,000\.0|6,000\.0) CR \/ [\d,]+(?:\.\d+)? CR TO THRESHOLD$/m);
+      if (!principalMatch || !nextMatch) return text;
+
+      const principal = Number(principalMatch[1].replaceAll(',', ''));
+      if (!Number.isFinite(principal) || principal <= 6000) return text;
+
+      const threshold = principal > 12000 ? 12000 : 6000;
+      const corrected = `NEXT:      ${threshold.toLocaleString('en-US', {
+        minimumFractionDigits: 1,
+        maximumFractionDigits: 1
+      })} CR / ${(principal - threshold).toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      })} CR TO THRESHOLD`;
+      return text.replace(/^NEXT:.*$/m, corrected);
+    }
+
     function normalizePayload(payload) {
       if (!payload || payload.ok !== true) {
         throw new Error(payload?.error || 'Statement feed error.');
@@ -94,7 +114,9 @@
           key,
           character: String(item?.character || ''),
           asOf: String(item?.asOf || ''),
-          statementText: String(item?.statementText || '')
+          statementText: key === 'john' || key === 'prue'
+            ? normalizeThreshold(item?.statementText)
+            : String(item?.statementText || '')
         };
       });
 
