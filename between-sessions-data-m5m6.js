@@ -37,6 +37,29 @@ window.BETWEEN_SESSION_PERIODS["m5-m6"] = {
             "That's all he sends. No address, no meeting arrangements, and no indication of whether he's willing to discuss what happened. He hasn't agreed to meet, but he hasn't refused, either.",
             "If you want to continue the conversation, you can send another message through Pella."
           ]
+        },
+        {
+          "title": "Returning the Guns",
+          "paragraphs": [
+            "You message John and Violet:",
+            "“Friends, we should return the things we took from Levent and his crew. He was on the non-corporation side of things. I spent the last few hours sitting watch over his fallen comrades. It’s the least we can do.”",
+            "John replies:",
+            "“gwumble gwumple… they lost them faiwly in combat and abandoned theiw awmaments upon the field of be-attle. They were honorably won! If they wanted theiw gear they should have fought bettew. *john is whining because it’s so much money, I was going to buy heavy armor😢*”",
+            "You write back:",
+            "“We should at least return the SMG and the revolver. It might help you get in good with him… *wink wink*”",
+            "John grumbles, then agrees to return only the SMG and revolver. No ammunition goes with them. Nothing else is returned.",
+            "You reply through Pella. Levent sends the location of an unused section of the Hub. He doesn’t give a time to meet.",
+            "You write a letter as John and leave it with the guns:",
+            "Wevent,",
+            "My deaw fwiend Pwudence convinced me to wetuwn youw SMG and wevovler. I am not incwuding the buwwets; those awe fow winners. Do you know how the Cawvawy cewebwates losers? I wouwd wike to discuss that mowe with you.",
+            "John “The Winner” Sobieski",
+            "Levent doesn’t appear. He watches the location for a while and waits to see whether anyone comes back before retrieving the guns.",
+            "Later, Pella forwards a message:",
+            "“Got the guns. The letter made me laugh. No bullets, I see.",
+            "Pella told me you sat watch. I couldn’t go myself. Thank you.",
+            "—Levent”",
+            "You can write him back through Pella. He doesn’t offer to meet."
+          ]
         }
       ]
     },
