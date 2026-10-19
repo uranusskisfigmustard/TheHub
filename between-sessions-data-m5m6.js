@@ -60,6 +60,23 @@ window.BETWEEN_SESSION_PERIODS["m5-m6"] = {
             "—Levent”",
             "You can write him back through Pella. He doesn’t offer to meet."
           ]
+        },
+        {
+          "title": "Second Date",
+          "paragraphs": [
+            "Pella suggests a second outing. This time, she picks a small public game room near the tram concourse. She has found a two-player mechanical maze: one person tilts the board while the other turns an inner ring. Neither can guide the metal bead through alone.",
+            "You take the ring. Pella takes the board.",
+            "The bead drops into a side channel on your first try.",
+            "“You moved too soon,” you say.",
+            "“You were still explaining what you wanted me to do.”",
+            "You try again. This time you call one move at a time. The bead makes it past the first turn, then slips off the narrow bridge.",
+            "Pella laughs. “All right. Your instructions are getting better.”",
+            "“So is your timing.”",
+            "You find a rhythm. When the bead reaches the center, Pella asks for a rematch. You get further the second time, though neither of you makes it look easy.",
+            "At the tram stop, she asks if she gets to pick the next outing too.",
+            "“No. Next time, I pick.”",
+            "“Good,” she says. “I want to see what you come up with.”"
+          ]
         }
       ]
     },
