@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://script.google.com">
   <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="player-shell.css?v=20261014-warden-shortcut1">
-  <link rel="stylesheet" href="contract-logs.css?v=20260919-contractlogsprod1">
+  <link rel="stylesheet" href="contract-logs.css?v=20261020-acceptancebrief1">
 </head>
 <body data-page="contract-logs">
   <div id="playerShell"></div>
@@ -25,7 +25,7 @@
   <script src="player-routes.js?v=20261016-contacts1"></script>
   <script src="player-shell.js?v=20261014-warden-shortcut1"></script>
   <script src="contract-log-submissions.js?v=20260919-contractlogsprod1"></script>
-  <script src="contract-logs.js?v=20261012-between-session-written1"></script>
+  <script src="contract-logs.js?v=20261020-active-brief1"></script>
   <script src="contract-session-play-v1.js?v=20260922a"></script>
   <script>
     (() => {
@@ -40,8 +40,8 @@
 
       window.HubContractLogsContent.render(root, {
         api: CONTRACTS_API,
-        cacheKey: 'mothership_hub_contractfeed_v1',
-        cacheTimeKey: 'mothership_hub_contractfeed_v1_time',
+        cacheKey: 'mothership_hub_contractfeed_v2',
+        cacheTimeKey: 'mothership_hub_contractfeed_v2_time',
         sessionKey: 'mothership_hub_board_session_v1',
         sessionExpiryKey: 'mothership_hub_board_session_expiry_v1'
       });
