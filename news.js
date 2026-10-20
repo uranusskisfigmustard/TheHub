@@ -27,6 +27,38 @@
     && typeof c.text === 'string' && c.text.trim() && validStamp(c.date)
     && !privateAnnotation.test(c.text) && !privateAnnotation.test(c.by)
     && Object.keys(c).every(key => ['by','date','text'].includes(key));
+  // Calendar anchor: campaign date advances one day per real New York calendar day.
+  // To fast-forward or correct campaign time, update anchorCampaignDate and
+  // anchorRealDate together in data/campaign-date.json.
+  const nyToday = () => {
+    const parts = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit'
+    }).formatToParts(new Date());
+    const get = type => Number(parts.find(p => p.type === type).value);
+    return { year: get('year'), month: get('month'), day: get('day') };
+  };
+  const dayNumber = ({year,month,day}) => Math.floor(Date.UTC(year,month-1,day)/86400000);
+  const parseRealDate = value => {
+    if (!/^\\d{4}-\\d{2}-\\d{2}$/.test(value || '')) throw new Error('Invalid clock anchor date.');
+    const [year,month,day] = value.split('-').map(Number);
+    const d = new Date(Date.UTC(year,month-1,day));
+    if (d.getUTCFullYear() !== year || d.getUTCMonth()+1 !== month || d.getUTCDate() !== day)
+      throw new Error('Invalid clock anchor date.');
+    return {year,month,day};
+  };
+  const stampToDay = stamp => {
+    if (!validStamp(stamp)) throw new Error('Invalid campaign anchor.');
+    const [year,ordinal] = stamp.split('-').map(Number);
+    const max = (year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0)) ? 366 : 365;
+    if (ordinal < 1 || ordinal > max) throw new Error('Invalid campaign ordinal.');
+    return dayNumber({year,month:1,day:1}) + ordinal - 1;
+  };
+  const dayToStamp = absolute => {
+    const date = new Date(absolute * 86400000);
+    const year = date.getUTCFullYear();
+    const ordinal = absolute - dayNumber({year,month:1,day:1}) + 1;
+    return year + '-' + String(ordinal).padStart(3,'0');
+  };
   const due = date => validStamp(date) && campaignDate && date <= campaignDate;
   const lastActivity = post => (post.comments || []).reduce((latest, item) => item.date > latest ? item.date : latest, post.date);
   const makeMeta = (post) => {
@@ -98,7 +130,12 @@
       if (!clockResponse.ok) throw new Error('Campaign clock unavailable.');
       const clock = await clockResponse.json();
       if (clock.schemaVersion !== 1 || !validStamp(clock.asOf)) throw new Error('Invalid campaign clock.');
-      campaignDate = clock.asOf;
+      if (clock.anchorRealDate && clock.anchorCampaignDate) {
+        const elapsed = dayNumber(nyToday()) - dayNumber(parseRealDate(clock.anchorRealDate));
+        campaignDate = dayToStamp(stampToDay(clock.anchorCampaignDate) + elapsed);
+      } else {
+        campaignDate = clock.asOf; // Compatibility with older clock files.
+      }
       const response = await fetch('./data/hub-news.json', { cache: 'no-store' });
       if (!response.ok) throw new Error('Public feed unavailable (' + response.status + ').');
       const payload = await response.json();
