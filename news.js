@@ -13,6 +13,7 @@
   };
   let records = [];
   let currentView = 'latest';
+  let campaignDate = null;
   const node = (tag, className, value) => {
     const el = document.createElement(tag);
     if (className) el.className = className;
@@ -26,6 +27,7 @@
     && typeof c.text === 'string' && c.text.trim() && validStamp(c.date)
     && !privateAnnotation.test(c.text) && !privateAnnotation.test(c.by)
     && Object.keys(c).every(key => ['by','date','text'].includes(key));
+  const due = date => validStamp(date) && campaignDate && date <= campaignDate;
   const lastActivity = post => (post.comments || []).reduce((latest, item) => item.date > latest ? item.date : latest, post.date);
   const makeMeta = (post) => {
     const lines = ['POSTED ' + post.date];
@@ -90,6 +92,13 @@
   });
   async function load() {
     try {
+      // The campaign clock is derived from canon, never the real-world date.
+      // Fail closed if the clock cannot be read.
+      const clockResponse = await fetch('./data/campaign-date.json', { cache: 'no-store' });
+      if (!clockResponse.ok) throw new Error('Campaign clock unavailable.');
+      const clock = await clockResponse.json();
+      if (clock.schemaVersion !== 1 || !validStamp(clock.asOf)) throw new Error('Invalid campaign clock.');
+      campaignDate = clock.asOf;
       const response = await fetch('./data/hub-news.json', { cache: 'no-store' });
       if (!response.ok) throw new Error('Public feed unavailable (' + response.status + ').');
       const payload = await response.json();
@@ -99,7 +108,7 @@
       const ids = new Set();
       records = payload.posts.filter(post => {
         const okay = post && post.visibility === 'PUBLIC' && /^[a-z0-9-]{2,80}$/.test(post.id || '')
-          && !ids.has(post.id) && validStamp(post.date)
+          && !ids.has(post.id) && due(post.date)
           && ['local','outside','discussion'].includes(post.category)
           && typeof post.title === 'string' && typeof post.source === 'string' && typeof post.summary === 'string'
           && typeof post.typeLabel === 'string' && Array.isArray(post.body)
@@ -109,8 +118,9 @@
         if (okay) ids.add(post.id);
         return okay;
       });
+      records = records.map(post => ({...post, comments: (post.comments || []).filter(c => due(c.date) && c.date >= post.date)}));
       records.sort((a,b) => lastActivity(b).localeCompare(lastActivity(a)) || b.date.localeCompare(a.date) || a.id.localeCompare(b.id));
-      status.textContent = 'LAST PUBLIC COPY  /  ' + payload.asOf;
+      status.textContent = 'CAMPAIGN DATE  /  ' + campaignDate;
       render();
       const hash = location.hash.slice(1);
       if (/^post-[a-z0-9-]+$/.test(hash)) {
