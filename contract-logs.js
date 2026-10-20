@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const BUILD = '20261012-between-session-written1';
+  const BUILD = '20261020-active-brief1';
   const POST_SOURCE = 'mothership-contract-service-post';
   const MAX_SUBMISSION_CHARS = 2000;
   const JOBS_CACHE_KEY = 'mothership_hub_jobs_v5';
@@ -260,6 +260,16 @@
       ).join('');
     }
 
+    function acceptanceBriefMarkup(record) {
+      const text = String(record?.brief?.text || '').trim();
+      if (!text) return '';
+      return `
+        <details class="contract-acceptance-brief">
+          <summary>ACCEPTANCE BRIEF</summary>
+          <div class="contract-acceptance-brief-body">${esc(text)}</div>
+        </details>`;
+    }
+
     function submissionMarkup(record) {
       const key = String(record.contractId || record.jobId || '').trim();
       const prompt = writtenResponsePrompt(record);
@@ -298,6 +308,7 @@
             <div class="contract-card-meta">${metaRows(record)}</div>
             ${details.payoutStress ? `<div class="contract-card-detail"><span>Payout / Stress</span><strong>${esc(details.payoutStress)}</strong></div>` : ''}
             ${details.expectedWork ? `<div class="contract-card-detail"><span>Expected Work</span><strong>${esc(details.expectedWork)}</strong></div>` : ''}
+            ${acceptanceBriefMarkup(record)}
             ${submissionMarkup(record)}
           </article>`;
       }).join('');
