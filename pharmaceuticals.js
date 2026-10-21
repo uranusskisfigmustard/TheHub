@@ -21,6 +21,7 @@
     }
   ],
   "rules": [
+    "SUSTAIN-9, Cold Gospel, Needlepoint and Stillwater: read each listing\u0027s Benefit, Downside and Limits before use. Extra doses grant no additional benefit. These four do not use the Borrowed Peace/Hard Reset Treatment Use or dependence procedure. Any additional interaction or overdose ruling must be explained before you choose to use the drug.",
     "Ordinary Recovery Aid can establish one leisure-related level of Advantage for a weekly Rest Save. A spa visit, another leisure activity and this aid do not each supply separate leisure bonuses.",
     "Choose Borrowed Peace OR Hard Reset for one pharmaceutical enhancement per normally permitted weekly Rest Save. It can stack with independently earned leisure and other approved sources. Extra doses or combinations provide no further bonus; no additional Rest Save or permanent Save improvement is granted.",
     "Borrowed Peace and Hard Reset each count as one Treatment Use when used. The first two treatments require no dependence check. Before the third and every subsequent treatment, make a Body Save against Dependence; the treatment's own bonus never applies to this Save. If it fails, Dependence begins, but the current treatment still works.",
