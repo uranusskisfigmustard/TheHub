@@ -4,7 +4,6 @@
   const status = byId('equipmentStatus');
   const search = byId('equipmentSearch');
   const category = byId('equipmentCategory');
-  const expended = byId('equipmentExpended');
   const rows = byId('equipmentRows');
   const retry = byId('equipmentRetry');
   let inventory = null;
@@ -23,7 +22,7 @@
   function render() {
     if (!inventory) return;
     const needle = search.value.trim().toLowerCase();
-    const visible = inventory.items.filter(item => (expended.checked || item.quantity > 0) && (!category.value || item.category === category.value) && (!needle || [item.item, item.category, item.notes].join(' ').toLowerCase().includes(needle)));
+    const visible = inventory.items.filter(item => item.quantity > 0 && (!category.value || item.category === category.value) && (!needle || [item.item, item.category, item.notes].join(' ').toLowerCase().includes(needle)));
     const fragment = document.createDocumentFragment();
     for (const item of visible) {
       const row = document.createElement('tr');
@@ -71,7 +70,7 @@
       const units = inventory.items.reduce((sum, item) => sum + item.quantity, 0);
       const root = byId('equipmentSummary');
       root.replaceChildren();
-      for (const [label, value] of [['Market value', credit(total)], ['Resale at 50%', credit(total * inventory.resaleRate)], ['Counted units', String(units)]]) {
+      for (const [label, value] of [['Total market value', credit(total)], ['Resale at 50%', credit(total * inventory.resaleRate)], ['Counted units', String(units)]]) {
         const card = document.createElement('article');
         const heading = document.createElement('span');
         heading.textContent = label;
@@ -97,7 +96,6 @@
   }
   search.addEventListener('input', render);
   category.addEventListener('change', render);
-  expended.addEventListener('change', render);
   retry.addEventListener('click', load);
   load();
 })();

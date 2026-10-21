@@ -80,7 +80,7 @@ Keep one row per item/profile, combine shared issue and salvage counts, and
 exclude personal purchases. Quantities can represent kits, sets or full reload
 equivalents; explain these in the public notes. Loaded ammunition is included
 in weapon value, and spare ammunition has separate entries. Preserve zero-count
-expended entries for the optional history view. Never publish private spreadsheet
+expended entries in the data for recordkeeping; the page always hides them. Never publish private spreadsheet
 URLs, Warden notes or price-development conversations.
 
 After changing the data, update its `updated` date and asset cache version.
