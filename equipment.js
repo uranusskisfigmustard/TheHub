@@ -29,13 +29,7 @@
       const name = document.createElement('td');
       const title = document.createElement('strong');
       title.textContent = item.item;
-      const details = document.createElement('details');
-      const summary = document.createElement('summary');
-      summary.textContent = 'Details';
-      const note = document.createElement('p');
-      note.textContent = item.notes;
-      details.append(summary, note);
-      name.append(title, details);
+      name.append(title);
       row.append(name);
       const market = item.quantity * item.marketPrice;
       for (const value of [String(item.quantity), credit(item.marketPrice), credit(market), credit(market * inventory.resaleRate)]) {
