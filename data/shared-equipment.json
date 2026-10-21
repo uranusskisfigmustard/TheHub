@@ -1,0 +1,215 @@
+{
+  "updated": "2026-10-21",
+  "scope": "M5 issue and retained mercenary salvage",
+  "resaleRate": 0.5,
+  "items": [
+    {
+      "item": "Standard Battle Dress (AP7)",
+      "quantity": 3,
+      "unit": "item / kit",
+      "marketPrice": 2000,
+      "notes": "Three surviving issued suits. AP7.",
+      "category": "Armor"
+    },
+    {
+      "item": "Hazard Suit (AP5)",
+      "quantity": 5,
+      "unit": "item / kit",
+      "marketPrice": 4000,
+      "notes": "Three issued suits and two recovered suits. AP5; one hour of air.",
+      "category": "Armor"
+    },
+    {
+      "item": "Vaccsuit (AP3)",
+      "quantity": 3,
+      "unit": "item / kit",
+      "marketPrice": 10000,
+      "notes": "Three surviving issued vaccsuits. AP3; 12 hours of oxygen.",
+      "category": "Armor"
+    },
+    {
+      "item": "Light Armor (AP3)",
+      "quantity": 4,
+      "unit": "item / kit",
+      "marketPrice": 1000,
+      "notes": "Four recovered suits. AP3; no atmosphere supply or environmental sealing.",
+      "category": "Armor"
+    },
+    {
+      "item": "Standard Crew Attire (AP1)",
+      "quantity": 1,
+      "unit": "item / kit",
+      "marketPrice": 100,
+      "notes": "One recovered outfit. AP1.",
+      "category": "Armor"
+    },
+    {
+      "item": "Combat Shotgun",
+      "quantity": 2,
+      "unit": "item / kit",
+      "marketPrice": 1400,
+      "notes": "Two loaded shotguns, four shots each. Spare shells are counted separately.",
+      "category": "Weapons & security"
+    },
+    {
+      "item": "Revolver",
+      "quantity": 4,
+      "unit": "item / kit",
+      "marketPrice": 750,
+      "notes": "Four loaded revolvers, six rounds each. The returned revolver has already been deducted; spare rounds are counted separately.",
+      "category": "Weapons & security"
+    },
+    {
+      "item": "SMG",
+      "quantity": 1,
+      "unit": "item / kit",
+      "marketPrice": 1000,
+      "notes": "One loaded SMG, five shots. The returned SMG has already been deducted; retained ammunition is counted separately.",
+      "category": "Weapons & security"
+    },
+    {
+      "item": "Stun Baton",
+      "quantity": 17,
+      "unit": "item / kit",
+      "marketPrice": 150,
+      "notes": "Three issued and fourteen recovered batons.",
+      "category": "Weapons & security"
+    },
+    {
+      "item": "Foam Gun",
+      "quantity": 9,
+      "unit": "item / kit",
+      "marketPrice": 500,
+      "notes": "Nine guns, each treated as fully loaded with three shots. Spare canisters are counted separately.",
+      "category": "Weapons & security"
+    },
+    {
+      "item": "Tranq Pistol",
+      "quantity": 5,
+      "unit": "item / kit",
+      "marketPrice": 250,
+      "notes": "Five pistols, each treated as fully loaded with six shots. No spare reloads established.",
+      "category": "Weapons & security"
+    },
+    {
+      "item": "Combat Shotgun ammunition (4-shell reload)",
+      "quantity": 2,
+      "unit": "reload equiv.",
+      "marketPrice": 50,
+      "notes": "Two full spare reloads: eight shells.",
+      "category": "Ammunition"
+    },
+    {
+      "item": "Foam Gun reload canister (3 shots)",
+      "quantity": 3,
+      "unit": "reload equiv.",
+      "marketPrice": 50,
+      "notes": "Three full spare canisters: nine shots.",
+      "category": "Ammunition"
+    },
+    {
+      "item": "Revolver ammunition (6-round reload equivalent)",
+      "quantity": 3,
+      "unit": "reload equiv.",
+      "marketPrice": 50,
+      "notes": "Eighteen spare rounds: two loaded speedloaders plus six loose rounds. Quantity counts three reload-equivalents, not three speedloaders.",
+      "category": "Ammunition"
+    },
+    {
+      "item": "SMG ammunition (5-shot magazine equivalent)",
+      "quantity": 1,
+      "unit": "reload equiv.",
+      "marketPrice": 50,
+      "notes": "Five shots retained from the returned SMG. One magazine-equivalent of ammunition; no additional physical magazine is established.",
+      "category": "Ammunition"
+    },
+    {
+      "item": "Flashbang Grenade",
+      "quantity": 11,
+      "unit": "item / kit",
+      "marketPrice": 100,
+      "notes": "Eleven remaining: six issued and five recovered.",
+      "category": "Weapons & security"
+    },
+    {
+      "item": "Cord Restraints",
+      "quantity": 24,
+      "unit": "set",
+      "marketPrice": 1,
+      "notes": "Twenty-four sets total. Issued and recovered descriptions refer to the same pool.",
+      "category": "Tools & supplies"
+    },
+    {
+      "item": "Magnetic Door Clamp",
+      "quantity": 4,
+      "unit": "item / kit",
+      "marketPrice": 100,
+      "notes": "Four clamps. No mechanical wedges.",
+      "category": "Tools & supplies"
+    },
+    {
+      "item": "Hands-Free Comms Kit",
+      "quantity": 14,
+      "unit": "item / kit",
+      "marketPrice": 150,
+      "notes": "Fourteen kits, one recovered per assaulter. Hands-free operation does not extend range or bypass interference.",
+      "category": "Electronics"
+    },
+    {
+      "item": "Tripod Work Light",
+      "quantity": 2,
+      "unit": "item / kit",
+      "marketPrice": 100,
+      "notes": "Two lights total. Provides hands-free area lighting when positioned and powered.",
+      "category": "Tools & supplies"
+    },
+    {
+      "item": "Technical Search Diagnostic Kit",
+      "quantity": 1,
+      "unit": "item / kit",
+      "marketPrice": 1500,
+      "notes": "One shared hard case with refrigeration/environment diagnostics, inspection/tag reader and mechanical tools. Components are included in the kit, not counted separately.",
+      "category": "Tools & supplies"
+    },
+    {
+      "item": "HUD: Thermal + Night Vision",
+      "quantity": 4,
+      "unit": "item / kit",
+      "marketPrice": 1400,
+      "notes": "Four surviving thermal/night-vision HUDs.",
+      "category": "Electronics"
+    },
+    {
+      "item": "Inspection Mirror & Fiber Camera",
+      "quantity": 1,
+      "unit": "item / kit",
+      "marketPrice": 300,
+      "notes": "One surviving issued kit for viewing around corners and inside gaps.",
+      "category": "Electronics"
+    },
+    {
+      "item": "Crowbar",
+      "quantity": 1,
+      "unit": "item / kit",
+      "marketPrice": 25,
+      "notes": "One surviving issued crowbar.",
+      "category": "Tools & supplies"
+    },
+    {
+      "item": "EMT & Triage Kit",
+      "quantity": 1,
+      "unit": "item / kit",
+      "marketPrice": 400,
+      "notes": "One surviving issued kit. Internal consumable quantities are not individually tracked.",
+      "category": "Medical"
+    },
+    {
+      "item": "Emergency Sealant & Patch Kit",
+      "quantity": 0,
+      "unit": "item / kit",
+      "marketPrice": 300,
+      "notes": "Fully consumed; all five uses expended.",
+      "category": "Tools & supplies"
+    }
+  ]
+}

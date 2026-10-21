@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>The Hub — Shared Equipment</title>
+  <link rel="stylesheet" href="player-shell.css?v=20261014-warden-shortcut1">
+  <link rel="stylesheet" href="equipment.css?v=20261021-equipment1">
+</head>
+<body data-page="equipment">
+  <div id="playerShell"></div>
+  <main class="player-main equipment-page">
+    <header class="equipment-heading">
+      <p class="equipment-kicker">CREW SHARED POOL</p>
+      <h1>Shared Equipment</h1>
+      <p>M5 issue and retained salvage. Personal purchases are excluded.</p>
+      <p class="equipment-updated" id="equipmentUpdated"></p>
+    </header>
+    <section class="equipment-summary" aria-label="Inventory totals" id="equipmentSummary" hidden></section>
+    <section class="equipment-panel" aria-labelledby="equipmentListTitle">
+      <h2 id="equipmentListTitle">Gear on hand</h2>
+      <div class="equipment-controls" id="equipmentControls" hidden>
+        <label>Search equipment<input type="search" id="equipmentSearch" placeholder="Item or function"></label>
+        <label>Category<select id="equipmentCategory"><option value="">All categories</option></select></label>
+        <label class="equipment-toggle"><input type="checkbox" id="equipmentExpended"> Show expended items</label>
+      </div>
+      <p id="equipmentStatus" role="status" aria-live="polite">Loading shared equipment…</p>
+      <button id="equipmentRetry" type="button" hidden>Retry loading</button>
+      <div class="equipment-table-wrap" tabindex="0" role="region" aria-label="Shared equipment and values" hidden id="equipmentTableWrap">
+        <table>
+          <caption class="equipment-sr-only">Shared inventory with quantities, unit market prices, market totals and resale totals.</caption>
+          <thead><tr><th scope="col">Item</th><th scope="col">Quantity</th><th scope="col">Market / unit</th><th scope="col">Market total</th><th scope="col">Resale total</th></tr></thead>
+          <tbody id="equipmentRows"></tbody>
+        </table>
+      </div>
+      <p class="equipment-note">Quantities count individual items, kits, restraint sets or full reload-equivalents, as noted. Weapon prices include the recorded loaded ammunition without an additional charge; spare ammunition is listed separately. Resale is 50% of market value.</p>
+    </section>
+  </main>
+  <noscript><div class="hub-shell-fatal">JavaScript is required for the player console.</div></noscript>
+  <script src="player-routes.js?v=20261021-equipment1"></script>
+  <script src="player-shell.js?v=20261014-warden-shortcut1"></script>
+  <script src="equipment.js?v=20261021-equipment1"></script>
+</body>
+</html>
