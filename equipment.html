@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <title>The Hub — Shared Equipment</title>
   <link rel="stylesheet" href="player-shell.css?v=20261014-warden-shortcut1">
-  <link rel="stylesheet" href="equipment.css?v=20261021-equipment1">
+  <link rel="stylesheet" href="equipment.css?v=20261021-equipment2">
 </head>
 <body data-page="equipment">
   <div id="playerShell"></div>
@@ -13,7 +13,7 @@
     <header class="equipment-heading">
       <p class="equipment-kicker">CREW SHARED POOL</p>
       <h1>Shared Equipment</h1>
-      <p>M5 issue and retained salvage. Personal purchases are excluded.</p>
+      <p>Shared M5 issue and retained salvage, with no individual PC allocations. Personal purchases are excluded.</p>
       <p class="equipment-updated" id="equipmentUpdated"></p>
     </header>
     <section class="equipment-summary" aria-label="Inventory totals" id="equipmentSummary" hidden></section>
@@ -22,7 +22,6 @@
       <div class="equipment-controls" id="equipmentControls" hidden>
         <label>Search equipment<input type="search" id="equipmentSearch" placeholder="Item or function"></label>
         <label>Category<select id="equipmentCategory"><option value="">All categories</option></select></label>
-        <label class="equipment-toggle"><input type="checkbox" id="equipmentExpended"> Show expended items</label>
       </div>
       <p id="equipmentStatus" role="status" aria-live="polite">Loading shared equipment…</p>
       <button id="equipmentRetry" type="button" hidden>Retry loading</button>
@@ -39,6 +38,6 @@
   <noscript><div class="hub-shell-fatal">JavaScript is required for the player console.</div></noscript>
   <script src="player-routes.js?v=20261021-equipment1"></script>
   <script src="player-shell.js?v=20261014-warden-shortcut1"></script>
-  <script src="equipment.js?v=20261021-equipment1"></script>
+  <script src="equipment.js?v=20261021-equipment2"></script>
 </body>
 </html>
