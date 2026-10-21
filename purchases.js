@@ -1,12 +1,12 @@
 (() => {
   'use strict';
 
-  const BUILD = '20261021-pharmaceuticals1';
+  const BUILD = '20261021-pharmaceuticals2';
   const pharma = window.HubPharmaceuticals || { category:'PHARMACEUTICALS', serviceListings:[], rules:[] };
   const POST_SOURCE = 'mothership-contract-service-post';
   const DEFAULT_SESSION_KEY = 'mothership_hub_board_session_v1';
   const DEFAULT_EXPIRY_KEY = 'mothership_hub_board_session_expiry_v1';
-  const BUNDLE_CACHE_KEY = 'mothership_hub_purchase_bundle_v2';
+  const BUNDLE_CACHE_KEY = 'mothership_hub_purchase_bundle_v3';
   const STATIC_CHARACTERS = Object.freeze(['Prudence Greymore', 'John Sobieski', 'Violet Herpadermaferb']);
 
   const esc = value => String(value ?? '')
