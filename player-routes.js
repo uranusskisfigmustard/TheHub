@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const BUILD = '20261016-contacts1';
+  const BUILD = '20261021-equipment1';
   const groups = [
     {
       id: 'board', label: 'BOARD', defaultPage: 'contracts', pages: [
@@ -10,7 +10,8 @@
       ]
     },
     {
-      id: 'market', label: 'MARKET', defaultPage: 'purchases', pages: [
+      id: 'market', label: 'GEAR & MARKET', defaultPage: 'equipment', pages: [
+        { id: 'equipment', label: 'SHARED EQUIPMENT', href: 'equipment.html', summary: 'Crew shared gear, quantities, market values, and resale estimates.' },
         { id: 'purchases', label: 'PURCHASE BOARD', href: 'purchases.html', summary: 'Player marketplace, qualification-gated purchases, and financing presentation.' },
         { id: 'classifieds', label: 'CLASSIFIEDS', href: 'classifieds.html', summary: 'Informal opportunities, jobs, rumors, requests, notices, and other non-Mission-Board leads.' }
       ]
@@ -32,4 +33,5 @@
 
   window.HubPlayerRoutes = Object.freeze({ build: BUILD, groups: Object.freeze(groups) });
 })();
+
 

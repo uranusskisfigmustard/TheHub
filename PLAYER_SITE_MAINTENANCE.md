@@ -65,3 +65,23 @@ image itself for unrevealed information. Keep original artwork and attribution
 intact. Missing portraits use initials, and failed images fall back gracefully.
 The directory opens one profile at a time; anchors still link directly to people
 and groups. Check profile selection and browser history when changing its layout.
+
+
+## Shared equipment
+
+`equipment.html` is the Shared Equipment page under Gear & Market.
+`data/shared-equipment.json` is a curated player-facing snapshot of the
+Progression Ledger shared inventory. Update the ledger first, then republish
+the approved item names, quantities, unit prices and public notes in this JSON.
+The page calculates market totals and 50% resale totals from quantity × unit price.
+This is a published snapshot, not a live connection to the private ledger.
+
+Keep one row per item/profile, combine shared issue and salvage counts, and
+exclude personal purchases. Quantities can represent kits, sets or full reload
+equivalents; explain these in the public notes. Loaded ammunition is included
+in weapon value, and spare ammunition has separate entries. Preserve zero-count
+expended entries for the optional history view. Never publish private spreadsheet
+URLs, Warden notes or price-development conversations.
+
+After changing the data, update its `updated` date and asset cache version.
+Run `python3 tools/check-player-pages.py` and `node --check equipment.js`.
