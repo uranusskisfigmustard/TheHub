@@ -1,11 +1,12 @@
 (() => {
   'use strict';
 
-  const BUILD = '20261011-violet3';
+  const BUILD = '20261021-pharmaceuticals1';
+  const pharma = window.HubPharmaceuticals || { category:'PHARMACEUTICALS', serviceListings:[], rules:[] };
   const POST_SOURCE = 'mothership-contract-service-post';
   const DEFAULT_SESSION_KEY = 'mothership_hub_board_session_v1';
   const DEFAULT_EXPIRY_KEY = 'mothership_hub_board_session_expiry_v1';
-  const BUNDLE_CACHE_KEY = 'mothership_hub_purchase_bundle_v1';
+  const BUNDLE_CACHE_KEY = 'mothership_hub_purchase_bundle_v2';
   const STATIC_CHARACTERS = Object.freeze(['Prudence Greymore', 'John Sobieski', 'Violet Herpadermaferb']);
 
   const esc = value => String(value ?? '')
@@ -95,6 +96,7 @@
         </div>
 
         <div class="purchase-categories" data-purchase-categories aria-label="Purchase categories"></div>
+        <aside class="purchase-pharma-rules" data-purchase-pharma-rules hidden aria-label="Recovery pharmaceutical rules"></aside>
         <div class="purchase-items" data-purchase-items></div>
       </section>
 
@@ -126,6 +128,8 @@
     const count = el('[data-purchase-count]');
     const categories = el('[data-purchase-categories]');
     const itemRoot = el('[data-purchase-items]');
+    const pharmaRules = el('[data-purchase-pharma-rules]');
+    pharmaRules.innerHTML = '<details><summary>Recovery aid rules &amp; dependence</summary><ul>' + pharma.rules.map(rule => '<li>' + esc(rule) + '</li>').join('') + '</ul></details>';
     const switchButton = el('[data-purchase-switch]');
     const refreshButton = el('[data-purchase-refresh]');
     const pageStatus = el('[data-purchase-status]');
@@ -424,6 +428,7 @@
 
     function renderItems() {
       const visible = filteredItems();
+      pharmaRules.hidden = !visible.some(item => item.category === pharma.category);
       count.textContent = `${visible.length} OF ${items.length} ITEMS`;
       if (!visible.length) {
         itemRoot.innerHTML = '<div class="purchase-empty">No items match the current filter.</div>';
@@ -431,14 +436,16 @@
       }
 
       itemRoot.innerHTML = visible.map(item => {
-        const progress = !item.canPurchase;
+        const progress = !item.canPurchase && !item.serviceOnly;
         const accessBlock = progress ? `
           <div class="purchase-access-block">
             ${item.progressStanding ? `<div><span>QUALIFICATION ROUTE</span><strong>${esc(item.progressStanding)}</strong></div>` : ''}
             ${item.minimumAccess ? `<div><span>REMAINING ACCESS</span><strong>${esc(item.minimumAccess)}</strong></div>` : ''}
           </div>` : '';
-        const funding = affordability(item);
-        const button = !catalogLive
+        const funding = item.serviceOnly ? { label:'' } : affordability(item);
+        const button = item.serviceOnly
+          ? '<div class="purchase-clinic-note">CLINIC APPOINTMENT — arrange with Saint Orra. Medication and supervised care included.</div>'
+          : !catalogLive
           ? '<button type="button" class="purchase-disabled-btn" data-locked="true" disabled>REFRESHING…</button>'
           : progress
             ? '<button type="button" class="purchase-disabled-btn" data-locked="true" disabled>LOCKED</button>'
@@ -454,7 +461,7 @@
               </div>
               <div class="purchase-price">${esc(item.priceLabel || credit(item.price))}</div>
             </div>
-            <div class="purchase-item-badges">${badge(item)}</div>
+            <div class="purchase-item-badges">${item.serviceOnly ? '<span class="purchase-badge">CLINIC CARE</span>' : badge(item)}</div>
             <p class="purchase-mechanics">${esc(item.mechanics)}</p>
             <div class="purchase-provider">PROVIDER // ${esc(item.provider || 'Hub merchant')}</div>
             ${accessBlock}
@@ -541,13 +548,15 @@
       const source = bundle?.catalogs?.[character];
       if (!source) return false;
       finance = source.finance || null;
-      items = Array.isArray(source.items) ? source.items : [];
+      const retailItems = Array.isArray(source.items) ? source.items : [];
+      const names = new Set(retailItems.map(item => String(item.item || '').toLowerCase()));
+      items = [...retailItems, ...pharma.serviceListings.filter(item => !names.has(item.item.toLowerCase()))];
       catalogLive = Boolean(live);
       selectedCategory = 'ALL';
       searchText = '';
       search.value = '';
       showMarket();
-      const buyable = items.filter(item => item.canPurchase !== false).length;
+      const buyable = items.filter(item => item.canPurchase !== false && !item.serviceOnly).length;
       const progress = items.filter(item => item.accessState === 'restricted_in_progress').length;
       if (catalogLive) {
         setStatus(`${buyable} ITEM${buyable === 1 ? '' : 'S'} AVAILABLE${progress ? ` // ${progress} ACCESS PATH${progress === 1 ? '' : 'S'} IN PROGRESS` : ''} FOR ${character.toUpperCase()}`, 'ok');

@@ -85,3 +85,9 @@ URLs, Warden notes or price-development conversations.
 
 After changing the data, update its `updated` date and asset cache version.
 Run `python3 tools/check-player-pages.py` and `node --check equipment.js`.
+
+## Pharmaceuticals
+
+The Purchase Board builds retail categories from the live Hub Purchase Catalog. Pharmaceuticals contains actual medications, including both Stimpak profiles; non-drug medical gear remains Medical. Existing access gates remain in force.
+
+Ordinary Recovery Aid (75cr per recovery period) and Borrowed Peace (150cr per dose) are catalog retail products. Hard Reset is a 1,000cr clinic appointment including supervised care, excluded from automatic equipment purchases by the existing backend service policy. `pharmaceuticals.js` publishes its clinic listing and the shared recovery/dependence rules; keep that listing synchronized with the catalog. Never label it as an instant retail purchase or treat booking/purchase as automatically completing recovery.
