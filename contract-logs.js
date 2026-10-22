@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const BUILD = '20261020-active-brief1';
+  const BUILD = '20261022-accepted-context2';
   const POST_SOURCE = 'mothership-contract-service-post';
   const MAX_SUBMISSION_CHARS = 2000;
   const JOBS_CACHE_KEY = 'mothership_hub_jobs_v5';
@@ -45,11 +45,18 @@
 
   function acceptedDetails(record) {
     const text = String(record?.brief?.text || '');
-    const payNext = ['EXPECTED WORK', 'AUTHORIZED / PROVIDED', 'ASSIGNMENT LIMITS', 'KNOWN RISKS', 'SUCCESSFUL CLOSEOUT'];
-    const workNext = ['AUTHORIZED / PROVIDED', 'ASSIGNMENT LIMITS', 'KNOWN RISKS', 'SUCCESSFUL CLOSEOUT'];
-    const payLines = section(text, 'PAY', payNext).split(/\r?\n/).map(cleanLine).filter(Boolean);
-    const workLines = section(text, 'EXPECTED WORK', workNext).split(/\r?\n/).map(cleanLine).filter(Boolean);
+    const headings = [
+      'HIRED BY', 'THE PROBLEM', 'EXPECTED WORK', 'AUTHORIZED / PROVIDED',
+      'ASSIGNMENT LIMITS', 'RESTRICTED', 'KNOWN RISKS', 'SUCCESSFUL CLOSEOUT',
+      'PAY', 'COMPENSATION', 'INITIAL CONTACT CARD', 'ACCEPTED SCOPE',
+      'KNOWN CONSIDERATIONS'
+    ];
+    const after = heading => headings.filter(item => item !== heading);
+    const payLines = section(text, 'PAY', after('PAY')).split(/\r?\n/).map(cleanLine).filter(Boolean);
+    const workLines = section(text, 'EXPECTED WORK', after('EXPECTED WORK')).split(/\r?\n/).map(cleanLine).filter(Boolean);
     return {
+      hiredBy: cleanLine(section(text, 'HIRED BY', after('HIRED BY'))),
+      problemSummary: cleanLine(section(text, 'THE PROBLEM', after('THE PROBLEM'))),
       payoutStress: cleanLine(record?.payoutStress) || payLines.join(' · '),
       expectedWork: cleanLine(record?.expectedWork) || workLines[0] || ''
     };
@@ -251,7 +258,8 @@
 
     function metaRows(record) {
       const rows = [];
-      if (record.employer) rows.push(['Employer / Source', record.employer]);
+      const employer = acceptedDetails(record).hiredBy || String(record.employer || '').trim();
+      if (employer && !/^(unknown|restricted)$/i.test(employer)) rows.push(['Hired By', employer]);
       if (record.location) rows.push(['Location', record.location]);
       if (record.participants?.length) rows.push(['Participants', record.participants.join(', ')]);
       if (record.acceptedDate) rows.push(['Accepted', record.acceptedDate]);
@@ -306,6 +314,7 @@
             <div class="contract-card-status">ACTIVE</div>
             ${betweenSessionMarkup(record)}
             <div class="contract-card-meta">${metaRows(record)}</div>
+            ${details.problemSummary ? `<div class="contract-card-detail"><span>The Problem</span><strong>${esc(details.problemSummary)}</strong></div>` : ''}
             ${details.payoutStress ? `<div class="contract-card-detail"><span>Payout / Stress</span><strong>${esc(details.payoutStress)}</strong></div>` : ''}
             ${details.expectedWork ? `<div class="contract-card-detail"><span>Expected Work</span><strong>${esc(details.expectedWork)}</strong></div>` : ''}
             ${acceptanceBriefMarkup(record)}
