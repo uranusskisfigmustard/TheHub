@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const BUILD = '20261022-accepted-context2';
+  const BUILD = '20261022-accepted-context3';
   const POST_SOURCE = 'mothership-contract-service-post';
   const MAX_SUBMISSION_CHARS = 2000;
   const JOBS_CACHE_KEY = 'mothership_hub_jobs_v5';
@@ -95,7 +95,10 @@
       title && normalized(item?.Title || item?.title) === title
     );
     const rowKind = row && betweenSessionKindFromPay(row?.Pay ?? row?.pay ?? row?.basePay);
-    return rowKind || betweenSessionKindFromPay(record?.payoutStress || record?.pay || '');
+    // Accepted jobs leave the public Board, so use the immutable acceptance
+    // briefing's pay line rather than relying on a possibly expired Board cache.
+    const acceptedPay = acceptedDetails(record).payoutStress;
+    return rowKind || betweenSessionKindFromPay(acceptedPay || record?.payoutStress || record?.pay || '');
   }
 
   function betweenSessionMarkup(record) {
