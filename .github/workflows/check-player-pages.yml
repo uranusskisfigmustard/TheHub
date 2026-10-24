@@ -10,6 +10,10 @@ on:
       - 'contacts.js'
       - 'contacts.css'
       - 'data/player-contacts.json'
+      - 'data/shared-equipment.json'
+      - 'pharmaceuticals.js'
+      - 'tools/build-player-equipment.py'
+      - 'tools/test_player_equipment.py'
       - 'assets/portraits/**'
       - 'tools/check-player-contacts.py'
       - 'tools/check-player-pages.py'
@@ -23,6 +27,10 @@ on:
       - 'contacts.js'
       - 'contacts.css'
       - 'data/player-contacts.json'
+      - 'data/shared-equipment.json'
+      - 'pharmaceuticals.js'
+      - 'tools/build-player-equipment.py'
+      - 'tools/test_player_equipment.py'
       - 'assets/portraits/**'
       - 'tools/check-player-contacts.py'
       - 'tools/check-player-pages.py'
@@ -45,3 +53,8 @@ jobs:
           python3 tools/check-player-contacts.py
           node --check contacts.js
 
+
+      - name: Validate player equipment exporter
+        run: |
+          python3 -m unittest discover -s tools -p test_player_equipment.py
+          node --check pharmaceuticals.js
