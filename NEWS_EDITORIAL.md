@@ -33,9 +33,9 @@ Posts and Comments have independent PUBLIC/SCHEDULED/DRAFT/HOLD gates. SCHEDULED
 Internal Warden Notes and Canon Source stay private. Never upload private CSV files to the public GitHub repository.
 Use Internal Warden Notes only for a concrete canon dependency, deliberate misinformation, an evolving thread, or a consequential future follow-up. Leave routine comments' notes blank. Never include these notes in public JSON, public replies, dates, source labels, or the player board itself.
 
-## Weekly connected publication (active schedule)
+## Weekly connected publication (paused)
 
-- A dedicated **Hub News Weekly Sync** task runs **Sunday evenings, America/New_York**, after the existing weekly Mothership Integrity Review window. It uses the existing connected Google Drive and GitHub tools, not a Google Cloud service account or any GitHub secret. The weekly task is active, but successful execution must be verified at its first scheduled run.
+- **Hub News Weekly Sync is paused**: the task was disabled when checked on 24 October 2026; its last recorded run was 18 October. Its saved schedule is Sunday evenings, America/New_York, after the integrity-review window, but that schedule does not run while disabled. The reason for the pause is not established here. Do not resume it through a documentation edit. Authorized publication can still use the existing connected Google Drive and GitHub tools without new credentials.
 - At each run, read the WARDEN-ONLY editorial Sheet and the current Timeline, Dashboard, Canon Register, and Continuity Tracker; determine the **actual confirmed in-game date**. Sunday passing in real life does not advance game time.
 - Confirm each public entry is already approved and its fictional prerequisites actually occurred. For entries that are **SCHEDULED**, the in-game date must be on or after the post/comment date. Conditional Levent maintenance rumors remain DRAFT until the actual visits are recorded; no date alone establishes a visit, tampering, theft, or outcome.
 - Rebuild the allowlisted player feed using the same validation rules as `tools/build-hub-news.py`, preserving all previous public posts and replies. Never commit future-dated content, unapproved DRAFT/HOLD material, Internal Warden Notes, Canon Source, or unsanitized spreadsheet data, including in Git history.
@@ -48,12 +48,12 @@ The older GitHub Actions private-service-account publishing workflow was retired
 1. Resolve facts using Master Index → Canon Register → narrowest current setting/mission/live authority.
 2. Add/edit private Posts and Comments. Assign distinct IDs, dates, source and publication state. Start new rows in DRAFT.
 3. After verifying what has actually occurred, choose a publish state: PUBLIC for immediate inclusion, SCHEDULED for approved material with a known future in-game Posted Date, or DRAFT/HOLD for unresolved fictional events. A SCHEDULED row must not assume a visit, breach, confrontation, or other event has happened merely because a date is approaching. Give Comments their own dates and states.
-4. The Sunday connected weekly task normally publishes automatically. For manual/offline fallback, export private Posts and Comments as UTF-8 CSV **outside** the public repository and run `python tools/build-hub-news.py --posts posts.csv --comments comments.csv --as-of 2237-283 --output data/hub-news.json` using the current confirmed in-game date.
+4. The scheduled publisher is currently paused. For an authorized manual/offline publication pass, export private Posts and Comments as UTF-8 CSV **outside** the public repository and run `python tools/build-hub-news.py --posts posts.csv --comments comments.csv --as-of 2237-283 --output data/hub-news.json` using the current confirmed in-game date.
 5. The exporter includes PUBLIC rows, and SCHEDULED rows only when Posted Date <= --as-of. Future scheduled posts and comments never enter the generated JSON. It refuses a PUBLIC row dated in the future; DRAFT/HOLD never export.
 6. Inspect the allowlisted player-visible JSON: each reply has a real YYYY-DDD campaign date and the actual NPC text, never an editorial note. Check spoilers/chronology/source credibility, test on preview and mobile, then commit sanitized JSON.
 7. Preserve older reports as history. Update or add a new report when the world genuinely responds.
 
-**Weekly automation:** the Sunday Hub News Weekly Sync task owns current routine publication through existing app connectors. GitHub Actions runs code tests only, not News publication. No credential or real-world GitHub cron is needed. Never commit future posts, private CSVs, service-account keys, or Warden notes to the public repository.
+**Weekly automation:** Hub News Weekly Sync is the configured routine publisher, currently paused. Recheck actual task state before describing automatic publication as active. Resuming it is a separate action. GitHub Actions runs code tests only, not News publication. No credential or real-world GitHub cron is needed. Never commit future posts, private CSVs, service-account keys, or Warden notes to the public repository.
 
 The exporter reads fixed public columns only and never publishes Internal Warden Notes, Canon Source, DRAFT, HOLD, or not-yet-due SCHEDULED rows. Publication remains deliberate and never auto-creates story events.
 
