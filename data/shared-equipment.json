@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-23",
+  "updated": "2026-10-24",
   "scope": "M5 issue and retained mercenary salvage",
   "resaleRate": 0.5,
   "items": [
@@ -116,14 +116,6 @@
       "category": "Ammunition"
     },
     {
-      "item": "Tranq Pistol ammunition (6-shot reload)",
-      "quantity": 2,
-      "unit": "reload equiv.",
-      "marketPrice": 50,
-      "notes": "Two full spare reloads issued for M5 and retained: twelve shots. Separate from the ammunition loaded in the pistols.",
-      "category": "Ammunition"
-    },
-    {
       "item": "SMG ammunition (5-shot magazine equivalent)",
       "quantity": 1,
       "unit": "reload equiv.",
@@ -218,6 +210,14 @@
       "marketPrice": 300,
       "notes": "Fully consumed; all five uses expended.",
       "category": "Tools & supplies"
+    },
+    {
+      "item": "Tranq Pistol ammunition (6-shot reload)",
+      "quantity": 2,
+      "unit": "reload equiv.",
+      "marketPrice": 50,
+      "notes": "Two full spare reloads issued for M5 and retained: twelve shots. Separate from the ammunition loaded in the pistols.",
+      "category": "Ammunition"
     }
   ]
 }
