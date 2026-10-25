@@ -22,13 +22,13 @@
     const who = root.querySelector('[data-between-who]');
     const prue = root.querySelector('[data-between-character="prue"]');
     const john = root.querySelector('[data-between-character="john"]');
-    const violet = root.querySelector('[data-between-character="violet"]');
+    const cassidy = root.querySelector('[data-between-character="cassidy"]');
 
-    if (!selector || !view || !who || !prue || !john || !violet) {
+    if (!selector || !view || !who || !prue || !john || !cassidy) {
       throw new Error('Between Sessions page controls are incomplete.');
     }
 
-    const firstAvailableCharacter = period => ['prue', 'john', 'violet'].find(id => period?.characters?.[id]) || 'prue';
+    const firstAvailableCharacter = period => ['prue', 'john', 'cassidy'].find(id => period?.characters?.[id]) || 'prue';
     let selectedPeriod = orderedPeriods[0]?.[0] || null;
     let selectedCharacter = firstAvailableCharacter(orderedPeriods[0]?.[1]);
 
@@ -47,13 +47,13 @@
 
       prue.classList.toggle('active', selectedCharacter === 'prue');
       john.classList.toggle('active', selectedCharacter === 'john');
-      violet.classList.toggle('active', selectedCharacter === 'violet');
+      cassidy.classList.toggle('active', selectedCharacter === 'cassidy');
       prue.setAttribute('aria-pressed', selectedCharacter === 'prue' ? 'true' : 'false');
       john.setAttribute('aria-pressed', selectedCharacter === 'john' ? 'true' : 'false');
-      violet.setAttribute('aria-pressed', selectedCharacter === 'violet' ? 'true' : 'false');
+      cassidy.setAttribute('aria-pressed', selectedCharacter === 'cassidy' ? 'true' : 'false');
 
       if (!record) {
-        who.textContent = selectedCharacter === 'violet' ? 'VIOLET HERPADERMAFERB' : '';
+        who.textContent = selectedCharacter === 'cassidy' ? 'CASSIDY WRIGHT' : '';
         view.innerHTML = '<div class="empty">NO INTERSESSION RECORD FOR THIS CHARACTER.</div>';
         return;
       }
@@ -101,8 +101,8 @@
       renderView();
     });
 
-    violet.addEventListener('click', () => {
-      selectedCharacter = 'violet';
+    cassidy.addEventListener('click', () => {
+      selectedCharacter = 'cassidy';
       renderView();
     });
 
