@@ -16,7 +16,7 @@
   if (!results || !status || !search || !perspective || !certainty || !reset) return;
 
   const labels = { known: 'Known', reported: 'Reported', suspected: 'Crew theory', unconfirmed: 'Unconfirmed' };
-  const names = { john: 'John', prue: 'Prue', violet: 'Violet' };
+  const names = { john: 'John', prue: 'Prue', cassidy: 'Cassidy' };
   let entries = [];
   let entryMap = new Map();
   let activeType = 'all';
