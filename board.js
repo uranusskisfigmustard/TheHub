@@ -1,11 +1,9 @@
 (() => {
   'use strict';
 
-  const BUILD = '20260920-board-prod-2';
+  const BUILD = '20261026-jobsfeed-1';
   const API = 'https://script.google.com/macros/s/AKfycbzeW8vTooOCNEBia3_EMQ10r7BcbakXIwCD4ZaEOUEBOdCXl09tRHj76oxcUcsOKQK0/exec';
   const POST_SOURCE = 'mothership-contract-service-post';
-  const SHEET_ID = '1bg6UsBTaNanhCm9xwWbafEag6TpinCuGdlmkqv-c38c';
-  const JOBS_GID = '781703719';
   const JOBS_CACHE = 'mothership_hub_jobs_v5';
   const CLASSIFIEDS_CACHE = 'mothership_hub_classifieds_v2';
   const JOBS_TIME = JOBS_CACHE + '_time';
@@ -373,23 +371,6 @@ COMPENSATION
     .map(item => item.trim())
     .filter(Boolean);
 
-  function cellValue(cell) {
-    if (!cell || cell.v === null || cell.v === undefined) return '';
-    return cell.f ?? cell.v;
-  }
-
-  function normalizeTable(table) {
-    if (!table || !Array.isArray(table.cols) || !Array.isArray(table.rows)) return [];
-    const labels = table.cols.map((column, index) =>
-      String(column.label || String.fromCharCode(65 + index)).trim()
-    );
-    return table.rows.map(row => {
-      const out = {};
-      labels.forEach((label, index) => { out[label] = cellValue(row.c?.[index]); });
-      return out;
-    }).filter(row => String(row.Title || '').trim());
-  }
-
   function qualificationParts(raw) {
     const text = String(raw || '').trim();
     if (!text) return { label: '', text: '' };
@@ -465,38 +446,12 @@ COMPENSATION
     });
   }
 
-  function loadJobsSheet(timeoutMs = 12000) {
-    return new Promise((resolve, reject) => {
-      const callback = `__hubBoardJobs_${Date.now()}_${Math.random().toString(36).slice(2)}`;
-      const script = document.createElement('script');
-      let timer = null;
-      let settled = false;
-      function cleanup() {
-        if (timer) clearTimeout(timer);
-        script.remove();
-        try { delete window[callback]; } catch (_) { window[callback] = undefined; }
-      }
-      function finish(fn, value) {
-        if (settled) return;
-        settled = true;
-        cleanup();
-        fn(value);
-      }
-      window[callback] = response => {
-        try {
-          if (!response || response.status === 'error') {
-            throw new Error(response?.errors?.[0]?.message || 'Google Sheet returned an error.');
-          }
-          finish(resolve, normalizeTable(response.table));
-        } catch (error) { finish(reject, error); }
-      };
-      const cacheBust = Date.now() + Math.floor(Math.random() * 1000);
-      const tqx = encodeURIComponent(`responseHandler:${callback};reqId:${cacheBust}`);
-      script.src = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?gid=${JOBS_GID}&headers=1&tqx=${tqx}&_=${cacheBust}`;
-      script.onerror = () => finish(reject, new Error('Google Sheets contract feed unavailable.'));
-      document.body.appendChild(script);
-      timer = setTimeout(() => finish(reject, new Error('Contract feed timed out.')), timeoutMs);
-    });
+  async function loadJobsFeed() {
+    const response = await postRequest('jobsfeed', {}, 30000);
+    if (!response?.ok || !Array.isArray(response.jobs)) {
+      throw new Error(response?.error || 'Contract feed unavailable.');
+    }
+    return response.jobs;
   }
 
   function saveCache(key, timeKey, rows) {
@@ -864,7 +819,7 @@ COMPENSATION
       state.jobsSource = state.jobs.length ? 'CACHED // REFRESHING CONTRACTS…' : 'LOADING CONTRACTS…';
       renderCurrent();
       try {
-        const rows = await loadJobsSheet();
+        const rows = await loadJobsFeed();
         state.jobs = standardizePublicPostings(rows).sort((a, b) => Number(a['Sort Order'] || 9999) - Number(b['Sort Order'] || 9999));
         state.liveReady = true;
         state.jobsSource = `LIVE // Contracts loaded ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
