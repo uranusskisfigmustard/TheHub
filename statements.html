@@ -42,7 +42,7 @@
 
   <script src="player-routes.js?v=20261021-equipment3"></script>
   <script src="player-shell.js?v=20261014-warden-shortcut1"></script>
-  <script src="statements.js?v=20261025-cassidy1"></script>
+  <script src="statements.js?v=20261027-cassidy-webfix1"></script>
   <script>
     (() => {
       const STATEMENTS_API = 'https://script.google.com/macros/s/AKfycbzeW8vTooOCNEBia3_EMQ10r7BcbakXIwCD4ZaEOUEBOdCXl09tRHj76oxcUcsOKQK0/exec';
@@ -57,8 +57,8 @@
       window.HubStatementsContent.render(root, {
         api: STATEMENTS_API,
         snapshotUrl: './data/player-statements.json',
-        cacheKey: 'hub_statement_export_v3',
-        legacyCacheKeys: ['hub_statement_export_v1', 'hub_statement_export_v2']
+        cacheKey: 'hub_statement_export_v4',
+        legacyCacheKeys: ['hub_statement_export_v1', 'hub_statement_export_v2', 'hub_statement_export_v3']
       });
     })();
   </script>
