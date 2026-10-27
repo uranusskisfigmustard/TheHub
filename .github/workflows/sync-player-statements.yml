@@ -55,7 +55,7 @@ jobs:
           if payload.get('ok') is not True:
               raise RuntimeError(payload.get('error') or 'Statement feed returned ok=false.')
 
-          allowed = {'john', 'prue'}
+          allowed = {'john', 'prue', 'cassidy'}
 
           def normalize_threshold(statement_text):
               principal_match = re.search(
