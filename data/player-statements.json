@@ -2,6 +2,12 @@
   "ok": true,
   "statements": [
     {
+      "key": "cassidy",
+      "character": "CASSIDY WRIGHT",
+      "asOf": "2237-300",
+      "statementText": "​== HUB CLAIMS REGISTRY / RECOVERY DEBT ==\n=============================================================================================\nSYSTEM:  HUB CLAIMS REGISTRY      NODE:    LOCAL-CLAIMS\nACCOUNT: RECOVERY-CASSIDY-WRIGHT\nSUBJECT: CASSIDY WRIGHT\nAS OF:   2237-300\nPERIOD:   2237-283 THROUGH 2237-300\n=============================================================================================\n-- ACCOUNT SUMMARY --\nPRINCIPAL: 0.00 CR\nINTEREST:  0.00 CR\nTOTAL:     0.00 CR\nPERSONAL:  8,033.32 CR\nWITHHOLD:  0%\nMILESTONE: NOT DETERMINED\nINTEREST:  NOT DETERMINED\nNEXT:      FINANCIAL TERMS PENDING\n-- STATEMENT TRANSACTIONS --\nSTAMP     TYPE        NOTES                            CHANGE    DEBT BALANCE    PERSONAL BAL\n2237-283  OPENING     PROVISIONAL OPENING DEB…        0.00 CR         0.00 CR         0.00 CR\n2237-283  WAGES       M5 CONTRACT PAYOUT — BO…        0.00 CR         0.00 CR     7,500.00 CR\n2237-297  WAGES       CONTRACT PAYOUT — HAND-…        0.00 CR         0.00 CR     7,666.66 CR\n2237-297  NOTE        PERSONAL FAVOR — OPEN C…        0.00 CR         0.00 CR     7,666.66 CR\n2237-297  WAGES       CONTRACT PAYOUT — SAMPL…        0.00 CR         0.00 CR     9,333.32 CR\n2237-300  PURCHASE    TIER 3 REFUNDABLE APART…        0.00 CR         0.00 CR     8,933.32 CR\n2237-300  PURCHASE    SHARED TIER 3 REGISTRAT…        0.00 CR         0.00 CR     8,883.32 CR\n2237-300  PURCHASE    TIER 3 REFUNDABLE APART…        0.00 CR         0.00 CR     8,483.32 CR\n2237-300  PURCHASE    SHARED TIER 3 REGISTRAT…        0.00 CR         0.00 CR     8,433.32 CR\n2237-300  PURCHASE    TIER 3 APARTMENT — PREP…        0.00 CR         0.00 CR     8,033.32 CR\n-- CHANGE SINCE LAST STATEMENT --\nPRIOR BALANCE: 0.00 CR\nCHANGE:        0.00 CR\n> _"
+    },
+    {
       "key": "john",
       "character": "JOHN SOBIESKI",
       "asOf": "2237-300",
@@ -14,5 +20,5 @@
       "statementText": "​== HUB CLAIMS REGISTRY / RECOVERY DEBT ==\n=============================================================================================\nSYSTEM:  HUB CLAIMS REGISTRY      NODE:    LOCAL-CLAIMS\nACCOUNT: RECOVERY-PRUDENCE-GREYMORE\nSUBJECT: PRUDENCE GREYMORE\nAS OF:   2237-300\nPERIOD:   2237-298 THROUGH 2237-300\n=============================================================================================\n-- ACCOUNT SUMMARY --\nPRINCIPAL: 15,134.16 CR\nINTEREST:  353.00 CR\nTOTAL:     15,487.16 CR\nPERSONAL:  450.00 CR\nWITHHOLD:  0%\nMILESTONE: STANDARD — 40%\nINTEREST:  ACTIVE\nNEXT:      12,000.0 CR / 3,134.16 CR TO THRESHOLD\n-- STATEMENT TRANSACTIONS --\nSTAMP     TYPE        NOTES                            CHANGE    DEBT BALANCE    PERSONAL BAL\n2237-298  INTEREST    INTEREST POSTING — MISS…     +151.00 CR    15,487.16 CR         0.00 CR\n2237-300  ASSET PRO…  REFUNDABLE APARTMENT SE…        0.00 CR    15,487.16 CR       400.00 CR\n2237-300  ASSET PRO…  ONE-TIME REIMBURSEMENT …        0.00 CR    15,487.16 CR       450.00 CR\n-- CHANGE SINCE LAST STATEMENT --\nPRIOR BALANCE: 15,487.16 CR\nCHANGE:        0.00 CR\n> _"
     }
   ],
-  "count": 2
+  "count": 3
 }
