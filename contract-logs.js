@@ -16,22 +16,37 @@
   // These IDs and prompts follow the current Mission Board Data owner.
   const ANSWER_ONLY_JOBS = Object.freeze({
     'EMR-7K2V-4Q9C': Object.freeze({
+      problem: "A repaired work area is about to reopen. The crew wants a practical evacuation and safe-retreat plan suited to the people and equipment available.",
+      payoutStress: "600cr +1 Stress",
+      employer: "Small night-shift work crew",
       kind: 'simple',
       prompt: 'Briefly describe how you assess the crew and work area, conduct a practical drill, and decide whether the plan is ready for reopening.'
     }),
     'BNC-5P8L-2R6T': Object.freeze({
+      problem: "A repair shop’s bench-power regulator shuts down whenever two particular tools operate together. Each tool passes inspection alone, and the shop will not reopen the bench until the interaction is understood and a safe arrangement is proven.",
+      payoutStress: "600cr +1 Stress",
+      employer: "Independent repair shop",
       kind: 'simple',
       prompt: 'Briefly describe how you isolate the cause, keep the bench safe during testing, and verify the final arrangement under realistic load.'
     }),
     'WCC-9N4K-7V3M': Object.freeze({
+      problem: "The living organism recovered from the Sample Workshop is stable in temporary containment, but the enclosure was not designed as a long-term environment. Its environmental needs are not yet known, and no reliable way to exchange basic signals with it has been established.",
+      payoutStress: "600cr +1 Stress",
+      employer: "Laleh Vaziri / Sample Workshop",
       kind: 'simple',
       prompt: 'Briefly describe how you determine which environmental conditions keep the creature stable, how you build or adjust its enclosure, and how you test repeatable two-way signals for simple states such as stop, continue, need, or distress.'
     }),
     'KBW-6T2P-8L5R': Object.freeze({
+      problem: "A food cooperative’s nutrient-return pump is failing. A replacement is available, but removing the old pump will stop circulation to occupied grow beds long enough to damage part of the crop.",
+      payoutStress: "1,500cr +1 Stress",
+      employer: "Independent food cooperative",
       kind: 'medium',
       prompt: 'Submit one short joint response describing how your team solves the problem and what each participating character contributes.'
     }),
     'TCC-4Q7V-9N2K': Object.freeze({
+      problem: "A freight-routing controller has lost its live lane map after twelve secured cargo carts were staged. The carts cannot be released until their destinations, movement routes, custody records, and handling limits agree. Some cargo is temperature-sensitive, and two carts carry the same obsolete route code even though they have different destinations.",
+      payoutStress: "1,500cr +1 Stress",
+      employer: "Independent freight-routing operator",
       kind: 'medium',
       prompt: 'Submit one short joint response describing how your team solves the problem and what each participating character contributes.'
     })
@@ -76,6 +91,7 @@
 
   function acceptedDetails(record) {
     const text = String(record?.brief?.text || '');
+    const known = ANSWER_ONLY_JOBS[jobId(record)];
     const headings = [
       'HIRED BY', 'THE PROBLEM', 'EXPECTED WORK', 'AUTHORIZED / PROVIDED',
       'ASSIGNMENT LIMITS', 'RESTRICTED', 'KNOWN RISKS', 'SUCCESSFUL CLOSEOUT',
@@ -86,9 +102,9 @@
     const payLines = section(text, 'PAY', after('PAY')).split(/\r?\n/).map(cleanLine).filter(Boolean);
     const workLines = section(text, 'EXPECTED WORK', after('EXPECTED WORK')).split(/\r?\n/).map(cleanLine).filter(Boolean);
     return {
-      hiredBy: cleanLine(section(text, 'HIRED BY', after('HIRED BY'))),
-      problemSummary: cleanLine(section(text, 'THE PROBLEM', after('THE PROBLEM'))),
-      payoutStress: cleanLine(record?.payoutStress) || payLines.join(' · '),
+      hiredBy: cleanLine(section(text, 'HIRED BY', after('HIRED BY'))) || known?.employer || '',
+      problemSummary: cleanLine(section(text, 'THE PROBLEM', after('THE PROBLEM'))) || known?.problem || '',
+      payoutStress: cleanLine(record?.payoutStress) || payLines.join(' · ') || known?.payoutStress || '',
       expectedWork: cleanLine(record?.expectedWork) || workLines[0] || ''
     };
   }
@@ -145,7 +161,7 @@
 
   function betweenSessionMarkup(record) {
     const prompt = writtenResponsePrompt(record);
-    const kind = prompt ? 'medium' : betweenSessionKind(record);
+    const kind = betweenSessionKind(record) || (prompt ? 'medium' : '');
     if (!kind) return '';
     const label = kind === 'medium'
       ? 'AWAITING SUMMARY'
