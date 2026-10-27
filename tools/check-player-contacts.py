@@ -38,12 +38,15 @@ def validate(data):
         require(isinstance(entry['affiliations'], list), 'Connections must be a list')
         require(isinstance(entry['notes'], list) and entry['notes'], 'Public notes required')
         for note in entry['notes']:
-            require(set(note) == {'kind', 'text', 'by', 'source'}, 'Unexpected note fields')
+            require(set(note) in ({'kind', 'text', 'by', 'source'}, {'kind', 'text', 'by', 'source', 'overview'}), 'Unexpected note fields')
+            if 'overview' in note:
+                require(note['overview'] is True, 'Overview marker must be true')
             require(note['kind'] in ('known', 'reported', 'suspected', 'unconfirmed'), 'Invalid note type')
             require(isinstance(note['text'], str) and 0 < len(note['text'].strip()) <= 700, 'Use a short public summary')
             require(isinstance(note['source'], str) and note['source'].strip(), 'Source attribution required')
             require(isinstance(note['by'], list) and note['by'] and len(note['by']) == len(set(note['by'])), 'Known-to list required')
             require(set(note['by']) <= {'john', 'prue', 'cassidy'}, 'Unknown character')
+        require(sum(note.get('overview') is True for note in entry['notes']) == 1, 'Exactly one overview note required: ' + entry['id'])
     for entry in data['entries']:
         require(set(entry['affiliations']) <= groups, 'Unknown group connection: ' + entry['id'])
     serialized = json.dumps(data)
