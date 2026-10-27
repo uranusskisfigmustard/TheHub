@@ -36,7 +36,8 @@
           "by": [
             "john",
             "prue"
-          ]
+          ],
+          "overview": true
         }
       ],
       "portrait": "assets/portraits/asha-raman.webp"
@@ -66,7 +67,8 @@
           "by": [
             "john",
             "prue"
-          ]
+          ],
+          "overview": true
         }
       ],
       "portrait": "assets/portraits/hiroshi-tanaka.webp"
@@ -102,7 +104,8 @@
           "source": "M1 aftermath; published follow-up",
           "by": [
             "prue"
-          ]
+          ],
+          "overview": true
         }
       ],
       "portrait": "assets/portraits/kezi-moran.webp"
@@ -123,7 +126,8 @@
             "john",
             "prue"
           ],
-          "source": "M2 · Witness Window"
+          "source": "M2 · Witness Window",
+          "overview": true
         },
         {
           "kind": "known",
@@ -151,7 +155,8 @@
             "john",
             "prue"
           ],
-          "source": "M2 · Witness Window"
+          "source": "M2 · Witness Window",
+          "overview": true
         },
         {
           "kind": "known",
@@ -179,7 +184,8 @@
             "john",
             "prue"
           ],
-          "source": "M2 · Witness Window"
+          "source": "M2 · Witness Window",
+          "overview": true
         },
         {
           "kind": "known",
@@ -207,7 +213,8 @@
             "john",
             "prue"
           ],
-          "source": "M2 · Witness Window"
+          "source": "M2 · Witness Window",
+          "overview": true
         }
       ]
     },
@@ -227,7 +234,8 @@
             "john",
             "prue"
           ],
-          "source": "M2 · Witness Window"
+          "source": "M2 · Witness Window",
+          "overview": true
         },
         {
           "kind": "reported",
@@ -305,7 +313,8 @@
           "by": [
             "john",
             "prue"
-          ]
+          ],
+          "overview": true
         }
       ],
       "portrait": "assets/portraits/tovan-rusk.webp"
@@ -326,7 +335,8 @@
             "john",
             "prue"
           ],
-          "source": "M3 · The Patient in Reserve"
+          "source": "M3 · The Patient in Reserve",
+          "overview": true
         },
         {
           "kind": "reported",
@@ -394,7 +404,8 @@
           "source": "M2–M6 published hospital visits",
           "by": [
             "prue"
-          ]
+          ],
+          "overview": true
         }
       ]
     },
@@ -427,7 +438,8 @@
           "source": "Published Zero-G training and salvage scenes",
           "by": [
             "john"
-          ]
+          ],
+          "overview": true
         }
       ],
       "portrait": "assets/portraits/captain-nizar-ilman.webp"
@@ -447,7 +459,8 @@
           "by": [
             "prue"
           ],
-          "source": "Between sessions · M3 → M5"
+          "source": "Between sessions · M3 → M5",
+          "overview": true
         },
         {
           "kind": "known",
@@ -492,7 +505,8 @@
           "by": [
             "john"
           ],
-          "source": "Published offer · M4 → M5"
+          "source": "Published offer · M4 → M5",
+          "overview": true
         }
       ]
     },
@@ -510,7 +524,8 @@
             "john",
             "prue"
           ],
-          "source": "M4 · The Ore That Waits for Jump"
+          "source": "M4 · The Ore That Waits for Jump",
+          "overview": true
         }
       ]
     },
@@ -549,7 +564,8 @@
             "john",
             "prue",
             "cassidy"
-          ]
+          ],
+          "overview": true
         }
       ]
     },
@@ -568,7 +584,8 @@
             "prue",
             "cassidy"
           ],
-          "source": "M5 · Bonded Freight Security"
+          "source": "M5 · Bonded Freight Security",
+          "overview": true
         },
         {
           "kind": "reported",
@@ -612,7 +629,8 @@
             "john",
             "prue"
           ],
-          "source": "M0 · CERA-6 / Caligo"
+          "source": "M0 · CERA-6 / Caligo",
+          "overview": true
         },
         {
           "kind": "unconfirmed",
@@ -639,7 +657,8 @@
             "john",
             "prue"
           ],
-          "source": "M0 · CERA-6 / Caligo"
+          "source": "M0 · CERA-6 / Caligo",
+          "overview": true
         },
         {
           "kind": "reported",
@@ -675,7 +694,8 @@
             "john",
             "prue"
           ],
-          "source": "M0 · CERA-6 / Caligo"
+          "source": "M0 · CERA-6 / Caligo",
+          "overview": true
         },
         {
           "kind": "reported",
@@ -731,7 +751,8 @@
             "john",
             "prue",
             "cassidy"
-          ]
+          ],
+          "overview": true
         },
         {
           "kind": "known",
@@ -776,7 +797,8 @@
             "john",
             "prue",
             "cassidy"
-          ]
+          ],
+          "overview": true
         },
         {
           "kind": "known",
@@ -822,7 +844,8 @@
             "john",
             "prue",
             "cassidy"
-          ]
+          ],
+          "overview": true
         },
         {
           "kind": "known",
@@ -860,7 +883,8 @@
             "john",
             "prue",
             "cassidy"
-          ]
+          ],
+          "overview": true
         },
         {
           "kind": "known",
@@ -898,7 +922,8 @@
             "john",
             "prue",
             "cassidy"
-          ]
+          ],
+          "overview": true
         }
       ]
     },
@@ -923,7 +948,8 @@
           "by": [
             "john"
           ],
-          "source": "Published shuttle determination · M5 → M6"
+          "source": "Published shuttle determination · M5 → M6",
+          "overview": true
         }
       ]
     },
@@ -948,7 +974,8 @@
           "source": "Between sessions · M5–M6; M6 · Open Channel, Closed Door",
           "by": [
             "prue"
-          ]
+          ],
+          "overview": true
         }
       ]
     },
@@ -965,7 +992,8 @@
           "by": [
             "prue"
           ],
-          "source": "Between sessions · M3 → M5"
+          "source": "Between sessions · M3 → M5",
+          "overview": true
         },
         {
           "kind": "known",
@@ -998,7 +1026,8 @@
           "by": [
             "john"
           ],
-          "source": "Published offer · M4 → M5"
+          "source": "Published offer · M4 → M5",
+          "overview": true
         },
         {
           "kind": "reported",
@@ -1033,7 +1062,8 @@
             "john",
             "prue",
             "cassidy"
-          ]
+          ],
+          "overview": true
         },
         {
           "kind": "known",
@@ -1061,7 +1091,8 @@
             "john",
             "prue"
           ],
-          "source": "M0 · CERA-6 / Caligo"
+          "source": "M0 · CERA-6 / Caligo",
+          "overview": true
         },
         {
           "kind": "known",
@@ -1089,7 +1120,8 @@
             "john",
             "prue",
             "cassidy"
-          ]
+          ],
+          "overview": true
         },
         {
           "kind": "known",
@@ -1118,7 +1150,8 @@
             "john",
             "prue",
             "cassidy"
-          ]
+          ],
+          "overview": true
         },
         {
           "kind": "known",
@@ -1155,7 +1188,8 @@
             "john",
             "prue",
             "cassidy"
-          ]
+          ],
+          "overview": true
         },
         {
           "kind": "known",
@@ -1183,7 +1217,8 @@
             "john",
             "prue",
             "cassidy"
-          ]
+          ],
+          "overview": true
         },
         {
           "kind": "unconfirmed",
@@ -1212,7 +1247,8 @@
             "john",
             "prue",
             "cassidy"
-          ]
+          ],
+          "overview": true
         },
         {
           "kind": "known",
@@ -1241,7 +1277,8 @@
             "john",
             "prue",
             "cassidy"
-          ]
+          ],
+          "overview": true
         },
         {
           "kind": "known",
@@ -1270,7 +1307,8 @@
           "by": [
             "john",
             "prue"
-          ]
+          ],
+          "overview": true
         }
       ]
     }
