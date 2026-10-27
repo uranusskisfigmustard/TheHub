@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "updated": "2026-10-16",
-  "scope": "Completed missions M0–M5 and published between-session scenes.",
+  "updated": "2026-10-27",
+  "scope": "Played missions M0–M6 and published between-session scenes through 27 October 2026. Character-specific knowledge indicated per note.",
   "entries": [
     {
       "id": "asha-raman",
@@ -28,6 +28,15 @@
             "john"
           ],
           "source": "Between sessions · M2 → M3"
+        },
+        {
+          "kind": "known",
+          "text": "Asha is the Breakwater duty officer through whom the crew handles sponsor assignments, references and work-related questions. Her support is an established relationship, not unrestricted permission to enter other factions' facilities.",
+          "source": "Breakwater sponsor contact; published work history",
+          "by": [
+            "john",
+            "prue"
+          ]
         }
       ],
       "portrait": "assets/portraits/asha-raman.webp"
@@ -36,9 +45,9 @@
       "id": "hiroshi-tanaka",
       "type": "person",
       "name": "Hiroshi Tanaka",
-      "role": "Dead Air closeout signatory",
+      "role": "Senior Breathworks technical authority",
       "affiliations": [
-        "breakwater"
+        "breathworks"
       ],
       "notes": [
         {
@@ -49,6 +58,15 @@
             "prue"
           ],
           "source": "M1 · Dead Air closeout"
+        },
+        {
+          "kind": "known",
+          "text": "Hiroshi is a senior Breathworks technical decision-maker associated with the Lungworks and environmental control. He signed off on the Dead Air closeout in that capacity.",
+          "source": "M1 · Dead Air; Breathworks authority",
+          "by": [
+            "john",
+            "prue"
+          ]
         }
       ],
       "portrait": "assets/portraits/hiroshi-tanaka.webp"
@@ -58,7 +76,9 @@
       "type": "person",
       "name": "Kezi Moran",
       "role": "Field technician",
-      "affiliations": [],
+      "affiliations": [
+        "breathworks"
+      ],
       "notes": [
         {
           "kind": "known",
@@ -75,6 +95,14 @@
             "prue"
           ],
           "source": "Kezi's account · Between sessions · M2 → M3"
+        },
+        {
+          "kind": "known",
+          "text": "Kezi works on Breathworks field equipment and service systems. Prue knows her through Dead Air's aftermath and a later encounter at a repair job.",
+          "source": "M1 aftermath; published follow-up",
+          "by": [
+            "prue"
+          ]
         }
       ],
       "portrait": "assets/portraits/kezi-moran.webp"
@@ -139,7 +167,7 @@
       "id": "jett",
       "type": "person",
       "name": "Jett",
-      "role": "Breakwater floor worker",
+      "role": "Breakwater floor worker and loading-bay witness",
       "affiliations": [
         "breakwater"
       ],
@@ -152,6 +180,14 @@
             "prue"
           ],
           "source": "M2 · Witness Window"
+        },
+        {
+          "kind": "known",
+          "text": "Jett later raised concerns with John about work being done before faults were entered in inspection records. At the time of the conversation he had not made a formal complaint.",
+          "source": "Published M6–M7 between-session scene",
+          "by": [
+            "john"
+          ]
         }
       ]
     },
@@ -179,8 +215,10 @@
       "id": "opal-coil",
       "type": "person",
       "name": "Opal Coil",
-      "role": "Loading-crew contact and worker advocate",
-      "affiliations": [],
+      "role": "Dock Labor organizer and worker advocate",
+      "affiliations": [
+        "dock-labor"
+      ],
       "notes": [
         {
           "kind": "known",
@@ -214,6 +252,14 @@
             "prue"
           ],
           "source": "Between sessions · M3 → M4"
+        },
+        {
+          "kind": "known",
+          "text": "Opal's conversations with John focus on how loading crews can speak up about supervisors and unsafe decisions without pretending he has been formally appointed their representative.",
+          "source": "Published M3–M5 worker discussions",
+          "by": [
+            "john"
+          ]
         }
       ],
       "portrait": "assets/portraits/opal-coil.webp"
@@ -251,6 +297,15 @@
             "john"
           ],
           "source": "Published determination · M5 → M6"
+        },
+        {
+          "kind": "known",
+          "text": "An examiner at Claims: he reviews documentary evidence and the limits of a claimant's authority. The crew can bring him new supporting material; a previous rejection is not a grant of the requested property.",
+          "source": "M2 · Witness Window; M5 shuttle determination",
+          "by": [
+            "john",
+            "prue"
+          ]
         }
       ],
       "portrait": "assets/portraits/tovan-rusk.webp"
@@ -289,6 +344,14 @@
             "john"
           ],
           "source": "Between sessions · M2 → M4"
+        },
+        {
+          "kind": "known",
+          "text": "Blythe and John have an emerging personal friendship built through visits and conversations. Her outstanding external records problem remains separate from their relationship.",
+          "source": "M3–M5 published conversations",
+          "by": [
+            "john"
+          ]
         }
       ]
     },
@@ -296,7 +359,7 @@
       "id": "pella-sorn",
       "type": "person",
       "name": "Dr. Pella Sorn",
-      "role": "Saint Orra doctor",
+      "role": "Saint Orra clinician",
       "affiliations": [
         "saint-orra"
       ],
@@ -324,6 +387,14 @@
             "prue"
           ],
           "source": "Between sessions · M5 → M6"
+        },
+        {
+          "kind": "known",
+          "text": "Pella is a Saint Orra clinician and a contact Prue has spoken with outside emergency treatment. She treats patient consent and confidentiality as firm boundaries.",
+          "source": "M2–M6 published hospital visits",
+          "by": [
+            "prue"
+          ]
         }
       ]
     },
@@ -331,7 +402,7 @@
       "id": "nizar-ilman",
       "type": "person",
       "name": "Captain Nizar Ilman",
-      "role": "Captain and Zero-G instructor",
+      "role": "Salvage captain and Zero-G instructor",
       "affiliations": [],
       "notes": [
         {
@@ -349,6 +420,14 @@
             "john"
           ],
           "source": "Between sessions · M4 → M6"
+        },
+        {
+          "kind": "known",
+          "text": "Nizar operates a salvage tender and supervised practical Zero-G instruction, assessing John's ability to handle real external conditions rather than awarding independent vessel privileges.",
+          "source": "Published Zero-G training and salvage scenes",
+          "by": [
+            "john"
+          ]
         }
       ],
       "portrait": "assets/portraits/captain-nizar-ilman.webp"
@@ -387,6 +466,14 @@
             "prue"
           ],
           "source": "Between sessions · M5 → M6"
+        },
+        {
+          "kind": "known",
+          "text": "Luca uses hands-on troubleshooting and practical exercises for Prue's Computers training. The field router currently supports isolated simulation, not live jamming.",
+          "source": "Published post-M6 scene; existing training record",
+          "by": [
+            "prue"
+          ]
         }
       ]
     },
@@ -453,6 +540,16 @@
             "prue"
           ],
           "source": "SUSTAIN-9 index read during M5"
+        },
+        {
+          "kind": "known",
+          "text": "Mireya was the named point of contact for the crew's pharmaceutical security contract and archive handoff. Her responsibility for that job does not establish broad authority over every IntelliRX department.",
+          "source": "M5 · Contract and closeout",
+          "by": [
+            "john",
+            "prue",
+            "cassidy"
+          ]
         }
       ]
     },
@@ -488,6 +585,16 @@
             "prue"
           ],
           "source": "Published reply · M5 → M6"
+        },
+        {
+          "kind": "known",
+          "text": "The crew dealt with him as the leader of an organized armed team during M5. Knowing that he survived does not establish where his team is now or what orders they have.",
+          "source": "M5 actual outcome and known uncertainty",
+          "by": [
+            "john",
+            "prue",
+            "cassidy"
+          ]
         }
       ]
     },
@@ -615,6 +722,25 @@
             "cassidy"
           ],
           "source": "M5 · Bonded Freight Security"
+        },
+        {
+          "kind": "known",
+          "text": "Breakwater handles salvage, industrial recovery, repairs and contractor placement. Its support can include work orders, tools, housing and sponsorship, but it does not grant blanket authority at other institutions.",
+          "source": "Hub institutional overview; established work rules",
+          "by": [
+            "john",
+            "prue",
+            "cassidy"
+          ]
+        },
+        {
+          "kind": "known",
+          "text": "John and Prue's Cross-District Work Eligibility is recognized beyond Breakwater, but access to a particular site, employer or controlled area still depends on that site.",
+          "source": "Recognized work credentials; Hub access rules",
+          "by": [
+            "john",
+            "prue"
+          ]
         }
       ]
     },
@@ -641,6 +767,26 @@
             "prue"
           ],
           "source": "Published between-session scenes"
+        },
+        {
+          "kind": "known",
+          "text": "Saint Orra Hospital is the Hub's principal medically neutral hospital, providing surgery, trauma treatment, diagnostics, rehabilitation and prosthetic care. Local clinics and worksites still provide first-line treatment.",
+          "source": "Hub institutional overview",
+          "by": [
+            "john",
+            "prue",
+            "cassidy"
+          ]
+        },
+        {
+          "kind": "known",
+          "text": "Medical decisions, informed consent and patient confidentiality remain the hospital's responsibility, not a patient's employer, sponsor or creditors.",
+          "source": "Hub healthcare boundaries",
+          "by": [
+            "john",
+            "prue",
+            "cassidy"
+          ]
         }
       ]
     },
@@ -667,6 +813,26 @@
             "john"
           ],
           "source": "Published determination · M5 → M6"
+        },
+        {
+          "kind": "known",
+          "text": "Claims records recovery debts, property claims, title, liens, custody arrangements and evidence submitted in disputes. Owning a vehicle and being allowed to enter, move or repair it are different questions.",
+          "source": "Hub institutional overview",
+          "by": [
+            "john",
+            "prue",
+            "cassidy"
+          ]
+        },
+        {
+          "kind": "known",
+          "text": "Claims findings are separate from commercial registration at Ledger Quay and from Hub civil identity decisions at Central Records.",
+          "source": "Hub institutional jurisdictions",
+          "by": [
+            "john",
+            "prue",
+            "cassidy"
+          ]
         }
       ]
     },
@@ -685,6 +851,25 @@
             "prue"
           ],
           "source": "M4 closeout"
+        },
+        {
+          "kind": "known",
+          "text": "A major industrial employer managing extraction, mines, industrial muster, ore processing and heavy fabrication. Exploration and recovery assignments can involve old workings as well as active sites.",
+          "source": "Hub institutional overview",
+          "by": [
+            "john",
+            "prue",
+            "cassidy"
+          ]
+        },
+        {
+          "kind": "known",
+          "text": "John and Prue have worked industrial recovery jobs in Deepwell-associated operations. Their completed work does not give them unrestricted access to mines or equipment.",
+          "source": "M4 closeout; Hub site-access rules",
+          "by": [
+            "john",
+            "prue"
+          ]
         }
       ]
     },
@@ -704,6 +889,16 @@
             "cassidy"
           ],
           "source": "M5 · Bonded Freight Security"
+        },
+        {
+          "kind": "known",
+          "text": "IntelliRX hired the crew through Mireya Solano for the M5 pharmaceutical archive security assignment. The contract gave the crew specific duties, not general access to corporate information or facilities.",
+          "source": "M5 · Bonded Freight Security",
+          "by": [
+            "john",
+            "prue",
+            "cassidy"
+          ]
         }
       ]
     },
@@ -746,6 +941,14 @@
             "prue"
           ],
           "source": "Between sessions · M5 → M6"
+        },
+        {
+          "kind": "known",
+          "text": "The Order maintains a watch for the deceased. Prue helped reconcile its volunteer relay against the paper roster during a later personal favor; that work did not create a new paid position.",
+          "source": "Between sessions · M5–M6; M6 · Open Channel, Closed Door",
+          "by": [
+            "prue"
+          ]
         }
       ]
     },
@@ -771,6 +974,14 @@
             "john"
           ],
           "source": "Between sessions · M4 → M5"
+        },
+        {
+          "kind": "known",
+          "text": "The supply arrangement with Luca was chosen around residents' practical needs, not a general equipment budget for Prue. The community and Computers training are related but remain distinct.",
+          "source": "Between sessions · M3–M6",
+          "by": [
+            "prue"
+          ]
         }
       ]
     },
@@ -788,6 +999,14 @@
             "john"
           ],
           "source": "Published offer · M4 → M5"
+        },
+        {
+          "kind": "reported",
+          "text": "Márk's offer pairs structured firearms training with practical range work; it is a training offer, not an already completed course or new license.",
+          "source": "Published training offer · M4–M5",
+          "by": [
+            "john"
+          ]
         }
       ]
     },
@@ -805,6 +1024,26 @@
             "john"
           ],
           "source": "Dead Air recovery terms"
+        },
+        {
+          "kind": "known",
+          "text": "A major Hub institution responsible for atmosphere, pressure, ventilation, sealing and designated water-reclamation systems. Its technicians assess whether old and modified systems are safe to keep in service.",
+          "source": "Hub institutional overview",
+          "by": [
+            "john",
+            "prue",
+            "cassidy"
+          ]
+        },
+        {
+          "kind": "known",
+          "text": "Breathworks certifications and inspections cover systems within its own mandate, not a general right to shut down another faction's operations.",
+          "source": "Hub institutional jurisdiction",
+          "by": [
+            "john",
+            "prue",
+            "cassidy"
+          ]
         }
       ]
     },
@@ -832,6 +1071,206 @@
             "prue"
           ],
           "source": "Between sessions · M3 → M4"
+        }
+      ]
+    },
+    {
+      "id": "ledger-quay",
+      "type": "group",
+      "name": "Ledger Quay Consortium",
+      "role": "Commercial records, settlement and freight services",
+      "affiliations": [],
+      "notes": [
+        {
+          "kind": "known",
+          "text": "A major faction handling commercial registration, contracts, escrow, accounts, trade records and carrier services. Its records make local business dealings recognizable to other parties.",
+          "source": "Hub institutional overview",
+          "by": [
+            "john",
+            "prue",
+            "cassidy"
+          ]
+        },
+        {
+          "kind": "known",
+          "text": "Commercial recognition is not the same as a Claims title ruling or a Central Records civil identity determination. A stored or registered asset can still be subject to custody restrictions.",
+          "source": "Hub institutional jurisdictions",
+          "by": [
+            "john",
+            "prue",
+            "cassidy"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cistern-assembly",
+      "type": "group",
+      "name": "Cistern Assembly",
+      "role": "Resident advocacy and mutual aid",
+      "affiliations": [],
+      "notes": [
+        {
+          "kind": "known",
+          "text": "An informal federation of resident and neighborhood groups. Volunteers coordinate mutual aid, household support, staple-food help and advocacy for residents facing access or ration problems.",
+          "source": "Hub neighborhood overview",
+          "by": [
+            "john",
+            "prue",
+            "cassidy"
+          ]
+        },
+        {
+          "kind": "known",
+          "text": "Cistern works closely with care providers and residents, but does not run Saint Orra Hospital or the Hub's technical water systems.",
+          "source": "Hub institutional boundaries",
+          "by": [
+            "john",
+            "prue",
+            "cassidy"
+          ]
+        },
+        {
+          "kind": "known",
+          "text": "Its members have supported small-scale local growing and other practical community work, including assistance Cassidy provided in a shared growing area.",
+          "source": "Published between-session scene · M6–M7",
+          "by": [
+            "cassidy"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dock-labor",
+      "type": "group",
+      "name": "Dock Labor Assembly",
+      "role": "Freight workers, rigging and workplace safety",
+      "affiliations": [],
+      "notes": [
+        {
+          "kind": "known",
+          "text": "A formal labor institution associated with rigging, freight handling, safety stoppages, worker liens and job qualifications. Dock work orders do not by themselves waive handling or safety requirements.",
+          "source": "Hub labor institutions",
+          "by": [
+            "john",
+            "prue",
+            "cassidy"
+          ]
+        },
+        {
+          "kind": "known",
+          "text": "Opal Coil is an established worker contact. John and Prue's loading-bay investigation and subsequent discussions with workers brought them into contact with dock labor concerns.",
+          "source": "M2 · Witness Window; published M3–M5 scenes",
+          "by": [
+            "john",
+            "prue"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "blackline",
+      "type": "group",
+      "name": "Blackline Exchange",
+      "role": "Discreet trade and intermediate handoffs",
+      "affiliations": [],
+      "notes": [
+        {
+          "kind": "reported",
+          "text": "A decentralized trade network associated with discreet carriage, difficult imports and unregistered or informal transactions. People dealing through an intermediary do not necessarily know an entire route.",
+          "source": "Hub trade-sector descriptions",
+          "by": [
+            "john",
+            "prue",
+            "cassidy"
+          ]
+        },
+        {
+          "kind": "unconfirmed",
+          "text": "A particular shipment or intermediary's full origin, destination and purpose cannot be assumed from the Blackline name alone.",
+          "source": "Limits of encountered information",
+          "by": [
+            "john",
+            "prue",
+            "cassidy"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "bonded-freight",
+      "type": "group",
+      "name": "Bonded Freight / Bonded Freight Brokers",
+      "role": "Documented cargo custody and freight brokerage",
+      "affiliations": [],
+      "notes": [
+        {
+          "kind": "known",
+          "text": "Bonded Freight is an organized arrangement for recordable cargo custody and handoffs involving Claims procedures and qualified dock labor. Bonded Freight Brokers are the public-facing brokers working through that arrangement.",
+          "source": "Hub freight institutions",
+          "by": [
+            "john",
+            "prue",
+            "cassidy"
+          ]
+        },
+        {
+          "kind": "known",
+          "text": "A broker's commercial role does not make them the final authority on disputed title, safety qualifications or every carrier's access.",
+          "source": "Hub institutional boundaries",
+          "by": [
+            "john",
+            "prue",
+            "cassidy"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "central-records",
+      "type": "group",
+      "name": "Central Records",
+      "role": "Hub-local civil identity and status records",
+      "affiliations": [],
+      "notes": [
+        {
+          "kind": "known",
+          "text": "Central Records handles Hub-local identity and living/deceased status. It does not make claims decisions for property or act as Ledger Quay's commercial registry.",
+          "source": "Hub civil records overview",
+          "by": [
+            "john",
+            "prue",
+            "cassidy"
+          ]
+        },
+        {
+          "kind": "known",
+          "text": "A Hub-local record and an off-Hub corporate or ship-carried record can differ. Correcting one does not automatically update the other.",
+          "source": "M3 · The Patient in Reserve; Hub records limits",
+          "by": [
+            "john",
+            "prue"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "amara-nwosu",
+      "type": "person",
+      "name": "Amara Nwosu",
+      "role": "Cistern neighborhood liaison",
+      "affiliations": [
+        "cistern-assembly"
+      ],
+      "notes": [
+        {
+          "kind": "known",
+          "text": "A Cistern neighborhood liaison involved in the Dead Air community response. Her role is to represent local residents' concerns, not to command Breakwater work crews or Breathworks technicians.",
+          "source": "M1 · Dead Air",
+          "by": [
+            "john",
+            "prue"
+          ]
         }
       ]
     }
