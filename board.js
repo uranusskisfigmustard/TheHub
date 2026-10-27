@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const BUILD = '20261026-jobsfeed-2';
+  const BUILD = '20261026-jobsfeed-3';
   const API = 'https://script.google.com/macros/s/AKfycbzeW8vTooOCNEBia3_EMQ10r7BcbakXIwCD4ZaEOUEBOdCXl09tRHj76oxcUcsOKQK0/exec';
   const POST_SOURCE = 'mothership-contract-service-post';
   const JOBS_CACHE = 'mothership_hub_jobs_v5';
@@ -371,6 +371,15 @@ COMPENSATION
     });
   }
 
+  function shuffleJobs(rows) {
+    const shuffled = [...(Array.isArray(rows) ? rows : [])];
+    for (let index = shuffled.length - 1; index > 0; index -= 1) {
+      const swapIndex = Math.floor(Math.random() * (index + 1));
+      [shuffled[index], shuffled[swapIndex]] = [shuffled[swapIndex], shuffled[index]];
+    }
+    return shuffled;
+  }
+
   const esc = value => String(value ?? '')
     .replaceAll('&', '&amp;')
     .replaceAll('<', '&lt;')
@@ -545,7 +554,7 @@ COMPENSATION
     if (mode === 'jobs') {
       const cached = readCache(JOBS_CACHE, JOBS_TIME);
       if (cached.rows.length) {
-        state.jobs = standardizePublicPostings(cached.rows);
+        state.jobs = shuffleJobs(standardizePublicPostings(cached.rows));
         state.jobsSource = `CACHED // REFRESHING // Contracts last loaded: ${cached.time || 'unknown'}`;
         state.qualificationTransport = state.eligibilityValid
           ? 'QUALIFICATION TRANSPORT // CACHED'
@@ -832,14 +841,14 @@ COMPENSATION
       renderCurrent();
       try {
         const rows = await loadJobsFeed();
-        state.jobs = standardizePublicPostings(rows).sort((a, b) => Number(a['Sort Order'] || 9999) - Number(b['Sort Order'] || 9999));
+        state.jobs = shuffleJobs(standardizePublicPostings(rows));
         state.liveReady = true;
         state.jobsSource = `LIVE // Contracts loaded ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
         saveCache(JOBS_CACHE, JOBS_TIME, state.jobs);
       } catch (error) {
         state.liveReady = false;
         const cached = readCache(JOBS_CACHE, JOBS_TIME);
-        state.jobs = standardizePublicPostings(cached.rows);
+        state.jobs = shuffleJobs(standardizePublicPostings(cached.rows));
         state.jobsSource = cached.rows.length
           ? `CACHED / STALE // Contracts last loaded: ${cached.time || 'unknown'}`
           : `CONTRACT DATA UNAVAILABLE // ${String(error?.message || error)}`;
