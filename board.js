@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const BUILD = '20261027-answer-only-board1';
+  const BUILD = '20261027-answer-only-board2';
   const API = 'https://script.google.com/macros/s/AKfycbzeW8vTooOCNEBia3_EMQ10r7BcbakXIwCD4ZaEOUEBOdCXl09tRHj76oxcUcsOKQK0/exec';
   const POST_SOURCE = 'mothership-contract-service-post';
   const JOBS_CACHE = 'mothership_hub_jobs_v5';
@@ -668,7 +668,7 @@ COMPENSATION
         const instruction = team
           ? 'After acceptance, submit one short joint response explaining how you solve the problem and what each participating character contributes.'
           : 'After acceptance, submit one short written response describing how your character handles the problem.';
-        return `<div class="board-between${team ? '' : ' simple'}"><strong>BETWEEN-SESSION // WRITTEN RESPONSE</strong><details><summary>HOW TO COMPLETE</summary><p>${instruction} Use the response field in Contract Logs. No session scene or automatic roll is required. The Warden reviews the answer before the job closes; pay and +1 Stress apply only when the work is completed.</p></details></div>`;
+        return `<div class="board-between${team ? '' : ' simple'}"><strong>BETWEEN-SESSION // WRITTEN RESPONSE</strong><details><summary>HOW TO COMPLETE</summary><p>${instruction} Use the response field in Contract Logs. No session scene or automatic roll is required. The Warden reviews the answer before closing the job; submission alone does not resolve it.</p></details></div>`;
       }
       if (!kind) return '';
       if (kind === 'medium') return `<div class="board-between"><strong>BETWEEN-SESSION</strong><details><summary>WHAT YOU NEED TO DO</summary><p>Brief completion summary required. Send the Warden a short description of the difficulty you encountered and how your crew handled it. Each participating character gains <strong>+1 Stress</strong> when the work is completed. The reward is split between participating characters.</p></details></div>`;
