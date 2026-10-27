@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const BUILD = '20260922-contract-session-play-1';
+  const BUILD = '20261027-answer-only-contract-mode';
   let scheduled = false;
 
   function installStyles() {
@@ -25,7 +25,10 @@
   }
 
   function isBetweenSession(card) {
-    return Boolean(card.querySelector('.between-session-state, .between-session-help'));
+    // Contract Logs owns the accepted job's work mode. Do not strip its
+    // required response form if the Board cache or acceptance brief is absent.
+    return card.dataset.workMode === 'between-session' ||
+      Boolean(card.querySelector('.between-session-state, .between-session-help'));
   }
 
   function updateCard(card) {
