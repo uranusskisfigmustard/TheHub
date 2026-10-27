@@ -6,7 +6,7 @@
   const POST_SOURCE = 'mothership-contract-service-post';
   const DEFAULT_SESSION_KEY = 'mothership_hub_board_session_v1';
   const DEFAULT_EXPIRY_KEY = 'mothership_hub_board_session_expiry_v1';
-  const BUNDLE_CACHE_KEY = 'mothership_hub_purchase_bundle_v3';
+  const BUNDLE_CACHE_KEY = 'mothership_hub_purchase_bundle_v4';
   const STATIC_CHARACTERS = Object.freeze(['Prudence Greymore', 'John Sobieski', 'Cassidy Wright']);
 
   const esc = value => String(value ?? '')
