@@ -63,7 +63,8 @@
         return;
       }
 
-      status.textContent = `${loadState ? loadState + ' // ' : ''}AS OF ${row.asOf || '—'}`;
+      const displayState = row.fromSnapshot && loadState === 'LIVE' ? 'SNAPSHOT / LIVE ENTRY MISSING' : loadState;
+      status.textContent = `${displayState ? displayState + ' // ' : ''}AS OF ${row.asOf || '—'}`;
       who.textContent = row.character || '';
       view.innerHTML = `<article class="statement-sheet"><pre>${esc(row.statementText || '')}</pre></article>`;
     }
