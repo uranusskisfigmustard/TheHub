@@ -43,7 +43,8 @@
       for (const note of entry.notes) {
         if (!note || !Object.hasOwn(labels, note.kind) || typeof note.text !== 'string' || !note.text ||
             typeof note.source !== 'string' || !note.source || !Array.isArray(note.by) || !note.by.length ||
-            note.by.some(id => !Object.hasOwn(names, id))) throw new Error('Invalid note');
+            note.by.some(id => !Object.hasOwn(names, id)) ||
+            (note.overview !== undefined && typeof note.overview !== 'boolean')) throw new Error('Invalid note');
       }
     }
     const groups = new Set(data.entries.filter(entry => entry.type === 'group').map(entry => entry.id));
@@ -66,17 +67,23 @@
     });
   }
 
+  function noteAttribution(note) {
+    return note.by.map(id => names[id]).join(' & ') + ' · ' + note.source;
+  }
+
   function card(entry, notes) {
     const article = element('article', 'contact-card');
     article.id = entry.id;
     article.dataset.entryType = entry.type;
     article.setAttribute('aria-labelledby', entry.id + '-title');
+
     const header = element('div', 'contact-profile-heading');
     if (entry.portrait) header.appendChild(portrait(entry, false));
     const identity = element('div', 'contact-identity');
     header.appendChild(identity);
     article.appendChild(header);
     identity.appendChild(element('div', 'contact-kind', entry.type === 'person' ? 'Person' : 'Faction / group'));
+
     const heading = element('h2');
     heading.id = entry.id + '-title';
     const permalink = element('a', '', entry.name);
@@ -84,6 +91,7 @@
     heading.appendChild(permalink);
     heading.tabIndex = -1;
     identity.append(heading, element('p', 'contact-role', entry.role));
+
     if (entry.affiliations.length) {
       const connections = element('div', 'contact-connections');
       connections.setAttribute('aria-label', 'Connections');
@@ -95,15 +103,44 @@
       }
       identity.appendChild(connections);
     }
-    const list = element('ul', 'contact-notes');
-    for (const note of notes) {
-      const item = element('li', 'contact-note');
-      item.dataset.noteKind = note.kind;
-      item.append(element('span', 'contact-note-kind', labels[note.kind]), element('p', '', note.text),
-        element('small', '', note.by.map(id => names[id]).join(' & ') + ' · ' + note.source));
-      list.appendChild(item);
+
+    // Work exclusively from the active audience/certainty-filtered notes.
+    // An overview is never allowed to bypass character-specific knowledge.
+    const overview = notes.find(note => note.overview) ||
+      notes.find(note => note.kind === 'known') || notes[0];
+
+    const overviewSection = element('section', 'contact-overview');
+    const overviewHeading = element('h3', 'contact-section-heading',
+      overview.kind === 'known' ? 'Overview' : 'Overview · ' + labels[overview.kind]);
+    overviewSection.append(
+      overviewHeading,
+      element('p', 'contact-overview-text', overview.text),
+      element('small', 'contact-overview-meta',
+        labels[overview.kind] + ' · ' + noteAttribution(overview))
+    );
+    article.appendChild(overviewSection);
+
+    const remaining = notes.filter(note => note !== overview);
+    const groups = element('div', 'contact-fact-sections');
+    for (const kind of Object.keys(labels)) {
+      const groupedNotes = remaining.filter(note => note.kind === kind);
+      if (!groupedNotes.length) continue;
+      const section = element('section', 'contact-fact-section');
+      section.appendChild(element('h3', 'contact-section-heading', labels[kind]));
+      const list = element('ul', 'contact-fact-list');
+      for (const note of groupedNotes) {
+        const item = element('li', 'contact-fact');
+        item.dataset.noteKind = kind;
+        item.append(
+          element('span', 'contact-fact-text', note.text),
+          element('small', 'contact-fact-meta', noteAttribution(note))
+        );
+        list.appendChild(item);
+      }
+      section.appendChild(list);
+      groups.appendChild(section);
     }
-    article.appendChild(list);
+    article.appendChild(groups);
     return article;
   }
 
@@ -220,7 +257,7 @@
     status.textContent = 'Loading crew notes…';
     try {
       // This is a deliberately curated public file. Never fall back to Warden NPC/faction APIs.
-      const response = await fetch('data/player-contacts.json?v=20261027-contacts-expanded1', { cache: 'no-cache' });
+      const response = await fetch('data/player-contacts.json?v=20261027-contacts-overview1', { cache: 'no-cache' });
       if (!response.ok) throw new Error('Unavailable');
       entries = validate(await response.json());
       entryMap = new Map(entries.map(entry => [entry.id, entry]));
