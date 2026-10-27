@@ -39,7 +39,7 @@
   };
   const dayNumber = ({year,month,day}) => Math.floor(Date.UTC(year,month-1,day)/86400000);
   const parseRealDate = value => {
-    if (!/^\\d{4}-\\d{2}-\\d{2}$/.test(value || '')) throw new Error('Invalid clock anchor date.');
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(value || '')) throw new Error('Invalid clock anchor date.');
     const [year,month,day] = value.split('-').map(Number);
     const d = new Date(Date.UTC(year,month-1,day));
     if (d.getUTCFullYear() !== year || d.getUTCMonth()+1 !== month || d.getUTCDate() !== day)
