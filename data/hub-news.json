@@ -1,36 +1,67 @@
 {
   "schemaVersion": 1,
-  "asOf": "2237-293",
+  "asOf": "2237-294",
   "publicationMode": "warden-curated",
   "posts": [
     {
-      "id": "hub-m5-public-001",
+      "id": "hub-m5-public-004",
       "visibility": "PUBLIC",
-      "date": "2237-284",
-      "category": "local",
-      "typeLabel": "DOCK / CHAT",
-      "title": "so we're just not talking about the cargo hall?",
-      "source": "latewatcher",
-      "summary": "there was shooting in a working cargo hall and now everyone acts like asking what happened is rude",
+      "date": "2237-294",
+      "category": "discussion",
+      "typeLabel": "FREIGHT / HELP",
+      "title": "why are carts just sitting now",
+      "source": "lane_ghost",
+      "summary": "third cart this week parked off a live route while people wait on someone to agree what it is",
       "body": [
-        "i get not putting peoples names on here. fine. but people work those floors. was the area cleared or what?",
-        "half the stories say it was security, other half say armed outsiders. nobody telling me which doors are back in use"
+        "not asking who messed up. asking why a cart can have a seal, a route tag, and a release note then still not move",
+        "if it's a custody problem say custody. if it's a lane problem say lane. everyone keeps calling it a hold like that's useful"
       ],
       "comments": [
         {
+          "by": "quayrunner",
+          "date": "2237-294",
+          "text": "because those are different people. a release can be fine and the route can still be wrong. which is why the cart stays put"
+        },
+        {
           "by": "floorledger",
-          "date": "2237-284",
-          "text": "ask for the actual work-area clearance, not a story about who fired first"
+          "date": "2237-294",
+          "text": "if the lane record doesn't match the cart, stop moving it until it does. annoying is better than sending it to the wrong dock"
+        }
+      ]
+    },
+    {
+      "id": "hub-m5-public-003",
+      "visibility": "PUBLIC",
+      "date": "2237-289",
+      "category": "local",
+      "typeLabel": "WORK / AFTERMATH",
+      "title": "who pays when a bay gets shot up",
+      "source": "manifest_mess",
+      "summary": "real question. if a cargo hall is damaged and jobs get moved around, who actually eats that cost",
+      "body": [
+        "dont need a play by play of the fight. i need to know whether the delay ends up on the crews or the people filing claims",
+        "everybody has an opinion on who was right. none of those opinions gets a pallet moved"
+      ],
+      "comments": [
+        {
+          "by": "shiftline",
+          "date": "2237-290",
+          "text": "work reassignment and damage claims aren't the same process. get the change in writing"
         },
         {
-          "by": "canteenqueue",
-          "date": "2237-285",
-          "text": "you can care about the people hurt AND want to know if your shift is safe"
+          "by": "dockrat",
+          "date": "2237-292",
+          "text": "funny how nobody knows who's paying until someone needs the floor cleared"
         },
         {
-          "by": "quietbadge",
-          "date": "2237-287",
-          "text": "dont start posting injured workers names to prove you heard something"
+          "by": "papertrail",
+          "date": "2237-293",
+          "text": "a rumor thread won't settle liability. keep your actual records"
+        },
+        {
+          "by": "desk_three",
+          "date": "2237-294",
+          "text": "and the backlog doesn't vanish because somebody says claims. people still have to find a safe way round it"
         }
       ]
     },
@@ -66,33 +97,33 @@
       ]
     },
     {
-      "id": "hub-m5-public-003",
+      "id": "hub-m5-public-001",
       "visibility": "PUBLIC",
-      "date": "2237-289",
+      "date": "2237-284",
       "category": "local",
-      "typeLabel": "WORK / AFTERMATH",
-      "title": "who pays when a bay gets shot up",
-      "source": "manifest_mess",
-      "summary": "real question. if a cargo hall is damaged and jobs get moved around, who actually eats that cost",
+      "typeLabel": "DOCK / CHAT",
+      "title": "so we're just not talking about the cargo hall?",
+      "source": "latewatcher",
+      "summary": "there was shooting in a working cargo hall and now everyone acts like asking what happened is rude",
       "body": [
-        "dont need a play by play of the fight. i need to know whether the delay ends up on the crews or the people filing claims",
-        "everybody has an opinion on who was right. none of those opinions gets a pallet moved"
+        "i get not putting peoples names on here. fine. but people work those floors. was the area cleared or what?",
+        "half the stories say it was security, other half say armed outsiders. nobody telling me which doors are back in use"
       ],
       "comments": [
         {
-          "by": "shiftline",
-          "date": "2237-290",
-          "text": "work reassignment and damage claims aren't the same process. get the change in writing"
+          "by": "floorledger",
+          "date": "2237-284",
+          "text": "ask for the actual work-area clearance, not a story about who fired first"
         },
         {
-          "by": "dockrat",
-          "date": "2237-292",
-          "text": "funny how nobody knows who's paying until someone needs the floor cleared"
+          "by": "canteenqueue",
+          "date": "2237-285",
+          "text": "you can care about the people hurt AND want to know if your shift is safe"
         },
         {
-          "by": "papertrail",
-          "date": "2237-293",
-          "text": "a rumor thread won't settle liability. keep your actual records"
+          "by": "quietbadge",
+          "date": "2237-287",
+          "text": "dont start posting injured workers names to prove you heard something"
         }
       ]
     },
