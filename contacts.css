@@ -115,3 +115,23 @@
 summary.contact-index-heading { cursor: pointer; min-height: 44px; box-sizing: border-box; }
 summary.contact-index-heading:hover { color: var(--text); }
 summary.contact-index-heading:focus-visible { outline: 2px solid var(--accent); outline-offset: -3px; }
+
+/* Condensed player-known overview and grouped evidence */
+.contact-overview { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--line); }
+.contact-section-heading { margin: 0 0 8px; color: var(--accent); font-size: .74rem; font-weight: 600; letter-spacing: .04em; }
+.contact-overview-text { margin: 0; color: var(--text); font-size: .92rem; line-height: 1.6; }
+.contact-overview-meta { display: block; margin-top: 7px; color: var(--muted); font-size: .66rem; line-height: 1.45; }
+.contact-fact-sections { margin-top: 15px; }
+.contact-fact-section { padding-top: 12px; border-top: 1px solid var(--line); }
+.contact-fact-section + .contact-fact-section { margin-top: 11px; }
+.contact-fact-list { margin: 0; padding-left: 21px; list-style: disc outside; }
+.contact-fact { padding: 0 0 8px 1px; font-size: .84rem; line-height: 1.5; }
+.contact-fact::marker { color: var(--muted); }
+.contact-fact-text { color: var(--text); }
+.contact-fact-meta { display: inline; margin-left: 6px; color: var(--muted); font-size: .67rem; line-height: 1.4; }
+@media (max-width: 420px) {
+  .contact-overview { margin-top: 14px; padding-top: 12px; }
+  .contact-overview-text { font-size: .86rem; }
+  .contact-fact { font-size: .81rem; }
+  .contact-fact-list { padding-left: 18px; }
+}
