@@ -124,13 +124,8 @@
         throw new Error('Statement feed returned no player rows.');
       }
 
-      if (!data.cassidy) {
-        data.cassidy = {
-          key: 'cassidy',
-          character: 'CASSIDY WRIGHT',
-          asOf: '2237-283',
-          statementText: '== HUB CLAIMS REGISTRY / RECOVERY DEBT ==\n\nSUBJECT: CASSIDY WRIGHT\nACCOUNT STATUS: STATEMENT REFRESH PENDING\n\nA provisional opening principal of 0cr and an M5 local settlement have been recorded. Cassidy’s separate financial agreement remains undecided. The detailed live statement will appear after the private statement service is updated and regenerated.'
-        };
+      if (!data.cassidy && rows.cassidy) {
+        data.cassidy = { ...rows.cassidy, fromSnapshot: true };
       }
 
       return data;
