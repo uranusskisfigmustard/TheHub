@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const BUILD = '20261027-answer-only-restored1';
+  const BUILD = '20261027-answer-only-restored2';
   const POST_SOURCE = 'mothership-contract-service-post';
   const MAX_SUBMISSION_CHARS = 2000;
   const JOBS_CACHE_KEY = 'mothership_hub_jobs_v5';
@@ -57,7 +57,10 @@
   }
   function writtenResponsePrompt(record) {
     const id = jobId(record);
-    return ANSWER_ONLY_JOBS[id]?.prompt || WRITTEN_RESPONSE_PROMPTS[id] || '';
+    return ANSWER_ONLY_JOBS[id]?.prompt || WRITTEN_RESPONSE_PROMPTS[id] ||
+      cleanLine(section(String(record?.brief?.text || ''), 'WHAT DO YOU DO?', [
+        'PAY', 'COMPENSATION', 'EXPECTED WORK', 'ASSIGNMENT LIMITS', 'KNOWN RISKS', 'SUCCESSFUL CLOSEOUT'
+      ])) || '';
   }
 
   const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({
@@ -96,7 +99,7 @@
       'HIRED BY', 'THE PROBLEM', 'EXPECTED WORK', 'AUTHORIZED / PROVIDED',
       'ASSIGNMENT LIMITS', 'RESTRICTED', 'KNOWN RISKS', 'SUCCESSFUL CLOSEOUT',
       'PAY', 'COMPENSATION', 'INITIAL CONTACT CARD', 'ACCEPTED SCOPE',
-      'KNOWN CONSIDERATIONS'
+      'KNOWN CONSIDERATIONS', 'WHAT DO YOU DO?'
     ];
     const after = heading => headings.filter(item => item !== heading);
     const payLines = section(text, 'PAY', after('PAY')).split(/\r?\n/).map(cleanLine).filter(Boolean);
@@ -166,9 +169,15 @@
     const label = kind === 'medium'
       ? 'AWAITING SUMMARY'
       : kind === 'simple' ? 'BETWEEN-SESSION // SIMPLE' : 'BETWEEN-SESSION';
-    const copy = kind === 'medium'
-      ? '<strong>One short written response required before closeout.</strong><br>Describe your approach, decisions, precautions, and what each participating character contributes. The Warden reviews your answer; submission alone does not complete the contract or award pay. A reasonable approach may resolve the work without further action. Each participating character gains <strong>+1 Stress</strong> only when the work is completed, and the reward is divided among participants.'
-      : '<strong>One short written response required before closeout.</strong><br>Describe how your character addresses the posted problem. The Warden reviews the answer; submission alone does not complete the contract or award pay. The participating character gains <strong>+1 Stress</strong> only when the work is completed.';
+    const answerOnly = Boolean(ANSWER_ONLY_JOBS[jobId(record)]) ||
+      /answer.only.*between.session/i.test(String(record?.workType || record?.workMode || ''));
+    const copy = answerOnly
+      ? kind === 'medium'
+        ? '<strong>One short joint written response required.</strong><br>Explain how the team solves the problem and what each participating character contributes. Submit the answer for Warden review. No play scene or automatic roll is required, and submission alone does not complete the job.'
+        : '<strong>One short written response required.</strong><br>Explain how your character addresses the posted problem and submit the answer for Warden review. No play scene or automatic roll is required, and submission alone does not complete the job.'
+      : kind === 'medium'
+        ? '<strong>Written response required before closeout.</strong><br>Describe your approach, decisions, precautions and each participant\'s contribution. The Warden reviews your answer; submission alone does not complete the contract.'
+        : '<strong>Short between-session job.</strong><br>Send any requested action to the Warden for review. Submission alone does not resolve the contract.';
     return `
       <span class="between-session-state ${kind === 'simple' ? 'simple' : ''}">${esc(label)}</span>
       <details class="between-session-help ${kind === 'simple' ? 'simple' : ''}">
@@ -346,7 +355,9 @@
       const required = answerOnly || Boolean(prompt) || betweenSessionKind(record) === 'medium';
       const label = required ? 'WRITTEN RESPONSE REQUIRED' : 'WHAT DO YOU DO?';
       const instructions = answerOnly
-        ? 'Submit one short response for Warden review (maximum 2,000 characters). Team jobs require one joint response describing each participating character\'s contribution. Submission does not close the job, add Stress, or release pay.'
+        ? betweenSessionKind(record) === 'medium'
+          ? 'Submit one short joint response explaining how your crew handles the problem and what each participating character contributes (maximum 2,000 characters). Submission does not complete or pay the job.'
+          : 'Submit one short response explaining how your character handles the problem (maximum 2,000 characters). Submission does not complete or pay the job.'
         : required
           ? 'Enter your response here and submit it to the Warden. The work will not be closed or paid automatically. For this assignment, describe your decisions in approximately 2–4 paragraphs (maximum 2,000 characters).'
           : 'Optional. Send a declared action to the Warden for review. Submitting does not resolve the contract.';
