@@ -43,7 +43,7 @@ def validate(data):
             require(isinstance(note['text'], str) and 0 < len(note['text'].strip()) <= 700, 'Use a short public summary')
             require(isinstance(note['source'], str) and note['source'].strip(), 'Source attribution required')
             require(isinstance(note['by'], list) and note['by'] and len(note['by']) == len(set(note['by'])), 'Known-to list required')
-            require(set(note['by']) <= {'john', 'prue', 'violet'}, 'Unknown character')
+            require(set(note['by']) <= {'john', 'prue', 'cassidy'}, 'Unknown character')
     for entry in data['entries']:
         require(set(entry['affiliations']) <= groups, 'Unknown group connection: ' + entry['id'])
     serialized = json.dumps(data)
