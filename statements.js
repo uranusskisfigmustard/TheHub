@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const BUILD = '20261018-threshold1';
+  const BUILD = '20261027-cassidy-statement-fix1';
 
   const esc = value => String(value ?? '')
     .replaceAll('&', '&amp;')
