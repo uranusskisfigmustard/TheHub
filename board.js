@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const BUILD = '20261026-jobsfeed-3';
+  const BUILD = '20261027-answer-only-board1';
   const API = 'https://script.google.com/macros/s/AKfycbzeW8vTooOCNEBia3_EMQ10r7BcbakXIwCD4ZaEOUEBOdCXl09tRHj76oxcUcsOKQK0/exec';
   const POST_SOURCE = 'mothership-contract-service-post';
   const JOBS_CACHE = 'mothership_hub_jobs_v5';
@@ -659,6 +659,17 @@ COMPENSATION
 
     function betweenSessionBlock(job) {
       const kind = betweenSessionKind(job.Pay);
+      const workType = String(job['Work Type'] || '');
+      const jobId = String(job['Job ID'] || job.jobId || '').toUpperCase();
+      const knownAnswerOnly = ['EMR-7K2V-4Q9C','BNC-5P8L-2R6T','WCC-9N4K-7V3M','KBW-6T2P-8L5R','TCC-4Q7V-9N2K'].includes(jobId);
+      const answerOnly = knownAnswerOnly || /answer.only.*between.session/i.test(workType);
+      if (answerOnly) {
+        const team = /team/i.test(workType) || (knownAnswerOnly && ['KBW-6T2P-8L5R','TCC-4Q7V-9N2K'].includes(jobId));
+        const instruction = team
+          ? 'After acceptance, submit one short joint response explaining how you solve the problem and what each participating character contributes.'
+          : 'After acceptance, submit one short written response describing how your character handles the problem.';
+        return `<div class="board-between${team ? '' : ' simple'}"><strong>BETWEEN-SESSION // WRITTEN RESPONSE</strong><details><summary>HOW TO COMPLETE</summary><p>${instruction} Use the response field in Contract Logs. No session scene or automatic roll is required. The Warden reviews the answer before the job closes; pay and +1 Stress apply only when the work is completed.</p></details></div>`;
+      }
       if (!kind) return '';
       if (kind === 'medium') return `<div class="board-between"><strong>BETWEEN-SESSION</strong><details><summary>WHAT YOU NEED TO DO</summary><p>Brief completion summary required. Send the Warden a short description of the difficulty you encountered and how your crew handled it. Each participating character gains <strong>+1 Stress</strong> when the work is completed. The reward is split between participating characters.</p></details></div>`;
       return `<div class="board-between simple"><strong>BETWEEN-SESSION</strong><details><summary>SIMPLE BETWEEN-SESSION WORK</summary><p>This is a short between-session job. Each participating character gains <strong>+1 Stress</strong> when the work is completed. The reward is split between participating characters.</p></details></div>`;
