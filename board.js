@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const BUILD = '20261026-jobsfeed-1';
+  const BUILD = '20261026-jobsfeed-2';
   const API = 'https://script.google.com/macros/s/AKfycbzeW8vTooOCNEBia3_EMQ10r7BcbakXIwCD4ZaEOUEBOdCXl09tRHj76oxcUcsOKQK0/exec';
   const POST_SOURCE = 'mothership-contract-service-post';
   const JOBS_CACHE = 'mothership_hub_jobs_v5';
@@ -40,7 +40,7 @@ SUCCESSFUL CLOSEOUT
 - The authorized recipient accepts the intact property and the handoff is recorded.
 
 COMPENSATION
-- 7,500cr crew-wide for the intact property delivered to the authorized recipient.
+- 7,500cr for the intact property delivered to the authorized recipient.
 - A materially different outcome requires an explicit agreement.`
     },
     'WKL-RCVR-5K00': {
@@ -68,7 +68,7 @@ SUCCESSFUL CLOSEOUT
 - The people and machine are safe, pedestrian access is supported, and a responsible party accepts the handoff or agreed revised closeout.
 
 COMPENSATION
-- 5,000cr crew-wide for an accepted closeout.
+- 5,000cr for an accepted closeout.
 - Approved operating resources are supplied or reimbursed separately.`
     },
     'CCN-MEDS-5K00': {
@@ -95,7 +95,7 @@ SUCCESSFUL CLOSEOUT
 - The clinic accepts a documented disposition for the affected medicine and a viable plan for safe delivery or continued custody.
 
 COMPENSATION
-- 5,000cr crew-wide for the accepted documented disposition and distribution plan.
+- 5,000cr for the accepted documented disposition and distribution plan.
 - Approved ordinary handling and transfer costs are separate.`
     },
     'FIS-M5QA-5K00': {
@@ -124,7 +124,7 @@ SUCCESSFUL CLOSEOUT
 - Authorized preservation is completed or safely deferred with responsibility documented.
 
 COMPENSATION
-- 5,000cr crew-wide for the accepted inspection and preservation closeout.
+- 5,000cr for the accepted inspection and preservation closeout.
 - Approved ordinary preservation materials are supplied or reimbursed separately.`
     },
     'EMR-7K2V-4Q9C': {
@@ -223,7 +223,7 @@ SUCCESSFUL CLOSEOUT
 - The replacement pump holds required flow, the occupied beds remain viable, and the cooperative accepts the documented handoff.
 
 COMPENSATION
-- 1,500cr crew-wide.`
+- 1,500cr.`
     },
     'TCC-4Q7V-9N2K': {
       Summary: 'A freight-routing controller has lost its live lane map after twelve secured cargo carts were staged. The carts cannot be released until their destinations, movement routes, custody records, and handling limits agree. Some cargo is temperature-sensitive, and two carts carry the same obsolete route code even though they have different destinations.',
@@ -248,7 +248,7 @@ SUCCESSFUL CLOSEOUT
 - The controller accepts a traceable lane map and release sequence; any unresolved cart is clearly identified and remains safely held.
 
 COMPENSATION
-- 1,500cr crew-wide.`
+- 1,500cr.`
     },
     '4FE-96FE-DF05': {
       Summary: 'Sort several years of mixed-language manifests, equipment descriptions, and handoff notes into usable categories for later reconciliation.',
@@ -347,15 +347,27 @@ SUCCESSFUL CLOSEOUT
 - The client accepts a traceable assay stating the best-supported identification, confidence, limitations, and required handling controls.
 
 COMPENSATION
-- 1,500cr crew-wide.`
+- 1,500cr.`
     }
   });
+
+  function cleanPostingLanguage(value) {
+    return String(value ?? '')
+      .replace(/[ \t]*\*{0,2}per participating PC\*{0,2}/gi, '')
+      .replace(/[ \t]+crew-wide\b/gi, '');
+  }
 
   function standardizePublicPostings(rows) {
     return (Array.isArray(rows) ? rows : []).map(row => {
       const id = String(row?.['Job ID'] || '').trim();
       const override = PUBLIC_POSTING_OVERRIDES[id];
-      return override ? { ...row, ...override } : row;
+      const posting = override ? { ...row, ...override } : row;
+      return {
+        ...posting,
+        Pay: cleanPostingLanguage(posting.Pay),
+        Summary: cleanPostingLanguage(posting.Summary),
+        Details: cleanPostingLanguage(posting.Details)
+      };
     });
   }
 
