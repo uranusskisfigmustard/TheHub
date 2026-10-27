@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const BUILD = '20261022-accepted-context3';
+  const BUILD = '20261027-answer-only-restored1';
   const POST_SOURCE = 'mothership-contract-service-post';
   const MAX_SUBMISSION_CHARS = 2000;
   const JOBS_CACHE_KEY = 'mothership_hub_jobs_v5';
@@ -10,8 +10,39 @@
     '2JG-R7M4-H9C1': 'Two community groups have overlapping bookings. The movable partitions are in poor condition and the existing layout interferes with both groups. Describe your proposed arrangement, how you speak with the groups, and how you handle the defective fixtures.'
   });
 
+  // Stable-ID fallback for published answer-only work. Accepted jobs leave the
+  // public Board and may have no acceptance brief or cached Pay. Do not infer
+  // an in-session mission merely from missing contract-feed display metadata.
+  // These IDs and prompts follow the current Mission Board Data owner.
+  const ANSWER_ONLY_JOBS = Object.freeze({
+    'EMR-7K2V-4Q9C': Object.freeze({
+      kind: 'simple',
+      prompt: 'Briefly describe how you assess the crew and work area, conduct a practical drill, and decide whether the plan is ready for reopening.'
+    }),
+    'BNC-5P8L-2R6T': Object.freeze({
+      kind: 'simple',
+      prompt: 'Briefly describe how you isolate the cause, keep the bench safe during testing, and verify the final arrangement under realistic load.'
+    }),
+    'WCC-9N4K-7V3M': Object.freeze({
+      kind: 'simple',
+      prompt: 'Briefly describe how you determine which environmental conditions keep the creature stable, how you build or adjust its enclosure, and how you test repeatable two-way signals for simple states such as stop, continue, need, or distress.'
+    }),
+    'KBW-6T2P-8L5R': Object.freeze({
+      kind: 'medium',
+      prompt: 'Submit one short joint response describing how your team solves the problem and what each participating character contributes.'
+    }),
+    'TCC-4Q7V-9N2K': Object.freeze({
+      kind: 'medium',
+      prompt: 'Submit one short joint response describing how your team solves the problem and what each participating character contributes.'
+    })
+  });
+
+  function jobId(record) {
+    return String(record?.jobId || record?.contractId || '').trim().toUpperCase().replace(/^BOARD-/, '');
+  }
   function writtenResponsePrompt(record) {
-    return WRITTEN_RESPONSE_PROMPTS[String(record?.jobId || '').trim().toUpperCase()] || '';
+    const id = jobId(record);
+    return ANSWER_ONLY_JOBS[id]?.prompt || WRITTEN_RESPONSE_PROMPTS[id] || '';
   }
 
   const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({
@@ -86,18 +117,29 @@
   }
 
   function betweenSessionKind(record) {
-    const jobId = normalized(record?.jobId || record?.contractId);
+    // Canonical answer-only job IDs survive acceptance and missing brief/pay fields.
+    const registered = ANSWER_ONLY_JOBS[jobId(record)];
+    if (registered) return registered.kind;
+    const type = normalized(record?.workType || record?.workMode || record?.assignmentType || '');
+    const acceptedPay = acceptedDetails(record).payoutStress;
+    if (/answer.only.*between.session|between.session.*answer.only/.test(type)) {
+      return /team/.test(type) ? 'medium' :
+        betweenSessionKindFromPay(acceptedPay || record?.payoutStress || record?.pay || '') || 'simple';
+    }
+    const id = normalized(jobId(record));
     const title = normalized(record?.title);
     const rows = jobsCache();
     const row = rows.find(item =>
-      jobId && normalized(item?.['Job ID'] || item?.jobId || item?.id) === jobId
+      id && normalized(item?.['Job ID'] || item?.jobId || item?.id) === id
     ) || rows.find(item =>
       title && normalized(item?.Title || item?.title) === title
     );
+    if (row && /answer.only.*between.session/i.test(String(row?.['Work Type'] || row?.workType || ''))) {
+      return /team/i.test(String(row?.['Work Type'] || row?.workType || '')) ? 'medium' :
+        betweenSessionKindFromPay(row?.Pay ?? row?.pay ?? row?.basePay) || 'simple';
+    }
     const rowKind = row && betweenSessionKindFromPay(row?.Pay ?? row?.pay ?? row?.basePay);
-    // Accepted jobs leave the public Board, so use the immutable acceptance
-    // briefing's pay line rather than relying on a possibly expired Board cache.
-    const acceptedPay = acceptedDetails(record).payoutStress;
+    // Legacy between-session jobs also used a +1 Stress pay line.
     return rowKind || betweenSessionKindFromPay(acceptedPay || record?.payoutStress || record?.pay || '');
   }
 
@@ -109,8 +151,8 @@
       ? 'AWAITING SUMMARY'
       : kind === 'simple' ? 'BETWEEN-SESSION // SIMPLE' : 'BETWEEN-SESSION';
     const copy = kind === 'medium'
-      ? '<strong>Written response required before closeout.</strong><br>Describe your approach, the decisions you make, the work you perform, and any precautions or negotiation. A few sentences are sufficient for ordinary short contracts; jobs with a specified writing prompt ask for approximately 2–4 paragraphs, within the submission field limit.<br><br>A reasonable approach may resolve the contract without further action. Risky or incomplete approaches may have additional consequences. Each participating character gains <strong>+1 Stress</strong> when the work is completed. The reward is split between participating characters.'
-      : 'This is a short between-session job. Each participating character gains <strong>+1 Stress</strong> when the work is completed. The reward is split between participating characters.';
+      ? '<strong>One short written response required before closeout.</strong><br>Describe your approach, decisions, precautions, and what each participating character contributes. The Warden reviews your answer; submission alone does not complete the contract or award pay. A reasonable approach may resolve the work without further action. Each participating character gains <strong>+1 Stress</strong> only when the work is completed, and the reward is divided among participants.'
+      : '<strong>One short written response required before closeout.</strong><br>Describe how your character addresses the posted problem. The Warden reviews the answer; submission alone does not complete the contract or award pay. The participating character gains <strong>+1 Stress</strong> only when the work is completed.';
     return `
       <span class="between-session-state ${kind === 'simple' ? 'simple' : ''}">${esc(label)}</span>
       <details class="between-session-help ${kind === 'simple' ? 'simple' : ''}">
@@ -284,11 +326,14 @@
     function submissionMarkup(record) {
       const key = String(record.contractId || record.jobId || '').trim();
       const prompt = writtenResponsePrompt(record);
-      const required = Boolean(prompt) || betweenSessionKind(record) === 'medium';
+      const answerOnly = Boolean(ANSWER_ONLY_JOBS[jobId(record)]);
+      const required = answerOnly || Boolean(prompt) || betweenSessionKind(record) === 'medium';
       const label = required ? 'WRITTEN RESPONSE REQUIRED' : 'WHAT DO YOU DO?';
-      const instructions = required
-        ? 'Enter your response here and submit it to the Warden. The work will not be closed or paid automatically. For this assignment, describe your decisions in approximately 2–4 paragraphs (maximum 2,000 characters).'
-        : 'Optional. Send a declared action to the Warden for review. Submitting does not resolve the contract.';
+      const instructions = answerOnly
+        ? 'Submit one short response for Warden review (maximum 2,000 characters). Team jobs require one joint response describing each participating character\'s contribution. Submission does not close the job, add Stress, or release pay.'
+        : required
+          ? 'Enter your response here and submit it to the Warden. The work will not be closed or paid automatically. For this assignment, describe your decisions in approximately 2–4 paragraphs (maximum 2,000 characters).'
+          : 'Optional. Send a declared action to the Warden for review. Submitting does not resolve the contract.';
       return `
         <section class="contract-submission" data-contract-submission="${esc(key)}">
           <div class="contract-submission-label">${esc(label)}</div>
@@ -312,7 +357,7 @@
       activeRoot.innerHTML = active.map(record => {
         const details = acceptedDetails(record);
         return `
-          <article class="contract-log-card active" data-contract-id="${esc(record.contractId || record.jobId || '')}">
+          <article class="contract-log-card active" data-contract-id="${esc(record.contractId || record.jobId || '')}" data-work-mode="${betweenSessionKind(record) ? 'between-session' : 'session'}">
             <div class="contract-card-title">${esc(record.title)}</div>
             <div class="contract-card-status">ACTIVE</div>
             ${betweenSessionMarkup(record)}
