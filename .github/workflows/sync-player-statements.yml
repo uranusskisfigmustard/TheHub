@@ -85,6 +85,8 @@ jobs:
           statements = []
           for item in payload.get('statements') or []:
               key = str(item.get('key') or '').strip().lower()
+              if key == 'cassidy-wright':
+                  key = 'cassidy'
               if key not in allowed:
                   continue
               statements.append({
