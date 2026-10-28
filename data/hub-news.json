@@ -1,8 +1,106 @@
 {
   "schemaVersion": 1,
-  "asOf": "2237-294",
+  "asOf": "2237-301",
   "publicationMode": "warden-curated",
   "posts": [
+    {
+      "id": "hub-jobs-002",
+      "visibility": "PUBLIC",
+      "date": "2237-301",
+      "category": "discussion",
+      "typeLabel": "MEDICAL / CHAT",
+      "title": "what does temperature event actually mean",
+      "source": "coldhands",
+      "summary": "clinic posting says some medicine got warm long enough to flag. that mean useless or just needs someone qualified to decide",
+      "body": [
+        "not trying to get a diagnosis off a board. just tired of everyone saying it's probably fine when nobody has the records",
+        "if it has to stay held, say that. people waiting on it deserve a real answer"
+      ],
+      "comments": [
+        {
+          "by": "packetreader",
+          "date": "2237-301",
+          "text": "depends on the medicine and the actual record. thats why the clinic wants the sensor and custody notes checked"
+        },
+        {
+          "by": "quietbadge",
+          "date": "2237-301",
+          "text": "and don't name patients or start guessing what they need"
+        }
+      ]
+    },
+    {
+      "id": "hub-jobs-001",
+      "visibility": "PUBLIC",
+      "date": "2237-301",
+      "category": "local",
+      "typeLabel": "JOBS / CHAT",
+      "title": "5k to get people around one bad route",
+      "source": "stairs_are_work",
+      "summary": "saw the recovery listing. sounds like half the job is getting people off a bad access route without making it worse",
+      "body": [
+        "positioning machine, damaged access, people stranded. sounds like a lot for one listing",
+        "hope whoever takes it asks who's signing for the handoff before they start moving expensive things"
+      ],
+      "comments": [
+        {
+          "by": "oldhands42",
+          "date": "2237-301",
+          "text": "good. equipment recovery is not the same as getting permission to take equipment"
+        },
+        {
+          "by": "tiredofstairs",
+          "date": "2237-301",
+          "text": "honestly i'd settle for the walking route being usable again"
+        }
+      ]
+    },
+    {
+      "id": "hub-m2-002",
+      "visibility": "PUBLIC",
+      "date": "2237-259",
+      "category": "discussion",
+      "typeLabel": "WORKERS / CHAT",
+      "title": "union or just meetings about meetings",
+      "source": "dockrat",
+      "summary": "at what point do we get proper representation instead of the same safety argument every couple weeks",
+      "body": [
+        "not saying everyone needs to walk off the job tomorrow. i want some way to make the promises stick",
+        "and no im not putting names or where we meet on a PUBLIC BOARD before someone asks"
+      ],
+      "comments": [
+        {
+          "by": "shiftline",
+          "date": "2237-260",
+          "text": "Dock Labor people are already pushing for protections. showing up and listening might help more than yelling on here"
+        },
+        {
+          "by": "thirdwatch",
+          "date": "2237-261",
+          "text": "can we NOT put names and shift details in these threads?? some of us still gotta work with people"
+        },
+        {
+          "by": "dockrat",
+          "date": "2237-262",
+          "text": "didn't name anybody. asking if the rest of us get a say"
+        },
+        {
+          "by": "measuretwice",
+          "date": "2237-278",
+          "text": "a union doesn't magically fix busted equipment. you'd still need people who follow the rules"
+        },
+        {
+          "by": "bootsonthedeck",
+          "date": "2237-281",
+          "text": "maybe. but people who can say no without losing work sounds pretty useful"
+        },
+        {
+          "by": "floorledger",
+          "date": "2237-301",
+          "text": "meetings are only meetings until somebody writes down who's fixing what and when. start there"
+        }
+      ]
+    },
     {
       "id": "hub-m5-public-004",
       "visibility": "PUBLIC",
@@ -263,47 +361,6 @@
           "by": "quayrunner",
           "date": "2237-281",
           "text": "i'd want to see the access terms before saying yes to that"
-        }
-      ]
-    },
-    {
-      "id": "hub-m2-002",
-      "visibility": "PUBLIC",
-      "date": "2237-259",
-      "category": "discussion",
-      "typeLabel": "WORKERS / CHAT",
-      "title": "union or just meetings about meetings",
-      "source": "dockrat",
-      "summary": "at what point do we get proper representation instead of the same safety argument every couple weeks",
-      "body": [
-        "not saying everyone needs to walk off the job tomorrow. i want some way to make the promises stick",
-        "and no im not putting names or where we meet on a PUBLIC BOARD before someone asks"
-      ],
-      "comments": [
-        {
-          "by": "shiftline",
-          "date": "2237-260",
-          "text": "Dock Labor people are already pushing for protections. showing up and listening might help more than yelling on here"
-        },
-        {
-          "by": "thirdwatch",
-          "date": "2237-261",
-          "text": "can we NOT put names and shift details in these threads?? some of us still gotta work with people"
-        },
-        {
-          "by": "dockrat",
-          "date": "2237-262",
-          "text": "didn't name anybody. asking if the rest of us get a say"
-        },
-        {
-          "by": "measuretwice",
-          "date": "2237-278",
-          "text": "a union doesn't magically fix busted equipment. you'd still need people who follow the rules"
-        },
-        {
-          "by": "bootsonthedeck",
-          "date": "2237-281",
-          "text": "maybe. but people who can say no without losing work sounds pretty useful"
         }
       ]
     },
