@@ -916,7 +916,8 @@
           ],
           "overview": true
         }
-      ]
+      ],
+      "portrait": "assets/logos/intellirx.png"
     },
     {
       "id": "marrowell",
@@ -942,7 +943,8 @@
           "source": "Published shuttle determination · M5 → M6",
           "overview": true
         }
-      ]
+      ],
+      "portrait": "assets/logos/marrowell-protective-logistics.png"
     },
     {
       "id": "order-last-watch",
@@ -1436,6 +1438,27 @@
       ],
       "encountered": true,
       "portrait": "assets/portraits/kumar-gaddafi.webp"
+    },
+    {
+      "id": "orison",
+      "type": "group",
+      "name": "Orison",
+      "role": "Commercial intelligence firm",
+      "affiliations": [],
+      "portrait": "assets/logos/orison-commercial-intelligence.png",
+      "notes": [
+        {
+          "kind": "known",
+          "text": "A commercial intelligence firm associated with a possible acquisition of the disputed hardened archive. Its local personnel, authority and detailed purpose have not been established.",
+          "by": [
+            "john",
+            "prue",
+            "cassidy"
+          ],
+          "source": "Published corporate roster",
+          "overview": true
+        }
+      ]
     }
   ]
 }
