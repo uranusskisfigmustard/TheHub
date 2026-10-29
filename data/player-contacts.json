@@ -40,7 +40,8 @@
           "overview": true
         }
       ],
-      "portrait": "assets/portraits/asha-raman.webp"
+      "portrait": "assets/portraits/asha-raman.webp",
+      "encountered": true
     },
     {
       "id": "hiroshi-tanaka",
@@ -71,7 +72,8 @@
           "overview": true
         }
       ],
-      "portrait": "assets/portraits/hiroshi-tanaka.webp"
+      "portrait": "assets/portraits/hiroshi-tanaka.webp",
+      "encountered": true
     },
     {
       "id": "kezi-moran",
@@ -108,7 +110,8 @@
           "overview": true
         }
       ],
-      "portrait": "assets/portraits/kezi-moran.webp"
+      "portrait": "assets/portraits/kezi-moran.webp",
+      "encountered": true
     },
     {
       "id": "vera",
@@ -137,7 +140,8 @@
           ],
           "source": "Between sessions · M2 → M3"
         }
-      ]
+      ],
+      "encountered": true
     },
     {
       "id": "quinn",
@@ -166,7 +170,8 @@
           ],
           "source": "Between sessions · M2 → M3"
         }
-      ]
+      ],
+      "encountered": true
     },
     {
       "id": "jett",
@@ -206,7 +211,8 @@
           "source": "M6 · Hand-Off 1 — played outcome"
         }
       ],
-      "portrait": "assets/portraits/jett.png"
+      "portrait": "assets/portraits/jett.png",
+      "encountered": true
     },
     {
       "id": "mr-orr",
@@ -227,7 +233,8 @@
           "source": "M2 · Witness Window",
           "overview": true
         }
-      ]
+      ],
+      "encountered": true
     },
     {
       "id": "opal-coil",
@@ -281,7 +288,8 @@
           ]
         }
       ],
-      "portrait": "assets/portraits/opal-coil.webp"
+      "portrait": "assets/portraits/opal-coil.webp",
+      "encountered": true
     },
     {
       "id": "tovan-rusk",
@@ -328,7 +336,8 @@
           "overview": true
         }
       ],
-      "portrait": "assets/portraits/tovan-rusk.webp"
+      "portrait": "assets/portraits/tovan-rusk.webp",
+      "encountered": true
     },
     {
       "id": "blythe-vale",
@@ -375,7 +384,8 @@
           ]
         }
       ],
-      "portrait": "assets/portraits/blythe-vale.webp"
+      "portrait": "assets/portraits/blythe-vale.webp",
+      "encountered": true
     },
     {
       "id": "pella-sorn",
@@ -420,7 +430,8 @@
           "overview": true
         }
       ],
-      "portrait": "assets/portraits/pella-sorn.png"
+      "portrait": "assets/portraits/pella-sorn.png",
+      "encountered": true
     },
     {
       "id": "nizar-ilman",
@@ -455,7 +466,8 @@
           "overview": true
         }
       ],
-      "portrait": "assets/portraits/captain-nizar-ilman.webp"
+      "portrait": "assets/portraits/captain-nizar-ilman.webp",
+      "encountered": true
     },
     {
       "id": "luca",
@@ -501,7 +513,8 @@
             "prue"
           ]
         }
-      ]
+      ],
+      "encountered": true
     },
     {
       "id": "mark-varga",
@@ -521,7 +534,8 @@
           "source": "Published offer · M4 → M5",
           "overview": true
         }
-      ]
+      ],
+      "encountered": true
     },
     {
       "id": "paul-hollywood",
@@ -540,7 +554,8 @@
           "source": "M4 · The Ore That Waits for Jump",
           "overview": true
         }
-      ]
+      ],
+      "encountered": true
     },
     {
       "id": "mireya-solano",
@@ -580,7 +595,8 @@
           ],
           "overview": true
         }
-      ]
+      ],
+      "encountered": true
     },
     {
       "id": "levent-arslan",
@@ -627,7 +643,8 @@
           ]
         }
       ],
-      "portrait": "assets/portraits/levent-arslan.webp"
+      "portrait": "assets/portraits/levent-arslan.webp",
+      "encountered": true
     },
     {
       "id": "rhea-calder",
@@ -655,7 +672,8 @@
           ],
           "source": "Last established encounter · M0"
         }
-      ]
+      ],
+      "encountered": true
     },
     {
       "id": "juno-kade",
@@ -692,7 +710,8 @@
           ],
           "source": "Last established encounter · M0"
         }
-      ]
+      ],
+      "encountered": true
     },
     {
       "id": "kavya-voss",
@@ -729,7 +748,8 @@
           ],
           "source": "Last established encounter · M0"
         }
-      ]
+      ],
+      "encountered": true
     },
     {
       "id": "breakwater",
@@ -1325,7 +1345,8 @@
           "overview": true
         }
       ],
-      "portrait": "assets/portraits/amara-nwosu.jpg"
+      "portrait": "assets/portraits/amara-nwosu.jpg",
+      "encountered": true
     },
     {
       "id": "talvi-venn",
@@ -1359,7 +1380,8 @@
           ],
           "source": "Hub faction and freight jurisdictions"
         }
-      ]
+      ],
+      "encountered": true
     },
     {
       "id": "risto-vero",
@@ -1390,7 +1412,8 @@
           ],
           "source": "Public receiving-service role and custody boundaries"
         }
-      ]
+      ],
+      "encountered": true
     },
     {
       "id": "liora-mott",
@@ -1421,7 +1444,8 @@
           ],
           "source": "Public berth-service role and access boundaries"
         }
-      ]
+      ],
+      "encountered": true
     }
   ]
 }
