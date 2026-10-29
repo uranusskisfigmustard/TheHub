@@ -1,8 +1,80 @@
 {
   "schemaVersion": 1,
-  "asOf": "2237-301",
+  "asOf": "2237-302",
   "publicationMode": "warden-curated",
   "posts": [
+    {
+      "id": "hub-m6-public-001",
+      "visibility": "PUBLIC",
+      "date": "2237-302",
+      "category": "discussion",
+      "typeLabel": "WORK / PRIVACY",
+      "title": "not every closed shop is a rumor show",
+      "source": "not_a_spectator",
+      "summary": "saw people trying to trade names and clips from a response call. leave the workers alone",
+      "body": [
+        "you can ask whether a space is cleared and whether the route is safe. you do not need the names of whoever got walked out",
+        "if you have an actual report, use the actual place for it. this board doesn't need somebody's worst shift"
+      ],
+      "comments": [
+        {
+          "by": "dockrat",
+          "date": "2237-302",
+          "text": "fair. but they need to say when the access is open again. some of us route through those shops"
+        },
+        {
+          "by": "papertrail",
+          "date": "2237-302",
+          "text": "ask for the clearance notice. don't turn a person into proof you heard something"
+        }
+      ]
+    },
+    {
+      "id": "hub-m2-003",
+      "visibility": "PUBLIC",
+      "date": "2237-274",
+      "category": "discussion",
+      "typeLabel": "WORK / PRIVACY",
+      "title": "stop putting coworkers info in threads",
+      "source": "quietbadge",
+      "summary": "every time safety comes up somebody wants names, schedules, who was on what shift. STOP",
+      "body": [
+        "talk about the rule. talk about the equipment. don't make someones recovery or their job everyone's entertainment",
+        "you wanna make an actual complaint there are proper channels. this aint one"
+      ],
+      "comments": [
+        {
+          "by": "dockrat",
+          "date": "2237-274",
+          "text": "agree on the names thing. doesn't mean we can't talk about what went wrong"
+        },
+        {
+          "by": "quietbadge",
+          "date": "2237-275",
+          "text": "didn't say don't talk. said quit posting personal details"
+        },
+        {
+          "by": "papertrail",
+          "date": "2237-276",
+          "text": "and dont mistake a board comment for evidence. keep the real records where they belong"
+        },
+        {
+          "by": "hall_shift",
+          "date": "2237-282",
+          "text": "ppl see a rumor here and repeat it like a signed report. drives me nuts"
+        },
+        {
+          "by": "shiftline",
+          "date": "2237-283",
+          "text": "safety rules can be public. somebody's medical situation isn't. shouldn't be hard"
+        },
+        {
+          "by": "quietbadge",
+          "date": "2237-302",
+          "text": "if you don't know somebody's okay, don't fill in the blanks for strangers"
+        }
+      ]
+    },
     {
       "id": "hub-jobs-002",
       "visibility": "PUBLIC",
@@ -253,47 +325,6 @@
           "by": "thirdwatch",
           "date": "2237-283",
           "text": "its a survey posting, not a ghost story. read the actual details"
-        }
-      ]
-    },
-    {
-      "id": "hub-m2-003",
-      "visibility": "PUBLIC",
-      "date": "2237-274",
-      "category": "discussion",
-      "typeLabel": "WORK / PRIVACY",
-      "title": "stop putting coworkers info in threads",
-      "source": "quietbadge",
-      "summary": "every time safety comes up somebody wants names, schedules, who was on what shift. STOP",
-      "body": [
-        "talk about the rule. talk about the equipment. don't make someones recovery or their job everyone's entertainment",
-        "you wanna make an actual complaint there are proper channels. this aint one"
-      ],
-      "comments": [
-        {
-          "by": "dockrat",
-          "date": "2237-274",
-          "text": "agree on the names thing. doesn't mean we can't talk about what went wrong"
-        },
-        {
-          "by": "quietbadge",
-          "date": "2237-275",
-          "text": "didn't say don't talk. said quit posting personal details"
-        },
-        {
-          "by": "papertrail",
-          "date": "2237-276",
-          "text": "and dont mistake a board comment for evidence. keep the real records where they belong"
-        },
-        {
-          "by": "hall_shift",
-          "date": "2237-282",
-          "text": "ppl see a rumor here and repeat it like a signed report. drives me nuts"
-        },
-        {
-          "by": "shiftline",
-          "date": "2237-283",
-          "text": "safety rules can be public. somebody's medical situation isn't. shouldn't be hard"
         }
       ]
     },
