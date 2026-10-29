@@ -68,10 +68,6 @@
     });
   }
 
-  function noteAttribution(note) {
-    return note.by.map(id => names[id]).join(' & ') + ' · ' + note.source;
-  }
-
   function card(entry, notes) {
     const article = element('article', 'contact-card');
     article.id = entry.id;
@@ -115,9 +111,7 @@
       overview.kind === 'known' ? 'Overview' : 'Overview · ' + labels[overview.kind]);
     overviewSection.append(
       overviewHeading,
-      element('p', 'contact-overview-text', overview.text),
-      element('small', 'contact-overview-meta',
-        labels[overview.kind] + ' · ' + noteAttribution(overview))
+      element('p', 'contact-overview-text', overview.text)
     );
     article.appendChild(overviewSection);
 
@@ -132,10 +126,7 @@
       for (const note of groupedNotes) {
         const item = element('li', 'contact-fact');
         item.dataset.noteKind = kind;
-        item.append(
-          element('span', 'contact-fact-text', note.text),
-          element('small', 'contact-fact-meta', noteAttribution(note))
-        );
+        item.appendChild(element('span', 'contact-fact-text', note.text));
         list.appendChild(item);
       }
       section.appendChild(list);
