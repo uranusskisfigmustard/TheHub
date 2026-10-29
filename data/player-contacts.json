@@ -1071,7 +1071,7 @@
     {
       "id": "helix-meridian",
       "type": "group",
-      "name": "Helix Meridian",
+      "name": "Helix Meridian Resource Group",
       "role": "John and Prue's former employer",
       "affiliations": [],
       "notes": [
@@ -1094,7 +1094,8 @@
           ],
           "source": "Between sessions · M3 → M4"
         }
-      ]
+      ],
+      "portrait": "assets/logos/hmrg-primary-white.png"
     },
     {
       "id": "ledger-quay",
