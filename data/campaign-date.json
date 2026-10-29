@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "asOf": "2237-301",
+  "asOf": "2237-302",
   "role": "Derived live calendar anchor. Advance one campaign day per America/New_York real-world day; adjust both anchors together for manual time jumps. Canon records remain authoritative for events.",
-  "anchorRealDate": "2026-10-28",
-  "anchorCampaignDate": "2237-301"
+  "anchorRealDate": "2026-10-29",
+  "anchorCampaignDate": "2237-302"
 }
