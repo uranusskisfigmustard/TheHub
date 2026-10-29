@@ -141,7 +141,8 @@
           "source": "Between sessions · M2 → M3"
         }
       ],
-      "encountered": true
+      "encountered": true,
+      "portrait": "assets/portraits/vera.webp"
     },
     {
       "id": "quinn",
@@ -535,7 +536,8 @@
           "overview": true
         }
       ],
-      "encountered": true
+      "encountered": true,
+      "portrait": "assets/portraits/mark-varga.webp"
     },
     {
       "id": "paul-hollywood",
