@@ -649,6 +649,37 @@
       "encountered": true
     },
     {
+      "id": "cormac-trent",
+      "type": "person",
+      "name": "Cormac Trent",
+      "role": "Helix Meridian Corporate Field Operations · CERA-6 mission coordinator",
+      "affiliations": [
+        "helix-meridian"
+      ],
+      "notes": [
+        {
+          "kind": "known",
+          "text": "Coordinated John and Prue's CERA-6 assignment aboard CSV Hecate on behalf of Helix Meridian Corporate Field Operations.",
+          "by": [
+            "john",
+            "prue"
+          ],
+          "source": "M0 · CERA-6 assignment and field contracts",
+          "overview": true
+        },
+        {
+          "kind": "known",
+          "text": "Was the named mission coordinator for the Caligo recovery operation and issued the crew's return-transit instructions.",
+          "by": [
+            "john",
+            "prue"
+          ],
+          "source": "M0 · CERA-6 mission completion and return-transit record"
+        }
+      ],
+      "encountered": true
+    },
+    {
       "id": "breakwater",
       "type": "group",
       "name": "Breakwater Recovery Cooperative",
