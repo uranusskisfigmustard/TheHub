@@ -33,7 +33,7 @@ def validate(data):
         require(isinstance(entry['id'], str) and re.fullmatch(r'[a-z0-9-]+', entry['id']), 'Invalid anchor')
         require(entry['id'] not in ids, 'Duplicate anchor: ' + entry['id'])
         if 'portrait' in entry:
-            require(isinstance(entry['portrait'], str) and re.fullmatch(r'assets/portraits/[a-z0-9-]+\.(png|jpg|jpeg|webp)', entry['portrait']), 'Unsafe portrait path')
+            portrait_pattern = r'assets/portraits/[a-z0-9-]+\.(png|jpg|jpeg|webp)' if entry['type'] == 'person' else r'assets/(portraits|logos)/[a-z0-9-]+\.(png|jpg|jpeg|webp)'\n            require(isinstance(entry['portrait'], str) and re.fullmatch(portrait_pattern, entry['portrait']), 'Unsafe portrait path')
             require((ROOT / entry['portrait']).is_file(), 'Missing portrait asset')
         ids.add(entry['id'])
         require(entry['type'] in ('person', 'group'), 'Invalid entry type')
