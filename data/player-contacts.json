@@ -563,6 +563,29 @@
       "portrait": "assets/portraits/paul-hollywood.webp"
     },
     {
+      "id": "peggy",
+      "type": "person",
+      "name": "Peggy",
+      "role": "Deepwell geologist",
+      "affiliations": [
+        "deepwell"
+      ],
+      "notes": [
+        {
+          "kind": "known",
+          "text": "Consulted during the M-17 incident, assessed the geological evidence and recommended specialist escalation when necessary.",
+          "by": [
+            "john",
+            "prue"
+          ],
+          "source": "M4 · The Ore That Waits for Jump",
+          "overview": true
+        }
+      ],
+      "encountered": true,
+      "portrait": "assets/portraits/deepwell-geologist.webp"
+    },
+    {
       "id": "mireya-solano",
       "type": "person",
       "name": "Mireya Solano",
