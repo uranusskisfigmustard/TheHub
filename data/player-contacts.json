@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updated": "2026-10-27",
+  "updated": "2026-10-29",
   "scope": "Played missions M0–M6 and published between-session scenes through 27 October 2026. Character-specific knowledge indicated per note.",
   "entries": [
     {
@@ -374,7 +374,8 @@
             "john"
           ]
         }
-      ]
+      ],
+      "portrait": "assets/portraits/blythe-vale.webp"
     },
     {
       "id": "pella-sorn",
