@@ -1400,6 +1400,38 @@
         }
       ],
       "encountered": true
+    },
+    {
+      "id": "kumar-gaddafi",
+      "type": "person",
+      "name": "Kumar Gaddafi",
+      "role": "Deepwell leadership representative",
+      "affiliations": [
+        "deepwell"
+      ],
+      "notes": [
+        {
+          "kind": "known",
+          "text": "Coordinated specialist and containment resources for Deepwell during the M-17 incident.",
+          "by": [
+            "john",
+            "prue"
+          ],
+          "source": "M4 · The Ore That Waits for Jump",
+          "overview": true
+        },
+        {
+          "kind": "known",
+          "text": "Uses they/them pronouns.",
+          "by": [
+            "john",
+            "prue"
+          ],
+          "source": "M4 · Established NPC identity"
+        }
+      ],
+      "encountered": true,
+      "portrait": "assets/portraits/kumar-gaddafi.webp"
     }
   ]
 }
