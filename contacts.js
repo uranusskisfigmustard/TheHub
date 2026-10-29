@@ -39,7 +39,8 @@
           typeof entry.role !== 'string' || !Array.isArray(entry.affiliations) ||
           !Array.isArray(entry.notes) || !entry.notes.length) throw new Error('Invalid entry');
       if (entry.type === 'person' && entry.encountered !== true) throw new Error('Person lacks verified encounter');
-      if (entry.portrait && !/^assets\/portraits\/[a-z0-9-]+\.(png|jpg|jpeg|webp)$/.test(entry.portrait)) throw new Error('Invalid portrait');
+      const assetPattern = entry.type === 'person' ? /^assets\/portraits\/[a-z0-9-]+\.(png|jpg|jpeg|webp)$/ : /^assets\/(portraits|logos)\/[a-z0-9-]+\.(png|jpg|jpeg|webp)$/;
+      if (entry.portrait && !assetPattern.test(entry.portrait)) throw new Error('Invalid portrait');
       ids.add(entry.id);
       for (const note of entry.notes) {
         if (!note || !Object.hasOwn(labels, note.kind) || typeof note.text !== 'string' || !note.text ||
