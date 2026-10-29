@@ -38,7 +38,6 @@
           !['person', 'group'].includes(entry.type) || typeof entry.name !== 'string' || !entry.name ||
           typeof entry.role !== 'string' || !Array.isArray(entry.affiliations) ||
           !Array.isArray(entry.notes) || !entry.notes.length) throw new Error('Invalid entry');
-      if (entry.type === 'person' && entry.encountered !== true) throw new Error('Person lacks verified encounter');
       if (entry.portrait && !/^assets\/portraits\/[a-z0-9-]+\.(png|jpg|jpeg|webp)$/.test(entry.portrait)) throw new Error('Invalid portrait');
       ids.add(entry.id);
       for (const note of entry.notes) {
@@ -258,7 +257,7 @@
     status.textContent = 'Loading crew notes…';
     try {
       // This is a deliberately curated public file. Never fall back to Warden NPC/faction APIs.
-      const response = await fetch('data/player-contacts.json?v=20261029-encounter-gate1', { cache: 'no-cache' });
+      const response = await fetch('data/player-contacts.json?v=20261029-contacts-portraits2', { cache: 'no-cache' });
       if (!response.ok) throw new Error('Unavailable');
       entries = validate(await response.json());
       entryMap = new Map(entries.map(entry => [entry.id, entry]));
