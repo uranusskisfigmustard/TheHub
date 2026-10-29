@@ -704,7 +704,8 @@
           "source": "M0 · CERA-6 mission completion and return-transit record"
         }
       ],
-      "encountered": true
+      "encountered": true,
+      "portrait": "assets/portraits/cormac-trent.png"
     },
     {
       "id": "breakwater",
