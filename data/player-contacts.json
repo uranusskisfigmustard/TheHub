@@ -172,7 +172,8 @@
           "source": "Between sessions · M2 → M3"
         }
       ],
-      "encountered": true
+      "encountered": true,
+      "portrait": "assets/portraits/quinn.webp"
     },
     {
       "id": "jett",
@@ -235,7 +236,8 @@
           "overview": true
         }
       ],
-      "encountered": true
+      "encountered": true,
+      "portrait": "assets/portraits/mr-orr.webp"
     },
     {
       "id": "opal-coil",
