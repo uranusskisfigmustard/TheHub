@@ -258,7 +258,7 @@
     status.textContent = 'Loading crew notes…';
     try {
       // This is a deliberately curated public file. Never fall back to Warden NPC/faction APIs.
-      const response = await fetch('data/player-contacts.json?v=20261029-kumar-portrait1', { cache: 'no-cache' });
+      const response = await fetch('data/player-contacts.json?v=20261029-mireya-portrait1', { cache: 'no-cache' });
       if (!response.ok) throw new Error('Unavailable');
       entries = validate(await response.json());
       entryMap = new Map(entries.map(entry => [entry.id, entry]));

@@ -625,7 +625,8 @@
           "overview": true
         }
       ],
-      "encountered": true
+      "encountered": true,
+      "portrait": "assets/portraits/mireya-solano.webp"
     },
     {
       "id": "levent-arslan",
