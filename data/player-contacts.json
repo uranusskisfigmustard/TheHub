@@ -754,7 +754,8 @@
             "prue"
           ]
         }
-      ]
+      ],
+      "portrait": "assets/logos/breakwater-recovery-cooperative.png"
     },
     {
       "id": "saint-orra",
@@ -801,7 +802,8 @@
             "cassidy"
           ]
         }
-      ]
+      ],
+      "portrait": "assets/logos/saint-orra-hospital.png"
     },
     {
       "id": "hub-claims",
@@ -848,7 +850,8 @@
             "cassidy"
           ]
         }
-      ]
+      ],
+      "portrait": "assets/logos/hub-claims-registry.png"
     },
     {
       "id": "deepwell",
@@ -886,7 +889,8 @@
             "prue"
           ]
         }
-      ]
+      ],
+      "portrait": "assets/logos/deepwell-extractive-league.png"
     },
     {
       "id": "intellirx",
@@ -1068,7 +1072,8 @@
             "cassidy"
           ]
         }
-      ]
+      ],
+      "portrait": "assets/logos/breathworks-compact.png"
     },
     {
       "id": "helix-meridian",
@@ -1127,7 +1132,8 @@
             "cassidy"
           ]
         }
-      ]
+      ],
+      "portrait": "assets/logos/ledger-quay-consortium.png"
     },
     {
       "id": "cistern-assembly",
@@ -1194,7 +1200,8 @@
             "prue"
           ]
         }
-      ]
+      ],
+      "portrait": "assets/logos/dock-labor-assembly.png"
     },
     {
       "id": "blackline",
@@ -1254,7 +1261,8 @@
             "cassidy"
           ]
         }
-      ]
+      ],
+      "portrait": "assets/logos/bonded-freight.png"
     },
     {
       "id": "central-records",
@@ -1283,7 +1291,8 @@
             "prue"
           ]
         }
-      ]
+      ],
+      "portrait": "assets/logos/central-records.png"
     },
     {
       "id": "amara-nwosu",
