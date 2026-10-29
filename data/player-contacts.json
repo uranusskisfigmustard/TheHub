@@ -517,7 +517,8 @@
           ]
         }
       ],
-      "encountered": true
+      "encountered": true,
+      "portrait": "assets/portraits/luca.webp"
     },
     {
       "id": "mark-varga",
