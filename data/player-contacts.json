@@ -559,7 +559,8 @@
           "overview": true
         }
       ],
-      "encountered": true
+      "encountered": true,
+      "portrait": "assets/portraits/paul-hollywood.webp"
     },
     {
       "id": "mireya-solano",
