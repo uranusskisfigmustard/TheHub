@@ -25,7 +25,14 @@ window.BETWEEN_SESSION_PERIODS["m6-m7"] = {
             "She does not keep you long.",
             "“I haven’t forgotten,” she says. “You said you were choosing where we went next.”",
             "There is no pressure behind it. She is not asking for an answer before you leave, and she does not make the moment larger than it is. Then someone calls her from farther down the corridor, and she gives you a small nod before heading back toward the clinic.",
-            "The next outing is yours to choose."
+            "The next outing is yours to choose.",
+            "* * *",
+            "Later, Prue asks Pella to meet her in a quiet back section of the hydroponics bay, where tall trellises and climbing crops make the aisle feel enclosed and green. She sets up a blanket between the grow beds with snacks and chemlights, making the small space feel like a picnic in a forest. When Pella arrives, Prue admits that she is not much of a planner and still does not know all the Hub has to offer, so this was the best she could think of.",
+            "They talk about their respective days, John, and their new friend Cassidy. Pella thinks Cassidy is a little strange, but says that most exobiologists are.",
+            "After a while, Prue takes out her guitar and begins playing softly. She asks if she can play an old Earth song that her father used to sing to her mother. Pella smiles and nods.",
+            "Prue plays a soft, stripped-down version of “(Simply) The Best”—the one Patrick sings to David in Schitt’s Creek.",
+            "As she finishes and waits for Pella’s reaction, Prue’s heart is beating so fast it feels as though it might beat out of her chest.",
+            "Then Pella kisses her."
           ]
         },
         {
