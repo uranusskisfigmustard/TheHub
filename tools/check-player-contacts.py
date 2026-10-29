@@ -23,7 +23,13 @@ def validate(data):
     ids = set()
     groups = set()
     for entry in data['entries']:
-        require(set(entry) - {'portrait'} == {'id', 'type', 'name', 'role', 'affiliations', 'notes'}, 'Unexpected entry fields: no private record exports')
+        required_entry_fields = {'id', 'type', 'name', 'role', 'affiliations', 'notes'}
+        allowed_entry_fields = required_entry_fields | {'portrait', 'encountered'}
+        require(required_entry_fields <= set(entry) <= allowed_entry_fields, 'Unexpected entry fields: no private record exports')
+        if entry.get('type') == 'person':
+            require(entry.get('encountered') is True, 'Person lacks verified encounter')
+        else:
+            require('encountered' not in entry, 'Groups cannot have encounter flags')
         require(isinstance(entry['id'], str) and re.fullmatch(r'[a-z0-9-]+', entry['id']), 'Invalid anchor')
         require(entry['id'] not in ids, 'Duplicate anchor: ' + entry['id'])
         if 'portrait' in entry:
