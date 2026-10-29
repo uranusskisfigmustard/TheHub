@@ -40,38 +40,8 @@
           "overview": true
         }
       ],
-      "portrait": "assets/portraits/asha-raman.webp"
-    },
-    {
-      "id": "hiroshi-tanaka",
-      "type": "person",
-      "name": "Hiroshi Tanaka",
-      "role": "Senior Breathworks technical authority",
-      "affiliations": [
-        "breathworks"
-      ],
-      "notes": [
-        {
-          "kind": "known",
-          "text": "Co-signed the accepted Dead Air closeout with Asha Raman.",
-          "by": [
-            "john",
-            "prue"
-          ],
-          "source": "M1 · Dead Air closeout"
-        },
-        {
-          "kind": "known",
-          "text": "Hiroshi is a senior Breathworks technical decision-maker associated with the Lungworks and environmental control. He signed off on the Dead Air closeout in that capacity.",
-          "source": "M1 · Dead Air; Breathworks authority",
-          "by": [
-            "john",
-            "prue"
-          ],
-          "overview": true
-        }
-      ],
-      "portrait": "assets/portraits/hiroshi-tanaka.webp"
+      "portrait": "assets/portraits/asha-raman.webp",
+      "encountered": true
     },
     {
       "id": "kezi-moran",
@@ -108,7 +78,8 @@
           "overview": true
         }
       ],
-      "portrait": "assets/portraits/kezi-moran.webp"
+      "portrait": "assets/portraits/kezi-moran.webp",
+      "encountered": true
     },
     {
       "id": "vera",
@@ -137,7 +108,8 @@
           ],
           "source": "Between sessions · M2 → M3"
         }
-      ]
+      ],
+      "encountered": true
     },
     {
       "id": "quinn",
@@ -166,7 +138,8 @@
           ],
           "source": "Between sessions · M2 → M3"
         }
-      ]
+      ],
+      "encountered": true
     },
     {
       "id": "jett",
@@ -206,7 +179,8 @@
           "source": "M6 · Hand-Off 1 — played outcome"
         }
       ],
-      "portrait": "assets/portraits/jett.png"
+      "portrait": "assets/portraits/jett.png",
+      "encountered": true
     },
     {
       "id": "mr-orr",
@@ -227,7 +201,8 @@
           "source": "M2 · Witness Window",
           "overview": true
         }
-      ]
+      ],
+      "encountered": true
     },
     {
       "id": "opal-coil",
@@ -281,7 +256,8 @@
           ]
         }
       ],
-      "portrait": "assets/portraits/opal-coil.webp"
+      "portrait": "assets/portraits/opal-coil.webp",
+      "encountered": true
     },
     {
       "id": "tovan-rusk",
@@ -328,7 +304,8 @@
           "overview": true
         }
       ],
-      "portrait": "assets/portraits/tovan-rusk.webp"
+      "portrait": "assets/portraits/tovan-rusk.webp",
+      "encountered": true
     },
     {
       "id": "blythe-vale",
@@ -375,7 +352,8 @@
           ]
         }
       ],
-      "portrait": "assets/portraits/blythe-vale.webp"
+      "portrait": "assets/portraits/blythe-vale.webp",
+      "encountered": true
     },
     {
       "id": "pella-sorn",
@@ -420,7 +398,8 @@
           "overview": true
         }
       ],
-      "portrait": "assets/portraits/pella-sorn.png"
+      "portrait": "assets/portraits/pella-sorn.png",
+      "encountered": true
     },
     {
       "id": "nizar-ilman",
@@ -455,7 +434,8 @@
           "overview": true
         }
       ],
-      "portrait": "assets/portraits/captain-nizar-ilman.webp"
+      "portrait": "assets/portraits/captain-nizar-ilman.webp",
+      "encountered": true
     },
     {
       "id": "luca",
@@ -501,7 +481,8 @@
             "prue"
           ]
         }
-      ]
+      ],
+      "encountered": true
     },
     {
       "id": "mark-varga",
@@ -521,7 +502,8 @@
           "source": "Published offer · M4 → M5",
           "overview": true
         }
-      ]
+      ],
+      "encountered": true
     },
     {
       "id": "paul-hollywood",
@@ -540,7 +522,8 @@
           "source": "M4 · The Ore That Waits for Jump",
           "overview": true
         }
-      ]
+      ],
+      "encountered": true
     },
     {
       "id": "mireya-solano",
@@ -580,7 +563,8 @@
           ],
           "overview": true
         }
-      ]
+      ],
+      "encountered": true
     },
     {
       "id": "levent-arslan",
@@ -627,7 +611,8 @@
           ]
         }
       ],
-      "portrait": "assets/portraits/levent-arslan.webp"
+      "portrait": "assets/portraits/levent-arslan.webp",
+      "encountered": true
     },
     {
       "id": "rhea-calder",
@@ -655,7 +640,8 @@
           ],
           "source": "Last established encounter · M0"
         }
-      ]
+      ],
+      "encountered": true
     },
     {
       "id": "juno-kade",
@@ -692,7 +678,8 @@
           ],
           "source": "Last established encounter · M0"
         }
-      ]
+      ],
+      "encountered": true
     },
     {
       "id": "kavya-voss",
@@ -729,7 +716,8 @@
           ],
           "source": "Last established encounter · M0"
         }
-      ]
+      ],
+      "encountered": true
     },
     {
       "id": "breakwater",
@@ -1302,124 +1290,6 @@
             "john",
             "prue"
           ]
-        }
-      ]
-    },
-    {
-      "id": "amara-nwosu",
-      "type": "person",
-      "name": "Amara Nwosu",
-      "role": "Cistern neighborhood liaison",
-      "affiliations": [
-        "cistern-assembly"
-      ],
-      "notes": [
-        {
-          "kind": "known",
-          "text": "A Cistern neighborhood liaison involved in the Dead Air community response. Her role is to represent local residents' concerns, not to command Breakwater work crews or Breathworks technicians.",
-          "source": "M1 · Dead Air",
-          "by": [
-            "john",
-            "prue"
-          ],
-          "overview": true
-        }
-      ],
-      "portrait": "assets/portraits/amara-nwosu.jpg"
-    },
-    {
-      "id": "talvi-venn",
-      "type": "person",
-      "name": "Talvi Venn",
-      "role": "Bonded freight broker · Ledger Quay Consortium",
-      "affiliations": [
-        "ledger-quay",
-        "bonded-freight"
-      ],
-      "portrait": "assets/portraits/talvi-venn.png",
-      "notes": [
-        {
-          "kind": "known",
-          "text": "Talvi Venn is a bonded-freight broker associated with Ledger Quay Consortium. Her work concerns commercial transfers and arrangements involving cargo, guarantees and brokers.",
-          "by": [
-            "john",
-            "prue",
-            "cassidy"
-          ],
-          "source": "Published player-facing institutional role · 2237-300; no crew encounter established",
-          "overview": true
-        },
-        {
-          "kind": "known",
-          "text": "Commercial brokerage does not let her decide disputed property title or bypass dock handling and custody requirements.",
-          "by": [
-            "john",
-            "prue",
-            "cassidy"
-          ],
-          "source": "Hub faction and freight jurisdictions"
-        }
-      ]
-    },
-    {
-      "id": "risto-vero",
-      "type": "person",
-      "name": "Risto Vero",
-      "role": "Public receiving clerk · Receiving Gallery",
-      "affiliations": [],
-      "portrait": "assets/portraits/risto-vero.png",
-      "notes": [
-        {
-          "kind": "known",
-          "text": "Risto Vero works at the Receiving Gallery's public receiving desk, where people bring questions about freight reception and transfer procedures.",
-          "by": [
-            "john",
-            "prue",
-            "cassidy"
-          ],
-          "source": "Published player-facing institutional role · 2237-300; no crew encounter established",
-          "overview": true
-        },
-        {
-          "kind": "known",
-          "text": "The receiving desk can help direct inquiries about transfers and cargo-tug procedures, but cannot independently grant access to restricted cargo.",
-          "by": [
-            "john",
-            "prue",
-            "cassidy"
-          ],
-          "source": "Public receiving-service role and custody boundaries"
-        }
-      ]
-    },
-    {
-      "id": "liora-mott",
-      "type": "person",
-      "name": "Liora Mott",
-      "role": "Public berth liaison · Arrivals Concourse",
-      "affiliations": [],
-      "portrait": "assets/portraits/liora-mott.png",
-      "notes": [
-        {
-          "kind": "known",
-          "text": "Liora Mott is a public-side berth liaison in the Arrivals Concourse, helping visitors and crews navigate berth information and public arrival procedures.",
-          "by": [
-            "john",
-            "prue",
-            "cassidy"
-          ],
-          "source": "Published player-facing institutional role · 2237-300; no crew encounter established",
-          "overview": true
-        },
-        {
-          "kind": "known",
-          "text": "A berth liaison can explain visitor procedures and direct messages, but cannot grant boarding access without the required authorization.",
-          "by": [
-            "john",
-            "prue",
-            "cassidy"
-          ],
-          "source": "Public berth-service role and access boundaries"
         }
       ]
     }
