@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updated": "2026-10-29",
+  "updated": "2026-10-30",
   "scope": "Played missions M0–M6 and published between-session scenes through 27 October 2026. Character-specific knowledge indicated per note.",
   "entries": [
     {
@@ -974,7 +974,8 @@
           ],
           "overview": true
         }
-      ]
+      ],
+      "portrait": "assets/logos/order-of-the-last-watch.png"
     },
     {
       "id": "c18-community",
@@ -1034,7 +1035,8 @@
             "john"
           ]
         }
-      ]
+      ],
+      "portrait": "assets/logos/the-muster.png"
     },
     {
       "id": "breathworks",
@@ -1171,7 +1173,8 @@
             "cassidy"
           ]
         }
-      ]
+      ],
+      "portrait": "assets/logos/cistern-assembly.png"
     },
     {
       "id": "dock-labor",
