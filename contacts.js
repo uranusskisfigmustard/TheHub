@@ -151,7 +151,7 @@
       const isGroupLogo = entry.type === 'group';
       img.loading = isGroupLogo ? 'eager' : 'lazy';
       img.decoding = isGroupLogo ? 'sync' : 'async';
-      img.src = isGroupLogo ? entry.portrait + '?v=20261030-logo-final1' : entry.portrait;
+      img.src = isGroupLogo ? entry.portrait + '?v=20261030-logo-final2' : entry.portrait;
       img.addEventListener('error', () => img.remove(), { once: true });
       frame.appendChild(img);
     }
