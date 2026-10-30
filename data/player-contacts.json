@@ -755,7 +755,7 @@
           ]
         }
       ],
-      "portrait": "assets/logos/breakwater-recovery-cooperative.png"
+      "portrait": "assets/logos/breakwater-recovery-cooperative.webp"
     },
     {
       "id": "saint-orra",
@@ -803,7 +803,7 @@
           ]
         }
       ],
-      "portrait": "assets/logos/saint-orra-hospital.png"
+      "portrait": "assets/logos/saint-orra-hospital.webp"
     },
     {
       "id": "hub-claims",
@@ -851,7 +851,7 @@
           ]
         }
       ],
-      "portrait": "assets/logos/hub-claims-registry.png"
+      "portrait": "assets/logos/hub-claims-registry.webp"
     },
     {
       "id": "deepwell",
@@ -975,7 +975,7 @@
           "overview": true
         }
       ],
-      "portrait": "assets/logos/order-of-the-last-watch.png"
+      "portrait": "assets/logos/order-of-the-last-watch.webp"
     },
     {
       "id": "c18-community",
@@ -1036,7 +1036,7 @@
           ]
         }
       ],
-      "portrait": "assets/logos/the-muster.png"
+      "portrait": "assets/logos/the-muster.webp"
     },
     {
       "id": "breathworks",
@@ -1075,7 +1075,7 @@
           ]
         }
       ],
-      "portrait": "assets/logos/breathworks-compact.png"
+      "portrait": "assets/logos/breathworks-compact.webp"
     },
     {
       "id": "helix-meridian",
@@ -1135,7 +1135,7 @@
           ]
         }
       ],
-      "portrait": "assets/logos/ledger-quay-consortium.png"
+      "portrait": "assets/logos/ledger-quay-consortium.webp"
     },
     {
       "id": "cistern-assembly",
@@ -1174,7 +1174,7 @@
           ]
         }
       ],
-      "portrait": "assets/logos/cistern-assembly.png"
+      "portrait": "assets/logos/cistern-assembly.webp"
     },
     {
       "id": "dock-labor",
@@ -1266,7 +1266,7 @@
           ]
         }
       ],
-      "portrait": "assets/logos/bonded-freight.png"
+      "portrait": "assets/logos/bonded-freight.webp"
     },
     {
       "id": "central-records",
@@ -1296,7 +1296,7 @@
           ]
         }
       ],
-      "portrait": "assets/logos/central-records.png"
+      "portrait": "assets/logos/central-records.webp"
     },
     {
       "id": "amara-nwosu",
