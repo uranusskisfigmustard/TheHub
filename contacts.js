@@ -148,9 +148,10 @@
       const img = element('img');
       img.alt = compact ? '' : 'Portrait of ' + entry.name;
       if (!compact) frame.removeAttribute('aria-hidden');
-      img.loading = 'lazy';
-      img.decoding = 'async';
-      img.src = entry.portrait;
+      const isGroupLogo = entry.type === 'group';
+      img.loading = isGroupLogo ? 'eager' : 'lazy';
+      img.decoding = isGroupLogo ? 'sync' : 'async';
+      img.src = isGroupLogo ? entry.portrait + '?v=20261030-logo-final1' : entry.portrait;
       img.addEventListener('error', () => img.remove(), { once: true });
       frame.appendChild(img);
     }
