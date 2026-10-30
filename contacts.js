@@ -139,6 +139,7 @@
 
   function portrait(entry, compact) {
     const frame = element('span', compact ? 'contact-avatar' : 'contact-portrait');
+    if (entry.type === 'group') frame.classList.add('contact-logo-frame');
     frame.setAttribute('aria-hidden', 'true');
     const initials = element('span', 'contact-initials', entry.name.split(/\s+/).slice(0, 2).map(word => word[0]).join(''));
     initials.setAttribute('aria-hidden', 'true');
