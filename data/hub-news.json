@@ -1,8 +1,34 @@
 {
   "schemaVersion": 1,
-  "asOf": "2237-302",
+  "asOf": "2237-303",
   "publicationMode": "warden-curated",
   "posts": [
+    {
+      "id": "hub-m6-public-002",
+      "visibility": "PUBLIC",
+      "date": "2237-303",
+      "category": "local",
+      "typeLabel": "COMMUNITY / HELP",
+      "title": "the evening watch line answered??",
+      "source": "lastbench",
+      "summary": "left a message for a practical check-in and got a response before i slept. did somebody finally fix the relay",
+      "body": [
+        "not looking for names. just saying it was good to hear an actual person on the other end instead of the old loop",
+        "if you need help, leave enough info for someone to find you. dont make people guess"
+      ],
+      "comments": [
+        {
+          "by": "thirdwatch",
+          "date": "2237-303",
+          "text": "it was down more often than it worked for a while. hope it holds"
+        },
+        {
+          "by": "canteenqueue",
+          "date": "2237-303",
+          "text": "whoever got it sorted, thank you. seriously"
+        }
+      ]
+    },
     {
       "id": "hub-m6-public-001",
       "visibility": "PUBLIC",
