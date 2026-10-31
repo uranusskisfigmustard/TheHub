@@ -1,8 +1,34 @@
 {
   "schemaVersion": 1,
-  "asOf": "2237-303",
+  "asOf": "2237-304",
   "publicationMode": "warden-curated",
   "posts": [
+    {
+      "id": "hub-jobs-003",
+      "visibility": "PUBLIC",
+      "date": "2237-304",
+      "category": "discussion",
+      "typeLabel": "COMMUNITY / QUESTIONS",
+      "title": "temporary is doing a lot of work there",
+      "source": "containment_isnt_home",
+      "summary": "if something living is stable in a temporary enclosure, that doesn't mean the arrangement is good enough to leave alone",
+      "body": [
+        "before somebody makes this weird, yes, i read the listing. no, i don't know what it is. thats not the point",
+        "if it needs a better environment and somebody patient enough to learn what its signals mean, then it needs that"
+      ],
+      "comments": [
+        {
+          "by": "fieldjar",
+          "date": "2237-304",
+          "text": "thats a care question, not a dare. if you don't know enough, keep the conditions stable and get help"
+        },
+        {
+          "by": "worklight",
+          "date": "2237-304",
+          "text": "and don't treat a living thing like a shop trophy because you heard about it on a board"
+        }
+      ]
+    },
     {
       "id": "hub-m6-public-002",
       "visibility": "PUBLIC",
