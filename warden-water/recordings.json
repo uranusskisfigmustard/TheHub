@@ -4,14 +4,14 @@
     "act": 1,
     "character": "John",
     "variant": "A",
-    "title": "Warn the door",
-    "location": "Pump Room",
+    "title": "Warn the crossing",
+    "location": "Pump Room, at the F-1 fire-shutter indicator",
     "script": [
-      "MARA: That cabinet is already smoking. Stop the pump before it catches.",
-      "JOHN: Someone’s at the pressure door. Give me one call to clear them first.",
-      "MARA: One call. If it sparks again, I’m hitting the stop."
+      "MARA: Smoke! John, HIT THE STOP!",
+      "JOHN: Ivo's under that shutter! It'll trap him!",
+      "MARA: Then move him! MOVE!"
     ],
-    "notes": "Both risks are immediate. A warning can protect someone before shutdown. Cassidy A identifies the contact at Loading; John B explores the alternative."
+    "notes": "The possible future shows Ivo beneath or near F-1 while P-1's cabinet smokes. It does not establish that he must be there now. Inspect the warning placard and stop indicator: an E-STOP latches P-1 off and closes **only F-1**. The crew can warn Ivo, isolate power, or route via Lab. Corroboration: John B, Cassidy A, the posted shutter indicator."
   },
   {
     "id": "1-john-b",
@@ -21,11 +21,11 @@
     "title": "Stop the pump",
     "location": "Pump Room",
     "script": [
-      "IVO: If you hit that stop, the gallery door shuts. Someone might be crossing it.",
-      "JOHN: That cabinet is arcing. Get back—I’m stopping it now.",
-      "IVO: Then tell me who’s on the other side!"
+      "IVO: John! Wait—I'm at the shutter!",
+      "JOHN: It's on FIRE! I'm hitting it!",
+      "IVO: Then why's the water still running?!"
     ],
-    "notes": "Stopping prevents an electrical fire but can close the door with someone near it. The door indicators and Cassidy A give context; good preparation can preserve both outcomes."
+    "notes": "A future P-1 stop can happen without stopping gravity-fed inflow. This is an **observation**, not evidence that E-STOP failed or software restarted it. F-1 may close; the water-feed question requires examining the header and both branches. Corroboration: Prue A/B, Cassidy B, gallery flow meter."
   },
   {
     "id": "1-prue-a",
@@ -35,25 +35,25 @@
     "title": "Compare the readings",
     "location": "Control",
     "script": [
-      "NELL: That level sensor has drifted before. We could shut off good water over a bad reading.",
-      "PRUE: I’m comparing it to the flow meter. If they agree, the tank is still filling.",
-      "NELL: And if they don’t, we’ve lost time."
+      "NELL: No. That sensor's wrong. Again.",
+      "PRUE: Tank's rising! Feed meter's still moving!",
+      "NELL: But Mara shut the intake. I SAW her!"
     ],
-    "notes": "The level and independent flow meter agree: water is entering. It does not identify the route. Combine with Cassidy B or Act 2 Prue A; direct inspection also works."
+    "notes": "The independent tank-level and common-header flow signals agree. Nell's doubt is credible but not a sensor diagnosis; she watched Mara close CV-1. The closed readout applies only to CV-1, not the whole manifold. Corroboration: Prue B, Cassidy B, Prue A in Act 2; inspect header and both branches."
   },
   {
     "id": "1-prue-b",
     "act": 1,
     "character": "Prue",
     "variant": "B",
-    "title": "Trust the display",
+    "title": "Read the display",
     "location": "Control",
     "script": [
-      "NELL: The level is still going up. We have to find where the water is coming from.",
-      "PRUE: Control says its intake valve is closed. This sensor has drifted before—I’m checking it first.",
-      "NELL: If it’s right this time, the tank keeps filling while you check."
+      "NELL: Control says CLOSED! That level can't be right!",
+      "PRUE: That's just CV-1. What else is there?",
+      "NELL: I... don't know. It's still rising!"
     ],
-    "notes": "The display accurately reports the Control valve, not the separate transfer path. Checking a suspect sensor is reasonable, but assuming all intake is stopped is incomplete. Prue A and Cassidy B add independent facts."
+    "notes": "The readout is accurate for CV-1 but not comprehensive. The exchange identifies CV-1 as the displayed valve but does not establish the other feed or prescribe an operation. Corroboration: Prue A, Cassidy B, Act 2 Prue A/B; the piping diagram is inspectable."
   },
   {
     "id": "1-cassidy-a",
@@ -61,13 +61,13 @@
     "character": "Cassidy",
     "variant": "A",
     "title": "Call Loading",
-    "location": "Pump intercom",
+    "location": "Control intercom",
     "script": [
-      "MARA: The cabinet is sparking! We can’t wait for everyone to check in.",
-      "CASSIDY: Tavi answered from Loading. If that stop closes the door, she may be on the far side.",
-      "MARA: And if the cabinet catches, we may lose the whole passage."
+      "MARA: Where's Tavi?! Why isn't she answering?!",
+      "CASSIDY: Got her! She's in Loading!",
+      "MARA: Keep her talking! Don't open that hatch!"
     ],
-    "notes": "Cassidy identifies Tavi’s location, not a guaranteed position in the current timeline. John A or B identifies the door/pump relationship. Calling Tavi can quickly resolve the uncertainty."
+    "notes": "Tavi may be alive in Loading, and Mara knows the hatch presents a hazard. This does **not** announce the M-1 crawlway or dictate how to rescue her. Corroboration: John A/B in Act 2, Cassidy A in Act 2, H-1 gauge and station plan."
   },
   {
     "id": "1-cassidy-b",
@@ -77,11 +77,11 @@
     "title": "Follow the sound",
     "location": "Lab intercom",
     "script": [
-      "NELL: The intake display says closed. That sound could be any pipe in Loading.",
-      "CASSIDY: Tavi says she can hear water running beside her hatch. I’m going to find out which pipe.",
-      "NELL: If you go, who’s checking whether the tank level is real?"
+      "NELL: Hear that ROAR? On Tavi's line?",
+      "CASSIDY: She's near a handwheel! Says it's deafening!",
+      "NELL: But the intake's shut... isn't it?"
     ],
-    "notes": "Tavi’s report locates a sound but does not establish its function. Prue A establishes rising tank and flow; Act 2 Prue A traces the physical connection."
+    "notes": "The roar suggests water moving near a handwheel in Loading; it does not identify which pipe or where it feeds. Corroboration: Prue A/B, Act 2 Prue A and Cassidy B, local labels/flow indication."
   },
   {
     "id": "2-john-a",
@@ -89,27 +89,27 @@
     "character": "John",
     "variant": "A",
     "title": "Equalize the hatch",
-    "location": "Loading",
+    "location": "Tank Gallery, at H-1 pressure hatch",
     "script": [
-      "TAVI: The water’s rising in here. Just open it!",
-      "JOHN: The pressure marker’s red. I’m equalizing it before I move the hatch.",
-      "TAVI: How long is that going to take?"
+      "TAVI: John! It's at my knees! OPEN IT!",
+      "JOHN: Hang on! The pressure's holding it shut!",
+      "TAVI: I don't HAVE time!"
     ],
-    "notes": "Tavi needs help urgently; opening against unequal pressure can flood the passage. Cassidy A identifies which side water is on; direct readings and other rescue approaches remain valid."
+    "notes": "The future shows a dangerous pressure difference across **H-1**, not the fire shutter. John recognizes pressure against the hatch; the recording does not prescribe how to relieve it. The actual EQ-1 valve and gauge can be examined. M-1 remains a genuine alternative. Corroboration: John B and Cassidy A in Act 2, H-1 placard."
   },
   {
     "id": "2-john-b",
     "act": 2,
     "character": "John",
     "variant": "B",
-    "title": "Open the hatch",
-    "location": "Loading archive",
+    "title": "Force the hatch",
+    "location": "Tank Gallery, at H-1 pressure hatch",
     "script": [
-      "IVO: That marker is red. Opening it could send water straight through the passage.",
-      "JOHN: Tavi is trapped and the water’s climbing. Stand clear—I’m opening it.",
-      "IVO: John, wait. We can try the equalization valve—"
+      "IVO: John, STOP! Hear that water?!",
+      "JOHN: Tavi's in there! I'm opening it!",
+      "IVO: It'll take you BOTH! JOHN!"
     ],
-    "notes": "A fast rescue is a credible reason to act; uncontrolled opening risks a surge. Stop the clip before a predetermined outcome. Cassidy A provides the trapped worker’s position."
+    "notes": "A feared surge is a real hazard if H-1 is opened against differential pressure. No recorded outcome or unique preferred intervention follows. The gauge/equalizer and M-1 are discoverable independently. Corroboration: John A, Cassidy A, the hatch pressure indicators."
   },
   {
     "id": "2-prue-a",
@@ -117,13 +117,13 @@
     "character": "Prue",
     "variant": "A",
     "title": "Trace the line",
-    "location": "Transfer line",
+    "location": "Tank Gallery feed-manifold access",
     "script": [
-      "IVO: That line supplies us. If you shut it, we lose water we may need.",
-      "PRUE: I’m tracing it first. It runs around the valve Control is showing us.",
-      "IVO: If it goes where you think, close it—but check before you turn it."
+      "IVO: Feel that? This line's LIVE!",
+      "PRUE: But CV-1's shut! What the hell?!",
+      "IVO: Then we're looking at the wrong one!"
     ],
-    "notes": "Prue establishes a bypass route, not the valve’s location. Combine Cassidy B (Tavi’s Loading report) and the local flow indicator before deciding what to close."
+    "notes": "The conversation reveals that the live pipe does not match the Control-displayed closed valve. It does **not** name BV-2, its location, or the corrective action. These are established from labels, a line trace, or Ivo when directly questioned. Corroboration: Prue A/B and Cassidy B in Act 1, Cassidy B in Act 2."
   },
   {
     "id": "2-prue-b",
@@ -133,25 +133,25 @@
     "title": "Keep the supply open",
     "location": "Control",
     "script": [
-      "MARA: Water is still moving near Loading. We need to stop it before the tank fills.",
-      "PRUE: We don’t know which line that is yet, and the crew still needs water. I’m leaving it until we confirm it.",
-      "MARA: Then find out fast. The level isn’t waiting."
+      "MARA: Still rising! Prue, WHERE'S IT COMING FROM?!",
+      "PRUE: I found another line! I can't shut it blind!",
+      "MARA: FIND IT! We're almost full!"
     ],
-    "notes": "Preserving a water supply is reasonable; leaving the bypass open permits continued inflow. Prue A and Cassidy B establish route and location. An independent physical trace is valid."
+    "notes": "Prue has noticed another line but cannot safely identify its destination from the recording; Mara conveys urgency without giving a valve instruction. Staff, physical labels and inspection determine whether isolation is appropriate. Corroboration: Prue A in Act 2, Cassidy B, Control level/flow indicators."
   },
   {
     "id": "2-cassidy-a",
     "act": 2,
     "character": "Cassidy",
     "variant": "A",
-    "title": "Find Tavi’s position",
+    "title": "Find another exit",
     "location": "Loading intercom",
     "script": [
-      "TAVI: I’m behind the loading hatch! Stop talking and open it!",
-      "CASSIDY: Is the water against your side of the hatch, or in the passage?",
-      "TAVI: My side. It’s at my knees—please hurry."
+      "TAVI: It's stuck! Water's pushing the hatch!",
+      "CASSIDY: Look around! Anything else?!",
+      "TAVI: There's something overhead—wait! A hatch!"
     ],
-    "notes": "Tavi knows her own position and water level, not the complete pressure diagnosis. John A/B and the marker connect that observation to the hatch decision."
+    "notes": "Tavi notices an overhead hatch, suggesting an alternate way out without proving where it leads. The actual M-1 crawlway is charted on the station map, remains initially reachable, and leads to Dock. If PCs guide Tavi there now, she can leave; no mandatory H-1 puzzle. Corroboration: Cassidy A in Act 1, John A/B in Act 2, map and M-1 hatch."
   },
   {
     "id": "2-cassidy-b",
@@ -159,96 +159,96 @@
     "character": "Cassidy",
     "variant": "B",
     "title": "Evacuate before the report",
-    "location": "Loading",
+    "location": "Loading, near the manual transfer valve",
     "script": [
-      "TAVI: There’s an open valve by the pipe—I can show you which one.",
-      "CASSIDY: You’re shaking and the passage is filling. I’m getting you to the shuttle first.",
-      "TAVI: Then listen while we move! That line is still running."
+      "TAVI: Cassidy! Please, it's coming up!",
+      "CASSIDY: I've got you! Move! What did you see?!",
+      "TAVI: That wheel! By the crates—WIDE OPEN!"
     ],
-    "notes": "Evacuating is sensible and listening while moving may preserve both objectives. Tavi provides the Loading valve’s location, while Prue A identifies the bypass route. Pipe labels and gauges are alternate evidence."
+    "notes": "Tavi reports an open handwheel near crates, without identifying its function or the full causal path. Players must relate its label and flow indicator to the tank header and CV-1 readout. Corroboration: Cassidy B in Act 1, Prue A/B in Act 2, physical line trace."
   },
   {
     "id": "3-john-a",
     "act": 3,
     "character": "John",
     "variant": "A",
-    "title": "Clear the analyzer",
-    "location": "Tank Gallery",
+    "title": "Lose the pressure trace",
+    "location": "Lab, beside the leased analyzer",
     "script": [
-      "IVO: Leave the analyzer. Moving it will pull that damaged pipe bracket.",
-      "JOHN: It’s blocking the route, and we need the unit out. I’ll support the bracket while we move it.",
-      "IVO: If there’s pressure in that pipe, a brace may not be enough."
+      "IVO: We lost the pressure trace! John?!",
+      "JOHN: I unplugged it! There's a gauge out there!",
+      "IVO: Yeah? Who's watching it?!"
     ],
-    "notes": "John locates the damaged obstruction but does not identify the pipe. Cassidy A identifies it as the relief line; gauge and valve checks establish whether it is safe to move."
+    "notes": "Removing the analyzer data link can blank **Control's** live trend while Tank Gallery's mechanical gauge persists. John alludes to an independent gauge, but no monitoring arrangement is established and the tank's physical pressure is unchanged. Corroboration: John B, Prue B, analyzer tag, mechanical gauge."
   },
   {
     "id": "3-john-b",
     "act": 3,
     "character": "John",
     "variant": "B",
-    "title": "Use the lift",
-    "location": "Tank Gallery",
+    "title": "Pull the cart",
+    "location": "Lab, beside the leased analyzer",
     "script": [
-      "IVO: Don’t restore that circuit until we know what else is on it.",
-      "JOHN: The manual lift is slow, and the analyzer is blocking our way out. We need power.",
-      "IVO: If the pump starts again, that tank takes the load."
+      "IVO: STOP! The hose is still attached!",
+      "JOHN: It's stuck! Help me pull!",
+      "IVO: Shit—John! You ripped it loose!"
     ],
-    "notes": "The lift is useful. Prue A/B and the local controller identify a separate armed restart. Check or isolate it first, use the manual crank, or choose another viable approach."
+    "notes": "On this bad future branch, moving the cart before disconnecting its **separate sample-water tap** causes a local leak in Lab. The analyzer does not move itself to Gallery and requires no lift. The sample tap and data cable can be handled independently. Corroboration: John A, analyzer label and sample connection in Lab."
   },
   {
     "id": "3-prue-a",
     "act": 3,
     "character": "Prue",
     "variant": "A",
-    "title": "Inspect the controller",
-    "location": "Local controller",
+    "title": "Find the armed controller",
+    "location": "Tank Gallery, at LOC-1",
     "script": [
-      "MARA: If you cut that circuit, we could lose the lift while the tank’s still under pressure.",
-      "PRUE: Control’s timer is canceled, but there’s a second controller here. I’m checking what the armed light means.",
-      "MARA: Check fast. We still need a way out."
+      "MARA: I canceled it! Why's that light on?!",
+      "PRUE: Another controller! It's still ARMED!",
+      "MARA: Prue... can it restart?"
     ],
-    "notes": "Prue identifies a second controller and armed indicator, not a complete conclusion. John B links power restoration to the lift circuit; the diagram, a direct test or Ivo can establish the restart function."
+    "notes": "SCH-1 at Control and the physically separate LOC-1 local retry are independent **requests**, not overrides of latched E-STOP or locked motor supply. Prue notices an armed second controller, but Mara cannot tell whether it can restart the motor; inspecting the local schematic reveals actual logic. Corroboration: Prue B, P-1 isolation placard, local lamp and diagram."
   },
   {
     "id": "3-prue-b",
     "act": 3,
     "character": "Prue",
     "variant": "B",
-    "title": "Restore the circuit",
+    "title": "Cut all power",
     "location": "Control",
     "script": [
-      "IVO: There’s still an armed light on the pump controller. Don’t reset the circuit yet.",
-      "PRUE: I canceled the schedule at Control. We need the lift power to move the analyzer.",
-      "IVO: What if that light means it can still restart locally?"
+      "IVO: Everything's dark! What'd you do?!",
+      "PRUE: Cut the MAIN! That pump was going to blow!",
+      "IVO: And now we're BLIND!"
     ],
-    "notes": "The Control timer is canceled but the separate local restart remains armed. Both want to move the equipment safely. Prue A and John B help connect the controller and shared power."
+    "notes": "This possible branch illustrates **whole-site** power loss removing Control telemetry; it does not make motor-only breaker isolation impossible. The battery intercom and local mechanical gauge still work. A latched E-STOP or locked-out P-1 breaker safely prevents motor restart. Corroboration: John A, Prue A, power distribution labels, independent gauge."
   },
   {
     "id": "3-cassidy-a",
     "act": 3,
     "character": "Cassidy",
     "variant": "A",
-    "title": "Identify the line",
-    "location": "Tank Gallery",
+    "title": "Inspect the relief line",
+    "location": "Tank Gallery, at RV-1",
     "script": [
-      "NELL: If we leave the relief valve closed, the tank stays under pressure.",
-      "CASSIDY: That split pipe beside the analyzer is the relief line. Check its pressure and isolation before we move it.",
-      "NELL: And if it’s still connected, how are we relieving the tank?"
+      "NELL: STOP! Don't open that!",
+      "CASSIDY: The pipe's split! Where's that pressure go?!",
+      "NELL: Not through THERE! It'll burst!"
     ],
-    "notes": "Cassidy identifies the damaged pipe but does not prove isolation. Combine John A (obstruction) with local gauge and valve position; zero on one gauge alone is not proof of isolation."
+    "notes": "RV-1 is visibly damaged; Cassidy recognizes the split and Nell warns against using it, without establishing how to relieve pressure safely. A stable pressure hold may need no drainage; OUT-1 exists but receiver capacity and path must be checked. Corroboration: Cassidy B, Gallery gauges, labels, pump/feed clues."
   },
   {
     "id": "3-cassidy-b",
     "act": 3,
     "character": "Cassidy",
     "variant": "B",
-    "title": "Use the relief valve",
-    "location": "Tank Gallery",
+    "title": "Question the ordinary outlet",
+    "location": "Tank Gallery, at OUT-1",
     "script": [
-      "NELL: That relief pipe is split. Opening the valve could flood our only clear route.",
-      "CASSIDY: The tank is under pressure. I want to open it a little while we watch the line.",
-      "NELL: How will we know it can take even that much?"
+      "NELL: The needle's climbing. Cassidy—LOOK!",
+      "CASSIDY: That outlet! Can't we dump it?!",
+      "NELL: Into WHAT? Loading's already flooding!"
     ],
-    "notes": "Controlled venting might be feasible with adequate inspection, repair or support; its success is not automatic. John A identifies the obstruction; Cassidy A identifies the relief line. Another outlet or stable hold may also work."
+    "notes": "A separate outlet is noticed, but Nell questions where its water would go; actual receiving capacity and destination remain unverified. The station's OUT-1 label, receiver markings and BV-2 conditions supply a sound method. There is no forced need to drain if the tank is safely held. Corroboration: Cassidy A, Prue A/B in Act 2, Loading receiver inspection."
   }
 ]
