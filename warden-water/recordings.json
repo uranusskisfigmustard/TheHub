@@ -1,0 +1,254 @@
+[
+  {
+    "id": "1-john-a",
+    "act": 1,
+    "character": "John",
+    "variant": "A",
+    "title": "Clear the door first",
+    "location": "pump cabinet",
+    "script": [
+      "WORKER: If the cabinet catches, this whole passage burns. Shut it off now!",
+      "JOHN: Someone is near the pressure door. Clear them first, then cut the pump.",
+      "WORKER: We could lose the panel while you wait."
+    ],
+    "notes": "The fire is real; a quick warning prevents a door injury. Links Cassidy A (a person beyond the door) and Prue A (pump and intake are separate)."
+  },
+  {
+    "id": "1-john-b",
+    "act": 1,
+    "character": "John",
+    "variant": "B",
+    "title": "Stop the pump now",
+    "location": "Control",
+    "script": [
+      "WORKER: The door will close. Someone could be on the far side.",
+      "JOHN: The cabinet is arcing. I am hitting the stop before it catches.",
+      "WORKER: We do not even know who is over there!"
+    ],
+    "notes": "The immediate electrical hazard justifies stopping. In the alternate sequence it closes the door without checking first. It does not close the transfer intake; see Cassidy A and Prue A."
+  },
+  {
+    "id": "1-prue-a",
+    "act": 1,
+    "character": "Prue",
+    "variant": "A",
+    "title": "Follow the rising level",
+    "location": "Control",
+    "script": [
+      "WORKER: That level sensor has drifted before. If you shut the wrong line, we lose our supply.",
+      "PRUE: The pump is off and the level is still rising. Check the flow gauge against the tank.",
+      "WORKER: And if the gauge is wrong too?"
+    ],
+    "notes": "The independent gauge confirms incoming water. Combine with Prue B (display covers one valve) or Cassidy B (worker sees open transfer) to locate the bypass."
+  },
+  {
+    "id": "1-prue-b",
+    "act": 1,
+    "character": "Prue",
+    "variant": "B",
+    "title": "Trust the intake display",
+    "location": "Control",
+    "script": [
+      "WORKER: The level keeps climbing. It has to be coming from somewhere!",
+      "PRUE: The intake on my screen is closed. That gauge drifted before. I am checking the sensor first.",
+      "WORKER: If the gauge is right, we are wasting time!"
+    ],
+    "notes": "The display is accurate for the Control valve but omits the transfer valve. Sensor inspection is sensible, yet treating the display as proof all intake stopped is wrong. Compare Prue A or Cassidy B."
+  },
+  {
+    "id": "1-cassidy-a",
+    "act": 1,
+    "character": "Cassidy",
+    "variant": "A",
+    "title": "Check the far side",
+    "location": "pump intercom",
+    "script": [
+      "WORKER: There is no time to call Loading. That cabinet is smoking!",
+      "CASSIDY: Someone answered from Loading. If the pump stop closes that door, they could be trapped.",
+      "WORKER: If the cabinet burns, everyone is trapped."
+    ],
+    "notes": "The Loading worker and the electrical danger are real. Connect John A/B (door closes on stop) and Act 2 Cassidy A/B (worker and hatch)."
+  },
+  {
+    "id": "1-cassidy-b",
+    "act": 1,
+    "character": "Cassidy",
+    "variant": "B",
+    "title": "Follow the worker’s report",
+    "location": "lab",
+    "script": [
+      "WORKER: The screen says closed. Why are you taking the word of somebody behind a flooded hatch?",
+      "CASSIDY: They can hear water running through the transfer pipe. I am checking that line.",
+      "WORKER: If you go there, who is watching this tank?"
+    ],
+    "notes": "The report is a lead, not a complete diagnosis. Combine with Prue A (flow persists) or Act 2 Prue A (the bypass) and independently inspect flow."
+  },
+  {
+    "id": "2-john-a",
+    "act": 2,
+    "character": "John",
+    "variant": "A",
+    "title": "Equalize the hatch",
+    "location": "Loading",
+    "script": [
+      "WORKER: The water is rising around her! Open the hatch!",
+      "JOHN: The pressure marker is red. I am equalizing it before we force anything.",
+      "WORKER: If that takes too long, she drowns!"
+    ],
+    "notes": "The marker shows unequal pressure; equalizing prevents a surge, but rescue is urgent. Pair Cassidy A (worker location and valve sound) with John B (consequences of opening)."
+  },
+  {
+    "id": "2-john-b",
+    "act": 2,
+    "character": "John",
+    "variant": "B",
+    "title": "Force the hatch",
+    "location": "Loading archive",
+    "script": [
+      "WORKER: The pressure marker is red. It will flood the passage!",
+      "JOHN: She is trapped and the water is rising. Stand back; I am opening it.",
+      "WORKER: If you do that, where does the water go?"
+    ],
+    "notes": "A fast rescue is a plausible urgent motive. Opening without equalizing sends water toward the passage. Cassidy A or the marker establishes the pressure context."
+  },
+  {
+    "id": "2-prue-a",
+    "act": 2,
+    "character": "Prue",
+    "variant": "A",
+    "title": "Trace the bypass",
+    "location": "transfer line",
+    "script": [
+      "WORKER: That transfer line is our supply. If you close it, what happens when the tank runs dry?",
+      "PRUE: It goes around the valve on the screen. The flow gauge says it is still feeding the tank.",
+      "WORKER: You cannot know that without tracing it."
+    ],
+    "notes": "The pipe labels and local flow reading confirm the bypass. Combine Act 1 Prue A (rising level) with Cassidy B (worker identifies transfer valve)."
+  },
+  {
+    "id": "2-prue-b",
+    "act": 2,
+    "character": "Prue",
+    "variant": "B",
+    "title": "Keep supply flowing",
+    "location": "tank gallery",
+    "script": [
+      "WORKER: That transfer valve is feeding the tank. We need it closed!",
+      "PRUE: The Control valve is closed and we need water for the crew. I am leaving the transfer open until we confirm it.",
+      "WORKER: The tank may not last that long."
+    ],
+    "notes": "Maintaining water is reasonable. The open transfer is an independent gravity feed and keeps filling the tank. Compare Prue A, Cassidy B, and local flow markers."
+  },
+  {
+    "id": "2-cassidy-a",
+    "act": 2,
+    "character": "Cassidy",
+    "variant": "A",
+    "title": "Ask through the hatch",
+    "location": "Loading intercom",
+    "script": [
+      "WORKER: She needs help now. Stop talking and open the door!",
+      "CASSIDY: She says water is against the hatch. I need her position before we move it.",
+      "WORKER: Her position will not matter if she drowns!"
+    ],
+    "notes": "Direct testimony gives water side and person location. Connect to John A/B on the hatch and Cassidy B on the nearby valve. Other sources remain accessible."
+  },
+  {
+    "id": "2-cassidy-b",
+    "act": 2,
+    "character": "Cassidy",
+    "variant": "B",
+    "title": "Take the valve report",
+    "location": "Loading",
+    "script": [
+      "WORKER: You cannot send her back for a valve. She is injured!",
+      "CASSIDY: She says the open transfer valve is beside the Loading pipe. We can close it ourselves.",
+      "WORKER: Then who is getting her out?"
+    ],
+    "notes": "The worker’s report identifies the location but does not demand she operate it. Combine Prue A (bypass path) and Act 1 Prue A (tank rising); coordinate rescue or do one after the other."
+  },
+  {
+    "id": "3-john-a",
+    "act": 3,
+    "character": "John",
+    "variant": "A",
+    "title": "Move around the line",
+    "location": "tank gallery",
+    "script": [
+      "WORKER: Leave the analyzer. You cannot get it past that bracket!",
+      "JOHN: I will brace it and move the unit around. Keep everyone away from that pipe.",
+      "WORKER: If that line lets go, you will be right beside it!"
+    ],
+    "notes": "The analyzer is obstructed by a damaged line. Combine Cassidy A/B (it is a pressurized relief line) and Prue A (restart can increase pressure). Bracing alone is not proof of isolation."
+  },
+  {
+    "id": "3-john-b",
+    "act": 3,
+    "character": "John",
+    "variant": "B",
+    "title": "Use powered lift",
+    "location": "lift",
+    "script": [
+      "WORKER: Do not restore power until someone checks the pump controller!",
+      "JOHN: The manual lift is slow, and the analyzer is blocking the passage. We need the powered lift.",
+      "WORKER: That circuit may start more than the lift!"
+    ],
+    "notes": "The lift is useful but restoring its circuit can trigger the armed local restart. Compare Prue A/B. The manual crank, safe isolation, or another method can work."
+  },
+  {
+    "id": "3-prue-a",
+    "act": 3,
+    "character": "Prue",
+    "variant": "A",
+    "title": "Check the local restart",
+    "location": "local controller",
+    "script": [
+      "WORKER: Leave the power alone! Without it we cannot lift the analyzer.",
+      "PRUE: The schedule is canceled at Control, but this local controller is still armed. I am isolating the restart.",
+      "WORKER: Are you sure that will not shut the doors too?"
+    ],
+    "notes": "The local controller and diagram confirm an independent restart. Combine John B (power restored for lift) and Cassidy A (pressure-line condition) to understand the consequence."
+  },
+  {
+    "id": "3-prue-b",
+    "act": 3,
+    "character": "Prue",
+    "variant": "B",
+    "title": "Restore the circuit",
+    "location": "Control",
+    "script": [
+      "WORKER: The pump controller still has a light on. Do not reset that circuit!",
+      "PRUE: I canceled the schedule at Control. We need power to clear the analyzer; I am resetting it.",
+      "WORKER: What if that light is a separate restart?"
+    ],
+    "notes": "Control timer cancellation does not disable local restart; verify on the controller. Compare Prue A and John B. It is understandable to seek lift power."
+  },
+  {
+    "id": "3-cassidy-a",
+    "act": 3,
+    "character": "Cassidy",
+    "variant": "A",
+    "title": "Identify the damaged line",
+    "location": "tank gallery",
+    "script": [
+      "WORKER: If we do not open the relief valve, the pressure stays in the tank!",
+      "CASSIDY: That is the split relief line beside the analyzer. Check whether it is isolated before anyone moves it.",
+      "WORKER: And if there is no other way to relieve it?"
+    ],
+    "notes": "The split line beside the analyzer is the relief line. Pair with John A (physical obstruction) and Prue A (restart can add pressure). Check isolation using gauge and valve position; do not assume a zero reading alone proves safety."
+  },
+  {
+    "id": "3-cassidy-b",
+    "act": 3,
+    "character": "Cassidy",
+    "variant": "B",
+    "title": "Open the relief valve",
+    "location": "lab",
+    "script": [
+      "WORKER: That line is split. Opening it could flood the escape route!",
+      "CASSIDY: The tank is still under pressure, and the analyzer is in our way. I am cracking the relief valve.",
+      "WORKER: How can you know the pipe will hold?"
+    ],
+    "notes": "Pressure needs handling; a split relief line makes opening risky. Pair John A (obstructing line), Cassidy A (inspect/isolate), and the local gauge. Use separate outlet, repair or hold if sound."
+  }
+]
