@@ -1,0 +1,104 @@
+{
+  "status": "warden-only",
+  "handouts": [
+    {
+      "id": "H01",
+      "title": "Station map v3",
+      "location": "Control station plan / posted facility layout",
+      "clue": "Eight numbered airtight shutters; M-1 links Loading and Dock for personnel only.",
+      "url": "https://drive.google.com/file/d/1zP6eHXI8muxdsi04G5C_7Y3LP0ZXHAI9/view?usp=drivesdk",
+      "primary": [],
+      "related": [
+        "2-cassidy-a"
+      ]
+    },
+    {
+      "id": "H02",
+      "title": "Dock arrival / departure history",
+      "location": "At Dock on arrival — show automatically",
+      "clue": "An arrival repeats exactly one hour later with no departure between them; there is no commissioned audio about the loop.",
+      "url": "https://docs.google.com/document/d/1Ayce0pebPRomidBP1GHi_g9ywdKyFxCteu1wzaiGs5g/edit?usp=drivesdk",
+      "primary": [],
+      "related": []
+    },
+    {
+      "id": "H05",
+      "title": "S-06 / H-1 pressure-hatch diagnostics",
+      "location": "Inspect H-1 or Loading / search pressure-hatch archive",
+      "clue": "A large pressure differential makes opening hazardous. EQ-1 equalizes but does not stop inflow; M-1 is a people-only bypass. Future-dated 2237-311 19:12:36.",
+      "url": "https://docs.google.com/document/d/1h3nARvuILa_K10FrepR9T0Vd7MfacPleKuFrysT_OiM/edit?usp=drivesdk",
+      "primary": [
+        "2-john-a",
+        "2-john-b",
+        "2-cassidy-a"
+      ],
+      "related": [
+        "1-cassidy-a",
+        "2-cassidy-b"
+      ]
+    },
+    {
+      "id": "H09",
+      "title": "LOC-1 local restart controller",
+      "location": "Inspect LOC-1 or its diagram in Tank Gallery",
+      "clue": "Local auto-retry is independent of SCH-1. NORMAL STOP does not block restart; latched emergency isolation and motor-breaker lockout do.",
+      "url": "https://docs.google.com/document/d/1F-y6ui3SR7qBc2vhJWmlfYXfhf3ung6yaWQk67pA060/edit?usp=drivesdk",
+      "primary": [
+        "3-prue-a"
+      ],
+      "related": [
+        "3-prue-b",
+        "1-john-b"
+      ]
+    },
+    {
+      "id": "H10",
+      "title": "Nell's handwritten maintenance note",
+      "location": "Nell / Lab notes / investigate feed discrepancy",
+      "clue": "P-1 stopped and CV-1 closed, yet the tank continued rising and the transfer-flow indicator remained above zero.",
+      "url": "https://docs.google.com/document/d/1GM10Nm1kukGSBQCIVzw9byPLTcHFGgmzh2PixpksnmM/edit?usp=drivesdk",
+      "primary": [
+        "1-prue-a",
+        "1-prue-b",
+        "2-prue-a",
+        "2-prue-b"
+      ],
+      "related": [
+        "1-cassidy-b",
+        "2-cassidy-b"
+      ]
+    },
+    {
+      "id": "H11",
+      "title": "Cairn analyzer service tag",
+      "location": "Inspect the leased cart in Lab / equipment paperwork",
+      "clue": "Separate data and sample-water connections. Data removal loses Control live trend, not Gallery mechanical gauge; isolate and drain the tap before moving.",
+      "url": "https://drive.google.com/file/d/1vKbexdi0fPvV-fTph9q4YpzGwh6_V7w4/view?usp=drivesdk",
+      "primary": [
+        "3-john-a",
+        "3-john-b"
+      ],
+      "related": [
+        "3-prue-b"
+      ]
+    },
+    {
+      "id": "H14",
+      "title": "P-1 emergency-isolation placard",
+      "location": "Pump Room safety panel / S-04 and S-05 inspections",
+      "clue": "Emergency isolation cuts motor power immediately, warns for 10 seconds, then closes BOTH S-04 and S-05 / F-1. NORMAL STOP and breaker lockout leave shutters open.",
+      "url": "https://drive.google.com/file/d/1oWs7m9cyYu65uocud5Z-TVt2tT2KQpix/view?usp=drivesdk",
+      "primary": [
+        "1-john-a",
+        "1-john-b"
+      ],
+      "related": [
+        "3-prue-b"
+      ]
+    }
+  ],
+  "unpaired_clips": [
+    "3-cassidy-a",
+    "3-cassidy-b"
+  ]
+}
