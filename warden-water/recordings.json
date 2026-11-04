@@ -39,7 +39,29 @@
       "PRUE: Tank's rising! Feed meter's still moving!",
       "NELL: But Mara shut the intake. I SAW her!"
     ],
-    "notes": "The independent tank-level and common-header flow signals agree. Nell's doubt is credible but not a sensor diagnosis; she watched Mara close CV-1. The closed readout applies only to CV-1, not the whole manifold. Corroboration: Prue B, Cassidy B, Prue A in Act 2; inspect header and both branches."
+    "notes": "The independent tank-level and common-header flow signals agree. Nell's doubt is credible but not a sensor diagnosis; she watched Mara close CV-1. The closed readout applies only to CV-1, not the whole manifold. Corroboration: Prue B, Cassidy B, Prue A in Act 2; inspect header and both branches.",
+    "approved_voice_segments": [
+      {
+        "position": 1,
+        "speaker": "Nell",
+        "take": 2,
+        "script": "NELL: No. That sensor's wrong. Again.",
+        "file_name": "Nell_Scene-1_Compare-Readings_Line-1_Sensors-Wrong_take-2.wav",
+        "drive_file_id": "13pzixOsWfd_hEGjV_aYfLUAXecZtjg3k",
+        "drive_url": "https://drive.google.com/file/d/13pzixOsWfd_hEGjV_aYfLUAXecZtjg3k/view?usp=drivesdk",
+        "status": "APPROVED"
+      },
+      {
+        "position": 3,
+        "speaker": "Nell",
+        "take": 1,
+        "script": "NELL: But Mara shut the intake. I SAW her!",
+        "file_name": "Nell_Scene-1_Compare-Readings_Line-2_Mara-Shut-Intake_take-1.wav",
+        "drive_file_id": "16H0Eq5mhaWuWVuSUFp07mDfrgFfo3wsy",
+        "drive_url": "https://drive.google.com/file/d/16H0Eq5mhaWuWVuSUFp07mDfrgFfo3wsy/view?usp=drivesdk",
+        "status": "APPROVED"
+      }
+    ]
   },
   {
     "id": "1-prue-b",
@@ -53,7 +75,29 @@
       "PRUE: That's just CV-1. What else is there?",
       "NELL: I... don't know. It's still rising!"
     ],
-    "notes": "The readout is accurate for CV-1 but not comprehensive. The exchange identifies CV-1 as the displayed valve but does not establish the other feed or prescribe an operation. Corroboration: Prue A, Cassidy B, Act 2 Prue A/B; the piping diagram is inspectable."
+    "notes": "The readout is accurate for CV-1 but not comprehensive. The exchange identifies CV-1 as the displayed valve but does not establish the other feed or prescribe an operation. Corroboration: Prue A, Cassidy B, Act 2 Prue A/B; the piping diagram is inspectable.",
+    "approved_voice_segments": [
+      {
+        "position": 1,
+        "speaker": "Nell",
+        "take": 2,
+        "script": "NELL: Control says CLOSED! That level can't be right!",
+        "file_name": "Nell_Scene-2_Read-Display_Line-1_Control-Says-Closed_take-2.wav",
+        "drive_file_id": "1yMIHNEf8KNTtlz0dWFqeZ1Vz_2na9IFH",
+        "drive_url": "https://drive.google.com/file/d/1yMIHNEf8KNTtlz0dWFqeZ1Vz_2na9IFH/view?usp=drivesdk",
+        "status": "APPROVED"
+      },
+      {
+        "position": 3,
+        "speaker": "Nell",
+        "take": 2,
+        "script": "NELL: I... don't know. It's still rising!",
+        "file_name": "Nell_Scene-2_Read-Display_Line-2_I-Dont-Know-Still-Rising_take-2.wav",
+        "drive_file_id": "1nLp2d2Uvq6t8xDtJG6nWAbTQdMr_SYXV",
+        "drive_url": "https://drive.google.com/file/d/1nLp2d2Uvq6t8xDtJG6nWAbTQdMr_SYXV/view?usp=drivesdk",
+        "status": "APPROVED"
+      }
+    ]
   },
   {
     "id": "1-cassidy-a",
@@ -81,7 +125,29 @@
       "CASSIDY: She's near a handwheel! Says it's deafening!",
       "NELL: But the intake's shut... isn't it?"
     ],
-    "notes": "The roar suggests water moving near a handwheel in Loading; it does not identify which pipe or where it feeds. Corroboration: Prue A/B, Act 2 Prue A and Cassidy B, local labels/flow indication."
+    "notes": "The roar suggests water moving near a handwheel in Loading; it does not identify which pipe or where it feeds. Corroboration: Prue A/B, Act 2 Prue A and Cassidy B, local labels/flow indication.",
+    "approved_voice_segments": [
+      {
+        "position": 1,
+        "speaker": "Nell",
+        "take": 1,
+        "script": "NELL: Hear that ROAR? On Tavi's line?",
+        "file_name": "Nell_Scene-3_Follow-Sound_Line-1_Hear-That-Roar_take-1.wav",
+        "drive_file_id": "1b8Np-bL2gHKA8HLCprjIM6vEE_LwyZeA",
+        "drive_url": "https://drive.google.com/file/d/1b8Np-bL2gHKA8HLCprjIM6vEE_LwyZeA/view?usp=drivesdk",
+        "status": "APPROVED"
+      },
+      {
+        "position": 3,
+        "speaker": "Nell",
+        "take": 1,
+        "script": "NELL: But the intake's shut... isn't it?",
+        "file_name": "Nell_Scene-3_Follow-Sound_Line-2_Intakes-Shut_take-1.wav",
+        "drive_file_id": "11O31V4HdB83CSdwAimUg185_T8meQRLF",
+        "drive_url": "https://drive.google.com/file/d/11O31V4HdB83CSdwAimUg185_T8meQRLF/view?usp=drivesdk",
+        "status": "APPROVED"
+      }
+    ]
   },
   {
     "id": "2-john-a",
@@ -95,7 +161,29 @@
       "JOHN: Hang on! The pressure's holding it shut!",
       "TAVI: I don't HAVE time!"
     ],
-    "notes": "This future shows dangerous pressure across S-06 / H-1, not the Pump Room's fire-isolation shutters. H05 explains EQ-1 equalization, and M-1 offers a person-only alternate exit. Neither solution is mandatory; let players use another sound plan. Corroboration: John B, Cassidy A, H05."
+    "notes": "This future shows dangerous pressure across S-06 / H-1, not the Pump Room's fire-isolation shutters. H05 explains EQ-1 equalization, and M-1 offers a person-only alternate exit. Neither solution is mandatory; let players use another sound plan. Corroboration: John B, Cassidy A, H05.",
+    "approved_voice_segments": [
+      {
+        "position": 1,
+        "speaker": "Tavi",
+        "take": 1,
+        "script": "TAVI: John! It's at my knees! OPEN IT!",
+        "file_name": "Tavi_01_John_at_my_knees_open_it_take-1.wav",
+        "drive_file_id": "1FtHosq4ZriTs0tmPNyDHlzvFSfoOQ7iC",
+        "drive_url": "https://drive.google.com/file/d/1FtHosq4ZriTs0tmPNyDHlzvFSfoOQ7iC/view?usp=drivesdk",
+        "status": "APPROVED"
+      },
+      {
+        "position": 3,
+        "speaker": "Tavi",
+        "take": 1,
+        "script": "TAVI: I don't HAVE time!",
+        "file_name": "Tavi_02_I_dont_have_time_take-1.wav",
+        "drive_file_id": "1z4KKm12pvkMMNcIfzMtIiG3p-lO-m5Hn",
+        "drive_url": "https://drive.google.com/file/d/1z4KKm12pvkMMNcIfzMtIiG3p-lO-m5Hn/view?usp=drivesdk",
+        "status": "APPROVED"
+      }
+    ]
   },
   {
     "id": "2-john-b",
@@ -151,7 +239,29 @@
       "CASSIDY: Look around! Anything else?!",
       "TAVI: There's something overhead—wait! A hatch!"
     ],
-    "notes": "Tavi notices an overhead hatch, suggesting an alternate way out without proving where it leads. The actual M-1 crawlway is charted on the station map, remains initially reachable, and leads to Dock. If PCs guide Tavi there now, she can leave; no mandatory H-1 puzzle. Corroboration: Cassidy A in Act 1, John A/B in Act 2, map and M-1 hatch."
+    "notes": "Tavi notices an overhead hatch, suggesting an alternate way out without proving where it leads. The actual M-1 crawlway is charted on the station map, remains initially reachable, and leads to Dock. If PCs guide Tavi there now, she can leave; no mandatory H-1 puzzle. Corroboration: Cassidy A in Act 1, John A/B in Act 2, map and M-1 hatch.",
+    "approved_voice_segments": [
+      {
+        "position": 1,
+        "speaker": "Tavi",
+        "take": 2,
+        "script": "TAVI: It's stuck! Water's pushing the hatch!",
+        "file_name": "Tavi_03_stuck_waters_pushing_hatch_take-2.wav",
+        "drive_file_id": "1RzJlMHMa3hTVBuhFL2OjiplokyVvlLvK",
+        "drive_url": "https://drive.google.com/file/d/1RzJlMHMa3hTVBuhFL2OjiplokyVvlLvK/view?usp=drivesdk",
+        "status": "APPROVED"
+      },
+      {
+        "position": 3,
+        "speaker": "Tavi",
+        "take": 2,
+        "script": "TAVI: There's something overhead—wait! A hatch!",
+        "file_name": "Tavi_04_something_overhead_a_hatch_take-2.wav",
+        "drive_file_id": "16QW2lVTRuryy0lmzGVDBEvIs3d6D-DNY",
+        "drive_url": "https://drive.google.com/file/d/16QW2lVTRuryy0lmzGVDBEvIs3d6D-DNY/view?usp=drivesdk",
+        "status": "APPROVED"
+      }
+    ]
   },
   {
     "id": "2-cassidy-b",
@@ -165,7 +275,29 @@
       "CASSIDY: I've got you! Move! What did you see?!",
       "TAVI: That wheel! By the crates—WIDE OPEN!"
     ],
-    "notes": "Tavi reports an open handwheel near crates, without identifying its function or the full causal path. Players must relate its label and flow indicator to the tank header and CV-1 readout. Corroboration: Cassidy B in Act 1, Prue A/B in Act 2, physical line trace."
+    "notes": "Tavi reports an open handwheel near crates, without identifying its function or the full causal path. Players must relate its label and flow indicator to the tank header and CV-1 readout. Corroboration: Cassidy B in Act 1, Prue A/B in Act 2, physical line trace.",
+    "approved_voice_segments": [
+      {
+        "position": 1,
+        "speaker": "Tavi",
+        "take": 1,
+        "script": "TAVI: Cassidy! Please, it's coming up!",
+        "file_name": "Tavi_05_Cassidy_please_its_coming_up_take-1.wav",
+        "drive_file_id": "1dLoX9yF7B3PoZHqqrXMIHo3rrpAXnvS4",
+        "drive_url": "https://drive.google.com/file/d/1dLoX9yF7B3PoZHqqrXMIHo3rrpAXnvS4/view?usp=drivesdk",
+        "status": "APPROVED"
+      },
+      {
+        "position": 3,
+        "speaker": "Tavi",
+        "take": 2,
+        "script": "TAVI: That wheel! By the crates—WIDE OPEN!",
+        "file_name": "Tavi_06_wheel_by_crates_wide_open_take-2.wav",
+        "drive_file_id": "1FZanrw3Ok62DEXbxD5CR0IkFWn2JzZeT",
+        "drive_url": "https://drive.google.com/file/d/1FZanrw3Ok62DEXbxD5CR0IkFWn2JzZeT/view?usp=drivesdk",
+        "status": "APPROVED"
+      }
+    ]
   },
   {
     "id": "3-john-a",
@@ -235,7 +367,29 @@
       "CASSIDY: The pipe's split! Where's that pressure go?!",
       "NELL: Not through THERE! It'll burst!"
     ],
-    "notes": "RV-1 is visibly damaged; Cassidy recognizes the split and Nell warns against using it, without establishing how to relieve pressure safely. A stable pressure hold may need no drainage; OUT-1 exists but receiver capacity and path must be checked. Corroboration: Cassidy B, Gallery gauges, labels, pump/feed clues."
+    "notes": "RV-1 is visibly damaged; Cassidy recognizes the split and Nell warns against using it, without establishing how to relieve pressure safely. A stable pressure hold may need no drainage; OUT-1 exists but receiver capacity and path must be checked. Corroboration: Cassidy B, Gallery gauges, labels, pump/feed clues.",
+    "approved_voice_segments": [
+      {
+        "position": 1,
+        "speaker": "Nell",
+        "take": 2,
+        "script": "NELL: STOP! Don't open that!",
+        "file_name": "Nell_Scene-4_Inspect-Relief-Line_Line-1_Dont-Open-That_take-2.wav",
+        "drive_file_id": "1b3OmkwvdW80X5QQljk46rOgDMAH_5nHi",
+        "drive_url": "https://drive.google.com/file/d/1b3OmkwvdW80X5QQljk46rOgDMAH_5nHi/view?usp=drivesdk",
+        "status": "APPROVED"
+      },
+      {
+        "position": 3,
+        "speaker": "Nell",
+        "take": 1,
+        "script": "NELL: Not through THERE! It'll burst!",
+        "file_name": "Nell_Scene-4_Inspect-Relief-Line_Line-2_Not-Through-There_take-1.wav",
+        "drive_file_id": "12D-GBToG-BXBBygf_tkWwezqwHjfdvtU",
+        "drive_url": "https://drive.google.com/file/d/12D-GBToG-BXBBygf_tkWwezqwHjfdvtU/view?usp=drivesdk",
+        "status": "APPROVED"
+      }
+    ]
   },
   {
     "id": "3-cassidy-b",
@@ -249,6 +403,28 @@
       "CASSIDY: That outlet! Can't we dump it?!",
       "NELL: Into WHAT? Loading's already flooding!"
     ],
-    "notes": "A separate outlet is noticed, but Nell questions where its water would go; actual receiving capacity and destination remain unverified. The station's OUT-1 label, receiver markings and BV-2 conditions supply a sound method. There is no forced need to drain if the tank is safely held. Corroboration: Cassidy A, Prue A/B in Act 2, Loading receiver inspection."
+    "notes": "A separate outlet is noticed, but Nell questions where its water would go; actual receiving capacity and destination remain unverified. The station's OUT-1 label, receiver markings and BV-2 conditions supply a sound method. There is no forced need to drain if the tank is safely held. Corroboration: Cassidy A, Prue A/B in Act 2, Loading receiver inspection.",
+    "approved_voice_segments": [
+      {
+        "position": 1,
+        "speaker": "Nell",
+        "take": 1,
+        "script": "NELL: The needle's climbing. Cassidy—LOOK!",
+        "file_name": "Nell_Scene-5_Question-Outlet_Line-1_Needles-Climbing_take-1.wav",
+        "drive_file_id": "1Y1dZOZAJTYHgty7YSQv6Kcusam0azZQw",
+        "drive_url": "https://drive.google.com/file/d/1Y1dZOZAJTYHgty7YSQv6Kcusam0azZQw/view?usp=drivesdk",
+        "status": "APPROVED"
+      },
+      {
+        "position": 3,
+        "speaker": "Nell",
+        "take": 1,
+        "script": "NELL: Into WHAT? Loading's already flooding!",
+        "file_name": "Nell_Scene-5_Question-Outlet_Line-2_Loadings-Flooding_take-1.wav",
+        "drive_file_id": "1itqlOAImKCAfbBAfS98mxOOlB_IY-lA1",
+        "drive_url": "https://drive.google.com/file/d/1itqlOAImKCAfbBAfS98mxOOlB_IY-lA1/view?usp=drivesdk",
+        "status": "APPROVED"
+      }
+    ]
   }
 ]
