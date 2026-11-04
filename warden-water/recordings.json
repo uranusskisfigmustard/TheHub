@@ -11,7 +11,7 @@
       "JOHN: Ivo's under that shutter! It'll trap him!",
       "MARA: Then move him! MOVE!"
     ],
-    "notes": "The possible future shows Ivo beneath or near F-1 while P-1's cabinet smokes. It does not establish that he must be there now. Inspect the warning placard and stop indicator: an E-STOP latches P-1 off and closes **only F-1**. The crew can warn Ivo, isolate power, or route via Lab. Corroboration: John B, Cassidy A, the posted shutter indicator."
+    "notes": "One possible future catches Ivo near S-05 when P-1 EMERGENCY ISOLATION is activated. Motor power is inhibited immediately; the alarm and warning lights allow 10 seconds before BOTH S-04 and S-05 / F-1 close. The spoken 'HIT THE STOP' is colloquial; H14 identifies the actual control and consequences. PCs can warn or move Ivo, use NORMAL STOP, or lock out the motor breaker. No injury is inevitable."
   },
   {
     "id": "1-john-b",
@@ -25,7 +25,7 @@
       "JOHN: It's on FIRE! I'm hitting it!",
       "IVO: Then why's the water still running?!"
     ],
-    "notes": "A future P-1 stop can happen without stopping gravity-fed inflow. This is an **observation**, not evidence that E-STOP failed or software restarted it. F-1 may close; the water-feed question requires examining the header and both branches. Corroboration: Prue A/B, Cassidy B, gallery flow meter."
+    "notes": "The existing spoken lines do not uniquely identify which stop control John activates in this possible future. NORMAL STOP halts the motor without shutter closure but leaves SCH-1/LOC-1 able to request restart; EMERGENCY ISOLATION prevents restart and closes BOTH S-04 and S-05 / F-1 after a 10-second warning. Neither stops gravity-fed water through BV-2. Corroboration: H14, H10, Prue A/B."
   },
   {
     "id": "1-prue-a",
@@ -95,7 +95,7 @@
       "JOHN: Hang on! The pressure's holding it shut!",
       "TAVI: I don't HAVE time!"
     ],
-    "notes": "The future shows a dangerous pressure difference across **H-1**, not the fire shutter. John recognizes pressure against the hatch; the recording does not prescribe how to relieve it. The actual EQ-1 valve and gauge can be examined. M-1 remains a genuine alternative. Corroboration: John B and Cassidy A in Act 2, H-1 placard."
+    "notes": "This future shows dangerous pressure across S-06 / H-1, not the Pump Room's fire-isolation shutters. H05 explains EQ-1 equalization, and M-1 offers a person-only alternate exit. Neither solution is mandatory; let players use another sound plan. Corroboration: John B, Cassidy A, H05."
   },
   {
     "id": "2-john-b",
@@ -207,7 +207,7 @@
       "PRUE: Another controller! It's still ARMED!",
       "MARA: Prue... can it restart?"
     ],
-    "notes": "SCH-1 at Control and the physically separate LOC-1 local retry are independent **requests**, not overrides of latched E-STOP or locked motor supply. Prue notices an armed second controller, but Mara cannot tell whether it can restart the motor; inspecting the local schematic reveals actual logic. Corroboration: Prue B, P-1 isolation placard, local lamp and diagram."
+    "notes": "SCH-1 at Control and LOC-1 local auto-retry are independent start requests. Neither can override latched P-1 EMERGENCY ISOLATION or motor-breaker lockout; NORMAL STOP alone does not prevent restart. H09 displays the actual interlock state. Corroboration: Prue B and H14."
   },
   {
     "id": "3-prue-b",
@@ -221,7 +221,7 @@
       "PRUE: Cut the MAIN! That pump was going to blow!",
       "IVO: And now we're BLIND!"
     ],
-    "notes": "This possible branch illustrates **whole-site** power loss removing Control telemetry; it does not make motor-only breaker isolation impossible. The battery intercom and local mechanical gauge still work. A latched E-STOP or locked-out P-1 breaker safely prevents motor restart. Corroboration: John A, Prue A, power distribution labels, independent gauge."
+    "notes": "This branch illustrates WHOLE-SITE power loss blanking Control telemetry. Motor-only breaker lockout or P-1 EMERGENCY ISOLATION prevents motor restart without turning off all station instruments. Battery intercom and Gallery mechanical gauge remain. Corroboration: John A, Prue A, H09 and H11."
   },
   {
     "id": "3-cassidy-a",
