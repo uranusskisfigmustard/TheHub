@@ -1,0 +1,434 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#101827">
+  <title>Alternating Interval Timer</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #101827;
+      color: #eef3fb;
+      font-variant-numeric: tabular-nums;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; padding: 26px 16px 60px; }
+    main { max-width: 660px; margin: 0 auto; }
+    .eyebrow { color: #95b5d0; letter-spacing: .14em; text-transform: uppercase; font-size: .74rem; font-weight: 700; }
+    h1 { font-size: clamp(1.75rem, 6vw, 2.65rem); margin: 8px 0; line-height: 1.14; }
+    .subtitle { color: #a7b7cc; margin: 0 0 28px; line-height: 1.5; }
+    .panel { background: #172437; border: 1px solid #30435d; border-radius: 19px; padding: 22px; margin-top: 18px; }
+    .panel h2 { font-size: 1rem; margin: 0 0 16px; color: #d7e6fa; }
+    .clock-panel { text-align: center; padding-top: 28px; padding-bottom: 28px; }
+    .clock-label { color: #b7c6db; font-weight: 650; letter-spacing: .045em; }
+    .clock { font-size: clamp(4.8rem, 17vw, 7.3rem); line-height: 1.2; font-weight: 800; letter-spacing: -.055em; margin: 4px 0 18px; }
+    .bar { height: 12px; width: 100%; background: #2b3a50; border-radius: 50px; overflow: hidden; }
+    .fill { height: 100%; width: 0; background: #59d5be; transition: width .1s linear; }
+    .stage { margin: 25px 0 8px; text-transform: uppercase; font-size: .95rem; letter-spacing: .1em; font-weight: 750; color: #69e6d3; }
+    .stage.b { color: #ffce78; }
+    .stage-clock { font-size: clamp(2.8rem, 10vw, 4.1rem); font-weight: 760; }
+    .next { margin: 8px 0 16px; color: #a9bed8; }
+    .stage-bar { max-width: 480px; margin: 0 auto; height: 8px; }
+    .stage-bar .fill { background: #6fd9ef; }
+    .stage-bar .fill.b { background: #ffce78; }
+    .session-state { min-height: 24px; margin: 20px 0 0; color: #a6b9d1; font-size: .9rem; }
+    .actions { display: flex; gap: 12px; margin-top: 18px; }
+    button { border: 1px solid #485b75; background: #24354c; color: #f3f7ff; border-radius: 13px; padding: 16px 22px; font: inherit; font-weight: 750; cursor: pointer; }
+    button:hover:not(:disabled) { filter: brightness(1.13); }
+    button:focus-visible, input:focus-visible { outline: 3px solid #84bcff; outline-offset: 3px; }
+    button:disabled { opacity: .45; cursor: not-allowed; }
+    .primary { background: #65dfc2; color: #102c2e; border-color: #65dfc2; flex: 2; }
+    .secondary { flex: 1; }
+    .settings-grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 16px; }
+    .time-group { border: 1px solid #384b65; border-radius: 14px; padding: 14px; min-width: 0; }
+    .time-group legend { padding: 0 5px; font-weight: 720; color: #dfebfc; }
+    .inputs { display: flex; align-items: flex-end; gap: 7px; }
+    label { display: flex; flex-direction: column; color: #b6c9df; font-size: .8rem; gap: 7px; min-width: 0; flex: 1; }
+    input[type=number] { width: 100%; min-width: 0; border-radius: 9px; border: 1px solid #526782; background: #0e1929; color: #fff; padding: 11px 6px; font: inherit; font-size: 1.18rem; font-weight: 720; text-align: center; }
+    input:disabled { opacity: .65; }
+    .settings-footer { display: flex; align-items: center; flex-wrap: wrap; justify-content: space-between; gap: 12px; margin-top: 18px; }
+    .sound { display: flex; flex-direction: row; align-items: center; gap: 10px; cursor: pointer; font-size: .95rem; color: #dbe7f8; }
+    .sound input { accent-color: #65dfc2; width: 21px; height: 21px; }
+    .sound-test { padding: 9px 15px; font-size: .9rem; }
+    .hint { color: #9cb0c9; font-size: .9rem; line-height: 1.6; margin: 15px 3px; }
+    .visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+    @media (max-width: 560px) {
+      .panel { padding: 17px; }
+      .settings-grid { grid-template-columns: 1fr; gap: 13px; }
+      .time-group { padding: 13px; }
+      .inputs { max-width: 290px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .fill { transition: none; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <div class="eyebrow">Other Projects / Timer</div>
+  <h1>Alternating Interval Timer</h1>
+  <p class="subtitle">Set one overall countdown. Two shorter timers take turns until the overall time runs out. A beep signals every switch.</p>
+
+  <section class="panel clock-panel" aria-label="Live timer">
+    <div class="clock-label">OVERALL TIME REMAINING</div>
+    <div id="mainClock" class="clock" role="timer" aria-live="off">05:00</div>
+    <div class="bar" role="progressbar" aria-label="Overall timer progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="overallProgress">
+      <div class="fill" id="overallFill"></div>
+    </div>
+
+    <div id="stageLabel" class="stage">Interval A · Round 1</div>
+    <div id="stageClock" class="stage-clock" role="timer" aria-live="off">00:20</div>
+    <div id="nextLabel" class="next">Next: Interval B (00:30)</div>
+    <div class="bar stage-bar" role="progressbar" aria-label="Current interval progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="stageProgress">
+      <div class="fill" id="stageFill"></div>
+    </div>
+    <div id="sessionState" class="session-state" role="status" aria-live="polite">Ready to start</div>
+  </section>
+
+  <div class="actions">
+    <button type="button" id="startBtn" class="primary">Start</button>
+    <button type="button" id="resetBtn" class="secondary">Reset</button>
+  </div>
+
+  <section class="panel" aria-labelledby="settingsHeading">
+    <h2 id="settingsHeading">Timer settings</h2>
+    <div class="settings-grid">
+      <fieldset class="time-group">
+        <legend>Overall duration</legend>
+        <div class="inputs">
+          <label>Minutes<input id="mainMinutes" type="number" min="0" max="999" step="1" value="5" inputmode="numeric"></label>
+          <label>Seconds<input id="mainSeconds" type="number" min="0" max="59" step="1" value="0" inputmode="numeric"></label>
+        </div>
+      </fieldset>
+      <fieldset class="time-group">
+        <legend>Interval A</legend>
+        <div class="inputs">
+          <label>Seconds<input id="aSeconds" type="number" min="1" max="3600" step="1" value="20" inputmode="numeric"></label>
+        </div>
+      </fieldset>
+      <fieldset class="time-group">
+        <legend>Interval B</legend>
+        <div class="inputs">
+          <label>Seconds<input id="bSeconds" type="number" min="1" max="3600" step="1" value="30" inputmode="numeric"></label>
+        </div>
+      </fieldset>
+    </div>
+    <div class="settings-footer">
+      <label class="sound"><input id="soundEnabled" type="checkbox" checked> Beep at each switch</label>
+      <button type="button" id="testSound" class="sound-test">Test beep</button>
+    </div>
+  </section>
+
+  <p class="hint">Example: 5:00 overall, A = 20 seconds, B = 30 seconds. The timer runs A → beep → B → beep → A, repeating until five minutes have elapsed. The overall timer takes priority if the final interval is cut short. Keep this page open and your device audible; mobile browsers may suppress sounds when the screen is locked or the tab is in the background.</p>
+  <p id="announcer" class="visually-hidden" aria-live="polite" aria-atomic="true"></p>
+</main>
+<script>
+(function () {
+  "use strict";
+
+  const els = {
+    mainMinutes: document.getElementById('mainMinutes'),
+    mainSeconds: document.getElementById('mainSeconds'),
+    aSeconds: document.getElementById('aSeconds'),
+    bSeconds: document.getElementById('bSeconds'),
+    soundEnabled: document.getElementById('soundEnabled'),
+    testSound: document.getElementById('testSound'),
+    startBtn: document.getElementById('startBtn'),
+    resetBtn: document.getElementById('resetBtn'),
+    mainClock: document.getElementById('mainClock'),
+    stageClock: document.getElementById('stageClock'),
+    stageLabel: document.getElementById('stageLabel'),
+    nextLabel: document.getElementById('nextLabel'),
+    sessionState: document.getElementById('sessionState'),
+    overallFill: document.getElementById('overallFill'),
+    stageFill: document.getElementById('stageFill'),
+    overallProgress: document.getElementById('overallProgress'),
+    stageProgress: document.getElementById('stageProgress'),
+    announcer: document.getElementById('announcer')
+  };
+  const fields = [els.mainMinutes, els.mainSeconds, els.aSeconds, els.bSeconds];
+  let state = 'idle';
+  let config = null;
+  let elapsedBeforePause = 0;
+  let startedAt = 0;
+  let lastSegment = 0;
+  let loopId = null;
+  let audio = null;
+  let wakeLock = null;
+
+  function clamp(value, min, max, fallback) {
+    const number = Number(value);
+    return Number.isFinite(number) ? Math.max(min, Math.min(max, Math.trunc(number))) : fallback;
+  }
+  function readConfig() {
+    const mins = clamp(els.mainMinutes.value, 0, 999, 5);
+    const secs = clamp(els.mainSeconds.value, 0, 59, 0);
+    return {
+      total: (mins * 60 + secs) * 1000,
+      a: clamp(els.aSeconds.value, 1, 3600, 20) * 1000,
+      b: clamp(els.bSeconds.value, 1, 3600, 30) * 1000
+    };
+  }
+  function formatTime(milliseconds) {
+    const s = Math.max(0, Math.ceil(milliseconds / 1000));
+    return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
+  }
+  function currentElapsed() {
+    const ongoing = state === 'running' ? Math.max(0, Date.now() - startedAt) : 0;
+    return Math.min(config.total, elapsedBeforePause + ongoing);
+  }
+  function phaseAt(elapsed) {
+    const cycleLength = config.a + config.b;
+    const cycle = Math.floor(elapsed / cycleLength);
+    const within = elapsed % cycleLength;
+    const isA = within < config.a;
+    const segment = cycle * 2 + (isA ? 0 : 1);
+    return {
+      cycle: cycle + 1,
+      segment: segment,
+      isA: isA,
+      duration: isA ? config.a : config.b,
+      left: isA ? config.a - within : cycleLength - within
+    };
+  }
+  function setProgress(node, fill, percent) {
+    const p = Math.max(0, Math.min(100, percent));
+    node.setAttribute('aria-valuenow', String(Math.round(p)));
+    fill.style.width = p.toFixed(3) + '%';
+  }
+  function paint() {
+    const c = config || readConfig();
+    if (c.total <= 0) return;
+    const elapsed = config ? currentElapsed() : 0;
+    const remaining = c.total - elapsed;
+    els.mainClock.textContent = formatTime(remaining);
+    setProgress(els.overallProgress, els.overallFill, elapsed / c.total * 100);
+
+    if (state === 'finished') {
+      els.stageLabel.textContent = 'Session complete';
+      els.stageLabel.className = 'stage';
+      els.stageClock.textContent = '00:00';
+      els.nextLabel.textContent = 'All intervals finished';
+      setProgress(els.stageProgress, els.stageFill, 100);
+      els.stageFill.className = 'fill';
+      return;
+    }
+
+    const cycleLength = c.a + c.b;
+    const within = elapsed % cycleLength;
+    const isA = within < c.a;
+    const phaseDuration = isA ? c.a : c.b;
+    const phaseElapsed = isA ? within : within - c.a;
+    const phaseLeft = Math.min(remaining, phaseDuration - phaseElapsed);
+    const round = Math.floor(elapsed / cycleLength) + 1;
+    els.stageLabel.textContent = 'Interval ' + (isA ? 'A' : 'B') + ' · Round ' + round;
+    els.stageLabel.className = isA ? 'stage' : 'stage b';
+    els.stageClock.textContent = formatTime(phaseLeft);
+    els.nextLabel.textContent = 'Next: Interval ' + (isA ? 'B' : 'A') + ' (' + formatTime(isA ? c.b : c.a) + ')';
+    els.stageFill.className = isA ? 'fill' : 'fill b';
+    setProgress(els.stageProgress, els.stageFill, phaseElapsed / phaseDuration * 100);
+  }
+  function unlockAudio() {
+    if (!els.soundEnabled.checked) return;
+    try {
+      if (!audio) {
+        const Context = window.AudioContext || window.webkitAudioContext;
+        if (Context) audio = new Context();
+      }
+      if (audio && audio.state === 'suspended') audio.resume().catch(function () {});
+    } catch (error) {
+      audio = null;
+    }
+  }
+  function tone(frequency, delay, seconds) {
+    if (!els.soundEnabled.checked || !audio || audio.state !== 'running') return;
+    try {
+      const start = audio.currentTime + delay;
+      const osc = audio.createOscillator();
+      const gain = audio.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = frequency;
+      gain.gain.setValueAtTime(0.0001, start);
+      gain.gain.exponentialRampToValueAtTime(0.26, start + 0.012);
+      gain.gain.exponentialRampToValueAtTime(0.0001, start + seconds);
+      osc.connect(gain);
+      gain.connect(audio.destination);
+      osc.start(start);
+      osc.stop(start + seconds + 0.015);
+    } catch (error) {
+      // Sound is optional: the visual timer must continue uninterrupted.
+    }
+  }
+  function signalSwitch(isA) {
+    tone(isA ? 760 : 980, 0, 0.15);
+  }
+  function signalFinish() {
+    tone(720, 0, 0.13);
+    tone(930, 0.18, 0.13);
+    tone(1170, 0.36, 0.23);
+  }
+  async function acquireWakeLock() {
+    if (!('wakeLock' in navigator) || state !== 'running' || document.visibilityState !== 'visible' || wakeLock) return;
+    try { wakeLock = await navigator.wakeLock.request('screen'); }
+    catch (error) { wakeLock = null; }
+  }
+  function releaseWakeLock() {
+    if (wakeLock) {
+      const previous = wakeLock;
+      wakeLock = null;
+      previous.release().catch(function () {});
+    }
+  }
+  function lockSettings(locked) {
+    fields.forEach(function (field) { field.disabled = locked; });
+  }
+  function stopLoop() {
+    if (loopId !== null) {
+      clearInterval(loopId);
+      loopId = null;
+    }
+  }
+  function finish() {
+    state = 'finished';
+    elapsedBeforePause = config.total;
+    stopLoop();
+    releaseWakeLock();
+    els.startBtn.textContent = 'Start again';
+    els.sessionState.textContent = 'Finished';
+    els.announcer.textContent = 'Overall timer finished';
+    lockSettings(false);
+    signalFinish();
+    paint();
+  }
+  function tick() {
+    if (state !== 'running') return;
+    const elapsed = currentElapsed();
+    if (elapsed >= config.total) {
+      finish();
+      return;
+    }
+    const phase = phaseAt(elapsed);
+    if (phase.segment !== lastSegment) {
+      lastSegment = phase.segment;
+      signalSwitch(phase.isA);
+      els.sessionState.textContent = 'Running · Interval ' + (phase.isA ? 'A' : 'B');
+      els.announcer.textContent = 'Switch to interval ' + (phase.isA ? 'A' : 'B');
+    }
+    paint();
+  }
+  function begin() {
+    config = readConfig();
+    if (config.total < 1000) {
+      els.sessionState.textContent = 'Set an overall duration of at least one second';
+      els.mainMinutes.focus();
+      return;
+    }
+    if (state === 'idle' || state === 'finished') {
+      elapsedBeforePause = 0;
+      lastSegment = 0;
+    }
+    state = 'running';
+    startedAt = Date.now();
+    unlockAudio();
+    lockSettings(true);
+    els.startBtn.textContent = 'Pause';
+    els.sessionState.textContent = 'Running · Interval ' + (phaseAt(elapsedBeforePause).isA ? 'A' : 'B');
+    stopLoop();
+    loopId = setInterval(tick, 80);
+    acquireWakeLock();
+    tick();
+  }
+  function pause() {
+    elapsedBeforePause = currentElapsed();
+    state = 'paused';
+    stopLoop();
+    releaseWakeLock();
+    els.startBtn.textContent = 'Resume';
+    els.sessionState.textContent = 'Paused';
+    els.announcer.textContent = 'Timer paused';
+    paint();
+  }
+  function reset() {
+    stopLoop();
+    releaseWakeLock();
+    state = 'idle';
+    config = null;
+    elapsedBeforePause = 0;
+    startedAt = 0;
+    lastSegment = 0;
+    lockSettings(false);
+    els.startBtn.textContent = 'Start';
+    els.sessionState.textContent = 'Ready to start';
+    els.announcer.textContent = 'Timer reset';
+    paint();
+  }
+  function persistSettings() {
+    try {
+      localStorage.setItem('alternating-interval-timer-settings', JSON.stringify({
+        minutes: els.mainMinutes.value,
+        seconds: els.mainSeconds.value,
+        a: els.aSeconds.value,
+        b: els.bSeconds.value,
+        sound: els.soundEnabled.checked
+      }));
+    } catch (error) {}
+  }
+  function restoreSettings() {
+    try {
+      const saved = JSON.parse(localStorage.getItem('alternating-interval-timer-settings') || 'null');
+      if (!saved) return;
+      els.mainMinutes.value = clamp(saved.minutes, 0, 999, 5);
+      els.mainSeconds.value = clamp(saved.seconds, 0, 59, 0);
+      els.aSeconds.value = clamp(saved.a, 1, 3600, 20);
+      els.bSeconds.value = clamp(saved.b, 1, 3600, 30);
+      els.soundEnabled.checked = saved.sound !== false;
+    } catch (error) {}
+  }
+  els.startBtn.addEventListener('click', function () {
+    if (state === 'running') pause();
+    else begin();
+  });
+  els.resetBtn.addEventListener('click', reset);
+  fields.forEach(function (field) {
+    field.addEventListener('input', function () {
+      if (state !== 'idle') return;
+      persistSettings();
+      paint();
+    });
+    field.addEventListener('change', function () {
+      if (state !== 'idle') return;
+      const c = readConfig();
+      els.mainMinutes.value = Math.floor(c.total / 60000);
+      els.mainSeconds.value = (c.total / 1000) % 60;
+      els.aSeconds.value = c.a / 1000;
+      els.bSeconds.value = c.b / 1000;
+      persistSettings();
+      paint();
+    });
+  });
+  els.soundEnabled.addEventListener('change', function () {
+    persistSettings();
+    if (els.soundEnabled.checked) unlockAudio();
+  });
+  els.testSound.addEventListener('click', function () {
+    unlockAudio();
+    // AudioContext.resume() may complete asynchronously on the first gesture.
+    if (audio) {
+      Promise.resolve(audio.resume()).then(function () { tone(930, 0, 0.19); }).catch(function () {});
+    }
+  });
+  document.addEventListener('visibilitychange', function () {
+    if (state === 'running') {
+      tick();
+      if (document.visibilityState === 'visible') acquireWakeLock();
+    }
+  });
+  window.addEventListener('pagehide', releaseWakeLock);
+  restoreSettings();
+  paint();
+})();
+</script>
+</body>
+</html>
