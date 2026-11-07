@@ -23,7 +23,7 @@
     "script": [
       "IVO: John! Wait—I'm at the shutter!",
       "JOHN: It's on FIRE! I'm hitting it!",
-      "IVO: Then why's the water still running?!"
+      "IVO: The pump stopped—but the water's still running!"
     ],
     "notes": "The existing spoken lines do not uniquely identify which stop control John activates in this possible future. NORMAL STOP halts the motor without shutter closure but leaves SCH-1/LOC-1 able to request restart; EMERGENCY ISOLATION prevents restart and closes BOTH S-04 and S-05 / F-1 after a 10-second warning. Neither stops gravity-fed water through BV-2. Corroboration: H14, H10, Prue A/B."
   },
