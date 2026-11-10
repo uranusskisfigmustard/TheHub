@@ -4,6 +4,189 @@
   "publicationMode": "warden-curated",
   "posts": [
     {
+      "id": "hub-community-20261109-safety",
+      "visibility": "PUBLIC",
+      "date": "2237-313",
+      "category": "local",
+      "typeLabel": "WORK / LOCAL",
+      "title": "So… is it actually safe to walk through there now?",
+      "source": "last_cart_home",
+      "summary": "Residents discuss the route after the trouble and what safety means now.",
+      "body": [
+        "I’m not asking for names or a play-by-play. I just want to know if people are still getting jumped on that route.",
+        "Been taking the long way back from shift for a while and I’d like to stop doing that."
+      ],
+      "comments": [
+        {
+          "by": "lane_ghost",
+          "date": "2237-313",
+          "text": "heard the group causing trouble got dealt with. don’t know more than that"
+        },
+        {
+          "by": "last_cart_home",
+          "date": "2237-313",
+          "text": "what exactly do you mean by ‘dealt with’?"
+        },
+        {
+          "by": "shift_change",
+          "date": "2237-313",
+          "text": "I was at the meeting. Some of them were stopped, yes. That doesn’t mean anyone can promise you nothing else will ever happen."
+        },
+        {
+          "by": "dockrat",
+          "date": "2237-313",
+          "text": "thank you. ‘it’s safe now’ and ‘the people we knew about aren’t out there’ are different statements"
+        },
+        {
+          "by": "tinmug",
+          "date": "2237-313",
+          "text": "still feels better knowing somebody finally stepped in"
+        },
+        {
+          "by": "late_lift",
+          "date": "2237-313",
+          "text": "it does. also would feel better if we had a plan that doesn’t depend on the same three people being nearby next time"
+        },
+        {
+          "by": "tinmug",
+          "date": "2237-313",
+          "text": "sure but can we let them do a good thing without immediately handing them another job"
+        }
+      ]
+    },
+    {
+      "id": "hub-community-20261109-decisions",
+      "visibility": "PUBLIC",
+      "date": "2237-313",
+      "category": "discussion",
+      "typeLabel": "LOCAL / DISCUSSION",
+      "title": "Can we stop deciding this in comments?",
+      "source": "heard_enough",
+      "summary": "Residents disagree about accountability and who gets a say.",
+      "body": [
+        "I know people are worried. I am too.",
+        "But I’m seeing a lot of ‘we should make them do this’ from people who weren’t at the meeting. There are people trying to work out what happens next. Let them talk to the people involved and the people who were hurt."
+      ],
+      "comments": [
+        {
+          "by": "nightwalk",
+          "date": "2237-313",
+          "text": "being at the meeting isn’t the only reason someone might have an opinion. some of us still have to use that route"
+        },
+        {
+          "by": "heard_enough",
+          "date": "2237-313",
+          "text": "fair. i mean we shouldn’t pretend a comment here is a decision"
+        },
+        {
+          "by": "bolted_down",
+          "date": "2237-313",
+          "text": "somebody attacked people. there have to be consequences. otherwise what are we saying to the next person who gets cornered"
+        },
+        {
+          "by": "sparehands",
+          "date": "2237-313",
+          "text": "consequences can include making things right. doesn’t have to mean throwing everyone away"
+        },
+        {
+          "by": "bolted_down",
+          "date": "2237-313",
+          "text": "and if they don’t want to make it right?"
+        },
+        {
+          "by": "sparehands",
+          "date": "2237-313",
+          "text": "then that matters too. i’m not saying pretend it didn’t happen"
+        },
+        {
+          "by": "quietbadge",
+          "date": "2237-313",
+          "text": "can we leave names and kids out of this please"
+        },
+        {
+          "by": "old_handrail",
+          "date": "2237-313",
+          "text": "I was uncomfortable seeing someone hit after they were already restrained. I’m glad the attacks stopped. Both things can be true."
+        },
+        {
+          "by": "tinmug",
+          "date": "2237-313",
+          "text": "i wasn’t there and i’m not going to decide what happened from this thread"
+        },
+        {
+          "by": "floorledger",
+          "date": "2237-313",
+          "text": "probably the smartest thing anyone’s said here"
+        }
+      ]
+    },
+    {
+      "id": "hub-community-20261109-care",
+      "visibility": "PUBLIC",
+      "date": "2237-313",
+      "category": "discussion",
+      "typeLabel": "COMMUNITY / DISCUSSION",
+      "title": "What happens to the two who needed help?",
+      "source": "same_hall",
+      "summary": "Neighbors debate care, accountability and what comes next for two people.",
+      "body": [
+        "At the meeting, people talked about two of the people caught up in all this who were having a hard time before any of it started.",
+        "I don’t think ‘they needed help’ means nobody they hurt matters. I also don’t think we’re going to fix anything by acting like those circumstances don’t matter. What would people actually want to see happen?"
+      ],
+      "comments": [
+        {
+          "by": "longshift",
+          "date": "2237-313",
+          "text": "help them get work, if they want it and can do it. and help the people they hurt too"
+        },
+        {
+          "by": "redlamp",
+          "date": "2237-313",
+          "text": "‘get work’ sounds easy when you don’t have to be the one finding it"
+        },
+        {
+          "by": "longshift",
+          "date": "2237-313",
+          "text": "then maybe we start by asking employers instead of deciding it’s impossible?"
+        },
+        {
+          "by": "patchwork",
+          "date": "2237-313",
+          "text": "one of them was sick. can we not make their medical situation a public guessing game"
+        },
+        {
+          "by": "same_hall",
+          "date": "2237-313",
+          "text": "agreed. i shouldn’t have to know somebody’s diagnosis to think they deserve care"
+        },
+        {
+          "by": "nightwalk",
+          "date": "2237-313",
+          "text": "I was scared to go home from work. I still am. I’m not against helping anybody, but I want somebody to say what happens if it starts again."
+        },
+        {
+          "by": "longshift",
+          "date": "2237-313",
+          "text": "that’s fair. help and a safety plan aren’t opposite things"
+        },
+        {
+          "by": "floorledger",
+          "date": "2237-313",
+          "text": "and who pays for the help? genuine question. ‘the community’ usually means the same five people"
+        },
+        {
+          "by": "sparehands",
+          "date": "2237-313",
+          "text": "maybe ask what people can offer before deciding nobody can offer anything"
+        },
+        {
+          "by": "redlamp",
+          "date": "2237-313",
+          "text": "also ask the people involved what they’ll actually accept. you can’t volunteer someone else into a job"
+        }
+      ]
+    },
+    {
       "id": "hub-jobs-003",
       "visibility": "PUBLIC",
       "date": "2237-304",
