@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const BUILD = '20261027-cassidy-statement-fix1';
+  const BUILD = '20261114-business-tab1';
 
   const esc = value => String(value ?? '')
     .replaceAll('&', '&amp;')
@@ -14,6 +14,7 @@
 
     const api = String(options.api || '').trim();
     const snapshotUrl = String(options.snapshotUrl || '').trim();
+    const businessSnapshotUrl = String(options.businessSnapshotUrl || '').trim();
     const cacheKey = String(options.cacheKey || '').trim();
     const legacyCacheKeys = Array.isArray(options.legacyCacheKeys) ? options.legacyCacheKeys : [];
 
@@ -27,6 +28,7 @@
     const john = root.querySelector('[data-statement-character="john"]');
     const prue = root.querySelector('[data-statement-character="prue"]');
     const cassidy = root.querySelector('[data-statement-character="cassidy"]');
+    const business = root.querySelector('[data-statement-character="business"]');
     const printButton = root.querySelector('[data-statement-print]');
     const refresh = root.querySelector('[data-statement-refresh]');
 
@@ -52,9 +54,11 @@
       john.classList.toggle('active', selected === 'john');
       prue.classList.toggle('active', selected === 'prue');
       cassidy.classList.toggle('active', selected === 'cassidy');
+      if (business) business.classList.toggle('active', selected === 'business');
       john.setAttribute('aria-pressed', selected === 'john' ? 'true' : 'false');
       prue.setAttribute('aria-pressed', selected === 'prue' ? 'true' : 'false');
       cassidy.setAttribute('aria-pressed', selected === 'cassidy' ? 'true' : 'false');
+      if (business) business.setAttribute('aria-pressed', selected === 'business' ? 'true' : 'false');
 
       if (!row) {
         view.innerHTML = '<div class="statement-error">Statement information unavailable.</div>';
@@ -63,7 +67,8 @@
         return;
       }
 
-      const displayState = row.fromSnapshot && loadState === 'LIVE' ? 'SNAPSHOT / LIVE ENTRY MISSING' : loadState;
+      const displayState = selected === 'business' && row.fromSnapshot ? 'SNAPSHOT / MAY BE STALE' :
+        row.fromSnapshot && loadState === 'LIVE' ? 'SNAPSHOT / LIVE ENTRY MISSING' : loadState;
       status.textContent = `${displayState ? displayState + ' // ' : ''}AS OF ${row.asOf || '—'}`;
       who.textContent = row.character || '';
       view.innerHTML = `<article class="statement-sheet"><pre>${esc(row.statementText || '')}</pre></article>`;
@@ -109,7 +114,10 @@
         const rawKey = String(item?.key || '').trim().toLowerCase();
         // Older statement-generator exports may still use the full-name slug.
         const key = rawKey === 'cassidy-wright' ? 'cassidy' : rawKey;
-        if (key !== 'john' && key !== 'prue' && key !== 'cassidy') return;
+        if (key !== 'john' && key !== 'prue' && key !== 'cassidy' && key !== 'business') return;
+        if (key === 'business' && (!/^\d{4}-\d{3}$/.test(String(item?.asOf || '')) ||
+            typeof item?.statementText !== 'string' || !item.statementText.trim() ||
+            (rows.business && rows.business.asOf > String(item.asOf)))) return;
 
         data[key] = {
           key,
@@ -123,6 +131,10 @@
 
       if (!data.john && !data.prue && !data.cassidy) {
         throw new Error('Statement feed returned no player rows.');
+      }
+
+      if (!data.business && rows.business) {
+        data.business = { ...rows.business, fromSnapshot: true };
       }
 
       if (!data.cassidy && rows.cassidy) {
@@ -267,6 +279,28 @@
       requestLive(serial);
     }
 
+    async function loadBusinessSnapshot(serial) {
+      try {
+        const separator = businessSnapshotUrl.includes('?') ? '&' : '?';
+        const response = await fetch(businessSnapshotUrl + separator + 'ts=' + Date.now(), {
+          method: 'GET', credentials: 'same-origin', cache: 'no-store', headers: { Accept: 'application/json' }
+        });
+        if (!response.ok) throw new Error('Business snapshot unavailable.');
+        const payload = await response.json();
+        const item = payload && payload.ok === true ? payload.statement : null;
+        if (serial !== requestSerial || !item || item.key !== 'business' ||
+            !/^\d{4}-\d{3}$/.test(String(item.asOf || '')) ||
+            typeof item.statementText !== 'string' || !item.statementText.trim()) return;
+        const current = rows.business;
+        if (current && ((!current.fromSnapshot && loadState === 'LIVE') || current.asOf > item.asOf)) return;
+        rows.business = { key: 'business', character: String(item.character || 'BUSINESS ACCOUNT'),
+          asOf: String(item.asOf), statementText: item.statementText, fromSnapshot: true };
+        renderView();
+      } catch (_) {
+        // Personal statements remain independently available.
+      }
+    }
+
     function load() {
       const serial = ++requestSerial;
 
@@ -274,6 +308,7 @@
       const showedCache = useLocalCache(serial);
       setRefreshBusy(true);
       if (!showedCache) status.textContent = 'REFRESHING STATEMENTS…';
+      if (business && businessSnapshotUrl) loadBusinessSnapshot(serial);
       loadSnapshot(serial);
     }
 
@@ -289,6 +324,11 @@
 
     cassidy.addEventListener('click', () => {
       selected = 'cassidy';
+      renderView();
+    });
+
+    if (business) business.addEventListener('click', () => {
+      selected = 'business';
       renderView();
     });
 
