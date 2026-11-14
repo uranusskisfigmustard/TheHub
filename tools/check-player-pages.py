@@ -21,6 +21,13 @@ NON_PLAYER_HTML = {
     "board-core.html",       # Historical page template
     "board-layer-v1.html",   # Historical page template
     "terminal-trial.html",   # Test-only interface
+    "ivo-review-scene-1-20261106.html",  # Internal Ivo audio review
+    "ivo-review-scene-2-20261106.html",  # Internal Ivo audio review
+    "ivo-review-scene-3-20261106.html",  # Internal Ivo audio review
+    "ivo-review-scene-4-20261106.html",  # Internal Ivo audio review
+    "ivo-review-scene-5-20261106.html",  # Internal Ivo audio review
+    "ivo-review-scene-6-20261106.html",  # Internal Ivo audio review
+    "ivo-scene-review-20261106.html",    # Internal Ivo audio review index
     "warden.html",
     "warden-base-v1.html",
     "warden-v11.html",
