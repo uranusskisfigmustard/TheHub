@@ -19,13 +19,13 @@
       <div class="statements-heading">
         <h1 id="statementsTitle">Statements</h1>
         <p class="statements-sub">Hub Claims Registry recovery-debt account statements.</p>
-        <p><a href="business-statements.html">View JSCTWJC business statement</a></p>
       </div>
 
       <div class="statement-controls" aria-label="Statement controls">
         <button class="statement-btn active" type="button" data-statement-character="prue" aria-pressed="true">PRUDENCE GREYMORE</button>
         <button class="statement-btn" type="button" data-statement-character="john" aria-pressed="false">JOHN SOBIESKI</button>
         <button class="statement-btn" type="button" data-statement-character="cassidy" aria-pressed="false">CASSIDY WRIGHT</button>
+        <button class="statement-btn" type="button" data-statement-character="business" aria-pressed="false">BUSINESS ACCOUNT</button>
         <button class="statement-btn" type="button" data-statement-print>PRINT STATEMENT</button>
         <button class="statement-btn" type="button" data-statement-refresh>REFRESH</button>
       </div>
@@ -43,7 +43,7 @@
 
   <script src="player-routes.js?v=20261021-equipment3"></script>
   <script src="player-shell.js?v=20261014-warden-shortcut1"></script>
-  <script src="statements.js?v=20261027-cassidy-webfix1"></script>
+  <script src="statements.js?v=20261114-business-tab1"></script>
   <script>
     (() => {
       const STATEMENTS_API = 'https://script.google.com/macros/s/AKfycbzeW8vTooOCNEBia3_EMQ10r7BcbakXIwCD4ZaEOUEBOdCXl09tRHj76oxcUcsOKQK0/exec';
@@ -58,8 +58,9 @@
       window.HubStatementsContent.render(root, {
         api: STATEMENTS_API,
         snapshotUrl: './data/player-statements.json',
-        cacheKey: 'hub_statement_export_v4',
-        legacyCacheKeys: ['hub_statement_export_v1', 'hub_statement_export_v2', 'hub_statement_export_v3']
+        businessSnapshotUrl: './data/business-statement.json',
+        cacheKey: 'hub_statement_export_v5',
+        legacyCacheKeys: ['hub_statement_export_v1', 'hub_statement_export_v2', 'hub_statement_export_v3', 'hub_statement_export_v4']
       });
     })();
   </script>
