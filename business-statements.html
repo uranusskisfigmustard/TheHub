@@ -14,12 +14,20 @@
   <div id="playerShell"></div>
   <main class="player-main statements-mode">
     <section class="statements-page" aria-labelledby="businessTitle">
-      <div class="statements-heading"><h1 id="businessTitle">Business Statement</h1>
+      <div class="statements-heading">
+        <h1 id="businessTitle">Business Statement</h1>
         <p class="statements-sub">JSCTWJC business cash and credit. Separate from personal recovery debt.</p>
-        <p><a href="statements.html">← Personal statements</a></p></div>
-      <div class="statement-controls"><button class="statement-btn" type="button" data-business-print>PRINT STATEMENT</button>
-        <button class="statement-btn" type="button" data-business-refresh>REFRESH</button></div>
-      <div class="statement-status"><span data-business-status>Loading business statement…</span></div>
+      </div>
+      <div class="statement-controls" aria-label="Statement controls">
+        <a class="statement-btn" href="statements.html">PERSONAL STATEMENTS</a>
+        <span class="statement-btn active" aria-current="page">JSCTWJC</span>
+        <button class="statement-btn" type="button" data-business-print>PRINT STATEMENT</button>
+        <button class="statement-btn" type="button" data-business-refresh>REFRESH</button>
+      </div>
+      <div class="statement-status">
+        <span data-business-status>Loading business statement…</span>
+        <span>JSCTWJC</span>
+      </div>
       <div data-business-view></div>
     </section>
   </main>
