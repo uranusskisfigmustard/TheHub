@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "asOf": "2237-315",
+  "asOf": "2237-318",
   "publicationMode": "warden-curated",
   "posts": [
     {
@@ -51,72 +51,11 @@
           "by": "tinmug",
           "date": "2237-313",
           "text": "sure but can we let them do a good thing without immediately handing them another job"
-        }
-      ]
-    },
-    {
-      "id": "hub-community-20261109-decisions",
-      "visibility": "PUBLIC",
-      "date": "2237-313",
-      "category": "discussion",
-      "typeLabel": "LOCAL / DISCUSSION",
-      "title": "Can we stop deciding this in comments?",
-      "source": "heard_enough",
-      "summary": "Residents disagree about accountability and who gets a say.",
-      "body": [
-        "I know people are worried. I am too.",
-        "But I’m seeing a lot of ‘we should make them do this’ from people who weren’t at the meeting. There are people trying to work out what happens next. Let them talk to the people involved and the people who were hurt."
-      ],
-      "comments": [
-        {
-          "by": "nightwalk",
-          "date": "2237-313",
-          "text": "being at the meeting isn’t the only reason someone might have an opinion. some of us still have to use that route"
         },
         {
-          "by": "heard_enough",
-          "date": "2237-313",
-          "text": "fair. i mean we shouldn’t pretend a comment here is a decision"
-        },
-        {
-          "by": "bolted_down",
-          "date": "2237-313",
-          "text": "somebody attacked people. there have to be consequences. otherwise what are we saying to the next person who gets cornered"
-        },
-        {
-          "by": "sparehands",
-          "date": "2237-313",
-          "text": "consequences can include making things right. doesn’t have to mean throwing everyone away"
-        },
-        {
-          "by": "bolted_down",
-          "date": "2237-313",
-          "text": "and if they don’t want to make it right?"
-        },
-        {
-          "by": "sparehands",
-          "date": "2237-313",
-          "text": "then that matters too. i’m not saying pretend it didn’t happen"
-        },
-        {
-          "by": "quietbadge",
-          "date": "2237-313",
-          "text": "can we leave names and kids out of this please"
-        },
-        {
-          "by": "old_handrail",
-          "date": "2237-313",
-          "text": "I was uncomfortable seeing someone hit after they were already restrained. I’m glad the attacks stopped. Both things can be true."
-        },
-        {
-          "by": "tinmug",
-          "date": "2237-313",
-          "text": "i wasn’t there and i’m not going to decide what happened from this thread"
-        },
-        {
-          "by": "floorledger",
-          "date": "2237-313",
-          "text": "probably the smartest thing anyone’s said here"
+          "by": "late_lift",
+          "date": "2237-318",
+          "text": "Been taking the long way so long I almost forgot where the shorter route comes out."
         }
       ]
     },
@@ -183,6 +122,77 @@
           "by": "redlamp",
           "date": "2237-313",
           "text": "also ask the people involved what they’ll actually accept. you can’t volunteer someone else into a job"
+        },
+        {
+          "by": "floorledger",
+          "date": "2237-318",
+          "text": "Been thinking about what I said. I still want to know who pays, but “we can’t help everyone” isn’t much of an answer to the people right in front of us."
+        }
+      ]
+    },
+    {
+      "id": "hub-community-20261109-decisions",
+      "visibility": "PUBLIC",
+      "date": "2237-313",
+      "category": "discussion",
+      "typeLabel": "LOCAL / DISCUSSION",
+      "title": "Can we stop deciding this in comments?",
+      "source": "heard_enough",
+      "summary": "Residents disagree about accountability and who gets a say.",
+      "body": [
+        "I know people are worried. I am too.",
+        "But I’m seeing a lot of ‘we should make them do this’ from people who weren’t at the meeting. There are people trying to work out what happens next. Let them talk to the people involved and the people who were hurt."
+      ],
+      "comments": [
+        {
+          "by": "nightwalk",
+          "date": "2237-313",
+          "text": "being at the meeting isn’t the only reason someone might have an opinion. some of us still have to use that route"
+        },
+        {
+          "by": "heard_enough",
+          "date": "2237-313",
+          "text": "fair. i mean we shouldn’t pretend a comment here is a decision"
+        },
+        {
+          "by": "bolted_down",
+          "date": "2237-313",
+          "text": "somebody attacked people. there have to be consequences. otherwise what are we saying to the next person who gets cornered"
+        },
+        {
+          "by": "sparehands",
+          "date": "2237-313",
+          "text": "consequences can include making things right. doesn’t have to mean throwing everyone away"
+        },
+        {
+          "by": "bolted_down",
+          "date": "2237-313",
+          "text": "and if they don’t want to make it right?"
+        },
+        {
+          "by": "sparehands",
+          "date": "2237-313",
+          "text": "then that matters too. i’m not saying pretend it didn’t happen"
+        },
+        {
+          "by": "quietbadge",
+          "date": "2237-313",
+          "text": "can we leave names and kids out of this please"
+        },
+        {
+          "by": "old_handrail",
+          "date": "2237-313",
+          "text": "I was uncomfortable seeing someone hit after they were already restrained. I’m glad the attacks stopped. Both things can be true."
+        },
+        {
+          "by": "tinmug",
+          "date": "2237-313",
+          "text": "i wasn’t there and i’m not going to decide what happened from this thread"
+        },
+        {
+          "by": "floorledger",
+          "date": "2237-313",
+          "text": "probably the smartest thing anyone’s said here"
         }
       ]
     },
