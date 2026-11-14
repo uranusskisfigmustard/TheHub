@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>The Hub — Business Statement</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="player-shell.css?v=20261014-warden-shortcut1">
+  <link rel="stylesheet" href="statements.css?v=20260919-statementsprod1">
+</head>
+<body data-page="statements">
+  <div id="playerShell"></div>
+  <main class="player-main statements-mode">
+    <section class="statements-page" aria-labelledby="businessTitle">
+      <div class="statements-heading"><h1 id="businessTitle">Business Statement</h1>
+        <p class="statements-sub">JSCTWJC business cash and credit. Separate from personal recovery debt.</p>
+        <p><a href="statements.html">← Personal statements</a></p></div>
+      <div class="statement-controls"><button class="statement-btn" type="button" data-business-print>PRINT STATEMENT</button>
+        <button class="statement-btn" type="button" data-business-refresh>REFRESH</button></div>
+      <div class="statement-status"><span data-business-status>Loading business statement…</span></div>
+      <div data-business-view></div>
+    </section>
+  </main>
+  <noscript><div class="hub-shell-fatal">JavaScript is required for the player console.</div></noscript>
+  <script src="player-routes.js?v=20261021-equipment3"></script>
+  <script src="player-shell.js?v=20261014-warden-shortcut1"></script>
+  <script src="business-statements.js?v=20261114-business1"></script>
+</body>
+</html>
