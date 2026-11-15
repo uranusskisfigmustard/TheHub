@@ -16,8 +16,9 @@ window.BETWEEN_SESSION_PERIODS["m7-m8"] = {
             "You mention your plans to Blythe, who agrees to help you work through the paperwork, although she makes it clear that she's no expert in commercial property. \"First thing,\" she tells you, looking through the documents, \"we need to find out who actually controls the space. Cleaning it up doesn't make it yours.\"",
             "The two of you spend some time going through the property records. You discover that the storefront is still registered to an absentee landlord, but the space has been vacant for some time. With no active tenancy or outstanding claims, you're able to take over the space through the normal commercial registration process.",
             "\"Well, looks like you can take the place over. It'll cost you about 2,000 credits to get everything registered and fix it up enough to use. After that, you're looking at 150 a week just to keep it running. Another hundred if you decide to hire some help.\"",
-            "The 2,000 credits would cover the administrative fees, utility connections, and enough basic repairs to make the storefront serviceable. Nothing fancy, but the lighting would work, the doors would lock, and you'd have a usable space to conduct business.",
-            "With Blythe's help, you've gotten the paperwork mostly sorted out. The storefront is cleaned up, although it still needs some repairs before you can use it. All that's left is deciding what to call the business and whether you're ready to spend the money to get it started."
+            "The 2,000 credits would cover registration, utility connections, and enough repairs to make the storefront usable.",
+            "With the paperwork mostly sorted, all that's left is deciding what to call the business and whether you're ready to spend the money.",
+            "(edited)"
           ]
         }
       ]
