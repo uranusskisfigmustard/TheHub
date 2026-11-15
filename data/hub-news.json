@@ -1,8 +1,104 @@
 {
   "schemaVersion": 1,
-  "asOf": "2237-318",
+  "asOf": "2237-319",
   "publicationMode": "warden-curated",
   "posts": [
+    {
+      "id": "hub-community-20261115-neighborhood",
+      "visibility": "PUBLIC",
+      "date": "2237-319",
+      "category": "discussion",
+      "typeLabel": "LOCAL / DISCUSSION",
+      "title": "The meeting isn’t the whole neighborhood",
+      "source": "hall_shift",
+      "summary": "Residents reflect on safety and different reactions to the meeting.",
+      "body": [
+        "I keep seeing “the neighborhood thinks” followed by whatever the person posting thinks.",
+        "Some people are relieved. Some are angry. Some don’t want to walk home alone yet. Most of us are probably more than one of those things."
+      ],
+      "comments": []
+    },
+    {
+      "id": "hub-community-20261109-care",
+      "visibility": "PUBLIC",
+      "date": "2237-313",
+      "category": "discussion",
+      "typeLabel": "COMMUNITY / DISCUSSION",
+      "title": "What happens to the two who needed help?",
+      "source": "same_hall",
+      "summary": "Neighbors debate care, accountability and what comes next for two people.",
+      "body": [
+        "At the meeting, people talked about two of the people caught up in all this who were having a hard time before any of it started.",
+        "I don’t think ‘they needed help’ means nobody they hurt matters. I also don’t think we’re going to fix anything by acting like those circumstances don’t matter. What would people actually want to see happen?"
+      ],
+      "comments": [
+        {
+          "by": "longshift",
+          "date": "2237-313",
+          "text": "help them get work, if they want it and can do it. and help the people they hurt too"
+        },
+        {
+          "by": "redlamp",
+          "date": "2237-313",
+          "text": "‘get work’ sounds easy when you don’t have to be the one finding it"
+        },
+        {
+          "by": "longshift",
+          "date": "2237-313",
+          "text": "then maybe we start by asking employers instead of deciding it’s impossible?"
+        },
+        {
+          "by": "patchwork",
+          "date": "2237-313",
+          "text": "one of them was sick. can we not make their medical situation a public guessing game"
+        },
+        {
+          "by": "same_hall",
+          "date": "2237-313",
+          "text": "agreed. i shouldn’t have to know somebody’s diagnosis to think they deserve care"
+        },
+        {
+          "by": "nightwalk",
+          "date": "2237-313",
+          "text": "I was scared to go home from work. I still am. I’m not against helping anybody, but I want somebody to say what happens if it starts again."
+        },
+        {
+          "by": "longshift",
+          "date": "2237-313",
+          "text": "that’s fair. help and a safety plan aren’t opposite things"
+        },
+        {
+          "by": "floorledger",
+          "date": "2237-313",
+          "text": "and who pays for the help? genuine question. ‘the community’ usually means the same five people"
+        },
+        {
+          "by": "sparehands",
+          "date": "2237-313",
+          "text": "maybe ask what people can offer before deciding nobody can offer anything"
+        },
+        {
+          "by": "redlamp",
+          "date": "2237-313",
+          "text": "also ask the people involved what they’ll actually accept. you can’t volunteer someone else into a job"
+        },
+        {
+          "by": "floorledger",
+          "date": "2237-318",
+          "text": "Been thinking about what I said. I still want to know who pays, but “we can’t help everyone” isn’t much of an answer to the people right in front of us."
+        },
+        {
+          "by": "bolted_down",
+          "date": "2237-319",
+          "text": "i’m not against help. i just don’t want the people who got hurt to be forgotten because these two have a sad story"
+        },
+        {
+          "by": "sparehands",
+          "date": "2237-319",
+          "text": "I don’t think they should be forgotten either. Could be more than one person needs help here."
+        }
+      ]
+    },
     {
       "id": "hub-community-20261109-safety",
       "visibility": "PUBLIC",
@@ -147,77 +243,6 @@
           "by": "same_hall",
           "date": "2237-318",
           "text": "then ask. and find out what it costs before agreeing to spend anybody else's money"
-        }
-      ]
-    },
-    {
-      "id": "hub-community-20261109-care",
-      "visibility": "PUBLIC",
-      "date": "2237-313",
-      "category": "discussion",
-      "typeLabel": "COMMUNITY / DISCUSSION",
-      "title": "What happens to the two who needed help?",
-      "source": "same_hall",
-      "summary": "Neighbors debate care, accountability and what comes next for two people.",
-      "body": [
-        "At the meeting, people talked about two of the people caught up in all this who were having a hard time before any of it started.",
-        "I don’t think ‘they needed help’ means nobody they hurt matters. I also don’t think we’re going to fix anything by acting like those circumstances don’t matter. What would people actually want to see happen?"
-      ],
-      "comments": [
-        {
-          "by": "longshift",
-          "date": "2237-313",
-          "text": "help them get work, if they want it and can do it. and help the people they hurt too"
-        },
-        {
-          "by": "redlamp",
-          "date": "2237-313",
-          "text": "‘get work’ sounds easy when you don’t have to be the one finding it"
-        },
-        {
-          "by": "longshift",
-          "date": "2237-313",
-          "text": "then maybe we start by asking employers instead of deciding it’s impossible?"
-        },
-        {
-          "by": "patchwork",
-          "date": "2237-313",
-          "text": "one of them was sick. can we not make their medical situation a public guessing game"
-        },
-        {
-          "by": "same_hall",
-          "date": "2237-313",
-          "text": "agreed. i shouldn’t have to know somebody’s diagnosis to think they deserve care"
-        },
-        {
-          "by": "nightwalk",
-          "date": "2237-313",
-          "text": "I was scared to go home from work. I still am. I’m not against helping anybody, but I want somebody to say what happens if it starts again."
-        },
-        {
-          "by": "longshift",
-          "date": "2237-313",
-          "text": "that’s fair. help and a safety plan aren’t opposite things"
-        },
-        {
-          "by": "floorledger",
-          "date": "2237-313",
-          "text": "and who pays for the help? genuine question. ‘the community’ usually means the same five people"
-        },
-        {
-          "by": "sparehands",
-          "date": "2237-313",
-          "text": "maybe ask what people can offer before deciding nobody can offer anything"
-        },
-        {
-          "by": "redlamp",
-          "date": "2237-313",
-          "text": "also ask the people involved what they’ll actually accept. you can’t volunteer someone else into a job"
-        },
-        {
-          "by": "floorledger",
-          "date": "2237-318",
-          "text": "Been thinking about what I said. I still want to know who pays, but “we can’t help everyone” isn’t much of an answer to the people right in front of us."
         }
       ]
     },
