@@ -24,7 +24,7 @@ window.BETWEEN_SESSION_PERIODS["m6-m7"] = {
             "Pella catches you outside the volunteer office after one of the Order’s ordinary watch changes. The relay is working. The paper schedule is back where it belongs, instead of spread across the folding table.",
             "She does not keep you long.",
             "“I haven’t forgotten,” she says. “You said you were choosing where we went next.”",
-            "There is no pressure behind it. She is not asking for an answer before you leave, and she does not make the moment larger than it is. Then someone calls her from farther down the corridor, and she gives you a small nod before heading back toward the clinic.",
+            "Someone calls Pella from farther down the corridor. She gives you a small nod before heading back toward the clinic.",
             "The next outing is yours to choose.",
             "* * *",
             "Later, Prue asks Pella to meet her in a quiet back section of the hydroponics bay, where tall trellises and climbing crops make the aisle feel enclosed and green. She sets up a blanket between the grow beds with snacks and chemlights, making the small space feel like a picnic in a forest. When Pella arrives, Prue admits that she is not much of a planner and still does not know all the Hub has to offer, so this was the best she could think of.",
@@ -32,7 +32,8 @@ window.BETWEEN_SESSION_PERIODS["m6-m7"] = {
             "After a while, Prue takes out her guitar and begins playing softly. She asks if she can play an old Earth song that her father used to sing to her mother. Pella smiles and nods.",
             "Prue plays a soft, stripped-down version of “(Simply) The Best”—the one Patrick sings to David in Schitt’s Creek.",
             "As she finishes and waits for Pella’s reaction, Prue’s heart is beating so fast it feels as though it might beat out of her chest.",
-            "Then Pella kisses her."
+            "Then Pella kisses her.",
+            "(edited)"
           ]
         },
         {
@@ -88,8 +89,8 @@ window.BETWEEN_SESSION_PERIODS["m6-m7"] = {
             "A resident in the Cistern Assembly catches you near a shared grow rack with a shallow tray of greens in both hands. The leaves have gone pale at the edges. A white crust has built up around the feed line, and the tray smells faintly sour under the wet heat of the lights.",
             "They had assumed it was blight. It is not.",
             "The nutrient line has been running unevenly. Too much salt has settled in the tray, and the roots nearest the intake have started to brown. You show them the buildup in the filter screen, separate the worst of the affected plants, and help flush the line before the rest of the tray goes with them.",
-            "It is not a miracle. Some of the greens are already done. But most of the tray is still alive, and the resident writes a new cleaning schedule on the back of an empty nutrient bag before hanging it beside the rack.",
-            "When you leave, the lights are still buzzing over a row of plants that now have a chance."
+            "Some of the greens are already done, but most of the tray is still alive. The resident writes a new cleaning schedule on the back of an empty nutrient bag and hangs it beside the rack.",
+            "(edited)"
           ]
         },
         {
@@ -107,10 +108,10 @@ window.BETWEEN_SESSION_PERIODS["m6-m7"] = {
           "title": "The Culture Jar",
           "paragraphs": [
             "The person from the seed table finds you with a sealed culture jar wrapped in a towel. A small food cooperative has been growing mushroom substrate in a back room. One jar changed color overnight, and nobody wants to decide whether to throw out one container or the whole batch.",
-            "You check the affected jar against the others. The contamination is real, but it is not everywhere. The healthy containers were sealed separately and their labels still match the batch notes. You have them keep those apart, discard the bad culture, and clean the shelf before anything else is put back on it.",
+            "You check the affected jar against the others. The healthy containers were sealed separately, and their labels still match the batch notes. You have the cooperative keep those apart, discard the bad culture, and clean the shelf before putting anything else back.",
             "The cooperative loses one jar instead of its whole week’s work.",
             "The person who brought it to you lets out a breath when the sealed containers are carried back to storage. “Good. I was afraid we were about to lose dinner for half the block.”",
-            "By the time you leave, the bad jar is gone, the shelf is clean, and the next person who sees a strange color in a culture knows not to wait until it spreads."
+            "(edited)"
           ]
         }
       ]
