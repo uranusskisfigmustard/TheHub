@@ -20,6 +20,7 @@ ROOT = Path(__file__).resolve().parents[1]
 NON_PLAYER_HTML = {
     "board-core.html",       # Historical page template
     "board-layer-v1.html",   # Historical page template
+    "business-statements.html",  # Retired direct page; Statements owns its account selection
     "terminal-trial.html",   # Test-only interface
     "ivo-review-scene-1-20261106.html",  # Internal Ivo audio review
     "ivo-review-scene-2-20261106.html",  # Internal Ivo audio review
