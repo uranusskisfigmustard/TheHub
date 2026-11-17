@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const BUILD = '20261115-businessroute1';
+  const BUILD = '20261117-remove-business-statement-link1';
   const groups = [
     {
       id: 'board', label: 'BOARD', defaultPage: 'contracts', pages: [
@@ -20,8 +20,7 @@
       id: 'crew', label: 'CREW', defaultPage: 'contract-logs', pages: [
         { id: 'contract-logs', label: 'CONTRACT LOGS', href: 'contracts.html', summary: 'Crew contract history and active/completed work records.' },
         { id: 'between-sessions', label: 'BETWEEN SESSIONS', href: 'between-sessions.html', summary: 'Crew activity and choices made between missions.' },
-        { id: 'statements', label: 'STATEMENTS', href: 'statements.html', summary: 'Financial statements, balances, charges, payments, and transaction history.' },
-        { id: 'business-statements', label: 'BUSINESS STATEMENT', href: 'business-statements.html', summary: 'Business cash, credit, and transaction history.' }
+        { id: 'statements', label: 'STATEMENTS', href: 'statements.html', summary: 'Financial statements, balances, charges, payments, and transaction history.' }
       ]
     },
     {
