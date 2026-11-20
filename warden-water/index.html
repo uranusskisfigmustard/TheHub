@@ -105,6 +105,9 @@ $('#timer-test').addEventListener('click',explosion);setInterval(paintTimer,250)
   const rupture=new Audio('audio/explosion.mp3');rupture.preload='auto';rupture.volume=.9;
   explosion=async function(){await armAudio();try{rupture.pause();rupture.currentTime=0;await rupture.play()}catch{$('#timer-status').textContent='Rupture sound unavailable. Use Test rupture again.'}};
   const previousTest=$('#timer-test');const test=previousTest.cloneNode(true);previousTest.replaceWith(test);test.textContent='Test rupture';test.title='Tests the timer rupture cue only.';test.addEventListener('click',explosion);
-  const note=document.querySelector('.notice');note.innerHTML='<h3>Audio ready</h3><p>The docking klaxon loops only when you start it. The timer uses the separate rupture cue. Final spoken-line files still need to be linked to their cards.</p>';
+  const volumeControl=document.createElement('div');volumeControl.className='tiny';volumeControl.style.margin='10px 0 2px';volumeControl.innerHTML='<label for="rupture-volume">Rupture volume <span id="rupture-volume-value">90%</span></label><input id="rupture-volume" type="range" min="0" max="100" step="1" value="90" style="width:100%;margin-top:5px;accent-color:#c0da8f" aria-label="Rupture volume">';
+  test.parentElement.insertAdjacentElement('afterend',volumeControl);
+  const slider=document.getElementById('rupture-volume'),volumeValue=document.getElementById('rupture-volume-value');let stored=Number(localStorage.getItem('m9-rupture-volume'));if(!Number.isFinite(stored)||stored<0||stored>100)stored=90;slider.value=stored;rupture.volume=stored/100;volumeValue.textContent=stored+'%';slider.addEventListener('input',()=>{rupture.volume=Number(slider.value)/100;volumeValue.textContent=slider.value+'%';localStorage.setItem('m9-rupture-volume',slider.value)});
+  const note=document.querySelector('.notice');note.innerHTML='<h3>Audio ready</h3><p>The docking klaxon loops only when you start it. The timer uses the separate rupture cue, with its own volume control. Final spoken-line files still need to be linked to their cards.</p>';
 })();
 </script></body></html>
