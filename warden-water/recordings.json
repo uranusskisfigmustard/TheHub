@@ -11,7 +11,8 @@
       "JOHN: Ivo's under that shutter! It'll trap him!",
       "MARA: Then move him! MOVE!"
     ],
-    "notes": "One possible future catches Ivo near S-05 when P-1 EMERGENCY ISOLATION is activated. Motor power is inhibited immediately; the alarm and warning lights allow 10 seconds before BOTH S-04 and S-05 / F-1 close. The spoken 'HIT THE STOP' is colloquial; H14 identifies the actual control and consequences. PCs can warn or move Ivo, use NORMAL STOP, or lock out the motor breaker. No injury is inevitable."
+    "notes": "One possible future catches Ivo near S-05 when P-1 EMERGENCY ISOLATION is activated. Motor power is inhibited immediately; the alarm and warning lights allow 10 seconds before BOTH S-04 and S-05 / F-1 close. The spoken 'HIT THE STOP' is colloquial; H14 identifies the actual control and consequences. PCs can warn or move Ivo, use NORMAL STOP, or lock out the motor breaker. No injury is inevitable.",
+    "audio_url": "audio/dialogue/Mara_01_Warn_Crossing.mp3"
   },
   {
     "id": "1-john-b",
@@ -25,7 +26,8 @@
       "JOHN: It's on FIRE! I'm hitting it!",
       "IVO: The pump stopped—but the water's still running!"
     ],
-    "notes": "The existing spoken lines do not uniquely identify which stop control John activates in this possible future. NORMAL STOP halts the motor without shutter closure but leaves SCH-1/LOC-1 able to request restart; EMERGENCY ISOLATION prevents restart and closes BOTH S-04 and S-05 / F-1 after a 10-second warning. Neither stops gravity-fed water through BV-2. Corroboration: H14, H10, Prue A/B."
+    "notes": "The existing spoken lines do not uniquely identify which stop control John activates in this possible future. NORMAL STOP halts the motor without shutter closure but leaves SCH-1/LOC-1 able to request restart; EMERGENCY ISOLATION prevents restart and closes BOTH S-04 and S-05 / F-1 after a 10-second warning. Neither stops gravity-fed water through BV-2. Corroboration: H14, H10, Prue A/B.",
+    "audio_url": "audio/dialogue/Ivo_01_Stop_Pump.mp3"
   },
   {
     "id": "1-prue-a",
@@ -61,7 +63,8 @@
         "drive_url": "https://drive.google.com/file/d/16H0Eq5mhaWuWVuSUFp07mDfrgFfo3wsy/view?usp=drivesdk",
         "status": "APPROVED"
       }
-    ]
+    ],
+    "audio_url": "audio/dialogue/Nell_01_Compare_Readings.mp3"
   },
   {
     "id": "1-prue-b",
@@ -97,7 +100,8 @@
         "drive_url": "https://drive.google.com/file/d/1nLp2d2Uvq6t8xDtJG6nWAbTQdMr_SYXV/view?usp=drivesdk",
         "status": "APPROVED"
       }
-    ]
+    ],
+    "audio_url": "audio/dialogue/Nell_02_Read_Display.mp3"
   },
   {
     "id": "1-cassidy-a",
@@ -111,7 +115,8 @@
       "CASSIDY: Got her! She's in Loading!",
       "MARA: Keep her talking! Don't open that hatch!"
     ],
-    "notes": "Tavi may be alive in Loading, and Mara knows the hatch presents a hazard. This does **not** announce the M-1 crawlway or dictate how to rescue her. Corroboration: John A/B in Act 2, Cassidy A in Act 2, H-1 gauge and station plan."
+    "notes": "Tavi may be alive in Loading, and Mara knows the hatch presents a hazard. This does **not** announce the M-1 crawlway or dictate how to rescue her. Corroboration: John A/B in Act 2, Cassidy A in Act 2, H-1 gauge and station plan.",
+    "audio_url": "audio/dialogue/Mara_02_Call_Loading.mp3"
   },
   {
     "id": "1-cassidy-b",
@@ -147,7 +152,8 @@
         "drive_url": "https://drive.google.com/file/d/11O31V4HdB83CSdwAimUg185_T8meQRLF/view?usp=drivesdk",
         "status": "APPROVED"
       }
-    ]
+    ],
+    "audio_url": "audio/dialogue/Nell_03_Follow_Sound.mp3"
   },
   {
     "id": "2-john-a",
@@ -183,7 +189,8 @@
         "drive_url": "https://drive.google.com/file/d/1z4KKm12pvkMMNcIfzMtIiG3p-lO-m5Hn/view?usp=drivesdk",
         "status": "APPROVED"
       }
-    ]
+    ],
+    "audio_url": "audio/dialogue/Tavi_01_Equalize_Hatch.mp3"
   },
   {
     "id": "2-john-b",
@@ -197,7 +204,8 @@
       "JOHN: Tavi's in there! I'm opening it!",
       "IVO: It'll take you BOTH! JOHN!"
     ],
-    "notes": "A feared surge is a real hazard if H-1 is opened against differential pressure. No recorded outcome or unique preferred intervention follows. The gauge/equalizer and M-1 are discoverable independently. Corroboration: John A, Cassidy A, the hatch pressure indicators."
+    "notes": "A feared surge is a real hazard if H-1 is opened against differential pressure. No recorded outcome or unique preferred intervention follows. The gauge/equalizer and M-1 are discoverable independently. Corroboration: John A, Cassidy A, the hatch pressure indicators.",
+    "audio_url": "audio/dialogue/Ivo_02_Force_Hatch.mp3"
   },
   {
     "id": "2-prue-a",
@@ -211,7 +219,8 @@
       "PRUE: But CV-1's shut! What the hell?!",
       "IVO: Then we're looking at the wrong one!"
     ],
-    "notes": "The conversation reveals that the live pipe does not match the Control-displayed closed valve. It does **not** name BV-2, its location, or the corrective action. These are established from labels, a line trace, or Ivo when directly questioned. Corroboration: Prue A/B and Cassidy B in Act 1, Cassidy B in Act 2."
+    "notes": "The conversation reveals that the live pipe does not match the Control-displayed closed valve. It does **not** name BV-2, its location, or the corrective action. These are established from labels, a line trace, or Ivo when directly questioned. Corroboration: Prue A/B and Cassidy B in Act 1, Cassidy B in Act 2.",
+    "audio_url": "audio/dialogue/Ivo_03_Trace_Line.mp3"
   },
   {
     "id": "2-prue-b",
@@ -225,7 +234,8 @@
       "PRUE: I found another line! I can't shut it blind!",
       "MARA: FIND IT! We're almost full!"
     ],
-    "notes": "Prue has noticed another line but cannot safely identify its destination from the recording; Mara conveys urgency without giving a valve instruction. Staff, physical labels and inspection determine whether isolation is appropriate. Corroboration: Prue A in Act 2, Cassidy B, Control level/flow indicators."
+    "notes": "Prue has noticed another line but cannot safely identify its destination from the recording; Mara conveys urgency without giving a valve instruction. Staff, physical labels and inspection determine whether isolation is appropriate. Corroboration: Prue A in Act 2, Cassidy B, Control level/flow indicators.",
+    "audio_url": "audio/dialogue/Mara_03_Keep_Supply_Open.mp3"
   },
   {
     "id": "2-cassidy-a",
@@ -261,7 +271,8 @@
         "drive_url": "https://drive.google.com/file/d/16QW2lVTRuryy0lmzGVDBEvIs3d6D-DNY/view?usp=drivesdk",
         "status": "APPROVED"
       }
-    ]
+    ],
+    "audio_url": "audio/dialogue/Tavi_02_Find_Exit.mp3"
   },
   {
     "id": "2-cassidy-b",
@@ -297,7 +308,8 @@
         "drive_url": "https://drive.google.com/file/d/1FZanrw3Ok62DEXbxD5CR0IkFWn2JzZeT/view?usp=drivesdk",
         "status": "APPROVED"
       }
-    ]
+    ],
+    "audio_url": "audio/dialogue/Tavi_03_Evacuate.mp3"
   },
   {
     "id": "3-john-a",
@@ -311,7 +323,8 @@
       "JOHN: I unplugged it! There's a gauge out there!",
       "IVO: Yeah? Who's watching it?!"
     ],
-    "notes": "Removing the analyzer data link can blank **Control's** live trend while Tank Gallery's mechanical gauge persists. John alludes to an independent gauge, but no monitoring arrangement is established and the tank's physical pressure is unchanged. Corroboration: John B, Prue B, analyzer tag, mechanical gauge."
+    "notes": "Removing the analyzer data link can blank **Control's** live trend while Tank Gallery's mechanical gauge persists. John alludes to an independent gauge, but no monitoring arrangement is established and the tank's physical pressure is unchanged. Corroboration: John B, Prue B, analyzer tag, mechanical gauge.",
+    "audio_url": "audio/dialogue/Ivo_04_Lose_Pressure_Trace.mp3"
   },
   {
     "id": "3-john-b",
@@ -325,7 +338,8 @@
       "JOHN: It's stuck! Help me pull!",
       "IVO: Shit—John! You ripped it loose!"
     ],
-    "notes": "On this bad future branch, moving the cart before disconnecting its **separate sample-water tap** causes a local leak in Lab. The analyzer does not move itself to Gallery and requires no lift. The sample tap and data cable can be handled independently. Corroboration: John A, analyzer label and sample connection in Lab."
+    "notes": "On this bad future branch, moving the cart before disconnecting its **separate sample-water tap** causes a local leak in Lab. The analyzer does not move itself to Gallery and requires no lift. The sample tap and data cable can be handled independently. Corroboration: John A, analyzer label and sample connection in Lab.",
+    "audio_url": "audio/dialogue/Ivo_05_Pull_Cart.mp3"
   },
   {
     "id": "3-prue-a",
@@ -339,7 +353,8 @@
       "PRUE: Another controller! It's still ARMED!",
       "MARA: Prue... can it restart?"
     ],
-    "notes": "SCH-1 at Control and LOC-1 local auto-retry are independent start requests. Neither can override latched P-1 EMERGENCY ISOLATION or motor-breaker lockout; NORMAL STOP alone does not prevent restart. H09 displays the actual interlock state. Corroboration: Prue B and H14."
+    "notes": "SCH-1 at Control and LOC-1 local auto-retry are independent start requests. Neither can override latched P-1 EMERGENCY ISOLATION or motor-breaker lockout; NORMAL STOP alone does not prevent restart. H09 displays the actual interlock state. Corroboration: Prue B and H14.",
+    "audio_url": "audio/dialogue/Mara_04_Armed_Controller.mp3"
   },
   {
     "id": "3-prue-b",
@@ -353,7 +368,8 @@
       "PRUE: Cut the MAIN! That pump was going to blow!",
       "IVO: And now we're BLIND!"
     ],
-    "notes": "This branch illustrates WHOLE-SITE power loss blanking Control telemetry. Motor-only breaker lockout or P-1 EMERGENCY ISOLATION prevents motor restart without turning off all station instruments. Battery intercom and Gallery mechanical gauge remain. Corroboration: John A, Prue A, H09 and H11."
+    "notes": "This branch illustrates WHOLE-SITE power loss blanking Control telemetry. Motor-only breaker lockout or P-1 EMERGENCY ISOLATION prevents motor restart without turning off all station instruments. Battery intercom and Gallery mechanical gauge remain. Corroboration: John A, Prue A, H09 and H11.",
+    "audio_url": "audio/dialogue/Ivo_06_Cut_Power.mp3"
   },
   {
     "id": "3-cassidy-a",
@@ -389,7 +405,8 @@
         "drive_url": "https://drive.google.com/file/d/12D-GBToG-BXBBygf_tkWwezqwHjfdvtU/view?usp=drivesdk",
         "status": "APPROVED"
       }
-    ]
+    ],
+    "audio_url": "audio/dialogue/Nell_04_Relief_Line.mp3"
   },
   {
     "id": "3-cassidy-b",
@@ -425,6 +442,7 @@
         "drive_url": "https://drive.google.com/file/d/1itqlOAImKCAfbBAfS98mxOOlB_IY-lA1/view?usp=drivesdk",
         "status": "APPROVED"
       }
-    ]
+    ],
+    "audio_url": "audio/dialogue/Nell_05_Outlet.mp3"
   }
 ]
