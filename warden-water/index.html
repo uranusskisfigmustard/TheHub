@@ -94,4 +94,17 @@ $('#timer-test').addEventListener('click',explosion);setInterval(paintTimer,250)
   const started = ambient.play();
   if (started && typeof started.catch === 'function') started.catch(() => { status.textContent = 'Press play to start the background sound.'; });
 })();
+</script><script>
+// Approved M9 audio assets. The docking klaxon is intentionally separate from
+// the timer. The timer plays the rupture sound only when it expires.
+(()=>{
+  const ambient=document.getElementById('m9-ambient-audio');
+  const ambientStatus=document.getElementById('m9-ambient-status');
+  ambient.pause();ambient.removeAttribute('autoplay');ambient.src='audio/m9-klaxon-loop.mp3';ambient.load();ambient.volume=.82;
+  ambientStatus.textContent='Docking emergency klaxon is ready. Press play to start or stop the loop.';
+  const rupture=new Audio('audio/explosion.mp3');rupture.preload='auto';rupture.volume=.9;
+  explosion=async function(){await armAudio();try{rupture.pause();rupture.currentTime=0;await rupture.play()}catch{$('#timer-status').textContent='Rupture sound unavailable. Use Test rupture again.'}};
+  const previousTest=$('#timer-test');const test=previousTest.cloneNode(true);previousTest.replaceWith(test);test.textContent='Test rupture';test.title='Tests the timer rupture cue only.';test.addEventListener('click',explosion);
+  const note=document.querySelector('.notice');note.innerHTML='<h3>Audio ready</h3><p>The docking klaxon loops only when you start it. The timer uses the separate rupture cue. Final spoken-line files still need to be linked to their cards.</p>';
+})();
 </script></body></html>
