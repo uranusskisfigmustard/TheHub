@@ -1,4 +1,4 @@
-/* Player-safe Special Request previews: 135 unapproved gear candidates.
+/* Player-safe Special Request previews: 132 unapproved gear candidates.
  * Deliberately excludes canon/adapted duplicates, rejected or Warden-only concepts,
  * source-only organism/ore tables, and other non-retail reference entries.
  * Source and price references are not live offers. No catalog row or purchase permission.
@@ -7,30 +7,6 @@
 (() => {
   'use strict';
   window.HubSpecialRequests = Object.freeze([
-  {
-    "id": "SRC-0065",
-    "item": "ATR-F1 SERENITY",
-    "source": "Heat Signature v1.3",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "35kcr",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0066",
-    "item": "Subsonic Ammo",
-    "source": "Heat Signature v1.3",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "100cr per magazine",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0067",
-    "item": "Incendiary Ammo",
-    "source": "Heat Signature v1.3",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "150cr per magazine",
-    "referenceOnly": false
-  },
   {
     "id": "SRC-0068",
     "item": "High Speed Ammo",
