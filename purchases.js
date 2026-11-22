@@ -526,7 +526,7 @@
                 <div class="purchase-item-category">${esc(item.category)}</div>
                 <h3>${esc(item.item)}</h3>
               </div>
-              <div class="purchase-price">${sourceOnly ? '<span class="purchase-price-kicker">SOURCE PRICE / UNCONFIRMED</span>' : ''}${esc(item.priceLabel || credit(item.price))}</div>
+              <div class="purchase-price">${sourceOnly ? '<span class="purchase-price-kicker">REFERENCE PRICE / NOT A MARKET QUOTE</span>' : ''}${esc(item.priceLabel || credit(item.price))}</div>
             </div>
             <div class="purchase-item-badges">${item.serviceOnly ? '<span class="purchase-badge">CLINIC CARE</span>' : badge(item)}</div>
             <p class="purchase-mechanics">${esc(item.mechanics)}</p>
