@@ -1,4 +1,4 @@
-/* Player-safe Special Request previews: 156 unapproved gear candidates.
+/* Player-safe Special Request previews: 153 unapproved gear candidates.
  * Deliberately excludes canon/adapted duplicates, rejected or Warden-only concepts,
  * source-only organism/ore tables, and other non-retail reference entries.
  * Source and price references are not live offers. No catalog row or purchase permission.
@@ -7,30 +7,6 @@
 (() => {
   'use strict';
   window.HubSpecialRequests = Object.freeze([
-  {
-    "id": "SRC-0044",
-    "item": "RADIANT 9C",
-    "source": "Heat Signature v1.3",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "1kcr",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0045",
-    "item": "SHATTERCALL",
-    "source": "Heat Signature v1.3",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "1.3kcr",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0046",
-    "item": "SUNLESS KING",
-    "source": "Heat Signature v1.3",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "1.5kcr",
-    "referenceOnly": false
-  },
   {
     "id": "SRC-0047",
     "item": "HARC-72 HELIOS ARC",
