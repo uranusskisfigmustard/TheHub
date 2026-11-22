@@ -12,6 +12,10 @@ on:
       - 'data/player-contacts.json'
       - 'data/shared-equipment.json'
       - 'pharmaceuticals.js'
+      - 'purchases.js'
+      - 'purchases.css'
+      - 'special-requests.js'
+      - 'tools/test-special-requests.js'
       - 'tools/build-player-equipment.py'
       - 'tools/test_player_equipment.py'
       - 'assets/portraits/**'
@@ -29,6 +33,10 @@ on:
       - 'data/player-contacts.json'
       - 'data/shared-equipment.json'
       - 'pharmaceuticals.js'
+      - 'purchases.js'
+      - 'purchases.css'
+      - 'special-requests.js'
+      - 'tools/test-special-requests.js'
       - 'tools/build-player-equipment.py'
       - 'tools/test_player_equipment.py'
       - 'assets/portraits/**'
@@ -58,3 +66,10 @@ jobs:
         run: |
           python3 -m unittest discover -s tools -p test_player_equipment.py
           node --check pharmaceuticals.js
+
+      - name: Validate Special Request catalog and purchase guards
+        run: |
+          node --check purchases.js
+          node --check special-requests.js
+          node --check tools/test-special-requests.js
+          node tools/test-special-requests.js
