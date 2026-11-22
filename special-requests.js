@@ -1,4 +1,4 @@
-/* Player-safe Special Request previews: 132 unapproved gear candidates.
+/* Player-safe Special Request previews: 127 unapproved gear candidates.
  * Deliberately excludes canon/adapted duplicates, rejected or Warden-only concepts,
  * source-only organism/ore tables, and other non-retail reference entries.
  * Source and price references are not live offers. No catalog row or purchase permission.
@@ -7,46 +7,6 @@
 (() => {
   'use strict';
   window.HubSpecialRequests = Object.freeze([
-  {
-    "id": "SRC-0068",
-    "item": "High Speed Ammo",
-    "source": "Heat Signature v1.3",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "100cr per magazine",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0069",
-    "item": "Hollow Point Ammo",
-    "source": "Heat Signature v1.3",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "200cr per magazine",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0070",
-    "item": "FMJ Ammo",
-    "source": "Heat Signature v1.3",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "200cr per magazine",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0071",
-    "item": "Slug Shells",
-    "source": "Heat Signature v1.3",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "300cr per magazine",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0072",
-    "item": "Dragon Breath Shells",
-    "source": "Heat Signature v1.3",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "150cr per magazine",
-    "referenceOnly": false
-  },
   {
     "id": "SRC-0073",
     "item": "Flechette Shells",
