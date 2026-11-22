@@ -1,7 +1,6 @@
 (() => {
   'use strict';
-
-  const BUILD = '20261122-special-requests-exclusive2';
+  const BUILD = '20261122-business-purchases1';
   const pharma = window.HubPharmaceuticals || { category:'PHARMACEUTICALS', serviceListings:[], rules:[] };
   const POST_SOURCE = 'mothership-contract-service-post';
   const DEFAULT_SESSION_KEY = 'mothership_hub_board_session_v1';
@@ -14,27 +13,22 @@
     .replace(/[\u0300-\u036f]/g, '')
     .replace(/[’‘'"`]/g, '')
     .replace(/[^a-z0-9]+/g, ' ').trim();
-
   const esc = value => String(value ?? '')
     .replaceAll('&', '&amp;')
     .replaceAll('<', '&lt;')
     .replaceAll('>', '&gt;')
     .replaceAll('"', '&quot;');
-
   const credit = value => Number(value || 0).toLocaleString('en-US', {
     maximumFractionDigits: 2
   }) + 'cr';
-
   function render(root, options = {}) {
     if (!root) throw new Error('Purchase Board root is unavailable.');
     if (root.dataset.rendered === 'true') return;
-
     const api = String(options.api || '').trim();
     const sessionKey = String(options.sessionKey || DEFAULT_SESSION_KEY);
     const expiryKey = String(options.sessionExpiryKey || DEFAULT_EXPIRY_KEY);
     if (!api) throw new Error('Purchase Board API endpoint is unavailable.');
-
-    let characters = [...STATIC_CHARACTERS];
+    let characters = [...STATIC_CHARACTERS, 'JSCTWJC'];
     let selectedCharacter = '';
     let sessionToken = '';
     let sessionExpiry = 0;
@@ -49,23 +43,20 @@
     let cachedBundle = null;
     let bundlePromise = null;
     let catalogLive = false;
-
     root.innerHTML = `
       <div class="purchases-heading">
         <h1>Purchase Board</h1>
         <p class="purchases-sub">Hub marketplace inventory, qualification-gated access, and recovery-debt financing.</p>
       </div>
-
       <section class="purchase-panel" aria-labelledby="purchaseCharacterTitle">
         <div class="purchase-section-head">
           <div>
             <div class="purchase-section-kicker">STEP 1</div>
-            <h2 id="purchaseCharacterTitle">Select PC</h2>
+            <h2 id="purchaseCharacterTitle">Select buyer</h2>
           </div>
         </div>
         <div class="purchase-character-controls" data-purchase-characters></div>
       </section>
-
       <section class="purchase-panel purchase-auth-panel" data-purchase-auth hidden aria-labelledby="purchaseAuthTitle">
         <div class="purchase-section-kicker">BOARD ACCESS</div>
         <h2 id="purchaseAuthTitle">Authenticate</h2>
@@ -79,7 +70,6 @@
         </form>
         <div class="purchase-inline-status" data-purchase-auth-status></div>
       </section>
-
       <section class="purchase-market" data-purchase-market hidden>
         <div class="purchase-market-head">
           <div>
@@ -91,9 +81,7 @@
             <button type="button" class="purchase-quiet-btn" data-purchase-refresh>REFRESH CATALOG</button>
           </div>
         </div>
-
         <div class="purchase-finance-grid" data-purchase-finance></div>
-
         <div class="purchase-toolbar">
           <label class="purchase-search">
             <span>SEARCH</span>
@@ -101,7 +89,6 @@
           </label>
           <div class="purchase-count" data-purchase-count>—</div>
         </div>
-
         <div class="purchase-special-filter">
           <label class="purchase-special-toggle">
             <input type="checkbox" data-purchase-special-toggle aria-label="Show only items this PC cannot purchase">
@@ -110,14 +97,11 @@
           </label>
           <p>OFF: items this PC can purchase. ON: only items this PC cannot purchase, including access restrictions, financing blocks, appointment-only services and items pending Warden approval.</p>
         </div>
-
         <div class="purchase-categories" data-purchase-categories aria-label="Purchase categories"></div>
         <aside class="purchase-pharma-rules" data-purchase-pharma-rules hidden aria-label="Recovery pharmaceutical rules"></aside>
         <div class="purchase-items" data-purchase-items></div>
       </section>
-
       <div class="purchase-page-status" data-purchase-status>SELECT A PC</div>
-
       <div class="purchase-modal" data-purchase-modal hidden aria-hidden="true">
         <div class="purchase-modal-card" role="dialog" aria-modal="true" aria-labelledby="purchaseModalTitle">
           <h2 id="purchaseModalTitle" data-purchase-modal-title>Confirm Purchase</h2>
@@ -129,7 +113,6 @@
         </div>
       </div>
     `;
-
     const el = selector => root.querySelector(selector);
     const characterControls = el('[data-purchase-characters]');
     const authPanel = el('[data-purchase-auth]');
@@ -156,12 +139,10 @@
     const modalBody = el('[data-purchase-modal-body]');
     const cancelButton = el('[data-purchase-cancel]');
     const confirmButton = el('[data-purchase-confirm]');
-
     function setStatus(message, state = '') {
       pageStatus.textContent = String(message || '');
       pageStatus.dataset.state = state;
     }
-
     function setBusy(value) {
       busy = Boolean(value);
       authButton.disabled = busy;
@@ -174,11 +155,9 @@
         button.disabled = busy || button.dataset.locked === 'true';
       });
     }
-
     function noteTransport(label) {
       root.dataset.transport = String(label || '').toLowerCase().replace(/\s+/g, '-');
     }
-
     function clearSession() {
       sessionToken = '';
       sessionExpiry = 0;
@@ -190,7 +169,6 @@
         localStorage.removeItem(expiryKey);
       } catch (_) {}
     }
-
     function loadSession() {
       try {
         const token = String(localStorage.getItem(sessionKey) || '').trim();
@@ -204,7 +182,6 @@
       clearSession();
       return false;
     }
-
     function saveSession(payload) {
       const token = String(payload?.sessionToken || '').trim();
       const expiry = Number(payload?.expiresAtMs || 0);
@@ -217,7 +194,6 @@
       } catch (_) {}
       return true;
     }
-
     function normalizeBundle(payload) {
       if (!payload || payload.ok !== true || !payload.catalogs || typeof payload.catalogs !== 'object') return null;
       const names = Array.isArray(payload.characters)
@@ -241,7 +217,6 @@
         catalogs
       };
     }
-
     function readBundleCache() {
       try {
         return normalizeBundle(JSON.parse(localStorage.getItem(BUNDLE_CACHE_KEY) || 'null'));
@@ -249,13 +224,11 @@
         return null;
       }
     }
-
     function saveBundleCache(bundle) {
       const normalized = normalizeBundle(bundle);
       if (!normalized) return;
       try { localStorage.setItem(BUNDLE_CACHE_KEY, JSON.stringify(normalized)); } catch (_) {}
     }
-
     function postRequest(action, params = {}, timeoutMs = 18000) {
       return new Promise((resolve, reject) => {
         const requestId = `purchase-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
@@ -264,7 +237,6 @@
         const frameName = `purchasePost_${requestId.replace(/[^A-Za-z0-9_]/g, '_')}`;
         let settled = false;
         let timer = null;
-
         frame.name = frameName;
         frame.hidden = true;
         frame.setAttribute('aria-hidden', 'true');
@@ -272,7 +244,6 @@
         form.action = api;
         form.target = frameName;
         form.hidden = true;
-
         Object.entries({ ...params, action, requestId }).forEach(([name, value]) => {
           if (value === undefined || value === null) return;
           const input = document.createElement('input');
@@ -281,27 +252,23 @@
           input.value = String(value);
           form.appendChild(input);
         });
-
         const cleanup = () => {
           window.removeEventListener('message', onMessage);
           if (timer) clearTimeout(timer);
           form.remove();
           setTimeout(() => frame.remove(), 0);
         };
-
         const finish = (fn, value) => {
           if (settled) return;
           settled = true;
           cleanup();
           fn(value);
         };
-
         function onMessage(event) {
           const data = event?.data;
           if (!data || data.source !== POST_SOURCE || data.requestId !== requestId) return;
           finish(resolve, data.payload || {});
         }
-
         window.addEventListener('message', onMessage);
         document.body.appendChild(frame);
         document.body.appendChild(form);
@@ -309,14 +276,12 @@
         try { form.submit(); } catch (error) { finish(reject, error); }
       });
     }
-
     function jsonpRequest(action, params = {}, timeoutMs = 15000) {
       return new Promise((resolve, reject) => {
         const callback = `__hubPurchase_${Date.now()}_${Math.random().toString(36).slice(2)}`;
         const script = document.createElement('script');
         let settled = false;
         let timer = null;
-
         const cleanup = () => {
           if (timer) clearTimeout(timer);
           script.remove();
@@ -328,7 +293,6 @@
           cleanup();
           fn(value);
         };
-
         window[callback] = payload => finish(resolve, payload || {});
         const queryParams = new URLSearchParams({
           ...Object.fromEntries(Object.entries(params).map(([key, value]) => [key, String(value)])),
@@ -343,7 +307,6 @@
         timer = setTimeout(() => finish(reject, new Error('Purchase service timed out.')), timeoutMs);
       });
     }
-
     async function request(action, params = {}) {
       const legacyAction = action === 'purchaseauthenticate' ? 'authenticate' : action;
       try {
@@ -354,16 +317,13 @@
           return payload;
         }
       } catch (_) {}
-
       const payload = await jsonpRequest(legacyAction, params);
       noteTransport('LEGACY JSONP');
       return payload;
     }
-
     const isAuthFailure = payload => /board authentication required|invalid board access code|session|authentication/i.test(String(payload?.error || payload?.message || ''));
-
     function renderCharacters() {
-      characterControls.innerHTML = characters.map(name => `
+      characterControls.innerHTML = [...new Set([...characters, 'JSCTWJC'])].map(name => `
         <button type="button"
           class="purchase-character-btn${selectedCharacter === name ? ' active' : ''}"
           data-purchase-character="${esc(name)}"
@@ -375,17 +335,17 @@
         button.addEventListener('click', () => selectCharacter(button.dataset.purchaseCharacter || ''));
       });
     }
-
     function renderFinance() {
       if (!finance) {
         financeRoot.innerHTML = '';
         return;
       }
-      const cells = [
-        ['PERSONAL BALANCE', finance.personalBalance],
-        ['PRINCIPAL', finance.principalBalance],
-        ['FINANCING AVAILABLE', finance.financingAvailable],
-        ['PRINCIPAL CAP', finance.principalCap]
+      const cells = selectedCharacter === 'JSCTWJC' ? [
+        ['BUSINESS CASH', finance.personalBalance], ['BUSINESS CREDIT USED', finance.principalBalance],
+        ['BUSINESS CREDIT AVAILABLE', finance.financingAvailable], ['BUSINESS CREDIT LIMIT', finance.principalCap]
+      ] : [
+        ['PERSONAL BALANCE', finance.personalBalance], ['PRINCIPAL', finance.principalBalance],
+        ['FINANCING AVAILABLE', finance.financingAvailable], ['PRINCIPAL CAP', finance.principalCap]
       ];
       financeRoot.innerHTML = cells.map(([label, value]) => `
         <div class="purchase-finance-cell">
@@ -394,7 +354,6 @@
         </div>
       `).join('');
     }
-
     function isSpecialRequest(item) {
       // The selected PC's live access and available financing both determine
       // whether an item is directly purchasable. No source preview is checkout-eligible.
@@ -403,7 +362,6 @@
       if (!Number.isInteger(Number(item.catalogRow)) || Number(item.catalogRow) < 2) return true;
       return !affordability(item).ok;
     }
-
     function previewSourceItem(source) {
       const referenceOnly = Boolean(source.referenceOnly);
       const label = String(source.source || 'Source supplement');
@@ -431,14 +389,12 @@
         catalogRow: null
       };
     }
-
     function categoryList() {
       // Each mode has its own category choices; the toggle is the mode selector.
       const unique = new Set(items.filter(item => isSpecialRequest(item) === showSpecialRequests)
         .map(item => String(item.category || '').trim()).filter(Boolean));
       return ['ALL', ...Array.from(unique).sort((a, b) => a.localeCompare(b))];
     }
-
     function renderCategories() {
       categories.innerHTML = categoryList().map(category => `
         <button type="button"
@@ -454,7 +410,6 @@
         });
       });
     }
-
     function filteredItems() {
       const needle = String(searchText || '').trim().toLowerCase();
       return items.filter(item => {
@@ -469,18 +424,16 @@
           .includes(needle);
       }).sort((a, b) => String(a.item || '').localeCompare(String(b.item || '')));
     }
-
     function affordability(item) {
       if (!item?.canPurchase) return { ok:false, locked:true, label:'ACCESS NOT YET RECOGNIZED', shortfall:0 };
       const cash = Number(finance?.personalBalance || 0);
       const room = Number(finance?.financingAvailable || 0);
       const price = Number(item?.price || 0);
       const shortfall = Math.max(0, Math.round((price - cash) * 100) / 100);
-      if (shortfall <= 0.005) return { ok:true, label:'PERSONAL BALANCE // SUFFICIENT', shortfall:0 };
+      if (shortfall <= 0.005) return { ok:true, label:selectedCharacter === 'JSCTWJC' ? 'BUSINESS CASH // SUFFICIENT' : 'PERSONAL BALANCE // SUFFICIENT', shortfall:0 };
       if (shortfall > room + 0.005) return { ok:false, label:`FINANCE BLOCK // ${credit(shortfall)} SHORTFALL EXCEEDS AVAILABLE ROOM`, shortfall };
       return { ok:true, finance:true, label:`FINANCING REQUIRES CONFIRMATION // ${credit(shortfall)} SHORTFALL`, shortfall };
     }
-
     function badge(item) {
       if (item.sourceStatus === 'unapproved') return '<span class="purchase-badge progress">WARDEN REVIEW REQUIRED</span>';
       if (!item.canPurchase) return '<span class="purchase-badge progress">ACCESS IN PROGRESS</span>';
@@ -488,7 +441,6 @@
       if (item.restricted) return '<span class="purchase-badge restricted">RESTRICTED // CLEARED</span>';
       return '<span class="purchase-badge">AVAILABLE</span>';
     }
-
     function renderItems() {
       const visible = filteredItems();
       pharmaRules.hidden = !visible.some(item => item.category === pharma.category);
@@ -498,7 +450,6 @@
         itemRoot.innerHTML = '<div class="purchase-empty">No items match the current filter.</div>';
         return;
       }
-
       itemRoot.innerHTML = visible.map(item => {
         const sourceOnly = item.sourceStatus === 'unapproved';
         const progress = !item.canPurchase && !item.serviceOnly;
@@ -538,19 +489,16 @@
             ${button}
           </article>`;
       }).join('');
-
       itemRoot.querySelectorAll('[data-purchase-buy]').forEach(button => {
         button.addEventListener('click', () => openPurchase(Number(button.dataset.purchaseBuy)));
       });
     }
-
     function showAuth(message = '') {
       authPanel.hidden = false;
       market.hidden = true;
       authStatus.textContent = message;
       if (!busy) setTimeout(() => pinInput.focus(), 0);
     }
-
     function showMarket() {
       authPanel.hidden = true;
       market.hidden = false;
@@ -559,7 +507,6 @@
       renderCategories();
       renderItems();
     }
-
     function closeModal(force = false) {
       if (busy && !force) return;
       currentItem = null;
@@ -568,20 +515,31 @@
       modalBody.innerHTML = '';
       setBusy(busy);
     }
-
     function summaryRow(label, value) {
       return `<div class="purchase-summary-row"><span>${esc(label)}</span><strong>${esc(value)}</strong></div>`;
     }
-
     function openPurchase(rowNumber) {
       if (busy || !catalogLive) return;
       const item = items.find(candidate => Number(candidate.catalogRow) === Number(rowNumber));
       if (!item || isSpecialRequest(item) || showSpecialRequests ||
           !Number.isInteger(Number(item.catalogRow)) ||
           Number(item.catalogRow) <= 1) return;
-
       const funding = affordability(item);
       currentItem = item;
+      if (selectedCharacter === 'JSCTWJC') {
+        modalTitle.textContent = 'Request business purchase';
+        modalBody.innerHTML = '<div class="purchase-summary">' +
+          summaryRow('Buyer / Recipient', 'JSCTWJC') + summaryRow('Item', item.item) +
+          summaryRow('Price', item.priceLabel || credit(item.price)) +
+          summaryRow('Business cash', credit(finance?.personalBalance)) +
+          summaryRow('Credit required', credit(funding.shortfall || 0)) + '</div>' +
+          '<div class="purchase-modal-warning">This submits a request for Warden approval. Payment and equipment are recorded only after approval and successful processing.</div>';
+        confirmButton.disabled = !funding.ok;
+        confirmButton.textContent = 'SUBMIT REQUEST';
+        modal.hidden = false;
+        modal.setAttribute('aria-hidden', 'false');
+        return;
+      }
       modalTitle.textContent = 'Confirm Purchase';
       const personal = Number(finance?.personalBalance || 0);
       const principal = Number(finance?.principalBalance || 0);
@@ -607,14 +565,12 @@
       if (!funding.ok) {
         body += `<div class="purchase-modal-error">This purchase cannot be financed without exceeding the ${esc(credit(finance?.principalCap))} principal limit.</div>`;
       }
-
       modalBody.innerHTML = body;
       confirmButton.disabled = !funding.ok;
       confirmButton.textContent = shortfall > 0.005 ? 'CONFIRM & FINANCE' : 'CONFIRM PURCHASE';
       modal.hidden = false;
       modal.setAttribute('aria-hidden', 'false');
     }
-
     function applyCatalog(character, bundle, live) {
       const source = bundle?.catalogs?.[character];
       if (!source) return false;
@@ -644,12 +600,10 @@
       }
       return true;
     }
-
     async function loadBundleLive(force = false) {
       if (!sessionToken || sessionExpiry <= Date.now() + 5000) throw new Error('Board authentication required.');
       if (liveBundle && !force) return liveBundle;
       if (bundlePromise && !force) return bundlePromise;
-
       bundlePromise = (async () => {
         let payload = null;
         try {
@@ -660,9 +614,8 @@
         } catch (_) {
           payload = null;
         }
-
         if (!payload) {
-          const fallbackCharacters = characters.length ? characters : [...STATIC_CHARACTERS];
+          const fallbackCharacters = (characters.length ? characters : [...STATIC_CHARACTERS]).filter(name => name !== 'JSCTWJC');
           const entries = await Promise.all(fallbackCharacters.map(async character => {
             const single = await request('purchasecatalog', { session: sessionToken, character });
             if (!single || single.ok !== true) throw new Error(single?.error || `Purchase catalog unavailable for ${character}.`);
@@ -674,12 +627,10 @@
             catalogs: Object.fromEntries(entries)
           };
         }
-
         if (!payload || payload.ok !== true) {
           if (isAuthFailure(payload)) throw new Error(payload?.error || payload?.message || 'Board authentication required.');
           throw new Error(payload?.error || 'Purchase catalog preload unavailable.');
         }
-
         const normalized = normalizeBundle(payload);
         if (!normalized) throw new Error('Purchase catalog preload returned incomplete data.');
         liveBundle = normalized;
@@ -688,14 +639,12 @@
         saveBundleCache(normalized);
         return normalized;
       })();
-
       try {
         return await bundlePromise;
       } finally {
         bundlePromise = null;
       }
     }
-
     async function commitPurchase() {
       if (!currentItem || busy || !catalogLive || isSpecialRequest(currentItem) ||
           showSpecialRequests) return;
@@ -706,21 +655,30 @@
         setStatus('BOARD ACCESS REQUIRED', 'error');
         return;
       }
-
       const item = currentItem;
       const funding = affordability(item);
       if (!funding.ok) return;
-
       setBusy(true);
       confirmButton.textContent = 'PROCESSING…';
       try {
+        let requestId = '';
+        const requestKey = 'mothership_business_request_' + String(item.catalogRow);
+        if (selectedCharacter === 'JSCTWJC') {
+          requestId = localStorage.getItem(requestKey) || '';
+          if (!requestId) {
+            const bytes = new Uint8Array(16);
+            crypto.getRandomValues(bytes);
+            requestId = 'BP-' + Array.from(bytes, b => b.toString(16).padStart(2, '0')).join('');
+            localStorage.setItem(requestKey, requestId);
+          }
+        }
         const payload = await request('purchasecommit', {
+          requestId: requestId,
           session: sessionToken,
           character: selectedCharacter,
           catalogRow: item.catalogRow,
           financeConfirmed: funding.shortfall > 0.005 ? 'true' : 'false'
         });
-
         if (!payload || payload.ok !== true) {
           if (isAuthFailure(payload)) {
             clearSession();
@@ -738,7 +696,12 @@
           }
           throw new Error(payload?.error || payload?.message || 'Purchase could not be completed.');
         }
-
+        if (selectedCharacter === 'JSCTWJC' && payload.queued === true) {
+          localStorage.removeItem('mothership_business_request_' + String(item.catalogRow));
+          closeModal(true);
+          setStatus(payload.message || 'REQUEST SUBMITTED FOR WARDEN APPROVAL', 'ok');
+          return;
+        }
         finance = payload.finance || finance;
         if (liveBundle?.catalogs?.[selectedCharacter]) {
           liveBundle.catalogs[selectedCharacter].finance = finance;
@@ -756,11 +719,10 @@
         if (!modal.hidden && currentItem) {
           const updatedFunding = affordability(currentItem);
           confirmButton.disabled = !updatedFunding.ok || !catalogLive;
-          confirmButton.textContent = updatedFunding.shortfall > 0.005 ? 'CONFIRM & FINANCE' : 'CONFIRM PURCHASE';
+          confirmButton.textContent = selectedCharacter === 'JSCTWJC' ? 'SUBMIT REQUEST' : (updatedFunding.shortfall > 0.005 ? 'CONFIRM & FINANCE' : 'CONFIRM PURCHASE');
         }
       }
     }
-
     async function showSelectedCatalog(force = false) {
       if (!selectedCharacter) {
         setStatus('SELECT A PC BEFORE SHOPPING');
@@ -772,17 +734,16 @@
         setStatus('BOARD ACCESS REQUIRED');
         return;
       }
-
       if (!force && liveBundle && applyCatalog(selectedCharacter, liveBundle, true)) return;
       if (!force && cachedBundle) applyCatalog(selectedCharacter, cachedBundle, false);
       if (!cachedBundle?.catalogs?.[selectedCharacter]) {
         market.hidden = true;
         setStatus(`PRELOADING ${selectedCharacter.toUpperCase()} CATALOG…`);
       }
-
       try {
         const bundle = await loadBundleLive(force);
         if (selectedCharacter && bundle.catalogs?.[selectedCharacter]) applyCatalog(selectedCharacter, bundle, true);
+        else if (selectedCharacter === 'JSCTWJC') setStatus('BUSINESS CATALOG UNAVAILABLE — BACKEND UPDATE REQUIRED', 'error');
       } catch (error) {
         if (isAuthFailure({ error: error?.message })) {
           clearSession();
@@ -797,7 +758,6 @@
         }
       }
     }
-
     async function selectCharacter(name) {
       if (busy) return;
       selectedCharacter = String(name || '').trim();
@@ -809,7 +769,6 @@
       renderCharacters();
       market.hidden = true;
       closeModal(true);
-
       if (!selectedCharacter) {
         authPanel.hidden = true;
         setStatus(sessionToken ? 'SELECT A PC // CATALOGS PRELOADING IN BACKGROUND' : 'SELECT A PC');
@@ -822,7 +781,6 @@
         setStatus(`${selectedCharacter.toUpperCase()} SELECTED // BOARD ACCESS REQUIRED`);
       }
     }
-
     async function authenticate(event) {
       event.preventDefault();
       if (busy || !selectedCharacter) return;
@@ -831,7 +789,6 @@
         authStatus.textContent = 'Enter the Board PIN.';
         return;
       }
-
       setBusy(true);
       authStatus.textContent = 'AUTHENTICATING…';
       try {
@@ -850,7 +807,6 @@
         setBusy(false);
       }
     }
-
     specialToggle.addEventListener('change', () => {
       showSpecialRequests = specialToggle.checked;
       specialState.textContent = showSpecialRequests ? 'ON' : 'OFF';
@@ -882,10 +838,8 @@
     modal.addEventListener('click', event => {
       if (event.target === modal) closeModal();
     });
-
     root.dataset.rendered = 'true';
     renderCharacters();
-
     const hasSession = loadSession();
     if (hasSession) {
       cachedBundle = readBundleCache();
@@ -901,6 +855,5 @@
       setStatus('SELECT A PC');
     }
   }
-
   window.HubPurchasesContent = Object.freeze({ build: BUILD, render });
 })();
