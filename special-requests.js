@@ -1,4 +1,4 @@
-/* Player-safe Special Request previews: 117 unapproved gear candidates.
+/* Player-safe Special Request previews: 112 unapproved gear candidates.
  * Deliberately excludes canon/adapted duplicates, rejected or Warden-only concepts,
  * source-only organism/ore tables, and other non-retail reference entries.
  * Source and price references are not live offers. No catalog row or purchase permission.
@@ -7,46 +7,6 @@
 (() => {
   'use strict';
   window.HubSpecialRequests = Object.freeze([
-  {
-    "id": "SRC-0083",
-    "item": "Portable Bioscanner",
-    "source": "Heat Signature v1.3",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "4.5kcr",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0084",
-    "item": "Angled Foregrip",
-    "source": "Heat Signature v1.3",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "500cr",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0085",
-    "item": "SK-9 Breach Fang Bayonet",
-    "source": "Heat Signature v1.3",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "100cr",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0086",
-    "item": "HVL-4 Heavy Grenade Launcher",
-    "source": "Heat Signature v1.3",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "2kcr",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0087",
-    "item": "The Breacher Shotgun",
-    "source": "Heat Signature v1.3",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "1kcr",
-    "referenceOnly": false
-  },
   {
     "id": "SRC-0088",
     "item": "Red Tracer-7 Laser Sight",
