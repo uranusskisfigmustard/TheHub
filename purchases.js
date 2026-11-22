@@ -1,14 +1,13 @@
 (() => {
   'use strict';
 
-  const BUILD = '20261122-special-requests1';
+  const BUILD = '20261122-special-requests-exclusive2';
   const pharma = window.HubPharmaceuticals || { category:'PHARMACEUTICALS', serviceListings:[], rules:[] };
   const POST_SOURCE = 'mothership-contract-service-post';
   const DEFAULT_SESSION_KEY = 'mothership_hub_board_session_v1';
   const DEFAULT_EXPIRY_KEY = 'mothership_hub_board_session_expiry_v1';
   const BUNDLE_CACHE_KEY = 'mothership_hub_purchase_bundle_v4';
   const STATIC_CHARACTERS = Object.freeze(['Prudence Greymore', 'John Sobieski', 'Cassidy Wright']);
-  const SPECIAL_REQUEST_CATEGORY = 'SPECIAL REQUEST';
   const SPECIAL_REQUEST_ITEMS = Array.isArray(window.HubSpecialRequests) ? window.HubSpecialRequests : [];
   const normalizedItemName = value => String(value || '')
     .normalize('NFKD').toLowerCase()
@@ -105,11 +104,11 @@
 
         <div class="purchase-special-filter">
           <label class="purchase-special-toggle">
-            <input type="checkbox" data-purchase-special-toggle aria-label="Show Special Request items">
+            <input type="checkbox" data-purchase-special-toggle aria-label="Show only items this PC cannot purchase">
             <span class="purchase-special-label">SPECIAL REQUEST</span>
             <span class="purchase-special-state" data-purchase-special-state>OFF</span>
           </label>
-          <p>Show items needing your character's access or Warden review. Listings here cannot be purchased directly.</p>
+          <p>OFF: items this PC can purchase. ON: only items this PC cannot purchase, including access restrictions, financing blocks, appointment-only services and items pending Warden approval.</p>
         </div>
 
         <div class="purchase-categories" data-purchase-categories aria-label="Purchase categories"></div>
@@ -397,8 +396,11 @@
     }
 
     function isSpecialRequest(item) {
-      return item?.sourceStatus === 'unapproved' ||
-        (!item?.serviceOnly && item?.canPurchase === false);
+      // The selected PC's live access and available financing both determine
+      // whether an item is directly purchasable. No source preview is checkout-eligible.
+      if (item?.sourceStatus === 'unapproved' || item?.requestOnly || item?.serviceOnly) return true;
+      if (item?.canPurchase !== true) return true;
+      return !affordability(item).ok;
     }
 
     function previewSourceItem(source) {
@@ -407,7 +409,7 @@
       const group = String(source.group || 'Equipment');
       return {
         item: String(source.item || ''),
-        category: SPECIAL_REQUEST_CATEGORY,
+        category: group,
         sourceCategory: group,
         sourceLabel: label,
         candidateId: String(source.id || ''),
@@ -430,10 +432,10 @@
     }
 
     function categoryList() {
-      const unique = new Set(items.filter(item => !isSpecialRequest(item))
+      // Each mode has its own category choices; the toggle is the mode selector.
+      const unique = new Set(items.filter(item => isSpecialRequest(item) === showSpecialRequests)
         .map(item => String(item.category || '').trim()).filter(Boolean));
-      return ['ALL', ...(showSpecialRequests ? [SPECIAL_REQUEST_CATEGORY] : []),
-        ...Array.from(unique).sort((a, b) => a.localeCompare(b))];
+      return ['ALL', ...Array.from(unique).sort((a, b) => a.localeCompare(b))];
     }
 
     function renderCategories() {
@@ -456,10 +458,8 @@
       const needle = String(searchText || '').trim().toLowerCase();
       return items.filter(item => {
         const special = isSpecialRequest(item);
-        if (special && !showSpecialRequests) return false;
-        if (selectedCategory === SPECIAL_REQUEST_CATEGORY && !special) return false;
-        if (selectedCategory !== 'ALL' && selectedCategory !== SPECIAL_REQUEST_CATEGORY &&
-            String(item.category || '') !== selectedCategory) return false;
+        if (special !== showSpecialRequests) return false;
+        if (selectedCategory !== 'ALL' && String(item.category || '') !== selectedCategory) return false;
         if (!needle) return true;
         return [item.item, item.category, item.provider, item.mechanics, item.minimumAccess,
           item.progressStanding, item.sourceLabel, item.sourceCategory, item.candidateId]
@@ -483,6 +483,7 @@
     function badge(item) {
       if (item.sourceStatus === 'unapproved') return '<span class="purchase-badge progress">WARDEN REVIEW REQUIRED</span>';
       if (!item.canPurchase) return '<span class="purchase-badge progress">ACCESS IN PROGRESS</span>';
+      if (!affordability(item).ok) return '<span class="purchase-badge progress">FINANCING UNAVAILABLE</span>';
       if (item.restricted) return '<span class="purchase-badge restricted">RESTRICTED // CLEARED</span>';
       return '<span class="purchase-badge">AVAILABLE</span>';
     }
@@ -490,8 +491,8 @@
     function renderItems() {
       const visible = filteredItems();
       pharmaRules.hidden = !visible.some(item => item.category === pharma.category);
-      const eligibleCount = items.filter(item => showSpecialRequests || !isSpecialRequest(item)).length;
-      count.textContent = `${visible.length} OF ${eligibleCount} ITEMS`;
+      const modeCount = items.filter(item => isSpecialRequest(item) === showSpecialRequests).length;
+      count.textContent = `${visible.length} OF ${modeCount} ${showSpecialRequests ? 'SPECIAL REQUEST' : 'PURCHASABLE'} ITEMS`;
       if (!visible.length) {
         itemRoot.innerHTML = '<div class="purchase-empty">No items match the current filter.</div>';
         return;
@@ -520,7 +521,7 @@
               ? `<button type="button" class="purchase-buy-btn" data-purchase-buy="${Number(item.catalogRow)}">BUY</button>`
               : '<button type="button" class="purchase-disabled-btn" data-locked="true" disabled>FINANCE BLOCK</button>';
         return `
-          <article class="purchase-item${sourceOnly ? ' special-request' : ''}${progress ? ' progress' : ''}${item.restricted ? ' restricted' : ''}">
+          <article class="purchase-item${showSpecialRequests ? ' special-request' : ''}${progress ? ' progress' : ''}${item.restricted ? ' restricted' : ''}">
             <div class="purchase-item-top">
               <div>
                 <div class="purchase-item-category">${esc(item.category)}</div>
@@ -574,8 +575,8 @@
     function openPurchase(rowNumber) {
       if (busy || !catalogLive) return;
       const item = items.find(candidate => Number(candidate.catalogRow) === Number(rowNumber));
-      if (!item || item.sourceStatus === 'unapproved' || item.requestOnly ||
-          item.canPurchase === false || !Number.isInteger(Number(item.catalogRow)) ||
+      if (!item || isSpecialRequest(item) || showSpecialRequests ||
+          !Number.isInteger(Number(item.catalogRow)) ||
           Number(item.catalogRow) <= 1) return;
 
       const funding = affordability(item);
@@ -633,7 +634,7 @@
       searchText = '';
       search.value = '';
       showMarket();
-      const buyable = items.filter(item => item.canPurchase !== false && !item.serviceOnly).length;
+      const buyable = items.filter(item => !isSpecialRequest(item)).length;
       const progress = items.filter(item => item.accessState === 'restricted_in_progress').length;
       if (catalogLive) {
         setStatus(`${buyable} ITEM${buyable === 1 ? '' : 'S'} AVAILABLE${progress ? ` // ${progress} ACCESS PATH${progress === 1 ? '' : 'S'} IN PROGRESS` : ''} FOR ${character.toUpperCase()}`, 'ok');
@@ -695,8 +696,8 @@
     }
 
     async function commitPurchase() {
-      if (!currentItem || busy || !catalogLive || currentItem.canPurchase === false ||
-          currentItem.sourceStatus === 'unapproved' || currentItem.requestOnly) return;
+      if (!currentItem || busy || !catalogLive || isSpecialRequest(currentItem) ||
+          showSpecialRequests) return;
       if (!sessionToken || sessionExpiry <= Date.now() + 5000) {
         clearSession();
         closeModal(true);
@@ -851,9 +852,8 @@
     specialToggle.addEventListener('change', () => {
       showSpecialRequests = specialToggle.checked;
       specialState.textContent = showSpecialRequests ? 'ON' : 'OFF';
-      if (!showSpecialRequests && selectedCategory === SPECIAL_REQUEST_CATEGORY) {
-        selectedCategory = 'ALL';
-      }
+      // Categories are scoped to the active mode; avoid stale category filters.
+      selectedCategory = 'ALL';
       renderCategories();
       renderItems();
     });
