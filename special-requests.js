@@ -1,4 +1,4 @@
-/* Player-safe Special Request previews: 153 unapproved gear candidates.
+/* Player-safe Special Request previews: 150 unapproved gear candidates.
  * Deliberately excludes canon/adapted duplicates, rejected or Warden-only concepts,
  * source-only organism/ore tables, and other non-retail reference entries.
  * Source and price references are not live offers. No catalog row or purchase permission.
@@ -7,30 +7,6 @@
 (() => {
   'use strict';
   window.HubSpecialRequests = Object.freeze([
-  {
-    "id": "SRC-0047",
-    "item": "HARC-72 HELIOS ARC",
-    "source": "Heat Signature v1.3",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "2kcr",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0048",
-    "item": "EX-LZR 91",
-    "source": "Heat Signature v1.3",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "7kcr",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0049",
-    "item": "VX-9 QUILLSTORM",
-    "source": "Heat Signature v1.3",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "2.3kcr",
-    "referenceOnly": false
-  },
   {
     "id": "SRC-0050",
     "item": "MIR-2 BARRAGE",
