@@ -1,4 +1,4 @@
-/* Player-safe Special Request previews: 144 unapproved gear candidates.
+/* Player-safe Special Request previews: 141 unapproved gear candidates.
  * Deliberately excludes canon/adapted duplicates, rejected or Warden-only concepts,
  * source-only organism/ore tables, and other non-retail reference entries.
  * Source and price references are not live offers. No catalog row or purchase permission.
@@ -7,30 +7,6 @@
 (() => {
   'use strict';
   window.HubSpecialRequests = Object.freeze([
-  {
-    "id": "SRC-0056",
-    "item": "SLUGREAVER X1",
-    "source": "Heat Signature v1.3",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "4.5kcr",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0057",
-    "item": "SG-1 TAU’RI",
-    "source": "Heat Signature v1.3",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "6kcr",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0058",
-    "item": "NOSTROM-0 SAR",
-    "source": "Heat Signature v1.3",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "7kcr",
-    "referenceOnly": false
-  },
   {
     "id": "SRC-0059",
     "item": "EXPAN-53 SR",
