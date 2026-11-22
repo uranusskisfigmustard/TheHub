@@ -1,4 +1,4 @@
-/* Player-safe Special Request previews: 127 unapproved gear candidates.
+/* Player-safe Special Request previews: 122 unapproved gear candidates.
  * Deliberately excludes canon/adapted duplicates, rejected or Warden-only concepts,
  * source-only organism/ore tables, and other non-retail reference entries.
  * Source and price references are not live offers. No catalog row or purchase permission.
@@ -7,46 +7,6 @@
 (() => {
   'use strict';
   window.HubSpecialRequests = Object.freeze([
-  {
-    "id": "SRC-0073",
-    "item": "Flechette Shells",
-    "source": "Heat Signature v1.3",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "150cr per magazine",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0074",
-    "item": "Pulsetag Ammo",
-    "source": "Heat Signature v1.3",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "2kcr per round",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0075",
-    "item": "Grav-X8 Ammo",
-    "source": "Heat Signature v1.3",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "2.5kcr per round",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0076",
-    "item": "Smart Ammo",
-    "source": "Heat Signature v1.3",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "5kcr per magazine",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0077",
-    "item": "Whisperlock Mk.III Silencer",
-    "source": "Heat Signature v1.3",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "500cr",
-    "referenceOnly": false
-  },
   {
     "id": "SRC-0078",
     "item": "Vectorflow GX Muzzle Brake",
