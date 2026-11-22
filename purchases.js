@@ -1,13 +1,20 @@
 (() => {
   'use strict';
 
-  const BUILD = '20261021-pharmaceuticals2';
+  const BUILD = '20261122-special-requests1';
   const pharma = window.HubPharmaceuticals || { category:'PHARMACEUTICALS', serviceListings:[], rules:[] };
   const POST_SOURCE = 'mothership-contract-service-post';
   const DEFAULT_SESSION_KEY = 'mothership_hub_board_session_v1';
   const DEFAULT_EXPIRY_KEY = 'mothership_hub_board_session_expiry_v1';
   const BUNDLE_CACHE_KEY = 'mothership_hub_purchase_bundle_v4';
   const STATIC_CHARACTERS = Object.freeze(['Prudence Greymore', 'John Sobieski', 'Cassidy Wright']);
+  const SPECIAL_REQUEST_CATEGORY = 'SPECIAL REQUEST';
+  const SPECIAL_REQUEST_ITEMS = Array.isArray(window.HubSpecialRequests) ? window.HubSpecialRequests : [];
+  const normalizedItemName = value => String(value || '')
+    .normalize('NFKD').toLowerCase()
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[’‘'"`]/g, '')
+    .replace(/[^a-z0-9]+/g, ' ').trim();
 
   const esc = value => String(value ?? '')
     .replaceAll('&', '&amp;')
@@ -35,6 +42,7 @@
     let finance = null;
     let items = [];
     let selectedCategory = 'ALL';
+    let showSpecialRequests = false;
     let searchText = '';
     let busy = false;
     let currentItem = null;
@@ -95,6 +103,15 @@
           <div class="purchase-count" data-purchase-count>—</div>
         </div>
 
+        <div class="purchase-special-filter">
+          <label class="purchase-special-toggle">
+            <input type="checkbox" data-purchase-special-toggle aria-label="Show Special Request items">
+            <span class="purchase-special-label">SPECIAL REQUEST</span>
+            <span class="purchase-special-state" data-purchase-special-state>OFF</span>
+          </label>
+          <p>Show items needing your character's access or Warden review. Listings here cannot be purchased directly.</p>
+        </div>
+
         <div class="purchase-categories" data-purchase-categories aria-label="Purchase categories"></div>
         <aside class="purchase-pharma-rules" data-purchase-pharma-rules hidden aria-label="Recovery pharmaceutical rules"></aside>
         <div class="purchase-items" data-purchase-items></div>
@@ -127,6 +144,8 @@
     const search = el('[data-purchase-search]');
     const count = el('[data-purchase-count]');
     const categories = el('[data-purchase-categories]');
+    const specialToggle = el('[data-purchase-special-toggle]');
+    const specialState = el('[data-purchase-special-state]');
     const itemRoot = el('[data-purchase-items]');
     const pharmaRules = el('[data-purchase-pharma-rules]');
     pharmaRules.innerHTML = '<details><summary>Recovery aid rules &amp; dependence</summary><ul>' + pharma.rules.map(rule => '<li>' + esc(rule) + '</li>').join('') + '</ul></details>';
@@ -149,6 +168,7 @@
       authButton.disabled = busy;
       refreshButton.disabled = busy;
       switchButton.disabled = busy;
+      specialToggle.disabled = busy;
       cancelButton.disabled = busy;
       confirmButton.disabled = busy || !currentItem || !catalogLive;
       root.querySelectorAll('[data-purchase-character], [data-purchase-buy], [data-purchase-category]').forEach(button => {
@@ -376,9 +396,44 @@
       `).join('');
     }
 
+    function isSpecialRequest(item) {
+      return item?.sourceStatus === 'unapproved' ||
+        (!item?.serviceOnly && item?.canPurchase === false);
+    }
+
+    function previewSourceItem(source) {
+      const referenceOnly = Boolean(source.referenceOnly);
+      const label = String(source.source || 'Source supplement');
+      const group = String(source.group || 'Equipment');
+      return {
+        item: String(source.item || ''),
+        category: SPECIAL_REQUEST_CATEGORY,
+        sourceCategory: group,
+        sourceLabel: label,
+        candidateId: String(source.id || ''),
+        price: 0,
+        priceLabel: String(source.sourcePrice || 'Price not established'),
+        provider: 'Warden review required',
+        mechanics: group + ' // ' + label + '. ' +
+          (referenceOnly ? 'This is a source reference, not an established retail offer. ' : '') +
+          'Final mechanics, price, legal access and availability require Warden approval.',
+        minimumAccess: referenceOnly
+          ? 'Source reference only; no retail offer'
+          : 'Not approved for the Hub market',
+        progressStanding: '',
+        canPurchase: false,
+        sourceStatus: 'unapproved',
+        requestOnly: true,
+        referenceOnly,
+        catalogRow: null
+      };
+    }
+
     function categoryList() {
-      const unique = new Set(items.map(item => String(item.category || '').trim()).filter(Boolean));
-      return ['ALL', ...Array.from(unique).sort((a, b) => a.localeCompare(b))];
+      const unique = new Set(items.filter(item => !isSpecialRequest(item))
+        .map(item => String(item.category || '').trim()).filter(Boolean));
+      return ['ALL', ...(showSpecialRequests ? [SPECIAL_REQUEST_CATEGORY] : []),
+        ...Array.from(unique).sort((a, b) => a.localeCompare(b))];
     }
 
     function renderCategories() {
@@ -400,9 +455,14 @@
     function filteredItems() {
       const needle = String(searchText || '').trim().toLowerCase();
       return items.filter(item => {
-        if (selectedCategory !== 'ALL' && String(item.category || '') !== selectedCategory) return false;
+        const special = isSpecialRequest(item);
+        if (special && !showSpecialRequests) return false;
+        if (selectedCategory === SPECIAL_REQUEST_CATEGORY && !special) return false;
+        if (selectedCategory !== 'ALL' && selectedCategory !== SPECIAL_REQUEST_CATEGORY &&
+            String(item.category || '') !== selectedCategory) return false;
         if (!needle) return true;
-        return [item.item, item.category, item.provider, item.mechanics, item.minimumAccess, item.progressStanding]
+        return [item.item, item.category, item.provider, item.mechanics, item.minimumAccess,
+          item.progressStanding, item.sourceLabel, item.sourceCategory, item.candidateId]
           .join(' ')
           .toLowerCase()
           .includes(needle);
@@ -421,6 +481,7 @@
     }
 
     function badge(item) {
+      if (item.sourceStatus === 'unapproved') return '<span class="purchase-badge progress">WARDEN REVIEW REQUIRED</span>';
       if (!item.canPurchase) return '<span class="purchase-badge progress">ACCESS IN PROGRESS</span>';
       if (item.restricted) return '<span class="purchase-badge restricted">RESTRICTED // CLEARED</span>';
       return '<span class="purchase-badge">AVAILABLE</span>';
@@ -429,21 +490,27 @@
     function renderItems() {
       const visible = filteredItems();
       pharmaRules.hidden = !visible.some(item => item.category === pharma.category);
-      count.textContent = `${visible.length} OF ${items.length} ITEMS`;
+      const eligibleCount = items.filter(item => showSpecialRequests || !isSpecialRequest(item)).length;
+      count.textContent = `${visible.length} OF ${eligibleCount} ITEMS`;
       if (!visible.length) {
         itemRoot.innerHTML = '<div class="purchase-empty">No items match the current filter.</div>';
         return;
       }
 
       itemRoot.innerHTML = visible.map(item => {
+        const sourceOnly = item.sourceStatus === 'unapproved';
         const progress = !item.canPurchase && !item.serviceOnly;
         const accessBlock = progress ? `
           <div class="purchase-access-block">
             ${item.progressStanding ? `<div><span>QUALIFICATION ROUTE</span><strong>${esc(item.progressStanding)}</strong></div>` : ''}
             ${item.minimumAccess ? `<div><span>REMAINING ACCESS</span><strong>${esc(item.minimumAccess)}</strong></div>` : ''}
           </div>` : '';
-        const funding = item.serviceOnly ? { label:'' } : affordability(item);
-        const button = item.serviceOnly
+        const funding = item.serviceOnly || sourceOnly ? { label:'' } : affordability(item);
+        const providerLabel = sourceOnly ? 'SOURCE // ' + item.sourceLabel :
+          'PROVIDER // ' + (item.provider || 'Hub merchant');
+        const button = sourceOnly
+          ? '<div class="purchase-request-note">SPECIAL REQUEST — discuss with the Warden. No direct checkout or guaranteed availability.</div>'
+          : item.serviceOnly
           ? '<div class="purchase-clinic-note">CLINIC APPOINTMENT — arrange with Saint Orra. Medication and supervised care included.</div>'
           : !catalogLive
           ? '<button type="button" class="purchase-disabled-btn" data-locked="true" disabled>REFRESHING…</button>'
@@ -453,17 +520,17 @@
               ? `<button type="button" class="purchase-buy-btn" data-purchase-buy="${Number(item.catalogRow)}">BUY</button>`
               : '<button type="button" class="purchase-disabled-btn" data-locked="true" disabled>FINANCE BLOCK</button>';
         return `
-          <article class="purchase-item${progress ? ' progress' : ''}${item.restricted ? ' restricted' : ''}">
+          <article class="purchase-item${sourceOnly ? ' special-request' : ''}${progress ? ' progress' : ''}${item.restricted ? ' restricted' : ''}">
             <div class="purchase-item-top">
               <div>
                 <div class="purchase-item-category">${esc(item.category)}</div>
                 <h3>${esc(item.item)}</h3>
               </div>
-              <div class="purchase-price">${esc(item.priceLabel || credit(item.price))}</div>
+              <div class="purchase-price">${sourceOnly ? '<span class="purchase-price-kicker">SOURCE PRICE / UNCONFIRMED</span>' : ''}${esc(item.priceLabel || credit(item.price))}</div>
             </div>
             <div class="purchase-item-badges">${item.serviceOnly ? '<span class="purchase-badge">CLINIC CARE</span>' : badge(item)}</div>
             <p class="purchase-mechanics">${esc(item.mechanics)}</p>
-            <div class="purchase-provider">PROVIDER // ${esc(item.provider || 'Hub merchant')}</div>
+            <div class="purchase-provider">${esc(providerLabel)}</div>
             ${accessBlock}
             ${funding.label ? `<div class="purchase-finance-note${funding.ok ? '' : ' blocked'}">${esc(funding.label)}</div>` : ''}
             ${button}
@@ -507,7 +574,9 @@
     function openPurchase(rowNumber) {
       if (busy || !catalogLive) return;
       const item = items.find(candidate => Number(candidate.catalogRow) === Number(rowNumber));
-      if (!item || item.canPurchase === false) return;
+      if (!item || item.sourceStatus === 'unapproved' || item.requestOnly ||
+          item.canPurchase === false || !Number.isInteger(Number(item.catalogRow)) ||
+          Number(item.catalogRow) <= 1) return;
 
       const funding = affordability(item);
       currentItem = item;
@@ -549,8 +618,16 @@
       if (!source) return false;
       finance = source.finance || null;
       const retailItems = Array.isArray(source.items) ? source.items : [];
-      const names = new Set(retailItems.map(item => String(item.item || '').toLowerCase()));
-      items = [...retailItems, ...pharma.serviceListings.filter(item => !names.has(item.item.toLowerCase()))];
+      const names = new Set(retailItems.map(item => normalizedItemName(item.item)));
+      const clinicItems = pharma.serviceListings.filter(item => !names.has(normalizedItemName(item.item)));
+      clinicItems.forEach(item => names.add(normalizedItemName(item.item)));
+      const previews = SPECIAL_REQUEST_ITEMS.filter(source => {
+        const key = normalizedItemName(source.item);
+        if (!key || names.has(key)) return false;
+        names.add(key);
+        return true;
+      }).map(previewSourceItem);
+      items = [...retailItems, ...clinicItems, ...previews];
       catalogLive = Boolean(live);
       selectedCategory = 'ALL';
       searchText = '';
@@ -618,7 +695,8 @@
     }
 
     async function commitPurchase() {
-      if (!currentItem || busy || !catalogLive || currentItem.canPurchase === false) return;
+      if (!currentItem || busy || !catalogLive || currentItem.canPurchase === false ||
+          currentItem.sourceStatus === 'unapproved' || currentItem.requestOnly) return;
       if (!sessionToken || sessionExpiry <= Date.now() + 5000) {
         clearSession();
         closeModal(true);
@@ -770,6 +848,15 @@
       }
     }
 
+    specialToggle.addEventListener('change', () => {
+      showSpecialRequests = specialToggle.checked;
+      specialState.textContent = showSpecialRequests ? 'ON' : 'OFF';
+      if (!showSpecialRequests && selectedCategory === SPECIAL_REQUEST_CATEGORY) {
+        selectedCategory = 'ALL';
+      }
+      renderCategories();
+      renderItems();
+    });
     search.addEventListener('input', () => {
       searchText = search.value || '';
       renderItems();
