@@ -400,6 +400,7 @@
       // whether an item is directly purchasable. No source preview is checkout-eligible.
       if (item?.sourceStatus === 'unapproved' || item?.requestOnly || item?.serviceOnly) return true;
       if (item?.canPurchase !== true) return true;
+      if (!Number.isInteger(Number(item.catalogRow)) || Number(item.catalogRow) < 2) return true;
       return !affordability(item).ok;
     }
 
@@ -745,6 +746,7 @@
         }
         renderFinance();
         closeModal(true);
+        renderCategories();
         renderItems();
         setStatus(`${String(item.item || '').toUpperCase()} PURCHASED FOR ${selectedCharacter.toUpperCase()} // ${payload.receipt || 'RECORDED'}`, 'ok');
       } catch (error) {
