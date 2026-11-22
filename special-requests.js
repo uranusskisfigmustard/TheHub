@@ -1099,7 +1099,7 @@
       "item": "Self-Guided Rifle",
       "source": "Armory Expanded v2",
       "group": "WEAPONS & SECURITY",
-      "sourcePrice": "6kcr in source; Warden-selected future price 7kcr",
+      "sourcePrice": "7,000cr (selected price; not released)",
       "referenceOnly": false
     },
     {
