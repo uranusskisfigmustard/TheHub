@@ -8,7 +8,7 @@ const context = { window: {} };
 vm.runInNewContext(raw, context, { timeout: 2000 });
 const records = context.window.HubSpecialRequests;
 assert.ok(Array.isArray(records), 'Special Request source data must be an array');
-assert.equal(records.length, 200, 'All 200 unapproved source candidates must be present');
+assert.equal(records.length, 162, 'Only 162 player-safe unapproved source candidates may be public');
 const keys = new Set();
 const counts = {};
 for (const item of records) {
@@ -21,9 +21,11 @@ for (const item of records) {
   assert.ok(!('mechanics' in item), 'Unreviewed source rules must not be published verbatim');
   counts[item.source] = (counts[item.source] || 0) + 1;
 }
-assert.equal(counts['Cold Storage v0.1'], 40);
+assert.equal(counts['Cold Storage v0.1'], 3);
 assert.equal(counts['Heat Signature v1.3'], 53);
-assert.equal(counts['Armory Expanded v2'], 107);
+assert.equal(counts['Armory Expanded v2'], 106);
+assert.ok(!records.some(item => /^(Paradox Box|Pocket Jump|Dimensional Shifter|Singularity Grenade|Surgery Theater|Xenograft Module|Genetic Biolab)$/i.test(item.item)), 'Do not expose Warden-only rejected concepts or already-adopted ship upgrades');
+assert.ok(!records.some(item => /NON-RETAIL SPECIMEN|NON-RETAIL RESOURCE/.test(item.group)), 'Specimen and ore roll tables must remain Warden-only');
 
 const js = fs.readFileSync('purchases.js', 'utf8');
 const html = fs.readFileSync('purchases.html', 'utf8');
@@ -38,4 +40,4 @@ assert.match(js, /currentItem\.sourceStatus === 'unapproved'/);
 assert.match(js, /item\.sourceStatus === 'unapproved' \|\| item\.requestOnly/);
 assert.match(js, /const previews = SPECIAL_REQUEST_ITEMS\.filter/);
 assert.ok(!js.includes("selectedCategory = 'SPECIAL REQUEST';"), 'Source-only filter must be opt-in');
-console.log('PASS: 200 unique Special Request previews, opt-in toggle, de-duplication and purchase blockers.');
+console.log('PASS: 162 player-safe Special Request previews, opt-in toggle, de-duplication and purchase blockers.');
