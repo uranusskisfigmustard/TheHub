@@ -1,4 +1,4 @@
-/* Player-safe Special Request previews: 150 unapproved gear candidates.
+/* Player-safe Special Request previews: 147 unapproved gear candidates.
  * Deliberately excludes canon/adapted duplicates, rejected or Warden-only concepts,
  * source-only organism/ore tables, and other non-retail reference entries.
  * Source and price references are not live offers. No catalog row or purchase permission.
@@ -7,30 +7,6 @@
 (() => {
   'use strict';
   window.HubSpecialRequests = Object.freeze([
-  {
-    "id": "SRC-0050",
-    "item": "MIR-2 BARRAGE",
-    "source": "Heat Signature v1.3",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "2.5kcr",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0051",
-    "item": "KSR-93 STRIDER",
-    "source": "Heat Signature v1.3",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "2kcr",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0052",
-    "item": "VX-77 SHREDLINE",
-    "source": "Heat Signature v1.3",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "2.5kcr",
-    "referenceOnly": false
-  },
   {
     "id": "SRC-0053",
     "item": "MB-12 MINI BREACHER",
