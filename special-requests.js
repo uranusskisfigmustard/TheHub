@@ -1,4 +1,4 @@
-/* Player-safe Special Request previews: 122 unapproved gear candidates.
+/* Player-safe Special Request previews: 117 unapproved gear candidates.
  * Deliberately excludes canon/adapted duplicates, rejected or Warden-only concepts,
  * source-only organism/ore tables, and other non-retail reference entries.
  * Source and price references are not live offers. No catalog row or purchase permission.
@@ -7,46 +7,6 @@
 (() => {
   'use strict';
   window.HubSpecialRequests = Object.freeze([
-  {
-    "id": "SRC-0078",
-    "item": "Vectorflow GX Muzzle Brake",
-    "source": "Heat Signature v1.3",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "200cr",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0079",
-    "item": "NB-11 Shatterer Muzzle Device",
-    "source": "Heat Signature v1.3",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "150cr",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0080",
-    "item": "Red Dot-X Reflex Sight",
-    "source": "Heat Signature v1.3",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "500cr",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0081",
-    "item": "Falcon 4x Combat Optic",
-    "source": "Heat Signature v1.3",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "750cr",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0082",
-    "item": "VXR-8 Telescopic Scope",
-    "source": "Heat Signature v1.3",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "1.5kcr",
-    "referenceOnly": false
-  },
   {
     "id": "SRC-0083",
     "item": "Portable Bioscanner",
