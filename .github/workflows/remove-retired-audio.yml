@@ -29,4 +29,5 @@ jobs:
           fi
           mapfile -t leases < <(awk '{print "--force-with-lease=" $1 ":" $2}' /tmp/old-heads)
           mapfile -t refs < <(awk '{print $1 ":" $1}' /tmp/old-heads)
+          git config remote.origin.mirror false
           git push --atomic "${leases[@]}" origin "${refs[@]}"
