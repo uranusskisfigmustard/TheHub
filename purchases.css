@@ -5,3 +5,18 @@
 /* Keep all disclosed benefits, drawbacks and timing visible in cards and confirmation. */
 .purchase-mechanics{white-space:pre-line;line-height:1.5;overflow-wrap:anywhere}
 .purchase-summary-row strong{white-space:pre-line;overflow-wrap:anywhere;min-width:0}
+
+
+/* Special Request previews — visible only when the player switches on the filter. */
+.purchase-special-filter{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:3px 0 13px;padding:10px 12px;border:1px solid #41474b;background:#141719}
+.purchase-special-toggle{display:flex;align-items:center;gap:9px;min-height:38px;cursor:pointer;color:var(--text);font-size:.78rem;font-weight:900;letter-spacing:.07em}
+.purchase-special-toggle input{width:18px;height:18px;margin:0;cursor:pointer;accent-color:var(--accent)}
+.purchase-special-toggle input:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.purchase-special-label{white-space:nowrap}
+.purchase-special-state{min-width:38px;padding:4px 6px;text-align:center;border:1px solid var(--line);color:var(--muted);font-size:.72rem}
+.purchase-special-filter p{margin:0;flex:1 1 320px;color:var(--muted);font-size:.75rem;line-height:1.4}
+.purchase-item.special-request{border-style:dashed;border-color:#6f5942}
+.purchase-item.special-request .purchase-price{max-width:53%;white-space:normal;text-align:right;overflow-wrap:anywhere;font-size:.86rem}
+.purchase-price-kicker{display:block;color:var(--muted);font-size:.61rem;letter-spacing:.04em;line-height:1.3;font-weight:700}
+.purchase-request-note{margin-top:auto;padding:10px;border:1px solid #75604b;background:rgba(212,168,75,.045);color:#d4bea0;font-size:.73rem;line-height:1.45}
+@media(max-width:520px){.purchase-special-filter{align-items:flex-start}.purchase-special-filter p{flex-basis:100%}.purchase-item.special-request .purchase-price{max-width:55%}}
