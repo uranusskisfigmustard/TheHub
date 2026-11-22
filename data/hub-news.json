@@ -1,22 +1,114 @@
 {
   "schemaVersion": 1,
-  "asOf": "2237-319",
+  "asOf": "2237-326",
   "publicationMode": "warden-curated",
   "posts": [
     {
-      "id": "hub-community-20261115-neighborhood",
+      "id": "hub-community-20261117-meals",
       "visibility": "PUBLIC",
-      "date": "2237-319",
+      "date": "2237-321",
       "category": "discussion",
-      "typeLabel": "LOCAL / DISCUSSION",
-      "title": "The meeting isn’t the whole neighborhood",
-      "source": "hall_shift",
-      "summary": "Residents reflect on safety and different reactions to the meeting.",
+      "typeLabel": "COMMUNITY / CHAT",
+      "title": "What’s everyone eating this week?",
+      "source": "canteenqueue",
+      "summary": "Residents share inexpensive meals.",
       "body": [
-        "I keep seeing “the neighborhood thinks” followed by whatever the person posting thinks.",
-        "Some people are relieved. Some are angry. Some don’t want to walk home alone yet. Most of us are probably more than one of those things."
+        "I have managed to make the same three meals on a rotation for long enough that my roommate has started ranking them.",
+        "Cheapest thing you make when you’re tired and don’t want another ration pack?"
       ],
-      "comments": []
+      "comments": [
+        {
+          "by": "bootsonthedeck",
+          "date": "2237-321",
+          "text": "noodles, whatever greens are on sale, egg if i have one. hot sauce fixes the rest"
+        },
+        {
+          "by": "fieldjar",
+          "date": "2237-322",
+          "text": "Rice, beans, and the onions I forgot I bought. Assuming they haven’t started making decisions for themselves."
+        },
+        {
+          "by": "canteenqueue",
+          "date": "2237-322",
+          "text": "roommate says that’s suspiciously close to meal number two"
+        },
+        {
+          "by": "coldhands",
+          "date": "2237-324",
+          "text": "meal number two sounds good though?"
+        }
+      ]
+    },
+    {
+      "id": "hub-community-20261109-safety",
+      "visibility": "PUBLIC",
+      "date": "2237-313",
+      "category": "local",
+      "typeLabel": "WORK / LOCAL",
+      "title": "So… is it actually safe to walk through there now?",
+      "source": "last_cart_home",
+      "summary": "Residents discuss the route after the trouble and what safety means now.",
+      "body": [
+        "I’m not asking for names or a play-by-play. I just want to know if people are still getting jumped on that route.",
+        "Been taking the long way back from shift for a while and I’d like to stop doing that."
+      ],
+      "comments": [
+        {
+          "by": "lane_ghost",
+          "date": "2237-313",
+          "text": "heard the group causing trouble got dealt with. don’t know more than that"
+        },
+        {
+          "by": "last_cart_home",
+          "date": "2237-313",
+          "text": "what exactly do you mean by ‘dealt with’?"
+        },
+        {
+          "by": "shift_change",
+          "date": "2237-313",
+          "text": "I was at the meeting. Some of them were stopped, yes. That doesn’t mean anyone can promise you nothing else will ever happen."
+        },
+        {
+          "by": "dockrat",
+          "date": "2237-313",
+          "text": "thank you. ‘it’s safe now’ and ‘the people we knew about aren’t out there’ are different statements"
+        },
+        {
+          "by": "tinmug",
+          "date": "2237-313",
+          "text": "still feels better knowing somebody finally stepped in"
+        },
+        {
+          "by": "late_lift",
+          "date": "2237-313",
+          "text": "it does. also would feel better if we had a plan that doesn’t depend on the same three people being nearby next time"
+        },
+        {
+          "by": "tinmug",
+          "date": "2237-313",
+          "text": "sure but can we let them do a good thing without immediately handing them another job"
+        },
+        {
+          "by": "late_lift",
+          "date": "2237-318",
+          "text": "Been taking the long way so long I almost forgot where the shorter route comes out."
+        },
+        {
+          "by": "dockrat",
+          "date": "2237-321",
+          "text": "think that’s the part people are missing. even if the people responsible aren’t out there, it takes a while to stop expecting it"
+        },
+        {
+          "by": "nightwalk",
+          "date": "2237-323",
+          "text": "I’d still rather not walk home alone after late shift. if anybody’s going toward the residential levels around then, maybe we can walk together? no big organized thing. just ask"
+        },
+        {
+          "by": "last_cart_home",
+          "date": "2237-324",
+          "text": "I’m usually headed that way. send me a message before shift ends and we can see if our times line up"
+        }
+      ]
     },
     {
       "id": "hub-community-20261109-care",
@@ -96,62 +188,88 @@
           "by": "sparehands",
           "date": "2237-319",
           "text": "I don’t think they should be forgotten either. Could be more than one person needs help here."
+        },
+        {
+          "by": "redlamp",
+          "date": "2237-322",
+          "text": "also “help” means different things depending on what somebody actually needs. can we quit offering people jobs we don’t have"
+        },
+        {
+          "by": "same_hall",
+          "date": "2237-324",
+          "text": "and maybe let them say no to things. needing help doesnt mean everyone else gets to decide your life for you"
         }
       ]
     },
     {
-      "id": "hub-community-20261109-safety",
+      "id": "hub-community-20261116-chair",
       "visibility": "PUBLIC",
-      "date": "2237-313",
+      "date": "2237-320",
       "category": "local",
-      "typeLabel": "WORK / LOCAL",
-      "title": "So… is it actually safe to walk through there now?",
-      "source": "last_cart_home",
-      "summary": "Residents discuss the route after the trouble and what safety means now.",
+      "typeLabel": "COMMUNITY / HELP",
+      "title": "Anyone have a spare chair?",
+      "source": "patchwork",
+      "summary": "A resident asks about an extra kitchen chair.",
       "body": [
-        "I’m not asking for names or a play-by-play. I just want to know if people are still getting jumped on that route.",
-        "Been taking the long way back from shift for a while and I’d like to stop doing that."
+        "One of our kitchen chairs finally gave up. The other one is apparently waiting for company.",
+        "Before I go buy one: does anyone have an extra they’re trying to get rid of? Doesn’t need to match. It does need to hold a person."
       ],
       "comments": [
         {
-          "by": "lane_ghost",
-          "date": "2237-313",
-          "text": "heard the group causing trouble got dealt with. don’t know more than that"
-        },
-        {
-          "by": "last_cart_home",
-          "date": "2237-313",
-          "text": "what exactly do you mean by ‘dealt with’?"
-        },
-        {
-          "by": "shift_change",
-          "date": "2237-313",
-          "text": "I was at the meeting. Some of them were stopped, yes. That doesn’t mean anyone can promise you nothing else will ever happen."
-        },
-        {
           "by": "dockrat",
-          "date": "2237-313",
-          "text": "thank you. ‘it’s safe now’ and ‘the people we knew about aren’t out there’ are different statements"
+          "date": "2237-320",
+          "text": "how big a person"
+        },
+        {
+          "by": "patchwork",
+          "date": "2237-320",
+          "text": "a sitting person, preferably"
+        },
+        {
+          "by": "floorledger",
+          "date": "2237-321",
+          "text": "I have one you can have. One leg’s been repaired, but it’s held me for two years."
+        },
+        {
+          "by": "patchwork",
+          "date": "2237-323",
+          "text": "that’s longer than the last one lasted. I’ll message you, thanks"
+        }
+      ]
+    },
+    {
+      "id": "hub-community-20261115-neighborhood",
+      "visibility": "PUBLIC",
+      "date": "2237-319",
+      "category": "discussion",
+      "typeLabel": "LOCAL / DISCUSSION",
+      "title": "The meeting isn’t the whole neighborhood",
+      "source": "hall_shift",
+      "summary": "Residents reflect on safety and different reactions to the meeting.",
+      "body": [
+        "I keep seeing “the neighborhood thinks” followed by whatever the person posting thinks.",
+        "Some people are relieved. Some are angry. Some don’t want to walk home alone yet. Most of us are probably more than one of those things."
+      ],
+      "comments": [
+        {
+          "by": "old_handrail",
+          "date": "2237-320",
+          "text": "I’m glad somebody stepped in. I also didn’t like everything I saw. Still working out how I feel about it."
         },
         {
           "by": "tinmug",
-          "date": "2237-313",
-          "text": "still feels better knowing somebody finally stepped in"
+          "date": "2237-320",
+          "text": "i wasn’t there, but i appreciate that they did something. i was tired of hearing about another person getting hurt"
         },
         {
-          "by": "late_lift",
-          "date": "2237-313",
-          "text": "it does. also would feel better if we had a plan that doesn’t depend on the same three people being nearby next time"
+          "by": "nightwalk",
+          "date": "2237-322",
+          "text": "same. and i’d appreciate a way to feel safer when those people aren’t around too"
         },
         {
-          "by": "tinmug",
-          "date": "2237-313",
-          "text": "sure but can we let them do a good thing without immediately handing them another job"
-        },
-        {
-          "by": "late_lift",
-          "date": "2237-318",
-          "text": "Been taking the long way so long I almost forgot where the shorter route comes out."
+          "by": "hall_shift",
+          "date": "2237-323",
+          "text": "yeah. thankful isn’t the same as feeling safe forever"
         }
       ]
     },
