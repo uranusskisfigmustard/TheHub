@@ -430,7 +430,7 @@
       const room = Number(finance?.financingAvailable || 0);
       const price = Number(item?.price || 0);
       const shortfall = Math.max(0, Math.round((price - cash) * 100) / 100);
-      if (shortfall <= 0.005) return { ok:true, label:selectedCharacter === 'JSCTWJC' ? 'BUSINESS CASH // SUFFICIENT' : 'PERSONAL BALANCE // SUFFICIENT', shortfall:0 };
+      if (shortfall <= 0.005) return { ok:true, label:'BALANCE // SUFFICIENT', shortfall:0 };
       if (shortfall > room + 0.005) return { ok:false, label:`FINANCE BLOCK // ${credit(shortfall)} SHORTFALL EXCEEDS AVAILABLE ROOM`, shortfall };
       return { ok:true, finance:true, label:`FINANCING REQUIRES CONFIRMATION // ${credit(shortfall)} SHORTFALL`, shortfall };
     }
