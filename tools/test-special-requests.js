@@ -8,7 +8,7 @@ const context = { window: {} };
 vm.runInNewContext(raw, context, { timeout: 2000 });
 const records = context.window.HubSpecialRequests;
 assert.ok(Array.isArray(records), 'Special Request source data must be an array');
-assert.equal(records.length, 162, 'Only 162 player-safe unapproved source candidates may be public');
+assert.equal(records.length, 159, 'Only 159 player-safe unapproved source candidates may be public');
 const keys = new Set();
 const counts = {};
 for (const item of records) {
@@ -21,7 +21,7 @@ for (const item of records) {
   assert.ok(!('mechanics' in item), 'Unreviewed source rules must not be published verbatim');
   counts[item.source] = (counts[item.source] || 0) + 1;
 }
-assert.equal(counts['Cold Storage v0.1'], 3);
+assert.equal(counts['Cold Storage v0.1'] || 0, 0);
 assert.equal(counts['Heat Signature v1.3'], 53);
 assert.equal(counts['Armory Expanded v2'], 106);
 assert.ok(!records.some(item => /^(Paradox Box|Pocket Jump|Dimensional Shifter|Singularity Grenade|Surgery Theater|Xenograft Module|Genetic Biolab)$/i.test(item.item)), 'Do not expose Warden-only rejected concepts or already-adopted ship upgrades');
@@ -76,4 +76,4 @@ const changedFinance = evaluateFilter({personalBalance:500, financingAvailable:1
 assert.ok(!changedFinance.visible.some(item => item.item === 'Over Cap'), 'Refreshed finance may unlock a previous shortfall');
 assert.match(js, /selectedCategory = 'ALL';\s*renderCategories\(\);\s*renderItems\(\);/, 'Switching modes must reset the category filter');
 console.log('PASS: exclusive purchasable/Special Request views, per-PC access, financing and clinic exemptions.');
-console.log('PASS: 162 player-safe Special Request previews, opt-in toggle, de-duplication and purchase blockers.');
+console.log('PASS: 159 player-safe Special Request previews, opt-in toggle, de-duplication and purchase blockers.');
