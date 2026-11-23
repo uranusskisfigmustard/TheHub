@@ -8,7 +8,7 @@ const context = { window: {} };
 vm.runInNewContext(raw, context, { timeout: 2000 });
 const records = context.window.HubSpecialRequests;
 assert.ok(Array.isArray(records), 'Special Request source data must be an array');
-assert.equal(records.length, 63, 'Only 63 player-safe unapproved source candidates may be public');
+assert.equal(records.length, 58, 'Only 58 player-safe unapproved source candidates may be public');
 const keys = new Set();
 const counts = {};
 for (const item of records) {
@@ -23,10 +23,10 @@ for (const item of records) {
 }
 assert.equal(counts['Cold Storage v0.1'] || 0, 0);
 assert.equal(counts['Heat Signature v1.3'] || 0, 0);
-assert.equal(counts['Armory Expanded v2'], 63);
+assert.equal(counts['Armory Expanded v2'], 58);
 assert.ok(!records.some(item => /^(Paradox Box|Pocket Jump|Dimensional Shifter|Singularity Grenade|Surgery Theater|Xenograft Module|Genetic Biolab)$/i.test(item.item)), 'Do not expose Warden-only rejected concepts or already-adopted ship upgrades');
 assert.ok(!records.some(item => /NON-RETAIL SPECIMEN|NON-RETAIL RESOURCE/.test(item.group)), 'Specimen and ore roll tables must remain Warden-only');
-const reviewedAndWithheld = new Set(['SRC-0088', 'SRC-0089', 'SRC-0090', 'SRC-0091', 'SRC-0092', 'SRC-0093', 'SRC-0094', 'SRC-0095', 'SRC-0096', 'SRC-0097', 'SRC-0098', 'SRC-0099', 'SRC-0100', 'SRC-0101', 'SRC-0102', 'SRC-0103', 'SRC-0104', 'SRC-0105', 'SRC-0106', 'SRC-0107', 'SRC-0108', 'SRC-0109', 'SRC-0110', 'SRC-0111', 'SRC-0112', 'SRC-0113', 'SRC-0114', 'SRC-0115', 'SRC-0116', 'SRC-0117', 'SRC-0118', 'SRC-0119', 'SRC-0120', 'SRC-0121', 'SRC-0122', 'SRC-0123', 'SRC-0124', 'SRC-0125', 'SRC-0126', 'SRC-0127', 'SRC-0128', 'SRC-0129', 'SRC-0130', 'SRC-0131', 'SRC-0132', 'SRC-0133', 'SRC-0134', 'SRC-0135', 'SRC-0136', 'SRC-0137']);
+const reviewedAndWithheld = new Set(['SRC-0088', 'SRC-0089', 'SRC-0090', 'SRC-0091', 'SRC-0092', 'SRC-0093', 'SRC-0094', 'SRC-0095', 'SRC-0096', 'SRC-0097', 'SRC-0098', 'SRC-0099', 'SRC-0100', 'SRC-0101', 'SRC-0102', 'SRC-0103', 'SRC-0104', 'SRC-0105', 'SRC-0106', 'SRC-0107', 'SRC-0108', 'SRC-0109', 'SRC-0110', 'SRC-0111', 'SRC-0112', 'SRC-0113', 'SRC-0114', 'SRC-0115', 'SRC-0116', 'SRC-0117', 'SRC-0118', 'SRC-0119', 'SRC-0120', 'SRC-0121', 'SRC-0122', 'SRC-0123', 'SRC-0124', 'SRC-0125', 'SRC-0126', 'SRC-0127', 'SRC-0128', 'SRC-0129', 'SRC-0130', 'SRC-0131', 'SRC-0132', 'SRC-0133', 'SRC-0134', 'SRC-0135', 'SRC-0136', 'SRC-0137', 'SRC-0138', 'SRC-0139', 'SRC-0140', 'SRC-0141', 'SRC-0142']);
 assert.ok(!records.some(item => reviewedAndWithheld.has(item.id)), 'Reviewed adopted or rejected items must not remain in unapproved source preview');
 
 const js = fs.readFileSync('purchases.js', 'utf8');
@@ -78,4 +78,4 @@ const changedFinance = evaluateFilter({personalBalance:500, financingAvailable:1
 assert.ok(!changedFinance.visible.some(item => item.item === 'Over Cap'), 'Refreshed finance may unlock a previous shortfall');
 assert.match(js, /selectedCategory = 'ALL';\s*renderCategories\(\);\s*renderItems\(\);/, 'Switching modes must reset the category filter');
 console.log('PASS: exclusive purchasable/Special Request views, per-PC access, financing and clinic exemptions.');
-console.log('PASS: 63 player-safe Special Request previews, opt-in toggle, de-duplication and purchase blockers.');
+console.log('PASS: 58 player-safe Special Request previews, opt-in toggle, de-duplication and purchase blockers.');
