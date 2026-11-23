@@ -1,4 +1,4 @@
-/* Player-safe Special Request previews: 107 unapproved gear candidates.
+/* Player-safe Special Request previews: 102 unapproved gear candidates.
  * Deliberately excludes canon/adapted duplicates, rejected or Warden-only concepts,
  * source-only organism/ore tables, and other non-retail reference entries.
  * Source and price references are not live offers. No catalog row or purchase permission.
@@ -7,46 +7,6 @@
 (() => {
   'use strict';
   window.HubSpecialRequests = Object.freeze([
-  {
-    "id": "SRC-0093",
-    "item": "FR-1 Utility Stock",
-    "source": "Heat Signature v1.3",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "900cr",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0094",
-    "item": "Boarding Pike",
-    "source": "Armory Expanded v2",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "100cr",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0095",
-    "item": "Chem Sprayer",
-    "source": "Armory Expanded v2",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "2kcr",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0096",
-    "item": "Club/Improvised",
-    "source": "Armory Expanded v2",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "Free",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0097",
-    "item": "Concussion Gun",
-    "source": "Armory Expanded v2",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "2kcr",
-    "referenceOnly": false
-  },
   {
     "id": "SRC-0098",
     "item": "Crossbow",
