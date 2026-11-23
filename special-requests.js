@@ -1,4 +1,4 @@
-/* Player-safe Special Request previews: 28 unapproved gear candidates.
+/* Player-safe Special Request previews: 23 unapproved gear candidates.
  * Deliberately excludes canon/adapted duplicates, rejected or Warden-only concepts,
  * source-only organism/ore tables, and other non-retail reference entries.
  * Source and price references are not live offers. No catalog row or purchase permission.
@@ -7,46 +7,6 @@
 (() => {
   'use strict';
   window.HubSpecialRequests = Object.freeze([
-  {
-    "id": "SRC-0173",
-    "item": "Hack-O-Matic",
-    "source": "Armory Expanded v2",
-    "group": "TOOLS / REVIEW",
-    "sourcePrice": "2.5kcr",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0174",
-    "item": "Handcuffs",
-    "source": "Armory Expanded v2",
-    "group": "TOOLS / REVIEW",
-    "sourcePrice": "150cr",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0175",
-    "item": "Hangover Pills x5",
-    "source": "Armory Expanded v2",
-    "group": "TOOLS / REVIEW",
-    "sourcePrice": "50cr",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0176",
-    "item": "Hash Joint",
-    "source": "Armory Expanded v2",
-    "group": "TOOLS / REVIEW",
-    "sourcePrice": "10cr",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0177",
-    "item": "Hyper-Speed Vial",
-    "source": "Armory Expanded v2",
-    "group": "TOOLS / REVIEW",
-    "sourcePrice": "100cr",
-    "referenceOnly": false
-  },
   {
     "id": "SRC-0178",
     "item": "Injector (Poison)",
