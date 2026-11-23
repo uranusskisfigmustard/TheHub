@@ -1,4 +1,4 @@
-/* Player-safe Special Request previews: 13 unapproved gear candidates.
+/* Player-safe Special Request previews: 8 unapproved gear candidates.
  * Deliberately excludes canon/adapted duplicates, rejected or Warden-only concepts,
  * source-only organism/ore tables, and other non-retail reference entries.
  * Source and price references are not live offers. No catalog row or purchase permission.
@@ -7,46 +7,6 @@
 (() => {
   'use strict';
   window.HubSpecialRequests = Object.freeze([
-  {
-    "id": "SRC-0188",
-    "item": "Virtual Reality Headset",
-    "source": "Armory Expanded v2",
-    "group": "TOOLS / REVIEW",
-    "sourcePrice": "5kcr",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0189",
-    "item": "Conventional Ammo",
-    "source": "Armory Expanded v2",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "10cr",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0190",
-    "item": "Flechettes",
-    "source": "Armory Expanded v2",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "2cr",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0191",
-    "item": "Chem/Cyro Tubes [spelling as printed]",
-    "source": "Armory Expanded v2",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "20cr",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0192",
-    "item": "Fuel",
-    "source": "Armory Expanded v2",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "20cr",
-    "referenceOnly": false
-  },
   {
     "id": "SRC-0193",
     "item": "Harpoons/Nails/Rivets",
