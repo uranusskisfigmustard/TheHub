@@ -1,4 +1,4 @@
-/* Player-safe Special Request previews: 53 unapproved gear candidates.
+/* Player-safe Special Request previews: 48 unapproved gear candidates.
  * Deliberately excludes canon/adapted duplicates, rejected or Warden-only concepts,
  * source-only organism/ore tables, and other non-retail reference entries.
  * Source and price references are not live offers. No catalog row or purchase permission.
@@ -7,46 +7,6 @@
 (() => {
   'use strict';
   window.HubSpecialRequests = Object.freeze([
-  {
-    "id": "SRC-0148",
-    "item": "Suppressor",
-    "source": "Armory Expanded v2",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "200cr",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0149",
-    "item": "Tactical Sling/Holster",
-    "source": "Armory Expanded v2",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "100cr",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0150",
-    "item": "Targeting Computer",
-    "source": "Armory Expanded v2",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "25% as weapon",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0151",
-    "item": "Underslung Flamethrower",
-    "source": "Armory Expanded v2",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "2kcr",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0152",
-    "item": "Underslung Grenade Launcher",
-    "source": "Armory Expanded v2",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "1.5kcr",
-    "referenceOnly": false
-  },
   {
     "id": "SRC-0153",
     "item": "Underslung Shotgun",
