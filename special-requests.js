@@ -1,4 +1,4 @@
-/* Player-safe Special Request previews: 83 unapproved gear candidates.
+/* Player-safe Special Request previews: 78 unapproved gear candidates.
  * Deliberately excludes canon/adapted duplicates, rejected or Warden-only concepts,
  * source-only organism/ore tables, and other non-retail reference entries.
  * Source and price references are not live offers. No catalog row or purchase permission.
@@ -7,46 +7,6 @@
 (() => {
   'use strict';
   window.HubSpecialRequests = Object.freeze([
-  {
-    "id": "SRC-0118",
-    "item": "Phase Rifle",
-    "source": "Armory Expanded v2",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "2.8kcr",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0119",
-    "item": "Pipe Shotgun",
-    "source": "Armory Expanded v2",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "100cr",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0120",
-    "item": "Plasma Launcher",
-    "source": "Armory Expanded v2",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "5.4kcr",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0121",
-    "item": "Pneumatic Blunderbuss",
-    "source": "Armory Expanded v2",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "800cr",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0122",
-    "item": "Precision Rifle",
-    "source": "Armory Expanded v2",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "2.9kcr",
-    "referenceOnly": false
-  },
   {
     "id": "SRC-0123",
     "item": "Pressure Hose",
