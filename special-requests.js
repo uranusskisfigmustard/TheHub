@@ -1,4 +1,4 @@
-/* Player-safe Special Request previews: 92 unapproved gear candidates.
+/* Player-safe Special Request previews: 88 unapproved gear candidates.
  * Deliberately excludes canon/adapted duplicates, rejected or Warden-only concepts,
  * source-only organism/ore tables, and other non-retail reference entries.
  * Source and price references are not live offers. No catalog row or purchase permission.
@@ -7,38 +7,6 @@
 (() => {
   'use strict';
   window.HubSpecialRequests = Object.freeze([
-  {
-    "id": "SRC-0108",
-    "item": "Grenade Launcher",
-    "source": "Armory Expanded v2",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "3.5kcr",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0109",
-    "item": "Beanbag",
-    "source": "Armory Expanded v2",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "20cr each",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0111",
-    "item": "Incendiary",
-    "source": "Armory Expanded v2",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "600cr each",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0112",
-    "item": "Tear Gas",
-    "source": "Armory Expanded v2",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "350cr each",
-    "referenceOnly": false
-  },
   {
     "id": "SRC-0113",
     "item": "Toxic Gas",
