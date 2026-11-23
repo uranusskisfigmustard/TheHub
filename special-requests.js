@@ -1,4 +1,4 @@
-/* Player-safe Special Request previews: 48 unapproved gear candidates.
+/* Player-safe Special Request previews: 43 unapproved gear candidates.
  * Deliberately excludes canon/adapted duplicates, rejected or Warden-only concepts,
  * source-only organism/ore tables, and other non-retail reference entries.
  * Source and price references are not live offers. No catalog row or purchase permission.
@@ -7,46 +7,6 @@
 (() => {
   'use strict';
   window.HubSpecialRequests = Object.freeze([
-  {
-    "id": "SRC-0153",
-    "item": "Underslung Shotgun",
-    "source": "Armory Expanded v2",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "900cr",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0154",
-    "item": "Bio Suit",
-    "source": "Armory Expanded v2",
-    "group": "ARMOR & CLOTHING",
-    "sourcePrice": "700cr",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0155",
-    "item": "Counterpressure Suit",
-    "source": "Armory Expanded v2",
-    "group": "ARMOR & CLOTHING",
-    "sourcePrice": "3kcr",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0156",
-    "item": "Fire Suit",
-    "source": "Armory Expanded v2",
-    "group": "ARMOR & CLOTHING",
-    "sourcePrice": "2kcr",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0157",
-    "item": "Mining Rig",
-    "source": "Armory Expanded v2",
-    "group": "ARMOR & CLOTHING",
-    "sourcePrice": "50kcr",
-    "referenceOnly": false
-  },
   {
     "id": "SRC-0158",
     "item": "Penal Bridle",
