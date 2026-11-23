@@ -1,6 +1,6 @@
 (() => {
   'use strict';
-  const BUILD = '20261123-approved-catalog1';
+  const BUILD = '20261123-approved-catalog2';
   const pharma = window.HubPharmaceuticals || { category:'PHARMACEUTICALS', serviceListings:[], rules:[] };
   const POST_SOURCE = 'mothership-contract-service-post';
   const DEFAULT_SESSION_KEY = 'mothership_hub_board_session_v1';
@@ -607,7 +607,7 @@
       searchText = '';
       search.value = '';
       showMarket();
-      const buyable = items.filter(item => inSelectedMode(item) && !isSpecialRequest(item)).length;
+      const buyable = items.filter(item => !isSpecialRequest(item)).length;
       const advertised = items.filter(item => item.sourceStatus !== 'unapproved' && Number.isInteger(Number(item.catalogRow)) && Number(item.catalogRow) >= 2).length;
       const progress = items.filter(item => item.accessState === 'restricted_in_progress').length;
       if (catalogLive) {
