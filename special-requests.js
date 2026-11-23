@@ -1,4 +1,4 @@
-/* Player-safe Special Request previews: 33 unapproved gear candidates.
+/* Player-safe Special Request previews: 28 unapproved gear candidates.
  * Deliberately excludes canon/adapted duplicates, rejected or Warden-only concepts,
  * source-only organism/ore tables, and other non-retail reference entries.
  * Source and price references are not live offers. No catalog row or purchase permission.
@@ -7,46 +7,6 @@
 (() => {
   'use strict';
   window.HubSpecialRequests = Object.freeze([
-  {
-    "id": "SRC-0168",
-    "item": "Data Miner",
-    "source": "Armory Expanded v2",
-    "group": "TOOLS / REVIEW",
-    "sourcePrice": "1kcr",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0169",
-    "item": "EMP Pulse Emitter",
-    "source": "Armory Expanded v2",
-    "group": "TOOLS / REVIEW",
-    "sourcePrice": "10kcr",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0170",
-    "item": "Grapple",
-    "source": "Armory Expanded v2",
-    "group": "TOOLS / REVIEW",
-    "sourcePrice": "600cr",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0171",
-    "item": "Gravity Chute",
-    "source": "Armory Expanded v2",
-    "group": "TOOLS / REVIEW",
-    "sourcePrice": "50cr",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0172",
-    "item": "Grenade (Smoke)",
-    "source": "Armory Expanded v2",
-    "group": "TOOLS / REVIEW",
-    "sourcePrice": "150cr",
-    "referenceOnly": false
-  },
   {
     "id": "SRC-0173",
     "item": "Hack-O-Matic",
