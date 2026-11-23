@@ -1,4 +1,4 @@
-/* Player-safe Special Request previews: 78 unapproved gear candidates.
+/* Player-safe Special Request previews: 73 unapproved gear candidates.
  * Deliberately excludes canon/adapted duplicates, rejected or Warden-only concepts,
  * source-only organism/ore tables, and other non-retail reference entries.
  * Source and price references are not live offers. No catalog row or purchase permission.
@@ -7,46 +7,6 @@
 (() => {
   'use strict';
   window.HubSpecialRequests = Object.freeze([
-  {
-    "id": "SRC-0123",
-    "item": "Pressure Hose",
-    "source": "Armory Expanded v2",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "250cr",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0124",
-    "item": "Radiation Gun",
-    "source": "Armory Expanded v2",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "4kcr",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0125",
-    "item": "Rail Cannon",
-    "source": "Armory Expanded v2",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "14kcr",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0126",
-    "item": "Riot Gun",
-    "source": "Armory Expanded v2",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "250cr",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0127",
-    "item": "Rivet Thrower",
-    "source": "Armory Expanded v2",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "1.6kcr",
-    "referenceOnly": false
-  },
   {
     "id": "SRC-0128",
     "item": "Rocket Launcher (Dumb)",
