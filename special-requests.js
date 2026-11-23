@@ -1,4 +1,4 @@
-/* Player-safe Special Request previews: 112 unapproved gear candidates.
+/* Player-safe Special Request previews: 107 unapproved gear candidates.
  * Deliberately excludes canon/adapted duplicates, rejected or Warden-only concepts,
  * source-only organism/ore tables, and other non-retail reference entries.
  * Source and price references are not live offers. No catalog row or purchase permission.
@@ -7,46 +7,6 @@
 (() => {
   'use strict';
   window.HubSpecialRequests = Object.freeze([
-  {
-    "id": "SRC-0088",
-    "item": "Red Tracer-7 Laser Sight",
-    "source": "Heat Signature v1.3",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "1.2kcr",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0089",
-    "item": "Targeting System The Executioner",
-    "source": "Heat Signature v1.3",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "5kcr",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0090",
-    "item": "PM-S Precision Stock",
-    "source": "Heat Signature v1.3",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "1.5kcr",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0091",
-    "item": "Trauma S9 Stock",
-    "source": "Heat Signature v1.3",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "1kcr",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0092",
-    "item": "BlitzMag Stock",
-    "source": "Heat Signature v1.3",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "1.8kcr",
-    "referenceOnly": false
-  },
   {
     "id": "SRC-0093",
     "item": "FR-1 Utility Stock",
