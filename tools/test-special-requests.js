@@ -8,7 +8,7 @@ const context = { window: {} };
 vm.runInNewContext(raw, context, { timeout: 2000 });
 const records = context.window.HubSpecialRequests;
 assert.ok(Array.isArray(records), 'Special Request source data must be an array');
-assert.equal(records.length, 102, 'Only 102 player-safe unapproved source candidates may be public');
+assert.equal(records.length, 97, 'Only 97 player-safe unapproved source candidates may be public');
 const keys = new Set();
 const counts = {};
 for (const item of records) {
@@ -23,10 +23,10 @@ for (const item of records) {
 }
 assert.equal(counts['Cold Storage v0.1'] || 0, 0);
 assert.equal(counts['Heat Signature v1.3'] || 0, 0);
-assert.equal(counts['Armory Expanded v2'], 102);
+assert.equal(counts['Armory Expanded v2'], 97);
 assert.ok(!records.some(item => /^(Paradox Box|Pocket Jump|Dimensional Shifter|Singularity Grenade|Surgery Theater|Xenograft Module|Genetic Biolab)$/i.test(item.item)), 'Do not expose Warden-only rejected concepts or already-adopted ship upgrades');
 assert.ok(!records.some(item => /NON-RETAIL SPECIMEN|NON-RETAIL RESOURCE/.test(item.group)), 'Specimen and ore roll tables must remain Warden-only');
-const reviewedAndWithheld = new Set(['SRC-0088', 'SRC-0089', 'SRC-0090', 'SRC-0091', 'SRC-0092', 'SRC-0093', 'SRC-0094', 'SRC-0095', 'SRC-0096', 'SRC-0097']);
+const reviewedAndWithheld = new Set(['SRC-0088', 'SRC-0089', 'SRC-0090', 'SRC-0091', 'SRC-0092', 'SRC-0093', 'SRC-0094', 'SRC-0095', 'SRC-0096', 'SRC-0097', 'SRC-0098', 'SRC-0099', 'SRC-0100', 'SRC-0101', 'SRC-0102']);
 assert.ok(!records.some(item => reviewedAndWithheld.has(item.id)), 'Reviewed adopted or rejected items must not remain in unapproved source preview');
 
 const js = fs.readFileSync('purchases.js', 'utf8');
@@ -78,4 +78,4 @@ const changedFinance = evaluateFilter({personalBalance:500, financingAvailable:1
 assert.ok(!changedFinance.visible.some(item => item.item === 'Over Cap'), 'Refreshed finance may unlock a previous shortfall');
 assert.match(js, /selectedCategory = 'ALL';\s*renderCategories\(\);\s*renderItems\(\);/, 'Switching modes must reset the category filter');
 console.log('PASS: exclusive purchasable/Special Request views, per-PC access, financing and clinic exemptions.');
-console.log('PASS: 102 player-safe Special Request previews, opt-in toggle, de-duplication and purchase blockers.');
+console.log('PASS: 97 player-safe Special Request previews, opt-in toggle, de-duplication and purchase blockers.');
