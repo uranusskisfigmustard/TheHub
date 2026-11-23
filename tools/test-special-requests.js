@@ -70,25 +70,29 @@ const examples = [
   { item:'No Checkout Row', category:'TOOLS', price:2, canPurchase:true }
 ];
 const finances = { personalBalance:120, financingAvailable:100 };
-const approved = evaluateFilter(finances, examples, false);
+const purchasable = evaluateFilter(finances, examples, false);
 const requests = evaluateFilter(finances, examples, true);
-assert.deepEqual(approved.visible.map(item => item.item),
-  ['Cash Buy', 'Clinic Appointment', 'Finance Buy', 'Institutional Gear', 'Missing Permit', 'Over Cap']);
+assert.deepEqual(purchasable.visible.map(item => item.item), ['Cash Buy', 'Finance Buy']);
 assert.deepEqual(requests.visible.map(item => item.item),
   ['Clinic Appointment', 'Institutional Gear', 'Missing Permit', 'No Checkout Row', 'Over Cap', 'Unfinalized Source']);
-assert.ok(!approved.visible.some(item => item.sourceStatus === 'unapproved'), 'Unapproved source is never on approved catalog');
-assert.ok(approved.visible.some(item => item.item === 'Missing Permit'), 'Approved items remain listed despite absent permit');
-assert.ok(approved.visible.some(item => item.item === 'Over Cap'), 'Approved items remain listed despite limited finances');
-assert.equal(approved.classified.find(item => item.name === 'Institutional Gear').special, true,
-  'Institutional issue must never become personal BUY merely from a stale canPurchase flag');
+const defaultNames = new Set(purchasable.visible.map(item => item.item));
+const requestNames = new Set(requests.visible.map(item => item.item));
+assert.ok([...defaultNames].every(name => !requestNames.has(name)), 'OFF/ON must never overlap');
+assert.equal(defaultNames.size + requestNames.size, examples.length, 'OFF/ON must partition all available records');
+assert.ok(!purchasable.visible.some(item => item.sourceStatus === 'unapproved'), 'No unapproved preview in default catalog');
+assert.ok(!defaultNames.has('Missing Permit'), 'Restricted item must not leak into default OFF mode');
+assert.ok(!defaultNames.has('Over Cap'), 'Finance-blocked item must not leak into default OFF mode');
+assert.ok(!defaultNames.has('Institutional Gear'), 'Institutional issue must never display as personal sale');
+assert.ok(requestNames.has('Institutional Gear'), 'Institutional item remains Special Request only');
 assert.deepEqual(evaluateFilter(finances, examples, true, 'WEAPONS').visible.map(item => item.item), ['Unfinalized Source']);
-assert.deepEqual(evaluateFilter(finances, examples, false, 'TOOLS').visible.map(item => item.item),
-  ['Cash Buy', 'Finance Buy', 'Institutional Gear', 'Missing Permit', 'Over Cap']);
+assert.deepEqual(evaluateFilter(finances, examples, false, 'TOOLS').visible.map(item => item.item), ['Cash Buy', 'Finance Buy']);
 const changedFinance = evaluateFilter({personalBalance:500, financingAvailable:100}, examples, true);
 assert.ok(!changedFinance.visible.some(item => item.item === 'Over Cap'), 'Finance refresh unlocks prior shortfall');
+assert.ok(evaluateFilter({personalBalance:500, financingAvailable:100}, examples, false).visible.some(item => item.item === 'Over Cap'),
+  'Finance-eligible item must migrate to default OFF list');
 assert.match(js, /selectedCategory = 'ALL';\s*renderCategories\(\);\s*renderItems\(\);/,
   'Switching modes must reset the category filter');
-assert.match(js, /STATS &amp; USE/, 'All catalog cards display a visible mechanics heading');
+assert.match(js, /STATS &amp; USE/, 'Catalog cards retain player-facing stats');
 assert.match(js, /item\.mechanics/, 'Catalog uses backend player-facing mechanics');
-console.log('PASS: approved listings visible despite buyer permit/finance limits, with checkout gated.');
-console.log('PASS: no remaining source previews, no institutional-only personal checkout, stats shown.');
+console.log('PASS: exclusive purchasable / Special Request views for selected PC, including funding and permit changes.');
+console.log('PASS: zero unreviewed source previews, institutional issue restricted, stats remain visible.');
