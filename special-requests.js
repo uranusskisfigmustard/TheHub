@@ -1,4 +1,4 @@
-/* Player-safe Special Request previews: 63 unapproved gear candidates.
+/* Player-safe Special Request previews: 58 unapproved gear candidates.
  * Deliberately excludes canon/adapted duplicates, rejected or Warden-only concepts,
  * source-only organism/ore tables, and other non-retail reference entries.
  * Source and price references are not live offers. No catalog row or purchase permission.
@@ -7,46 +7,6 @@
 (() => {
   'use strict';
   window.HubSpecialRequests = Object.freeze([
-  {
-    "id": "SRC-0138",
-    "item": "Stun Gun",
-    "source": "Armory Expanded v2",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "450cr",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0139",
-    "item": "Throwing Knife",
-    "source": "Armory Expanded v2",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "50cr",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0140",
-    "item": "Ultrasonic Amplifier",
-    "source": "Armory Expanded v2",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "6kcr",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0141",
-    "item": "Voltage Arc Blaster",
-    "source": "Armory Expanded v2",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "5kcr",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0142",
-    "item": "Bayonet",
-    "source": "Armory Expanded v2",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "150cr",
-    "referenceOnly": false
-  },
   {
     "id": "SRC-0143",
     "item": "Dazzler",
