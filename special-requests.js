@@ -1,4 +1,4 @@
-/* Player-safe Special Request previews: 58 unapproved gear candidates.
+/* Player-safe Special Request previews: 53 unapproved gear candidates.
  * Deliberately excludes canon/adapted duplicates, rejected or Warden-only concepts,
  * source-only organism/ore tables, and other non-retail reference entries.
  * Source and price references are not live offers. No catalog row or purchase permission.
@@ -7,46 +7,6 @@
 (() => {
   'use strict';
   window.HubSpecialRequests = Object.freeze([
-  {
-    "id": "SRC-0143",
-    "item": "Dazzler",
-    "source": "Armory Expanded v2",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "120cr",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0144",
-    "item": "Extended Barrel",
-    "source": "Armory Expanded v2",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "25% as weapon",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0145",
-    "item": "Extended Capacity",
-    "source": "Armory Expanded v2",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "25% as weapon",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0146",
-    "item": "Thermal Projector",
-    "source": "Armory Expanded v2",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "2.5kcr",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0147",
-    "item": "Smart Sight",
-    "source": "Armory Expanded v2",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "50% as weapon",
-    "referenceOnly": false
-  },
   {
     "id": "SRC-0148",
     "item": "Suppressor",
