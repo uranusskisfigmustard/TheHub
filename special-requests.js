@@ -1,4 +1,4 @@
-/* Player-safe Special Request previews: 38 unapproved gear candidates.
+/* Player-safe Special Request previews: 33 unapproved gear candidates.
  * Deliberately excludes canon/adapted duplicates, rejected or Warden-only concepts,
  * source-only organism/ore tables, and other non-retail reference entries.
  * Source and price references are not live offers. No catalog row or purchase permission.
@@ -7,46 +7,6 @@
 (() => {
   'use strict';
   window.HubSpecialRequests = Object.freeze([
-  {
-    "id": "SRC-0163",
-    "item": "Anti-Anxiety Pills (x5)",
-    "source": "Armory Expanded v2",
-    "group": "TOOLS / REVIEW",
-    "sourcePrice": "60cr",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0164",
-    "item": "Auto-Belay Harness",
-    "source": "Armory Expanded v2",
-    "group": "TOOLS / REVIEW",
-    "sourcePrice": "300cr",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0165",
-    "item": "Battery Backpack",
-    "source": "Armory Expanded v2",
-    "group": "TOOLS / REVIEW",
-    "sourcePrice": "2kcr",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0166",
-    "item": "Bliss Pill",
-    "source": "Armory Expanded v2",
-    "group": "TOOLS / REVIEW",
-    "sourcePrice": "200cr",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0167",
-    "item": "Combat Drone",
-    "source": "Armory Expanded v2",
-    "group": "TOOLS / REVIEW",
-    "sourcePrice": "15kcr",
-    "referenceOnly": false
-  },
   {
     "id": "SRC-0168",
     "item": "Data Miner",
