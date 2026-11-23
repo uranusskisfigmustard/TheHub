@@ -1,4 +1,4 @@
-/* Player-safe Special Request previews: 43 unapproved gear candidates.
+/* Player-safe Special Request previews: 38 unapproved gear candidates.
  * Deliberately excludes canon/adapted duplicates, rejected or Warden-only concepts,
  * source-only organism/ore tables, and other non-retail reference entries.
  * Source and price references are not live offers. No catalog row or purchase permission.
@@ -7,46 +7,6 @@
 (() => {
   'use strict';
   window.HubSpecialRequests = Object.freeze([
-  {
-    "id": "SRC-0158",
-    "item": "Penal Bridle",
-    "source": "Armory Expanded v2",
-    "group": "ARMOR & CLOTHING",
-    "sourcePrice": "1kcr",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0159",
-    "item": "Plastimail",
-    "source": "Armory Expanded v2",
-    "group": "ARMOR & CLOTHING",
-    "sourcePrice": "200cr",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0160",
-    "item": "Riot Shield",
-    "source": "Armory Expanded v2",
-    "group": "ARMOR & CLOTHING",
-    "sourcePrice": "2kcr",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0161",
-    "item": "Shock Assault Exo-Armor",
-    "source": "Armory Expanded v2",
-    "group": "ARMOR & CLOTHING",
-    "sourcePrice": "2.5mcr",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0162",
-    "item": "Adrenaline Stim",
-    "source": "Armory Expanded v2",
-    "group": "TOOLS / REVIEW",
-    "sourcePrice": "1.5kcr",
-    "referenceOnly": false
-  },
   {
     "id": "SRC-0163",
     "item": "Anti-Anxiety Pills (x5)",
