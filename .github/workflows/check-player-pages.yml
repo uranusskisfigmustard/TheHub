@@ -16,6 +16,8 @@ on:
       - 'purchases.css'
       - 'special-requests.js'
       - 'tools/test-special-requests.js'
+      - 'between-sessions-data-post-relay.js'
+      - 'tools/test-between-session-scenes.js'
       - 'tools/build-player-equipment.py'
       - 'tools/test_player_equipment.py'
       - 'assets/portraits/**'
@@ -37,6 +39,8 @@ on:
       - 'purchases.css'
       - 'special-requests.js'
       - 'tools/test-special-requests.js'
+      - 'between-sessions-data-post-relay.js'
+      - 'tools/test-between-session-scenes.js'
       - 'tools/build-player-equipment.py'
       - 'tools/test_player_equipment.py'
       - 'assets/portraits/**'
@@ -73,3 +77,9 @@ jobs:
           node --check special-requests.js
           node --check tools/test-special-requests.js
           node tools/test-special-requests.js
+
+      - name: Validate approved post-relay intersession scenes
+        run: |
+          node --check between-sessions-data-post-relay.js
+          node --check tools/test-between-session-scenes.js
+          node tools/test-between-session-scenes.js
