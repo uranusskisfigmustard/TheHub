@@ -1,4 +1,4 @@
-/* Player-safe Special Request previews: 23 unapproved gear candidates.
+/* Player-safe Special Request previews: 18 unapproved gear candidates.
  * Deliberately excludes canon/adapted duplicates, rejected or Warden-only concepts,
  * source-only organism/ore tables, and other non-retail reference entries.
  * Source and price references are not live offers. No catalog row or purchase permission.
@@ -7,46 +7,6 @@
 (() => {
   'use strict';
   window.HubSpecialRequests = Object.freeze([
-  {
-    "id": "SRC-0178",
-    "item": "Injector (Poison)",
-    "source": "Armory Expanded v2",
-    "group": "TOOLS / REVIEW",
-    "sourcePrice": "3kcr",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0179",
-    "item": "Injector (Sedative)",
-    "source": "Armory Expanded v2",
-    "group": "TOOLS / REVIEW",
-    "sourcePrice": "50cr",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0180",
-    "item": "Malware Disk (Adware)",
-    "source": "Armory Expanded v2",
-    "group": "TOOLS / REVIEW",
-    "sourcePrice": "500cr",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0181",
-    "item": "Malware Disk (Logger)",
-    "source": "Armory Expanded v2",
-    "group": "TOOLS / REVIEW",
-    "sourcePrice": "1kcr",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0182",
-    "item": "Quick Foam Injector",
-    "source": "Armory Expanded v2",
-    "group": "TOOLS / REVIEW",
-    "sourcePrice": "1kcr",
-    "referenceOnly": false
-  },
   {
     "id": "SRC-0183",
     "item": "Servo-Limb",
