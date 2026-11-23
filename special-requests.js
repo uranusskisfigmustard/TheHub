@@ -1,4 +1,4 @@
-/* Player-safe Special Request previews: 102 unapproved gear candidates.
+/* Player-safe Special Request previews: 97 unapproved gear candidates.
  * Deliberately excludes canon/adapted duplicates, rejected or Warden-only concepts,
  * source-only organism/ore tables, and other non-retail reference entries.
  * Source and price references are not live offers. No catalog row or purchase permission.
@@ -7,46 +7,6 @@
 (() => {
   'use strict';
   window.HubSpecialRequests = Object.freeze([
-  {
-    "id": "SRC-0098",
-    "item": "Crossbow",
-    "source": "Armory Expanded v2",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "200cr",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0099",
-    "item": "Expanding bolt",
-    "source": "Armory Expanded v2",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "10cr",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0100",
-    "item": "Explosive bolt",
-    "source": "Armory Expanded v2",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "50cr",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0101",
-    "item": "Cryogen Gun",
-    "source": "Armory Expanded v2",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "700cr",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0102",
-    "item": "Disposable Gun",
-    "source": "Armory Expanded v2",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "100cr",
-    "referenceOnly": false
-  },
   {
     "id": "SRC-0103",
     "item": "EMP Disruptor",
