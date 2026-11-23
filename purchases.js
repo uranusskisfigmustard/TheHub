@@ -1,6 +1,6 @@
 (() => {
   'use strict';
-  const BUILD = '20261122-business-purchases1';
+  const BUILD = '20261123-approved-catalog1';
   const pharma = window.HubPharmaceuticals || { category:'PHARMACEUTICALS', serviceListings:[], rules:[] };
   const POST_SOURCE = 'mothership-contract-service-post';
   const DEFAULT_SESSION_KEY = 'mothership_hub_board_session_v1';
@@ -91,11 +91,11 @@
         </div>
         <div class="purchase-special-filter">
           <label class="purchase-special-toggle">
-            <input type="checkbox" data-purchase-special-toggle aria-label="Show only items this PC cannot purchase">
+            <input type="checkbox" data-purchase-special-toggle aria-label="Show only unavailable items and special requests">
             <span class="purchase-special-label">SPECIAL REQUEST</span>
             <span class="purchase-special-state" data-purchase-special-state>OFF</span>
           </label>
-          <p>OFF: items this PC can purchase. ON: only items this PC cannot purchase, including access restrictions, financing blocks, appointment-only services and items pending Warden approval.</p>
+          <p>OFF: the full approved Hub catalog, including restricted listings with clearly shown access requirements and stats. ON: access-restricted, finance-blocked, appointment-only or unapproved Special Requests. Listings do not override permits or institutional-only issue.</p>
         </div>
         <div class="purchase-categories" data-purchase-categories aria-label="Purchase categories"></div>
         <aside class="purchase-pharma-rules" data-purchase-pharma-rules hidden aria-label="Recovery pharmaceutical rules"></aside>
@@ -354,6 +354,12 @@
         </div>
       `).join('');
     }
+    function isInstitutionalIssue(item) {
+      // Institutional issue is not personal retail, even if access flags are stale.
+      return /institutional issue only|institutional-only|no personal purchase|no standard retail/i.test(
+        [item?.minimumAccess, item?.mechanics, item?.stockRoute].join(' ')
+      );
+    }
     function isSpecialRequest(item) {
       // The selected PC's live access and available financing both determine
       // whether an item is directly purchasable. No source preview is checkout-eligible.
@@ -361,6 +367,13 @@
       if (item?.canPurchase !== true) return true;
       if (!Number.isInteger(Number(item.catalogRow)) || Number(item.catalogRow) < 2) return true;
       return !affordability(item).ok;
+    }
+    function inSelectedMode(item) {
+      if (showSpecialRequests) return isSpecialRequest(item);
+      // Approved catalog listings stay visible before this PC has access or funds.
+      return item?.sourceStatus !== 'unapproved' &&
+        (item?.serviceOnly === true ||
+          (Number.isInteger(Number(item?.catalogRow)) && Number(item.catalogRow) >= 2));
     }
     function previewSourceItem(source) {
       const referenceOnly = Boolean(source.referenceOnly);
@@ -391,7 +404,7 @@
     }
     function categoryList() {
       // Each mode has its own category choices; the toggle is the mode selector.
-      const unique = new Set(items.filter(item => isSpecialRequest(item) === showSpecialRequests)
+      const unique = new Set(items.filter(inSelectedMode)
         .map(item => String(item.category || '').trim()).filter(Boolean));
       return ['ALL', ...Array.from(unique).sort((a, b) => a.localeCompare(b))];
     }
@@ -413,8 +426,7 @@
     function filteredItems() {
       const needle = String(searchText || '').trim().toLowerCase();
       return items.filter(item => {
-        const special = isSpecialRequest(item);
-        if (special !== showSpecialRequests) return false;
+        if (!inSelectedMode(item)) return false;
         if (selectedCategory !== 'ALL' && String(item.category || '') !== selectedCategory) return false;
         if (!needle) return true;
         return [item.item, item.category, item.provider, item.mechanics, item.minimumAccess,
@@ -425,7 +437,9 @@
       }).sort((a, b) => String(a.item || '').localeCompare(String(b.item || '')));
     }
     function affordability(item) {
+      if (isInstitutionalIssue(item)) return { ok:false, locked:true, label:'INSTITUTIONAL ISSUE ONLY — NO PERSONAL CHECKOUT', shortfall:0 };
       if (!item?.canPurchase) return { ok:false, locked:true, label:'ACCESS NOT YET RECOGNIZED', shortfall:0 };
+      if (!Number.isFinite(Number(item?.price)) || Number(item.price) <= 0) return { ok:false, locked:true, label:'FINAL PRICE / COMPATIBILITY REVIEW REQUIRED', shortfall:0 };
       const cash = Number(finance?.personalBalance || 0);
       const room = Number(finance?.financingAvailable || 0);
       const price = Number(item?.price || 0);
@@ -436,7 +450,8 @@
     }
     function badge(item) {
       if (item.sourceStatus === 'unapproved') return '<span class="purchase-badge progress">WARDEN REVIEW REQUIRED</span>';
-      if (!item.canPurchase) return '<span class="purchase-badge progress">ACCESS IN PROGRESS</span>';
+      if (isInstitutionalIssue(item)) return '<span class="purchase-badge progress">INSTITUTIONAL ISSUE ONLY</span>';
+      if (!item.canPurchase) return '<span class="purchase-badge progress">ACCESS REQUIRED</span>';
       if (!affordability(item).ok) return '<span class="purchase-badge progress">FINANCING UNAVAILABLE</span>';
       if (item.restricted) return '<span class="purchase-badge restricted">RESTRICTED // CLEARED</span>';
       return '<span class="purchase-badge">AVAILABLE</span>';
@@ -444,19 +459,19 @@
     function renderItems() {
       const visible = filteredItems();
       pharmaRules.hidden = !visible.some(item => item.category === pharma.category);
-      const modeCount = items.filter(item => isSpecialRequest(item) === showSpecialRequests).length;
-      count.textContent = `${visible.length} OF ${modeCount} ${showSpecialRequests ? 'SPECIAL REQUEST' : 'PURCHASABLE'} ITEMS`;
+      const modeCount = items.filter(inSelectedMode).length;
+      count.textContent = `${visible.length} OF ${modeCount} ${showSpecialRequests ? 'SPECIAL REQUEST' : 'APPROVED CATALOG'} ITEMS`;
       if (!visible.length) {
         itemRoot.innerHTML = '<div class="purchase-empty">No items match the current filter.</div>';
         return;
       }
       itemRoot.innerHTML = visible.map(item => {
         const sourceOnly = item.sourceStatus === 'unapproved';
-        const progress = !item.canPurchase && !item.serviceOnly;
-        const accessBlock = progress ? `
+        const progress = (!item.canPurchase || isInstitutionalIssue(item)) && !item.serviceOnly;
+        const accessBlock = !sourceOnly && (item.minimumAccess || item.progressStanding) ? `
           <div class="purchase-access-block">
             ${item.progressStanding ? `<div><span>QUALIFICATION ROUTE</span><strong>${esc(item.progressStanding)}</strong></div>` : ''}
-            ${item.minimumAccess ? `<div><span>REMAINING ACCESS</span><strong>${esc(item.minimumAccess)}</strong></div>` : ''}
+            ${item.minimumAccess ? `<div><span>${progress ? 'REQUIRED ACCESS' : 'ACCESS REQUIREMENT'}</span><strong>${esc(item.minimumAccess)}</strong></div>` : ''}
           </div>` : '';
         const funding = item.serviceOnly || sourceOnly ? { label:'' } : affordability(item);
         const providerLabel = sourceOnly ? 'SOURCE // ' + item.sourceLabel :
@@ -467,7 +482,7 @@
           ? '<div class="purchase-clinic-note">CLINIC APPOINTMENT — arrange with Saint Orra. Medication and supervised care included.</div>'
           : !catalogLive
           ? '<button type="button" class="purchase-disabled-btn" data-locked="true" disabled>REFRESHING…</button>'
-          : progress
+          : progress || funding.locked
             ? '<button type="button" class="purchase-disabled-btn" data-locked="true" disabled>LOCKED</button>'
             : funding.ok
               ? `<button type="button" class="purchase-buy-btn" data-purchase-buy="${Number(item.catalogRow)}">BUY</button>`
@@ -482,7 +497,8 @@
               <div class="purchase-price">${sourceOnly ? '<span class="purchase-price-kicker">REFERENCE PRICE / NOT A MARKET QUOTE</span>' : ''}${esc(item.priceLabel || credit(item.price))}</div>
             </div>
             <div class="purchase-item-badges">${item.serviceOnly ? '<span class="purchase-badge">CLINIC CARE</span>' : badge(item)}</div>
-            <p class="purchase-mechanics">${esc(item.mechanics)}</p>
+            <div class="purchase-section-kicker">STATS &amp; USE</div>
+            <p class="purchase-mechanics">${esc(item.mechanics || 'No player-facing mechanics published.')}</p>
             <div class="purchase-provider">${esc(providerLabel)}</div>
             ${accessBlock}
             ${funding.label ? `<div class="purchase-finance-note${funding.ok ? '' : ' blocked'}">${esc(funding.label)}</div>` : ''}
@@ -591,10 +607,11 @@
       searchText = '';
       search.value = '';
       showMarket();
-      const buyable = items.filter(item => !isSpecialRequest(item)).length;
+      const buyable = items.filter(item => inSelectedMode(item) && !isSpecialRequest(item)).length;
+      const advertised = items.filter(item => item.sourceStatus !== 'unapproved' && Number.isInteger(Number(item.catalogRow)) && Number(item.catalogRow) >= 2).length;
       const progress = items.filter(item => item.accessState === 'restricted_in_progress').length;
       if (catalogLive) {
-        setStatus(`${buyable} ITEM${buyable === 1 ? '' : 'S'} AVAILABLE${progress ? ` // ${progress} ACCESS PATH${progress === 1 ? '' : 'S'} IN PROGRESS` : ''} FOR ${character.toUpperCase()}`, 'ok');
+        setStatus(`${advertised} APPROVED CATALOG LISTINGS // ${buyable} CHECKOUT-ELIGIBLE${progress ? ` // ${progress} ACCESS PATH${progress === 1 ? '' : 'S'} IN PROGRESS` : ''} FOR ${character.toUpperCase()}`, 'ok');
       } else {
         setStatus(`${character.toUpperCase()} // CACHED CATALOG // REFRESHING LIVE BALANCES & ACCESS`, 'warn');
       }
