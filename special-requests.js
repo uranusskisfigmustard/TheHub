@@ -1,4 +1,4 @@
-/* Player-safe Special Request previews: 88 unapproved gear candidates.
+/* Player-safe Special Request previews: 83 unapproved gear candidates.
  * Deliberately excludes canon/adapted duplicates, rejected or Warden-only concepts,
  * source-only organism/ore tables, and other non-retail reference entries.
  * Source and price references are not live offers. No catalog row or purchase permission.
@@ -7,46 +7,6 @@
 (() => {
   'use strict';
   window.HubSpecialRequests = Object.freeze([
-  {
-    "id": "SRC-0113",
-    "item": "Toxic Gas",
-    "source": "Armory Expanded v2",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "900cr each",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0114",
-    "item": "Hand Cannon",
-    "source": "Armory Expanded v2",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "1.8kcr",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0115",
-    "item": "Mining Drill",
-    "source": "Armory Expanded v2",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "3kcr",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0116",
-    "item": "Net Launcher",
-    "source": "Armory Expanded v2",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "400cr",
-    "referenceOnly": false
-  },
-  {
-    "id": "SRC-0117",
-    "item": "Pepper Spray",
-    "source": "Armory Expanded v2",
-    "group": "WEAPONS & SECURITY",
-    "sourcePrice": "50cr",
-    "referenceOnly": false
-  },
   {
     "id": "SRC-0118",
     "item": "Phase Rifle",
