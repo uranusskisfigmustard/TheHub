@@ -1,6 +1,6 @@
 (() => {
   'use strict';
-  const BUILD = '20261123-approved-catalog2';
+  const BUILD = '20261123-special-request-exclusive1';
   const pharma = window.HubPharmaceuticals || { category:'PHARMACEUTICALS', serviceListings:[], rules:[] };
   const POST_SOURCE = 'mothership-contract-service-post';
   const DEFAULT_SESSION_KEY = 'mothership_hub_board_session_v1';
@@ -95,7 +95,7 @@
             <span class="purchase-special-label">SPECIAL REQUEST</span>
             <span class="purchase-special-state" data-purchase-special-state>OFF</span>
           </label>
-          <p>OFF: the full approved Hub catalog, including restricted listings with clearly shown access requirements and stats. ON: access-restricted, finance-blocked, appointment-only or unapproved Special Requests. Listings do not override permits or institutional-only issue.</p>
+          <p>OFF: only items this buyer can purchase now, subject to live balance and authorization checks. ON: only items requiring Special Request, including restricted access, financing blocks, appointment-only services and Warden-pending items. The two views do not overlap.</p>
         </div>
         <div class="purchase-categories" data-purchase-categories aria-label="Purchase categories"></div>
         <aside class="purchase-pharma-rules" data-purchase-pharma-rules hidden aria-label="Recovery pharmaceutical rules"></aside>
@@ -370,10 +370,9 @@
     }
     function inSelectedMode(item) {
       if (showSpecialRequests) return isSpecialRequest(item);
-      // Approved catalog listings stay visible before this PC has access or funds.
-      return item?.sourceStatus !== 'unapproved' &&
-        (item?.serviceOnly === true ||
-          (Number.isInteger(Number(item?.catalogRow)) && Number(item.catalogRow) >= 2));
+      // Default and Special Request are an exclusive partition of live item eligibility.
+      // Never show blocked or source-only entries in the default purchase list.
+      return !isSpecialRequest(item);
     }
     function previewSourceItem(source) {
       const referenceOnly = Boolean(source.referenceOnly);
@@ -460,7 +459,7 @@
       const visible = filteredItems();
       pharmaRules.hidden = !visible.some(item => item.category === pharma.category);
       const modeCount = items.filter(inSelectedMode).length;
-      count.textContent = `${visible.length} OF ${modeCount} ${showSpecialRequests ? 'SPECIAL REQUEST' : 'APPROVED CATALOG'} ITEMS`;
+      count.textContent = `${visible.length} OF ${modeCount} ${showSpecialRequests ? 'SPECIAL REQUEST' : 'PURCHASABLE'} ITEMS`;
       if (!visible.length) {
         itemRoot.innerHTML = '<div class="purchase-empty">No items match the current filter.</div>';
         return;
